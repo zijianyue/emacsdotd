@@ -130,7 +130,7 @@
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
 (eval-after-load "srecode/map"
   '(progn
-     (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/.srecode/")
+     (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
 (semantic-mode t)
