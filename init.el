@@ -130,7 +130,7 @@
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
 (eval-after-load "srecode/map"
   '(progn
-     (setq srecode-map-load-path (list (concat site-lisp-directory "/srecode")
+     (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/.srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
 (semantic-mode t)
@@ -547,10 +547,10 @@
 ;;yasnippet 手动开启通过 yas-global-mode，会自动加载资源，如果执行yas-minor-mode，还需要执行yas-reload-all加载资源
 (autoload 'yas-global-mode "yasnippet" nil t)
 (autoload 'yas-minor-mode "yasnippet" nil t)
-(eval-after-load "yasnippet"
-  '(progn
-     (add-to-list 'yas-snippet-dirs (concat site-lisp-directory "/snippets"))))
-
+;; (eval-after-load "yasnippet"
+;;   '(progn
+;;      (add-to-list 'yas-snippet-dirs (concat site-lisp-directory "/snippets"))))
+;; (setq yas-snippet-dirs "~/.emacs.d/snippets") ;; 默认就是这个
 ;; sln解析
 (autoload 'find-sln "sln-mode" nil t)
 (eval-after-load "project-buffer-mode"
