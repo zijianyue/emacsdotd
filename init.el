@@ -133,7 +133,7 @@
      (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
-(semantic-mode t)
+;; (semantic-mode t)
 ;; (global-ede-mode t)
 (setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
 ;; let cedet call ctags to find things which cedet can not find
@@ -304,6 +304,8 @@
      ("#3C3D37" . 100))))
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode (quote both) nil (ido))
+ '(imenu-list-focus-after-activation t)
+ '(imenu-list-idle-update-delay 1.0)
  '(imenu-max-item-length 120)
  '(imenu-max-items 1000)
  '(inhibit-startup-screen t)
@@ -1266,7 +1268,7 @@
 (global-set-key (kbd "<C-f10>") 'purpose-mode)
 (global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
 
-;; 星际译王
+;; 星际译王 词典放在自己的home目录下的.startdict/dic/ 要把字典解压成文件夹，url：http://download.huzheng.org
 (defun kid-sdcv-to-buffer (&optional input)
   (interactive "P")
   (let ((word (if mark-active
@@ -1535,12 +1537,8 @@
 
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
-(global-set-key (kbd "M-Q") 'imenu-list-smart-toggle)
+(global-set-key (kbd "M-Q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
 
-(eval-after-load "imenu-list"
-  '(progn
-	 (setq imenu-list-focus-after-activation t)
-	 ))
 ;; spacemacs
 (require 'spaceline-config)
 (spaceline-helm-mode 1)
@@ -1759,8 +1757,8 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery"))
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; (setq cquery-extra-init-params '(:indexWhitelist ("COMMON/include" "MPLS" "OPEN_SRC/protobuf-c-1.2.1") :indexBlacklist (".")))
-  ;; (setq cquery-extra-init-params '(:indexBlacklist ("DIRA" "DIRB")))
-  (setq cquery-extra-init-params '(:completion (:detailedLabel t) :xref (:container t)))
+  ;; (setq cquery-extra-init-params '(:indexBlacklist ("DIRA" "DIRB"))) :completion (:detailedLabel t) 
+  (setq cquery-extra-init-params '(:xref (:container t)))
 
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
@@ -1777,7 +1775,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
   (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
-  (cquery-use-default-rainbow-sem-highlight)
+  ;; (cquery-use-default-rainbow-sem-highlight)
   ;; 其他功能
   ;; (cquery-xref-find-custom "$cquery/base")
   ;; (cquery-xref-find-custom "$cquery/callers")
@@ -3065,6 +3063,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "C-_") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
