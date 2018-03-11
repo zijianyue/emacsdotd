@@ -14,7 +14,7 @@
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "Heiti SC" :size 14)))
+					(font-spec :family "Heiti SC" :size 14))) ;Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
