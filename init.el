@@ -314,6 +314,7 @@
  '(jit-lock-defer-time 0.5)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
+ '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
@@ -2911,11 +2912,10 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			))
 
 ;; python
-(add-hook 'python-mode-hook
-          (lambda ()
-            ;; (yas-minor-mode 1)
-            (setenv "GTAGSLABEL" "pygments")
-            (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
+;; (add-hook 'python-mode-hook
+;;           (lambda ()
+;;             ;; (yas-minor-mode 1)
+;;             (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
 
 
 ;; org 设置
