@@ -5,16 +5,16 @@
 ;; (package-initialize)
 
 (set-face-attribute
- 'default nil :font "Source Code Pro 12")
+ 'default nil :font "Source code pro 12")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Source Code Pro 12"))
+(add-to-list 'default-frame-alist '(font . "Source code pro 12"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "Kaiti SC" :size 14)))
+					(font-spec :family "Heiti SC" :size 14)))
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -399,6 +399,9 @@
  '(which-function-mode t)
  '(whitespace-line-column 120)
  '(winner-mode t)
+ '(xref-prompt-for-identifier
+   (quote
+    (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-prompt-for-identifier)))
  '(yas-also-auto-indent-first-line t)
  '(ycmd-confirm-fixit nil)
  '(ycmd-delete-process-delay 15)
