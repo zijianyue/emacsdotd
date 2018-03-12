@@ -443,50 +443,52 @@
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
 
 ;; 工程设置
-(defun create-spec-ede-project (root-file known)
-  (when (file-exists-p root-file)
-	(if known
-		(ede-cpp-root-project "code" :file root-file
-							  :include-path '( "/include" "/server" "/upf"
-											   "/upf_dubhe/export" "/UPF_SMI/Include" "/Service/TG/MM/RM/Source/PMM")
-							  :spp-files '( "Service/TG/MM/RM/Source/PMM/RMPmm_Const.h"
-											"Service/TG/MM/RM/Include/RM_switch.h"
-											"Service/TG/MM/RM/Include/RM_Debug.h"
-											"ede_switch.h" ;ON OFF宏写成(1)(0)的话不能识别
-											)
-							  :spp-table '(("IN" . "")
-										   ("OUT" . "")
-										   ("INOUT" . "") ;如果在函数参数前加上这样的宏会导致无法识别
-										   ))
-	  (ede-cpp-root-project "code" :file root-file))))
+(eval-after-load "ede/cpp-root"
+  '(progn
+     (defun create-spec-ede-project (root-file known)
+       (when (file-exists-p root-file)
+         (if known
+             (ede-cpp-root-project "code" :file root-file
+                                   :include-path '( "/include" "/server" "/upf"
+                                                    "/upf_dubhe/export" "/UPF_SMI/Include" "/Service/TG/MM/RM/Source/PMM")
+                                   :spp-files '( "Service/TG/MM/RM/Source/PMM/RMPmm_Const.h"
+                                                 "Service/TG/MM/RM/Include/RM_switch.h"
+                                                 "Service/TG/MM/RM/Include/RM_Debug.h"
+                                                 "ede_switch.h" ;ON OFF宏写成(1)(0)的话不能识别
+                                                 )
+                                   :spp-table '(("IN" . "")
+                                                ("OUT" . "")
+                                                ("INOUT" . "") ;如果在函数参数前加上这样的宏会导致无法识别
+                                                ))
+           (ede-cpp-root-project "code" :file root-file))))
 
-(defun create-known-ede-project(&optional select)
-  (interactive "P")
-  (if select
-	  (setq root-file (read-file-name "Open a root file in proj: "))
-	(setq root-file "./GTAGS"))
-  (create-spec-ede-project root-file t)
-  ;; (find-sln root-file)
-  ;; (cscope-set-initial-directory (file-name-directory root-file))
-  (message "Known EDE Project Created." ))
+     (defun create-known-ede-project(&optional select)
+       (interactive "P")
+       (if select
+           (setq root-file (read-file-name "Open a root file in proj: "))
+         (setq root-file "./GTAGS"))
+       (create-spec-ede-project root-file t)
+       ;; (find-sln root-file)
+       ;; (cscope-set-initial-directory (file-name-directory root-file))
+       (message "Known EDE Project Created." ))
 
-(defun create-unknown-ede-project(&optional select)
-  (interactive "P")
-  (if select
-	  (setq root-file (read-file-name "Open a root file in proj: "))
-	(setq root-file "./GTAGS"))
-  (create-spec-ede-project root-file nil)
-  ;; (find-sln root-file)
-  ;; (cscope-set-initial-directory (file-name-directory root-file))
-  (message "UnKnown EDE Project Created." ))
+     (defun create-unknown-ede-project(&optional select)
+       (interactive "P")
+       (if select
+           (setq root-file (read-file-name "Open a root file in proj: "))
+         (setq root-file "./GTAGS"))
+       (create-spec-ede-project root-file nil)
+       ;; (find-sln root-file)
+       ;; (cscope-set-initial-directory (file-name-directory root-file))
+       (message "UnKnown EDE Project Created." ))
 
-(global-set-key (kbd "C-c e") 'create-known-ede-project)
-(global-set-key (kbd "C-c u") 'create-unknown-ede-project)
+     (global-set-key (kbd "C-c e") 'create-known-ede-project)
+     (global-set-key (kbd "C-c u") 'create-unknown-ede-project)
 
-(create-spec-ede-project "e:/projects/tempspace/test4c/GTAGS" nil)
-(create-spec-ede-project "e:/projects/eNavi2_800X480_ChangeUI/GTAGS" t)
-(create-spec-ede-project "e:/projects/Clarion_13MY_Dev_For_MM/GTAGS" t)
-
+     (create-spec-ede-project "e:/projects/tempspace/test4c/GTAGS" nil)
+     (create-spec-ede-project "e:/projects/eNavi2_800X480_ChangeUI/GTAGS" t)
+     (create-spec-ede-project "e:/projects/Clarion_13MY_Dev_For_MM/GTAGS" t)
+     ))
 ;; company
 (autoload 'company-mode "company" nil t)
 (autoload 'global-company-mode "company" nil t)
