@@ -220,10 +220,10 @@
  '(company-tooltip-align-annotations t)
  '(company-transformers (quote (company-sort-by-occurrence)))
  '(company-ycmd-request-sync-timeout 0)
- '(compilation-message-face (quote default))
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
+ '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
  '(custom-enabled-themes (quote (spacemacs-dark)))
@@ -245,7 +245,6 @@
  '(explicit-shell-file-name "bash")
  '(fa-insert-method (quote name-and-parens-and-hint))
  '(fci-eol-char 32)
- '(fci-rule-color "#3C3D37")
  '(fill-column 120)
  '(flycheck-check-syntax-automatically nil)
  '(flycheck-checker-error-threshold nil)
@@ -279,6 +278,7 @@
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 504857600)
  '(helm-gtags-cache-select-result t)
+ '(helm-gtags-display-style (quote detail))
  '(helm-gtags-ignore-case t)
  '(helm-gtags-maximum-candidates 2000)
  '(helm-gtags-suggested-key-mapping t)
@@ -291,17 +291,6 @@
      (emacs-lisp-mode . semantic-format-tag-abbreviate-emacs-lisp-mode))))
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
- '(highlight-changes-colors (quote ("#FD5FF0" "#AE81FF")))
- '(highlight-tail-colors
-   (quote
-    (("#3C3D37" . 0)
-     ("#679A01" . 20)
-     ("#4BBEAE" . 30)
-     ("#1DB4D0" . 50)
-     ("#9A8F21" . 60)
-     ("#A75B00" . 70)
-     ("#F309DF" . 85)
-     ("#3C3D37" . 100))))
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
@@ -324,6 +313,7 @@
  '(mode-require-final-newline nil)
  '(moo-select-method (quote helm))
  '(mouse-wheel-progressive-speed nil)
+ '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-log-done (quote time))
@@ -331,8 +321,6 @@
  '(org-support-shift-select t)
  '(password-cache-expiry nil)
  '(pcmpl-gnu-tarfile-regexp "")
- '(pos-tip-background-color "#FFFACE")
- '(pos-tip-foreground-color "#272822")
  '(powerline-default-separator (quote box))
  '(powerline-gui-use-vcs-glyph t)
  '(recentf-auto-cleanup 600)
@@ -370,32 +358,8 @@
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
- '(vc-annotate-background nil)
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#F92672")
-     (40 . "#CF4F1F")
-     (60 . "#C26C0F")
-     (80 . "#E6DB74")
-     (100 . "#AB8C00")
-     (120 . "#A18F00")
-     (140 . "#989200")
-     (160 . "#8E9500")
-     (180 . "#A6E22E")
-     (200 . "#729A1E")
-     (220 . "#609C3C")
-     (240 . "#4E9D5B")
-     (260 . "#3C9F79")
-     (280 . "#A1EFE4")
-     (300 . "#299BA6")
-     (320 . "#2896B5")
-     (340 . "#2790C3")
-     (360 . "#66D9EF"))))
- '(vc-annotate-very-old-color nil)
  '(vc-svn-program "C:\\Program Files\\TortoiseSVN\\bin\\svn")
  '(vlf-batch-size 10000000)
- '(weechat-color-list
-   (unspecified "#272822" "#3C3D37" "#F70057" "#F92672" "#86C30D" "#A6E22E" "#BEB244" "#E6DB74" "#40CAE4" "#66D9EF" "#FB35EA" "#FD5FF0" "#74DBCD" "#A1EFE4" "#F8F8F2" "#F8F8F0"))
  '(which-function-mode t)
  '(whitespace-line-column 120)
  '(winner-mode t)
@@ -1049,7 +1013,7 @@
 
 (global-set-key (kbd "<f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
-(global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
+;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
 (global-set-key (kbd "<S-f9>") 'ag-dired)
 ;; C-c C-k 停止ag-dired
 
@@ -1168,7 +1132,7 @@
 
 ;; (add-hook 'magit-mode-hook 'my-git-commit-hook)
 ;; (add-hook 'magit-status-mode-hook 'my-git-commit-hook)
-;; (add-hook 'git-commit-mode-hook 'my-git-commit-hook)
+(add-hook 'git-commit-mode-hook 'my-git-commit-hook)
 (add-hook 'magit-log-mode-hook
 		  (lambda ()
 			(setq truncate-lines nil)))
@@ -1607,19 +1571,19 @@ mouse-3: go to end"))))
 					   (org-clock :when active)
 					   nyan-cat)
 
-    `(which-function-ignore-active
-      (python-pyvenv :fallback python-pyenv)
-      (battery :when active)
-      selection-info
-      input-method
-      ((buffer-encoding-abbrev-mouse
-        point-position
-        line-column)
-       :separator " | ")
-      (global :when active)
-      ,@additional-segments
-      buffer-position
-      hud))
+					 `(which-function-ignore-active
+					   (python-pyvenv :fallback python-pyenv)
+					   (battery :when active)
+					   selection-info
+					   input-method
+					   ((buffer-encoding-abbrev-mouse
+						 point-position
+						 line-column)
+						:separator " | ")
+					   (global :when active)
+					   ,@additional-segments
+					   buffer-position
+					   hud))
 
   (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
 
@@ -1714,7 +1678,6 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 (add-to-list 'load-path (concat site-lisp-directory "/cquery/ht.el") ) 
 
 (with-eval-after-load 'lsp-mode
-  ;; (require 'lsp-flycheck)
   (global-flycheck-mode t)
   
   (yas-global-mode t)
@@ -1733,6 +1696,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; (setq lsp-ui-imenu-enable nil)
   ;; (setq lsp-ui-peek-enable nil)
   ;; (setq lsp-ui-sideline-enable nil)
+  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
 
   (require 'helm-xref)
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
@@ -1768,22 +1732,38 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
   (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
+  ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
+
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
+  (define-key cquery-tree-mode-map [mouse-1] 'ignore )
+  (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
   (define-key cquery-tree-mode-map (kbd "n") (lambda () "" (interactive)
                                                (forward-line 1)
                                                (back-to-indentation)))
   (define-key cquery-tree-mode-map (kbd "p") (lambda () "" (interactive)
                                                (forward-line -1)
                                                (back-to-indentation)))
-
-  (define-key cquery-tree-mode-map [mouse-1] 'ignore )
-  (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
+  (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
   ;; (cquery-use-default-rainbow-sem-highlight)
   ;; 其他功能
   ;; (cquery-xref-find-custom "$cquery/base")
   ;; (cquery-xref-find-custom "$cquery/callers")
   ;; (cquery-xref-find-custom "$cquery/derived")
   ;; (cquery-xref-find-custom "$cquery/vars")
+  ;; (cquery-xref-find-custom "$cquery/random")
+  ;; (cquery-xref-find-custom "$cquery/references-address")"
+  ;; (cquery-xref-find-custom "$cquery/references-read")
+  ;; (cquery-xref-find-custom "$cquery/references-write")
+  ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
+  
+  ;; 不折行
+  (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
+    (eval
+     `(defadvice ,command (after cquery-after activate)
+        (setq truncate-lines t)
+        )))
+
+  ;; 解决乱码
   (defun cquery-tree--make-prefix-fset (node number nchildren depth)
     "."
     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
@@ -2455,7 +2435,7 @@ If FULL is t, copy full file name."
 (dolist (command '(semantic-ia-fast-jump semantic-complete-jump helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path
                                          semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event ycmd-goto ycmd-goto-imprecise
                                          semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
-                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references))
+                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press cquery-tree-press-and-switch))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (ring-insert semantic-tags-location-ring (point-marker))
@@ -2911,11 +2891,11 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			))
 
 ;; python
-(add-hook 'python-mode-hook
-          (lambda ()
+;; (add-hook 'python-mode-hook
+          ;; (lambda ()
             ;; (yas-minor-mode 1)
-            (setenv "GTAGSLABEL" "pygments")
-            (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
+            ;; (setenv "GTAGSLABEL" "pygments")
+            ;; (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
 
 
 ;; org 设置
@@ -3066,10 +3046,11 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "C-_") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
-
+;; 生成函数注释
+(global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(helm-xref-file-name ((t (:foreground "coral")))))
+ )
