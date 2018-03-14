@@ -220,10 +220,10 @@
  '(company-tooltip-align-annotations t)
  '(company-transformers (quote (company-sort-by-occurrence)))
  '(company-ycmd-request-sync-timeout 0)
- '(compilation-message-face (quote default))
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
+ '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
  '(custom-enabled-themes (quote (spacemacs-dark)))
@@ -278,6 +278,7 @@
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 504857600)
  '(helm-gtags-cache-select-result t)
+ '(helm-gtags-display-style (quote detail))
  '(helm-gtags-ignore-case t)
  '(helm-gtags-maximum-candidates 2000)
  '(helm-gtags-suggested-key-mapping t)
@@ -313,6 +314,7 @@
  '(mode-require-final-newline nil)
  '(moo-select-method (quote helm))
  '(mouse-wheel-progressive-speed nil)
+ '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-log-done (quote time))
@@ -443,50 +445,52 @@
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
 
 ;; 工程设置
-(defun create-spec-ede-project (root-file known)
-  (when (file-exists-p root-file)
-	(if known
-		(ede-cpp-root-project "code" :file root-file
-							  :include-path '( "/include" "/server" "/upf"
-											   "/upf_dubhe/export" "/UPF_SMI/Include" "/Service/TG/MM/RM/Source/PMM")
-							  :spp-files '( "Service/TG/MM/RM/Source/PMM/RMPmm_Const.h"
-											"Service/TG/MM/RM/Include/RM_switch.h"
-											"Service/TG/MM/RM/Include/RM_Debug.h"
-											"ede_switch.h" ;ON OFF宏写成(1)(0)的话不能识别
-											)
-							  :spp-table '(("IN" . "")
-										   ("OUT" . "")
-										   ("INOUT" . "") ;如果在函数参数前加上这样的宏会导致无法识别
-										   ))
-	  (ede-cpp-root-project "code" :file root-file))))
+(eval-after-load "ede/cpp-root"
+  '(progn
+     (defun create-spec-ede-project (root-file known)
+       (when (file-exists-p root-file)
+         (if known
+             (ede-cpp-root-project "code" :file root-file
+                                   :include-path '( "/include" "/server" "/upf"
+                                                    "/upf_dubhe/export" "/UPF_SMI/Include" "/Service/TG/MM/RM/Source/PMM")
+                                   :spp-files '( "Service/TG/MM/RM/Source/PMM/RMPmm_Const.h"
+                                                 "Service/TG/MM/RM/Include/RM_switch.h"
+                                                 "Service/TG/MM/RM/Include/RM_Debug.h"
+                                                 "ede_switch.h" ;ON OFF宏写成(1)(0)的话不能识别
+                                                 )
+                                   :spp-table '(("IN" . "")
+                                                ("OUT" . "")
+                                                ("INOUT" . "") ;如果在函数参数前加上这样的宏会导致无法识别
+                                                ))
+           (ede-cpp-root-project "code" :file root-file))))
 
-(defun create-known-ede-project(&optional select)
-  (interactive "P")
-  (if select
-	  (setq root-file (read-file-name "Open a root file in proj: "))
-	(setq root-file "./GTAGS"))
-  (create-spec-ede-project root-file t)
-  ;; (find-sln root-file)
-  ;; (cscope-set-initial-directory (file-name-directory root-file))
-  (message "Known EDE Project Created." ))
+     (defun create-known-ede-project(&optional select)
+       (interactive "P")
+       (if select
+           (setq root-file (read-file-name "Open a root file in proj: "))
+         (setq root-file "./GTAGS"))
+       (create-spec-ede-project root-file t)
+       ;; (find-sln root-file)
+       ;; (cscope-set-initial-directory (file-name-directory root-file))
+       (message "Known EDE Project Created." ))
 
-(defun create-unknown-ede-project(&optional select)
-  (interactive "P")
-  (if select
-	  (setq root-file (read-file-name "Open a root file in proj: "))
-	(setq root-file "./GTAGS"))
-  (create-spec-ede-project root-file nil)
-  ;; (find-sln root-file)
-  ;; (cscope-set-initial-directory (file-name-directory root-file))
-  (message "UnKnown EDE Project Created." ))
+     (defun create-unknown-ede-project(&optional select)
+       (interactive "P")
+       (if select
+           (setq root-file (read-file-name "Open a root file in proj: "))
+         (setq root-file "./GTAGS"))
+       (create-spec-ede-project root-file nil)
+       ;; (find-sln root-file)
+       ;; (cscope-set-initial-directory (file-name-directory root-file))
+       (message "UnKnown EDE Project Created." ))
 
-(global-set-key (kbd "C-c e") 'create-known-ede-project)
-(global-set-key (kbd "C-c u") 'create-unknown-ede-project)
+     (global-set-key (kbd "C-c e") 'create-known-ede-project)
+     (global-set-key (kbd "C-c u") 'create-unknown-ede-project)
 
-(create-spec-ede-project "e:/projects/tempspace/test4c/GTAGS" nil)
-(create-spec-ede-project "e:/projects/eNavi2_800X480_ChangeUI/GTAGS" t)
-(create-spec-ede-project "e:/projects/Clarion_13MY_Dev_For_MM/GTAGS" t)
-
+     (create-spec-ede-project "e:/projects/tempspace/test4c/GTAGS" nil)
+     (create-spec-ede-project "e:/projects/eNavi2_800X480_ChangeUI/GTAGS" t)
+     (create-spec-ede-project "e:/projects/Clarion_13MY_Dev_For_MM/GTAGS" t)
+     ))
 ;; company
 (autoload 'company-mode "company" nil t)
 (autoload 'global-company-mode "company" nil t)
@@ -1013,7 +1017,7 @@
 
 (global-set-key (kbd "<f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
-(global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
+;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
 (global-set-key (kbd "<S-f9>") 'ag-dired)
 ;; C-c C-k 停止ag-dired
 
@@ -1132,7 +1136,7 @@
 
 ;; (add-hook 'magit-mode-hook 'my-git-commit-hook)
 ;; (add-hook 'magit-status-mode-hook 'my-git-commit-hook)
-;; (add-hook 'git-commit-mode-hook 'my-git-commit-hook)
+(add-hook 'git-commit-mode-hook 'my-git-commit-hook)
 (add-hook 'magit-log-mode-hook
 		  (lambda ()
 			(setq truncate-lines nil)))
@@ -1575,19 +1579,19 @@ mouse-3: go to end"))))
 					   (org-clock :when active)
 					   nyan-cat)
 
-    `(which-function-ignore-active
-      (python-pyvenv :fallback python-pyenv)
-      (battery :when active)
-      selection-info
-      input-method
-      ((buffer-encoding-abbrev-mouse
-        point-position
-        line-column)
-       :separator " | ")
-      (global :when active)
-      ,@additional-segments
-      buffer-position
-      hud))
+					 `(which-function-ignore-active
+					   (python-pyvenv :fallback python-pyenv)
+					   (battery :when active)
+					   selection-info
+					   input-method
+					   ((buffer-encoding-abbrev-mouse
+						 point-position
+						 line-column)
+						:separator " | ")
+					   (global :when active)
+					   ,@additional-segments
+					   buffer-position
+					   hud))
 
   (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
 
@@ -1680,7 +1684,6 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
 ;; cquery 全面的开发工具
 (with-eval-after-load 'lsp-mode
-  ;; (require 'lsp-flycheck)
   (global-flycheck-mode t)
   
   (yas-global-mode t)
@@ -1699,6 +1702,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; (setq lsp-ui-imenu-enable nil)
   ;; (setq lsp-ui-peek-enable nil)
   ;; (setq lsp-ui-sideline-enable nil)
+  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
 
   (require 'helm-xref)
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
@@ -1734,22 +1738,38 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
   (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
+  ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
+
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
+  (define-key cquery-tree-mode-map [mouse-1] 'ignore )
+  (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
   (define-key cquery-tree-mode-map (kbd "n") (lambda () "" (interactive)
                                                (forward-line 1)
                                                (back-to-indentation)))
   (define-key cquery-tree-mode-map (kbd "p") (lambda () "" (interactive)
                                                (forward-line -1)
                                                (back-to-indentation)))
-
-  (define-key cquery-tree-mode-map [mouse-1] 'ignore )
-  (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
+  (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
   ;; (cquery-use-default-rainbow-sem-highlight)
   ;; 其他功能
   ;; (cquery-xref-find-custom "$cquery/base")
   ;; (cquery-xref-find-custom "$cquery/callers")
   ;; (cquery-xref-find-custom "$cquery/derived")
   ;; (cquery-xref-find-custom "$cquery/vars")
+  ;; (cquery-xref-find-custom "$cquery/random")
+  ;; (cquery-xref-find-custom "$cquery/references-address")"
+  ;; (cquery-xref-find-custom "$cquery/references-read")
+  ;; (cquery-xref-find-custom "$cquery/references-write")
+  ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
+  
+  ;; 不折行
+  (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
+    (eval
+     `(defadvice ,command (after cquery-after activate)
+        (setq truncate-lines t)
+        )))
+
+  ;; 解决乱码
   (defun cquery-tree--make-prefix-fset (node number nchildren depth)
     "."
     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
@@ -2421,7 +2441,7 @@ If FULL is t, copy full file name."
 (dolist (command '(semantic-ia-fast-jump semantic-complete-jump helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path
                                          semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event ycmd-goto ycmd-goto-imprecise
                                          semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
-                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references))
+                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press cquery-tree-press-and-switch))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (ring-insert semantic-tags-location-ring (point-marker))
@@ -2878,9 +2898,16 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; python
 ;; (add-hook 'python-mode-hook
+<<<<<<< HEAD
 ;;           (lambda ()
 ;;             ;; (yas-minor-mode 1)
 ;;             (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
+=======
+          ;; (lambda ()
+            ;; (yas-minor-mode 1)
+            ;; (setenv "GTAGSLABEL" "pygments")
+            ;; (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
+>>>>>>> 0d4a98b3ef697fa5c2614e383b8365305216c5cd
 
 
 ;; org 设置
@@ -3031,10 +3058,11 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "C-_") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
-
+;; 生成函数注释
+(global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(helm-xref-file-name ((t (:foreground "coral")))))
+ )
