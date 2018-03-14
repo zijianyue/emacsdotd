@@ -2896,20 +2896,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			(remove-dos-eol)
 			))
 
-;; python
-;; (add-hook 'python-mode-hook
-<<<<<<< HEAD
-;;           (lambda ()
-;;             ;; (yas-minor-mode 1)
-;;             (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
-=======
-          ;; (lambda ()
-            ;; (yas-minor-mode 1)
-            ;; (setenv "GTAGSLABEL" "pygments")
-            ;; (setenv "LANG" "en_US.UTF8"))) ;执行的py脚本中如何有中文字符串时，python shell中不乱码
->>>>>>> 0d4a98b3ef697fa5c2614e383b8365305216c5cd
-
-
 ;; org 设置
 ;; 显示缩进
 (setq org-startup-indented t)
