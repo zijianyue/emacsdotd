@@ -357,7 +357,7 @@
  '(winner-mode t)
  '(xref-prompt-for-identifier
    (quote
-    (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-prompt-for-identifier)))
+    (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
  '(yas-also-auto-indent-first-line t)
  '(ycmd-confirm-fixit nil)
  '(ycmd-delete-process-delay 15)
