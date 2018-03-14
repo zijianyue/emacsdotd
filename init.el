@@ -345,16 +345,6 @@
  '(sln-mode-devenv-2008 "Devenv.com")
  '(switch-window-shortcut-style (quote (quote qwerty)))
  '(tab-width 4)
- '(tabbar-cycle-scope (quote tabs))
- '(tabbar-ruler-excluded-buffers
-   (quote
-    ("*Messages*" "*Completions*" "*ESS*" "*Packages*" "*log-edit-files*" "*helm-mini*" "*helm-mode-describe-variable*" "*helm for files*" "*helm gtags*" "*Ilist*" "*taglist\"\"")))
- '(tabbar-ruler-fancy-close-image t)
- '(tabbar-ruler-fancy-current-tab-separator (quote inherit))
- '(tabbar-ruler-fancy-tab-separator nil)
- '(tabbar-ruler-pad-selected nil)
- '(tabbar-ruler-tab-height nil)
- '(tabbar-ruler-tab-padding nil)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
  '(undo-outer-limit 20000000)
@@ -3051,4 +3041,5 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(tabbar-selected-modified ((t (:inherit tabbar-selected :underline t :weight bold))))
+ '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :underline t :weight bold)))))
