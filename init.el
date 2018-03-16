@@ -5,16 +5,16 @@
 ;; (package-initialize)
 
 (set-face-attribute
- 'default nil :font "Source code pro 12")
+ 'default nil :font "source code pro 14")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Source code pro 12"))
+(add-to-list 'default-frame-alist '(font . "source code pro 14"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "Heiti SC" :size 14))) ;Heiti SC能中英文等高
+					(font-spec :family "heiti SC" :size 16))) ;Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -1691,7 +1691,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; (setq lsp-ui-flycheck-enable nil)
   ;; (setq lsp-ui-imenu-enable nil)
   ;; (setq lsp-ui-peek-enable nil)
-  ;; (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-sideline-enable nil)
   (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
 
   (require 'helm-xref)
@@ -2431,7 +2431,7 @@ If FULL is t, copy full file name."
 (dolist (command '(semantic-ia-fast-jump semantic-complete-jump helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path
                                          semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event ycmd-goto ycmd-goto-imprecise
                                          semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
-                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press cquery-tree-press-and-switch))
+                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (ring-insert semantic-tags-location-ring (point-marker))
@@ -3042,4 +3042,5 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(tabbar-selected-modified ((t (:inherit tabbar-selected :underline t :weight bold))))
- '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :underline t :weight bold)))))
+ '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :underline t :weight bold))))
+ '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
