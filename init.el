@@ -4,17 +4,22 @@
 
 ;; (package-initialize)
 
-(set-face-attribute
- 'default nil :font "source code pro 14")
+;; 窗口位置 大小
+(setq initial-frame-alist
+      '((top . 1) (left . 350) (width . 80) (height . 38)))
 
-;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "source code pro 14"))
+(set-face-attribute
+ ;; 'default nil :font "source code pro" :weight 'light :height 141) ;ultra-light
+ 'default nil :font "inconsolata 14")
+
+;; 新开的frame保持字体
+;; (add-to-list 'default-frame-alist '(font . "source code pro 14"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "heiti SC" :size 16))) ;Heiti SC能中英文等高
+					(font-spec :family "heiti sc" :size 14))) ;Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -303,6 +308,7 @@
  '(jit-lock-defer-time 0.5)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
+ '(lsp-highlight-symbol-at-point nil)
  '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
  '(magit-log-arguments (quote ("-n32" "--stat")))
@@ -1339,12 +1345,6 @@
 ;; (autoload 'ycmd-mode "ycmd" nil t)
 ;; (autoload 'global-ycmd-mode "ycmd" nil t)
 
-(global-set-key (kbd "M-.") (lambda () "" (interactive)
-							  (require 'ycmd )
-							  (unless (ycmd-running-p) (ycmd-open))
-							  (unless ycmd-mode (ycmd-mode 1))
-							  (ycmd-goto-imprecise)
-							  ))
 ;; (global-set-key (kbd "M-.") 'ycmd-goto-imprecise)
 (global-set-key (kbd "M-p") (lambda () "" (interactive)
 							  (require 'ycmd )
@@ -1359,10 +1359,6 @@
 							  (unless ycmd-mode (ycmd-mode 1))
 							  (ycmd-get-parent)
 							  ))
-(global-set-key (kbd "C-c p") 'ycmd-get-type)
-(global-set-key (kbd "C-c o") 'ycmd-goto)
-
-(global-set-key (kbd "C-c t") 'ycmd-fixit)
 
 (eval-after-load "company-ycmd"
   '(progn
@@ -1471,6 +1467,16 @@
 	   (let ((ycmd-force-semantic-completion t))
 		 (company-complete)))
 	 (global-set-key (kbd "<M-S-return>") 'company-ycmd-semantic-complete)
+     (global-set-key (kbd "M-.") (lambda () "" (interactive)
+                                   (require 'ycmd )
+                                   (unless (ycmd-running-p) (ycmd-open))
+                                   (unless ycmd-mode (ycmd-mode 1))
+                                   (ycmd-goto-imprecise)
+                                   ))
+     (global-set-key (kbd "C-c p") 'ycmd-get-type)
+     (global-set-key (kbd "C-c o") 'ycmd-goto)
+
+     (global-set-key (kbd "C-c t") 'ycmd-fixit)
 	 
 	 (require 'flycheck-ycmd)
 	 ;; 下面函数有bug，由于路径中存在反斜杠导致flycheck的错误无法显示
@@ -1687,7 +1693,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
   (require 'lsp-ui)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  ;; (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-enable nil)
   ;; (setq lsp-ui-flycheck-enable nil)
   ;; (setq lsp-ui-imenu-enable nil)
   ;; (setq lsp-ui-peek-enable nil)
@@ -2836,6 +2842,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			(company-mode 1)
 			(setq-local indent-tabs-mode nil)
 			(setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
+            (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
 			))
 
 (add-hook 'dired-mode-hook
@@ -3041,6 +3048,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(tabbar-selected-modified ((t (:inherit tabbar-selected :underline t :weight bold))))
- '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :underline t :weight bold))))
+ '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
+ '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
