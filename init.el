@@ -8,6 +8,7 @@
 (setq initial-frame-alist
       '((top . 1) (left . 350) (width . 80) (height . 38)))
 
+
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'light :height 141) ;ultra-light
  'default nil :font "inconsolata 14")
