@@ -394,10 +394,6 @@
  '(ycmd-server-args (quote ("--idle_suicide_seconds=10800")))
  '(ycmd-startup-timeout 20))
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
-;; libs
-(add-to-list 'load-path (concat site-lisp-directory "/libs/f.el") ) 
-(add-to-list 'load-path (concat site-lisp-directory "/libs/s.el") ) 
-
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
 (setq gtags-disable-pushy-mouse-mapping t)
@@ -425,8 +421,6 @@
 	 ))
 
 ;; 选中单位
-;; 从git clone下来的目录名带.el，.el目录不会自动添加到load-path
-(add-to-list 'load-path (concat site-lisp-directory "/expand-region.el") ) 
 (autoload 'er/expand-region "expand-region" nil t)
 (global-set-key (kbd "M-s") 'er/expand-region)
 
@@ -1010,7 +1004,6 @@
 (autoload 'pt-regexp "pt" nil t)
 
 ;; fast silver searcher
-(add-to-list 'load-path (concat site-lisp-directory "/ag.el") ) 
 (autoload 'my-ag "ag" nil t)
 (autoload 'ag-this-file "ag" nil t)
 (autoload 'ag-dired "ag" nil t)
