@@ -10,27 +10,26 @@
 
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'light :height 141) ;ultra-light
- 'default nil :font "inconsolata 14")
+ 'default nil :font "Consolas 11")
 
-;; 新开的frame保持字体
-;; (add-to-list 'default-frame-alist '(font . "source code pro 14"))
+;; 新开的窗口保持字体
+(add-to-list 'default-frame-alist '(font . "Consolas 11"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "heiti sc" :size 14))) ;Heiti SC能中英文等高
+					(font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
 (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp")))
 
 (add-to-list 'custom-theme-load-path (concat site-lisp-directory "/spacemacs/spacemacs-theme"))
-(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/monokai-emacs"))
-
 ;; spacemacs theme setting
 (setq spacemacs-theme-comment-bg nil)
 (setq spacemacs-theme-org-height nil)
+
 ;;-----------------------------------------------------------设置-----------------------------------------------------------;;
 ;; 只有一个实例
 (server-force-delete)
@@ -48,11 +47,12 @@
 ;;                         (base64-encode-string "usrname:password")))))
 
 ;; 环境变量
+(setenv "HOME" (expand-file-name "~"))
 (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
 (setenv "MINGW" "C:\\MinGW\\bin")
 (setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
-(setenv "LLVM" "C:\\Program Files (x86)\\LLVM\\bin")
-(setenv "CMAKE" "C:\\Program Files (x86)\\CMake\\bin")
+(setenv "LLVM" "C:\\Program Files\\LLVM\\bin")
+(setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
 (setenv "GTAGSBIN" "c:\\gtags\\bin")
 (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
 (setenv "CYGWIN" "C:\\cygwin\\bin")
@@ -60,15 +60,18 @@
 (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
 (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
 (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-;; (setenv "LC_ALL" "C")			   ;for diff-hl in emacs25
+(setenv "LLVMTOOL" "G:\\llvm\\llvm-6.0.1\\build\\Debug\\bin")
 ;; (setenv "GTAGSLABEL" "pygments")
 
 (setq python-shell-prompt-detect-enabled nil) ;用python27时需要加这个不然有warning
 (setq python-shell-completion-native-enable nil) ;用python27时需要加这个不然有warning
+(define-coding-system-alias 'UTF-8 'utf-8)       ;防止Warning (mule): Invalid coding system ‘UTF-8’ is specified for the current buffer/file by the :coding tag.
 
 (setenv "PATH"
 		(concat
-         (getenv "GITCMD")
+         (getenv "LLVMTOOL")
+		 path-separator    
+	         (getenv "GITCMD")
 		 path-separator
 		 (getenv "PYTHON")
 		 path-separator
@@ -92,6 +95,7 @@
 		 path-separator
 		 (getenv "PATH")))
 
+(add-to-list 'exec-path (getenv "LLVMTOOL") t)
 (add-to-list 'exec-path (getenv "GITCMD") t)
 (add-to-list 'exec-path (getenv "PYTHON") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
@@ -107,7 +111,7 @@
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
 (setq grep-program "grep -nH -F")		;-F按普通字符串搜索
 ;; 默认目录
-;; (setq default-directory "d:/")
+(setq default-directory "d:/")
 
 ;; 启动mode
 (setq initial-major-mode 'text-mode)
@@ -115,7 +119,8 @@
 ;; elpa
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 						 ("marmalade" . "http://marmalade-repo.org/packages/")
-						 ("melpa" . "http://melpa.milkbox.net/packages/")
+                         ("melpa" . "http://melpa.org/packages/")
+						 ;; ("melpa" . "http://melpa.milkbox.net/packages/")
 						 ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
 ;; mini buffer 的大小保持不变
 ;; (setq resize-mini-windows nil)
@@ -123,13 +128,7 @@
 (setq ring-bell-function 'ignore)
 
 ;; Load CEDET 
-;; (require 'semantic )
-;; (require 'semantic/decorate )
 (require 'srecode)
-
-;; (add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode t)
-;; (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode t)
-;; (add-to-list 'semantic-default-submodes 'global-semantic-highlight-edits-mode t)
 
 ;; (global-srecode-minor-mode t)
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
@@ -141,20 +140,7 @@
 ;; (semantic-mode t)
 ;; (global-ede-mode t)
 (setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
-;; let cedet call ctags to find things which cedet can not find
-;; (semantic-load-enable-all-ectags-support)
-;; (semantic-load-enable-primary-ectags-support)
-;; (semantic-ectags-add-language-support lua-mode "lua" "f")
-;; (add-hook 'lua-mode-hook 'semantic-ectags-simple-setup)
-
-;; (semanticdb-enable-gnu-global-databases 'c-mode) ;;会导致访问\\这种目录中的文件并且里面没有GTAGS文件时挂死
-;; (semanticdb-enable-gnu-global-databases 'c++-mode)
 (set-default 'semantic-case-fold t)
-;; (setq semantic-c-takeover-hideif t)		;帮助hideif识别#if
-;; (setq ede-locate-setup-options (quote (ede-locate-global ede-locate-idutils))) ;用gtags帮助cedet找头文件
-
-;; (global-set-key (kbd "M-n") 'semantic-ia-show-summary)
-;; semantic-ia-show-doc 备用
 
 ;;修改标题栏，显示buffer的名字
 (setq frame-title-format "%b [%+] %f")
@@ -164,16 +150,17 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 ;; 不折行，影响性能
+;; 有长行的文件除了打开truncate-lines，还可以用find-file-literally打开文件提高性能
 ;; (set-default 'truncate-lines t)
 ;; (setq truncate-partial-width-windows nil) ;; 左右分屏时折行
 ;; (if (eq 25 emacs-major-version)
 ;; 	(horizontal-scroll-bar-mode 1))
 
 ;; 自动横移跟随水平滚动条切换
-(defadvice horizontal-scroll-bar-mode(after horizontal-scroll-bar-mode-after activate)
-  (if horizontal-scroll-bar-mode
-	  (setq auto-hscroll-mode nil)
-	(setq auto-hscroll-mode t)))
+;; (defadvice horizontal-scroll-bar-mode(after horizontal-scroll-bar-mode-after activate)
+;;   (if horizontal-scroll-bar-mode
+;; 	  (setq auto-hscroll-mode nil)
+;; 	(setq auto-hscroll-mode t)))
 
 ;; 高亮单词跟高亮当前行有冲突
 (defadvice highlight-symbol-at-point(after highlight-symbol-at-point-after activate)
@@ -189,7 +176,7 @@
 (setq split-width-threshold 9999)	;增大向右分割的要求
 ;; (setq split-height-threshold 0)
 
-;; hi lock颜色
+;; hi lock颜色不要hi-black-hb
 (setq hi-lock-face-defaults '("hi-yellow" "hi-pink" "hi-green" "hi-blue" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
 ;; 自动添加的设置
 (custom-set-variables
@@ -197,20 +184,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ac-delay 0.3)
- '(ac-disable-faces nil)
- '(ac-expand-on-auto-complete nil)
- '(ac-ignore-case t)
- '(ac-trigger-key "TAB")
- '(ac-use-fuzzy t)
- '(ac-use-menu-map t)
  '(ad-redefinition-action (quote accept))
  '(ag-highlight-search t)
+ '(auto-hscroll-mode (quote current-line))
  '(auto-save-default nil)
  '(autopair-blink nil)
  '(aw-scope (quote frame))
- '(back-button-local-keystrokes nil)
- '(back-button-mode-lighter "")
  '(backward-delete-char-untabify-method nil)
  '(bookmark-save-flag 1)
  '(bookmark-sort-flag nil)
@@ -220,21 +199,16 @@
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
  '(company-dabbrev-other-buffers t)
- '(company-idle-delay 0)
- '(company-show-numbers t)
- '(company-tooltip-align-annotations t)
- '(company-transformers (quote (company-sort-by-occurrence)))
- '(company-ycmd-request-sync-timeout 0)
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
- '(custom-enabled-themes (quote (spacemacs-dark)))
+ '(custom-enabled-themes (quote (spacemacs-light)))
  '(custom-safe-themes
    (quote
-    ("dfc028294b9d9f56d62e2802b77b1e6d7ffee23314324c8b6d4ace7c71338258" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "c924950f6b5b92a064c5ad7063bb34fd3facead47cd0d761a31e7e76252996f7" "72ac74b21322d3b51235f3b709c43c0721012e493ea844a358c7cd4d57857f1f" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "92cfc474738101780aafd15a378bb22476af6e8573daa8031a9e4406b69b9eb8" default)))
+    ("66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(delete-by-moving-to-trash t)
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
@@ -248,7 +222,6 @@
  '(enable-local-variables :all)
  '(eww-search-prefix "http://cn.bing.com/search?q=")
  '(explicit-shell-file-name "bash")
- '(fa-insert-method (quote name-and-parens-and-hint))
  '(fci-eol-char 32)
  '(fill-column 120)
  '(flycheck-check-syntax-automatically nil)
@@ -265,6 +238,7 @@
  '(git-gutter:update-interval 2)
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
+ '(global-display-line-numbers-mode t)
  '(global-eldoc-mode nil)
  '(global-hl-line-sticky-flag t)
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
@@ -279,13 +253,12 @@
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
-    (helm-source-buffers-list helm-source-bookmarks helm-source-recentf)))
+    (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
  '(helm-gtags-auto-update t)
- '(helm-gtags-cache-max-result-size 504857600)
  '(helm-gtags-cache-select-result t)
  '(helm-gtags-display-style (quote detail))
+ '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
- '(helm-gtags-maximum-candidates 2000)
  '(helm-gtags-suggested-key-mapping t)
  '(helm-gtags-update-interval-second 3)
  '(helm-semantic-display-style
@@ -299,18 +272,24 @@
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
- '(imenu-list-idle-update-delay 1.0)
+ '(imenu-list-idle-update-delay 1.2)
  '(imenu-max-item-length 120)
  '(imenu-max-items 1000)
  '(inhibit-startup-screen t)
  '(isearch-allow-scroll t)
- '(jit-lock-context-time 1.5)
- '(jit-lock-defer-time 0.5)
+ '(ivy-count-format "(%d/%d) ")
+ '(ivy-format-function (quote ivy-format-function-arrow))
+ '(ivy-height 25)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
  '(lsp-highlight-symbol-at-point nil)
+ '(lsp-response-timeout 30)
  '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
+ '(magit-git-global-arguments
+   (quote
+    ("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true" "-c" "log.showSignature=false" "-c" "i18n.logOutputEncoding=gbk")))
+ '(magit-git-output-coding-system (quote gbk))
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
  '(magit-log-section-commit-count 0)
@@ -319,6 +298,7 @@
  '(menu-bar-mode nil)
  '(mode-require-final-newline nil)
  '(moo-select-method (quote helm))
+ '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
  '(org-download-screenshot-file "f:/org/screenshot.png")
@@ -333,7 +313,6 @@
  '(recentf-auto-cleanup 600)
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
- '(rscope-keymap-prefix "p")
  '(save-place t nil (saveplace))
  '(semantic-c-dependency-system-include-path
    (quote
@@ -364,35 +343,8 @@
  '(xref-prompt-for-identifier
    (quote
     (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
- '(yas-also-auto-indent-first-line t)
- '(ycmd-confirm-fixit nil)
- '(ycmd-delete-process-delay 15)
- '(ycmd-file-type-map
-   (quote
-    ((c++-mode "cpp")
-     (c-mode "c")
-     (caml-mode "ocaml")
-     (csharp-mode "cs")
-     (d-mode "d")
-     (erlang-mode "erlang")
-     (go-mode "go")
-     (js-mode "javascript")
-     (js2-mode "javascript")
-     (objc-mode "objc")
-     (perl-mode "perl")
-     (cperl-mode "perl")
-     (php-mode "php")
-     (python-mode "python")
-     (ruby-mode "ruby")
-     (rust-mode "rust")
-     (scala-mode "scala")
-     (tuareg-mode "ocaml")
-     (typescript-mode "typescript"))))
- '(ycmd-idle-change-delay 3)
- '(ycmd-parse-conditions (quote (save idle-change mode-enabled buffer-focus)))
- '(ycmd-seed-identifiers-with-keywords t)
- '(ycmd-server-args (quote ("--idle_suicide_seconds=10800")))
- '(ycmd-startup-timeout 20))
+ '(yas-also-auto-indent-first-line t))
+
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
@@ -438,53 +390,6 @@
 ;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
 
-;; 工程设置
-(eval-after-load "ede/cpp-root"
-  '(progn
-     (defun create-spec-ede-project (root-file known)
-       (when (file-exists-p root-file)
-         (if known
-             (ede-cpp-root-project "code" :file root-file
-                                   :include-path '( "/include" "/server" "/upf"
-                                                    "/upf_dubhe/export" "/UPF_SMI/Include" "/Service/TG/MM/RM/Source/PMM")
-                                   :spp-files '( "Service/TG/MM/RM/Source/PMM/RMPmm_Const.h"
-                                                 "Service/TG/MM/RM/Include/RM_switch.h"
-                                                 "Service/TG/MM/RM/Include/RM_Debug.h"
-                                                 "ede_switch.h" ;ON OFF宏写成(1)(0)的话不能识别
-                                                 )
-                                   :spp-table '(("IN" . "")
-                                                ("OUT" . "")
-                                                ("INOUT" . "") ;如果在函数参数前加上这样的宏会导致无法识别
-                                                ))
-           (ede-cpp-root-project "code" :file root-file))))
-
-     (defun create-known-ede-project(&optional select)
-       (interactive "P")
-       (if select
-           (setq root-file (read-file-name "Open a root file in proj: "))
-         (setq root-file "./GTAGS"))
-       (create-spec-ede-project root-file t)
-       ;; (find-sln root-file)
-       ;; (cscope-set-initial-directory (file-name-directory root-file))
-       (message "Known EDE Project Created." ))
-
-     (defun create-unknown-ede-project(&optional select)
-       (interactive "P")
-       (if select
-           (setq root-file (read-file-name "Open a root file in proj: "))
-         (setq root-file "./GTAGS"))
-       (create-spec-ede-project root-file nil)
-       ;; (find-sln root-file)
-       ;; (cscope-set-initial-directory (file-name-directory root-file))
-       (message "UnKnown EDE Project Created." ))
-
-     (global-set-key (kbd "C-c e") 'create-known-ede-project)
-     (global-set-key (kbd "C-c u") 'create-unknown-ede-project)
-
-     (create-spec-ede-project "e:/projects/tempspace/test4c/GTAGS" nil)
-     (create-spec-ede-project "e:/projects/eNavi2_800X480_ChangeUI/GTAGS" t)
-     (create-spec-ede-project "e:/projects/Clarion_13MY_Dev_For_MM/GTAGS" t)
-     ))
 ;; company
 (autoload 'company-mode "company" nil t)
 (autoload 'global-company-mode "company" nil t)
@@ -514,10 +419,7 @@
 ;;yasnippet 手动开启通过 yas-global-mode，会自动加载资源，如果执行yas-minor-mode，还需要执行yas-reload-all加载资源
 (autoload 'yas-global-mode "yasnippet" nil t)
 (autoload 'yas-minor-mode "yasnippet" nil t)
-;; (eval-after-load "yasnippet"
-;;   '(progn
-;;      (add-to-list 'yas-snippet-dirs (concat site-lisp-directory "/snippets"))))
-;; (setq yas-snippet-dirs "~/.emacs.d/snippets") ;; 默认就是这个
+
 ;; sln解析
 (autoload 'find-sln "sln-mode" nil t)
 (eval-after-load "project-buffer-mode"
@@ -792,14 +694,6 @@
 	 (gtags-mode 1)
      (remove-hook 'after-save-hook 'gtags-auto-update)
 	 (helm-gtags-mode 1)
-	 (defadvice helm-gtags--update-tags-command(before helm-gtags-update-tags-bef activate)
-	   (if (bound-and-true-p ycmd-mode)
-		   (progn
-			 (unless (ycmd-running-p) (ycmd-open))
-			 (ycmd-parse-buffer)))
-	   ;; (semantic-force-refresh)
-	   )
-	 
 	 (add-hook 'c-mode-common-hook
 			   (lambda ()
 				 (gtags-mode 1)
@@ -822,8 +716,6 @@
 (add-hook 'helm-update-hook
 		  (lambda ()
 			(setq truncate-lines t)))
-;; 自定义的mru
-(defvar semantic-tags-location-ring (make-ring 30))
 
 ;; flycheck
 ;; (defvar package-user-dir "")			;防止check lisp出错
@@ -838,25 +730,26 @@
 								 ))
 
 ;; 行号性能改善
-(require 'nlinum )
-(global-nlinum-mode 1)
-;; Preset `nlinum-format' for minimum width.
-(defun my-nlinum-mode-hook ()
-  (when nlinum-mode
-    (setq-local nlinum-format
-                (concat "%" (number-to-string
-                             ;; Guesstimate number of buffer lines.
-                             (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
-                        "d"))))
-(add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
-;; 避免 “ERROR: Invalid face: linum” error
-(defun initialize-nlinum (&optional frame)
-  (require 'nlinum)
-  (add-hook 'prog-mode-hook 'nlinum-mode))
-(when (daemonp)
-  (add-hook 'window-setup-hook 'initialize-nlinum)
-  (defadvice make-frame (around toggle-nlinum-mode compile activate)
-	(nlinum-mode -1) ad-do-it (nlinum-mode 1)))
+(autoload 'nlinum-mode "nlinum" nil t)
+;; (require 'nlinum )
+;; (global-nlinum-mode 1)
+;; ;; Preset `nlinum-format' for minimum width.
+;; (defun my-nlinum-mode-hook ()
+;;   (when nlinum-mode
+;;     (setq-local nlinum-format
+;;                 (concat "%" (number-to-string
+;;                              ;; Guesstimate number of buffer lines.
+;;                              (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
+;;                         "d"))))
+;; (add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
+;; ;; 避免 “ERROR: Invalid face: linum” error
+;; (defun initialize-nlinum (&optional frame)
+;;   (require 'nlinum)
+;;   (add-hook 'prog-mode-hook 'nlinum-mode))
+;; (when (daemonp)
+;;   (add-hook 'window-setup-hook 'initialize-nlinum)
+;;   (defadvice make-frame (around toggle-nlinum-mode compile activate)
+;; 	(nlinum-mode -1) ad-do-it (nlinum-mode 1)))
 
 ;; lua mode
 (autoload 'lua-mode "lua-mode" "Lua editing mode." t)
@@ -880,7 +773,7 @@
 (defadvice vlf (after vlf-after activate)
   ""
   (remove-dos-eol)
-  (nlinum-mode 1)
+  ;; (nlinum-mode 1)
   (anzu-mode 1))
 
 ;; ace
@@ -1153,74 +1046,6 @@
 	 (defadvice magit-blame-format-time-string (before magit-blame-format-time-strin-bef activate)
 	   ""
 	   (setq tz 0))
-	 ;; magit-git-output-coding-system默认值改为nil防止diff乱码，但是会影响stash和blame，所以在这临时改为utf-8
-	 ;; (defadvice magit-insert-stashes (around magit-insert-stashes-ar activate)
-	 ;;   ""
-	 ;;   (setq magit-git-output-coding-system 'utf-8)
-	 ;;   ad-do-it
-	 ;;   (setq magit-git-output-coding-system nil)
-	 ;;   )
-     ;; (defadvice magit-git-wash (around magit-git-wash-ar activate)
-	 ;;   ""
-     ;;   (if (eq washer 'magit-diff-wash-diffs)
-     ;;       (progn
-     ;;         (message "git-diff")
-     ;;         (setq magit-git-output-coding-system 'nil)))
-     ;;   ad-do-it
-	 ;;   (setq magit-git-output-coding-system 'utf-8)
-	 ;;   )
-     
-     (defadvice magit-insert-diff (around magit-insert-diff-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-     (defadvice magit-insert-revision-diff (around magit-insert-revision-diff-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-     (defadvice magit-insert-unstaged-changes (around magit-insert-unstaged-changes-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-     (defadvice magit-insert-staged-changes (around magit-insert-staged-changes-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-     (defadvice magit-stash-insert-section (around magit-stash-insert-section-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-     (defadvice magit-merge-preview-refresh-buffer (around magit-merge-preview-refresh-buffer-ar activate)
-	   ""
-	   (setq magit-git-output-coding-system 'nil)
-	   ad-do-it
-	   (setq magit-git-output-coding-system 'utf-8)
-	   )
-
-
-     
-	 ;; (defadvice magit-rev-format (around magit-rev-format-ar activate)
-	 ;;   ""
-	 ;;   (setq magit-git-output-coding-system 'utf-8)
-	 ;;   ad-do-it
-	 ;;   (setq magit-git-output-coding-system nil)
-	 ;;   )
-	 ;; (defadvice magit-blame (around magit-blame-ar activate)
-	 ;;   ""
-	 ;;   (setq-local magit-git-output-coding-system 'utf-8)
-	 ;;   ad-do-it
-	 ;;   ;; (setq magit-git-output-coding-system nil)
-	 ;;   )
 
      ;; 提高性能
 	 (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
@@ -1288,13 +1113,9 @@
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-;; (setq tabbar-ruler-use-mode-icons nil)
-
 (require 'aquamacs-tabbar)
 (tabbar-mode)
-;; (copy-face 'font-lock-function-name-face 'tabbar-selected)
 ;; 防止undo后标签颜色不恢复
-;; (add-hook 'post-command-hook 'after-modifying-buffer);;这个是在每个命令执行后
 (defadvice undo(after undo-after activate)
   ;;   (on-modifying-buffer) ;; tabbar
   (tabbar-update-if-changes-undone)       ; aquamacs-tabbar
@@ -1305,208 +1126,79 @@
   )
 ;; (add-hook 'after-revert-hook 'on-modifying-buffer)
 (add-hook 'after-revert-hook 'tabbar-window-update-tabsets-when-idle)
+(define-key special-event-map [iconify-frame] 'ignore)
+(defadvice iconify-frame (after leave-hidden-frame
+				                (&rest args) disable compile)
+  (aquamacs-handle-frame-iconified (car args)))
 
-;; (defadvice tabbar-buffer-close-tab(after tabbar-buffer-close-tab-after activate)
-;;   (tabbar-display-update)
-;;   )
-;; (defun tabbar-ruler-group-user-buffers-helper-dired ()
-;;   (list (cond ((string-equal "*" (substring (buffer-name) 0 1)) "emacs's buffers")
-;; 			  (t "user's buffers"))))
-;; (setq tabbar-buffer-groups-function 'tabbar-ruler-group-user-buffers-helper-dired)
+;; 重新定义以下函数，关闭按钮不显示图片（windows上显示效果差）
+(when (memq system-type '(windows-nt ms-dos))
+  (setq tabbar-use-images nil)
+  (defsubst tabbar-line-tab (tab)
+    "Return the display representation of tab TAB.
+That is, a propertized string used as an `header-line-format' template
+element.
+Call `tabbar-tab-label-function' to obtain a label for TAB."
+    (let* ((selected-p (tabbar-selected-p tab (tabbar-current-tabset)))
+           (close-button-image (tabbar-find-image tabbar-close-tab-button))
+           (mouse-face (if selected-p
+                           'tabbar-selected-highlight
+                         'tabbar-unselected-highlight))
 
-;; 切换主题后刷新tabbar背景色
-;; (defadvice enable-theme(after enable-theme-after activate)
-;;   (tabbar-install-faces)
-;;   (copy-face 'font-lock-function-name-face 'tabbar-selected)
-;;   )
-;; (defadvice disable-theme(after disable-theme-after activate)
-;;   (tabbar-install-faces)
-;;   (copy-face 'font-lock-function-name-face 'tabbar-selected)
-;;   )
-;; (defadvice make-frame-command(after make-frame-command-after activate)
-;;   (tabbar-install-faces)
-;;   (copy-face 'font-lock-function-name-face 'tabbar-selected)
-;;   )
-;; ycmd
-;; 文件中不能有当前编码无法识别的字符，否则ycmd会出错
-;; 会报(wrong-type-argument number-or-marker-p nil)错误
-;; 解决办法：c-x RET f输入utf-8回车，会提示乱码的位置
+           (text-face (if selected-p
+                          'tabbar-selected
+                        'tabbar-unselected))
+           (close-button
+            (propertize "[x]"
+                        'tabbar-tab tab
+                        'local-map (tabbar-make-tab-keymap tab)
+                        'tabbar-action 'close-tab
+                        ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
+                        'mouse-face mouse-face
+                        'face text-face
+                        'pointer 'arrow
+                        ;; 'display (tabbar-normalize-image close-button-image 0 'nomask)
+                        ))
 
-;; 标准加载方式
-;; (require 'ycmd)
-;; (add-hook 'after-init-hook #'global-ycmd-mode)
-;; (require 'company-ycmd)
-;; (company-ycmd-setup)
-;; (require 'flycheck-ycmd)
-;; (flycheck-ycmd-setup)
-
-;; (autoload 'ycmd-mode "ycmd" nil t)
-;; (autoload 'global-ycmd-mode "ycmd" nil t)
-
-;; (global-set-key (kbd "M-.") 'ycmd-goto-imprecise)
-(global-set-key (kbd "M-p") (lambda () "" (interactive)
-							  (require 'ycmd )
-							  (unless (ycmd-running-p) (ycmd-open))
-							  (unless ycmd-mode (ycmd-mode 1))
-							  (ycmd-get-type t)
-							  ))
-;; (global-set-key (kbd "M-p") 'ycmd-get-type)
-(global-set-key (kbd "C-.") (lambda () "" (interactive)
-							  (require 'ycmd )
-							  (unless (ycmd-running-p) (ycmd-open))
-							  (unless ycmd-mode (ycmd-mode 1))
-							  (ycmd-get-parent)
-							  ))
-
-(eval-after-load "company-ycmd"
-  '(progn
-	 ;; 让company-ycmd能够在字符串和注释中补全
-	 (defun company-ycmd--prefix-fset ()
-	   "Prefix-command handler for the company backend."
-	   (and ycmd-mode
-			buffer-file-name
-			(ycmd-running-p)
-			;; (or (not (company-in-string-or-comment))
-			;; 	(company-ycmd--in-include))
-			(or (company-grab-symbol-cons "\\.\\|->\\|::\\|/" 2)
-				'stop)))
-	 (fset 'company-ycmd--prefix 'company-ycmd--prefix-fset)))
-
-(eval-after-load "ycmd"
-  '(progn
-	 (defun ycmd--options-contents-fset (hmac-secret)
-	   ""
-	   (let ((hmac-secret (base64-encode-string hmac-secret))
-			 (global-config (or ycmd-global-config ""))
-			 (extra-conf-whitelist (or ycmd-extra-conf-whitelist []))
-			 (confirm-extra-conf (if (eq ycmd-extra-conf-handler 'load) 0 1))
-			 (gocode-binary-path (or ycmd-gocode-binary-path ""))
-			 (godef-binary-path (or ycmd-godef-binary-path ""))
-			 (rust-src-path (or ycmd-rust-src-path ""))
-			 (racerd-binary-path (or ycmd-racerd-binary-path ""))
-			 (python-binary-path (or ycmd-python-binary-path "")))
-		 `((filepath_completion_use_working_dir . 0)
-		   (auto_trigger . 1)
-		   (min_num_of_chars_for_completion . 2) ;写死2，保证server 2个字符就可以补全
-		   (min_num_identifier_candidate_chars . 0)
-		   (semantic_triggers . ())
-		   (filetype_specific_completion_to_disable (gitcommit . 1))
-		   (collect_identifiers_from_comments_and_strings . 0)
-		   (max_num_identifier_candidates . ,ycmd-max-num-identifier-candidates)
-		   (extra_conf_globlist . ,extra-conf-whitelist)
-		   (global_ycm_extra_conf . ,global-config)
-		   (confirm_extra_conf . ,confirm-extra-conf)
-		   (max_diagnostics_to_display . 1000) ;原来是30
-		   (auto_start_csharp_server . 1)
-		   (auto_stop_csharp_server . 1)
-		   (use_ultisnips_completer . 1)
-		   (csharp_server_port . 0)
-		   (hmac_secret . ,hmac-secret)
-		   (server_keep_logfiles . 1)
-		   (gocode_binary_path . ,gocode-binary-path)
-		   (godef_binary_path . ,godef-binary-path)
-		   (rust_src_path . ,rust-src-path)
-		   (racerd_binary_path . ,racerd-binary-path)
-		   (python_binary_path . ,python-binary-path))))
-	 (fset 'ycmd--options-contents 'ycmd--options-contents-fset)
-	 ))
-
-;; -u解决hang的问题
-;; (set-variable 'ycmd-server-command '("c:/python27/python.exe" "-u" "D:/ycmd-master/ycmd"))
-(setq ycmd-server-command (list "python" (expand-file-name "~/ycmd/ycmd")))
-
-(set-variable 'ycmd-global-config "C:/Users/g00280886/AppData/Roaming/global_config.py")
-(setq ycmd-extra-conf-handler 'load)
-;; (setq ycmd--log-enabled t)
-(setq url-show-status nil)
-;; (setq ycmd-request-message-level -1)
-(setq request-message-level -1)
-
-(eval-after-load "ycmd"
-  '(progn
-	 (message "ycmd")
-	 (global-ycmd-mode 1)
-	 (require 'company-ycmd)  
-	 (company-ycmd-setup)
-	 (global-company-mode 1)
-     (global-srecode-minor-mode t)
-     (yas-global-mode 1)
-     (require 'taglist)
-     (add-hook 'ycmd-file-parse-result-hook 'tag-list-update-safe-for-ycmd)
-
-	 ;; 起个定时器刷新
-	 (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
-
-	 (defun do-reparse ()
-	   (message "do reparse and ycmd timer deactive")
-	   (ycmd--conditional-parse)
-	   (cancel-timer reparse-timer))
-	 
-	 (defun reparse-current-buffer ()
-	   ""
-	   (interactive "")
-	   (company-ycmd--init)
-	   (when (bound-and-true-p ycmd-mode)
-		 (message "reparse ycmd timer active")
-		 (cond ((or (eq ycmd--last-status-change 'unparsed)
-					(eq ycmd--last-status-change 'errored))
-				(do-reparse))
-			   ((eq ycmd--last-status-change 'parsed)
-				(cancel-timer reparse-timer)))))
-	 
-	 ;; (add-hook 'c-mode-common-hook
-	 ;; 		   (lambda ()
-	 ;; 			 (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
-	 ;; 			 ))
-
-	 ;; 强制用语法补全，函数参数，全局变量等都能补
-	 (defun company-ycmd-semantic-complete ()
-	   (interactive)
-	   (let ((ycmd-force-semantic-completion t))
-		 (company-complete)))
-	 (global-set-key (kbd "<M-S-return>") 'company-ycmd-semantic-complete)
-     (global-set-key (kbd "M-.") (lambda () "" (interactive)
-                                   (require 'ycmd )
-                                   (unless (ycmd-running-p) (ycmd-open))
-                                   (unless ycmd-mode (ycmd-mode 1))
-                                   (ycmd-goto-imprecise)
-                                   ))
-     (global-set-key (kbd "C-c p") 'ycmd-get-type)
-     (global-set-key (kbd "C-c o") 'ycmd-goto)
-
-     (global-set-key (kbd "C-c t") 'ycmd-fixit)
-	 
-	 (require 'flycheck-ycmd)
-	 ;; 下面函数有bug，由于路径中存在反斜杠导致flycheck的错误无法显示
-	 (defun flycheck-ycmd--result-to-error-fset (result checker)
-	   "Convert ycmd parse RESULT for CHECKER into a flycheck error object."
-	   (let-alist result
-		 (when (string-equal (replace-regexp-in-string "\\\\" "/" .location.filepath ) (buffer-file-name))
-		   (flycheck-error-new
-			:line .location.line_num
-			:column .location.column_num
-			:buffer (current-buffer)
-			:filename .location.filepath
-			:message (concat .text (when (eq .fixit_available t) " (FixIt)"))
-			:checker checker
-			:level (assoc-default .kind flycheck-ycmd--level-map 'string-equal 'error)))))
-	 (fset 'flycheck-ycmd--result-to-error 'flycheck-ycmd--result-to-error-fset)
-	 (flycheck-ycmd-setup)
-	 (global-flycheck-mode 1)
-
-     (unless (featurep 'lsp-mode)
-       (require 'ycmd-eldoc)
-       (add-hook 'ycmd-mode-hook 'ycmd-eldoc-mode)
-       (global-eldoc-mode 1)
-       (unless (< (* 150 1024) (buffer-size))
-         (ycmd-eldoc-mode +1)))
-
-	 ;; (setq ycmd-force-semantic-completion t)
-	 ))
+           (display-label
+            (propertize (if tabbar-tab-label-function
+                            (funcall tabbar-tab-label-function tab)
+                          tab)
+                        'tabbar-tab tab
+                        'local-map (tabbar-make-tab-keymap tab)
+                        ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
+                        'mouse-face mouse-face
+                        'face (cond ((and selected-p
+                                          (buffer-modified-p (tabbar-tab-value tab)))
+                                     'tabbar-selected-modified)
+                                    ((and (not selected-p)
+                                          (buffer-modified-p (tabbar-tab-value tab)))
+                                     'tabbar-unselected-modified)
+                                    ((and selected-p
+                                          (not (buffer-modified-p (tabbar-tab-value tab))))
+                                     'tabbar-selected)
+                                    (t 'tabbar-unselected))
+                        'pointer 'arrow))
+           (key-label
+            (if (and tabbar-show-key-bindings (boundp 'tabbar-line-tabs) tabbar-line-tabs)
+                (let* ((mm (member tab tabbar-line-tabs) )
+                       ;; calc position (i.e., like position from cl-seq)
+                       (index (if mm (- (length tabbar-line-tabs) (length mm)))))
+                  (if (and index (fboundp (tabbar-key-command (+ 1 index))))
+                      (propertize
+                       (get (tabbar-key-command (+ 1 index)) 'label)
+                                        ;(format "%s" (+ 1 index))
+                       'mouse-face mouse-face
+                       ;; same mouse-face leads to joint mouse activation for all elements
+                       'face (list 'tabbar-key-binding text-face) ;; does not work
+                       )
+                    "")
+                  ) "")))
+      (concat close-button display-label key-label tabbar-separator-value))))
 
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
-(global-set-key (kbd "M-Q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
+(global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
 
 ;; spacemacs
 (require 'spaceline-config)
@@ -1632,12 +1324,12 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
      ))
 
 ;; org agenda
-(setq org-agenda-files (list "c:/Users/g00280886/Desktop/task.org"))
+(setq org-agenda-files (list "f:\\org\\task.org"))
 (global-set-key (kbd "C-c l") 'org-agenda)
 
 ;; taglist
 (autoload 'taglist-list-tags "taglist" nil t)
-(global-set-key (kbd "M-q") 'taglist-list-tags)
+(global-set-key (kbd "M-Q") 'taglist-list-tags)
 
 ;; rg
 (autoload 'rg "rg" nil t )
@@ -1678,22 +1370,20 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
 ;; cquery 全面的开发工具
 (with-eval-after-load 'lsp-mode
-  (global-flycheck-mode t)
+  ;; (global-flycheck-mode t)
   
   (yas-global-mode t)
   (require 'company-lsp)
   (push 'company-lsp company-backends)
-  (global-company-mode t)
+  ;; (global-company-mode t)
   ;; (setq company-lsp-async t)
   ;; (setq company-lsp-cache-candidates t)
   ;; (setq company-lsp-enable-recompletion t) ;比如第一次补全出std::，会继续补
-  (require 'lsp-imenu)
-  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
   (require 'lsp-ui)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (setq lsp-ui-doc-enable nil)
   ;; (setq lsp-ui-flycheck-enable nil)
-  ;; (setq lsp-ui-imenu-enable nil)
+  (setq lsp-ui-imenu-enable nil)        ;打开大文件太卡
   ;; (setq lsp-ui-peek-enable nil)
   (setq lsp-ui-sideline-enable nil)
   (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
@@ -1702,34 +1392,38 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
   (require 'ivy-xref)
   ;; (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
-  ;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
   (define-key ivy-minibuffer-map (kbd "C-M-m") 'ivy-partial-or-done)
   (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-call)
 
   (global-set-key (kbd "M-.") 'xref-find-definitions)
-  ;; (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
 
-  ;; 以下是在xref中定义的快捷键
-;;;(define-key esc-map "?" #'xref-find-references)
-;;;(define-key esc-map [?\C-.] #'xref-find-apropos)
-;;;(define-key ctl-x-4-map "." #'xref-find-definitions-other-window)
-;;;(define-key ctl-x-5-map "." #'xref-find-definitions-other-frame)
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (remove-function (local 'eldoc-documentation-function) 'ycmd-eldoc--documentation-function)))
+  ;; imenu只显示返回值和函数名，参数不显示(太卡)
+  (defun lsp--symbol-to-imenu-elem-fset (sym)
+    (let ((pt (lsp--position-to-point
+               (gethash "start" (gethash "range" (gethash "location" sym)))))
+          (name (gethash "name" sym))
+          (container (gethash "containerName" sym)))
+      (cons (if (and lsp-imenu-show-container-name container)
+                (substring container 0 (string-match "(" container))
+              name)
+            (if imenu-use-markers (lsp--point-to-marker pt) pt))))
+  
+  ;; (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
+
+  ;; (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
   )
 (autoload 'lsp-cquery-enable "cquery" nil t)
 (with-eval-after-load 'cquery
-  ;; (setq cquery-executable "f:/cquery/cquery/build/release/bin/cquery")
   (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery"))
+  ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
-  ;; (setq cquery-extra-init-params '(:indexWhitelist ("COMMON/include" "MPLS" "OPEN_SRC/protobuf-c-1.2.1") :indexBlacklist (".")))
-  ;; (setq cquery-extra-init-params '(:indexBlacklist ("DIRA" "DIRB"))) :completion (:detailedLabel t) 
-  (setq cquery-extra-init-params '(:xref (:container t)))
+  ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
+  (setq cquery-extra-init-params '(:diagnostics (:ontype json-false :frequencyms -1) :index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
 
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
-  (setq cquery-sem-highlight-method 'overlay)
+  ;; (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
   (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
   ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
@@ -1772,12 +1466,31 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
                            "< "
                          "")
                      (if (cquery-tree-node-has-children node)
-                         (if (cquery-tree-node-expanded node) "└-" "└+")
-                       (if (eq number (- nchildren 1)) "└╸" "├╸")))))
+                         (if (cquery-tree-node-expanded node) "└- " "└+ ")
+                       (if (eq number (- nchildren 1)) "└* " "├* ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
-  
+
+  (defadvice cquery-member-hierarchy (around cquery-member-hierarchy-ar activate)
+    (setq temp cquery-tree-initial-levels)
+    (setq cquery-tree-initial-levels 2)
+    ad-do-it
+    (setq cquery-tree-initial-levels temp))
   )
+
+;; lsp python
+(autoload 'lsp-python-enable "lsp-python" nil t)
+(with-eval-after-load 'lsp-python
+  (add-hook 'python-mode-hook #'lsp-python-enable)
+  )
+
+;; lsp java
+(autoload 'lsp-java-enable "lsp-java" nil t)
+(with-eval-after-load 'lsp-java
+  (add-hook 'java-mode-hook #'lsp-java-enable)
+  )
+(setq lsp-java-server-install-dir "D:\\jdt-language-server-latest")
+
 
 ;; clipmon监视剪贴板
 (autoload 'clipmon-mode "clipmon" nil t)
@@ -1827,146 +1540,6 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
       (setq found (eq (overlay-get ov 'invisible) 'hide-ifdef)
             overlays (cdr overlays)))
     found))
-
-;; #if 0灰色
-;; (defun my-c-mode-font-lock-if0 (limit)
-;;   (save-restriction
-;; 	(widen)
-;; 	(save-excursion
-;; 	  (goto-char (point-min)) ;;性能太差
-;; 	  ;; (goto-char (search-backward "#if 0"))
-;; 	  (let ((depth 0) str start start-depth)
-;; 		(while (re-search-forward "^\\s-*#\\s-*\\(if\\|else\\|endif\\)" limit 'move)
-;; 		  (setq str (match-string 1))
-;; 		  (if (string= str "if")
-;; 			  (progn
-;; 				(setq depth (1+ depth))
-;; 				(when (and (null start) (looking-at "\\s-+0"))
-;; 				  (setq start (match-end 0)
-;; 						start-depth depth)))
-;; 			(when (and start (= depth start-depth))
-;; 			  (c-put-font-lock-face start (match-beginning 0) 'window-divider)
-;; 			  (setq start nil))
-;; 			(when (string= str "endif")
-;; 			  (setq depth (1- depth)))))
-;; 		(when (and start (> depth 0))
-;; 		  (c-put-font-lock-face start (point) 'window-divider)))))
-;;   nil)
-
-;; (defun my-c-mode-common-hook-if0 ()
-;;   (font-lock-add-keywords
-;;    nil
-;;    '((my-c-mode-font-lock-if0 (0 shadow prepend))) 'add-to-end))
-
-;; (eval-after-load "cpp"
-;;   '(progn
-;; 	 (defun cpp-highlight-buffer-fset (arg)
-;; 	   ""
-;; 	   (interactive "P")
-;; 	   (unless (or (eq t buffer-invisibility-spec)
-;; 				   (memq 'cpp buffer-invisibility-spec))
-;; 		 (add-to-invisibility-spec 'cpp))
-;; 	   (setq cpp-parse-symbols nil)
-;; 	   (cpp-parse-reset)
-;; 	   (if (null cpp-edit-list)
-;; 		   (cpp-edit-load))
-;; 	   (let (cpp-state-stack)
-;; 		 (save-excursion
-;; 		   (goto-char (point-min))
-;; 		   (cpp-progress-message "Parsing...")
-;; 		   (while (re-search-forward cpp-parse-regexp nil t)
-;; 			 (cpp-progress-message "Parsing...%d%%"
-;; 								   (floor (* 100.0 (- (point) (point-min)))
-;; 										  (buffer-size)))
-;; 			 (let ((match (replace-regexp-in-string "\^M" "" (buffer-substring (match-beginning 0) (match-end 0)))))
-;; 			   (cond ((or (string-equal match "'")
-;; 						  (string-equal match "\""))
-;; 					  (goto-char (match-beginning 0))
-;; 					  (condition-case nil
-;; 						  (forward-sexp)
-;; 						(error (cpp-parse-error
-;; 								"Unterminated string or character"))))
-;; 					 ((string-equal match "/*")
-;; 					  (or (search-forward "*/" nil t)
-;; 						  (error "Unterminated comment")))
-;; 					 ((string-equal match "//")
-;; 					  (skip-chars-forward "^\n\r"))
-;; 					 (t
-;; 					  (end-of-line 1)
-;; 					  (let ((from (match-beginning 1))
-;; 							(to (1+ (point)))
-;; 							(type (replace-regexp-in-string "\^M" "" (buffer-substring (match-beginning 2)
-;; 													(match-end 2))))
-;; 							(expr (replace-regexp-in-string "\^M" "" (buffer-substring (match-end 1) (point))))) ;原来的代码处理不了^M
-;; 						(cond ((string-equal type "ifdef")
-;; 							   (cpp-parse-open t expr from to))
-;; 							  ((string-equal type "ifndef")
-;; 							   (cpp-parse-open nil expr from to))
-;; 							  ((string-equal type "if")
-;; 							   (cpp-parse-open t expr from to))
-;; 							  ((string-equal type "elif")
-;; 							   (let (cpp-known-face cpp-unknown-face)
-;; 								 (cpp-parse-close from to))
-;; 							   (cpp-parse-open t expr from to))
-;; 							  ((string-equal type "else")
-;; 							   (or cpp-state-stack
-;; 								   (cpp-parse-error "Top level #else"))
-;; 							   (let ((entry (list (not (nth 0 (car cpp-state-stack)))
-;; 												  (nth 1 (car cpp-state-stack))
-;; 												  from to)))
-;; 								 (cpp-parse-close from to)
-;; 								 (setq cpp-state-stack (cons entry cpp-state-stack))))
-;; 							  ((string-equal type "endif")
-;; 							   (cpp-parse-close from to))
-;; 							  (t
-;; 							   (cpp-parse-error "Parser error"))))))))
-;; 		   (message "Parsing...done"))
-;; 		 (if cpp-state-stack
-;; 			 (save-excursion
-;; 			   (goto-char (nth 3 (car cpp-state-stack)))
-;; 			   (cpp-parse-error "Unclosed conditional"))))
-;; 	   (or arg
-;; 		   (null cpp-parse-symbols)
-;; 		   (cpp-parse-edit)))
-
-;; 	 (fset 'cpp-highlight-buffer 'cpp-highlight-buffer-fset)
-;; 	 ))
-
-;; (defun cpp-highlight-if-0/1 ()
-;;   "Modify the face of text in between #if 0 ... #endif."
-;;   (interactive)
-;;   (setq cpp-known-face '(foreground-color . "dim gray"))
-;;   (setq cpp-unknown-face 'default)
-;;   (setq cpp-face-type 'dark)
-;;   (setq cpp-known-writable 't)
-;;   (setq cpp-unknown-writable 't)
-;;   (setq cpp-edit-list
-;;         '((#("1" 0 1
-;;              (fontified nil))
-;;            nil
-;;            (foreground-color . "dim gray")
-;;            both nil)
-;;           (#("0" 0 1
-;;              (fontified nil))
-;;            (foreground-color . "dim gray")
-;;            nil
-;;            both nil)))
-;;   (cpp-highlight-buffer t))
-
-
-;; (defun jpk/c-mode-hook ()
-;;   (cpp-highlight-if-0/1)
-;;   (add-hook 'after-save-hook 'cpp-highlight-if-0/1 'append 'local)
-;;   )
-
-;; (add-hook 'after-revert-hook 'cpp-highlight-if-0/1)
-
-;; 预定义宏
-;; (setq hide-ifdef-define-alist 
-;;       '( (list-name-1 GPATH_* HAVE_FUNC_2) 
-;;          (list-name-2 HAVE_HEADER_1) ) ) 
-;; (add-hook 'hide-ifdef-mode-hook 
-;;           '(lambda () (hide-ifdef-use-define-alist 'list-name-1) ) ) 
 
 ;; 添加删除注释
 (defun qiang-comment-dwim-line (&optional arg)
@@ -2061,18 +1634,6 @@ If FULL is t, copy full file name."
 	 (list (line-beginning-position)
 		   (line-beginning-position 2)))))
 
-(defun setup-program-keybindings()
-  (interactive)
-  (local-set-key (kbd "<f12>") 'semantic-ia-fast-jump)
-  (local-set-key (kbd "<S-f12>") 'semantic-complete-jump)
-  (local-set-key (kbd "M-`") 'ia-fast-jump-other)
-  (local-set-key (kbd "<C-f12>") 'semantic-symref-just-symbol)
-  (local-set-key (kbd "<M-S-f12>") 'semantic-symref-anything)
-  (local-set-key (kbd "<C-S-f12>") 'semantic-symref)
-  (local-set-key (kbd "<M-f12>") 'semantic-analyze-proto-impl-toggle)
-  (local-set-key (kbd "<M-down>") 'senator-next-tag)
-  (local-set-key (kbd "<M-up>") 'senator-previous-tag)
-  )
 
 ;;hide ^M
 (defun remove-dos-eol ()
@@ -2081,388 +1642,23 @@ If FULL is t, copy full file name."
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
 
-;; symref加强
-(eval-after-load "cc-mode"
-  '(progn
-	 (require 'semantic/symref/list )
-	 ))
-
-;; 解决symref result中用鼠标点结果时会在当前窗口打开,中键不好使，用右键
-(defun symref-results-right-click-event (event)
-  ""
-  (interactive "e")
-  (mouse-set-point event)
-  (push-button))
-
-;; 重写cedet函数 begin
-(eval-after-load "cedet-global"
-  '(progn
-	 (defun cedet-gnu-global-search-fset (searchtext texttype type scope)
-	   "add -s"
-	   (let ((flgs (cond ((eq type 'file)
-						  "-a")
-						 (t "-xa")))
-			 (scopeflgs (cond
-						 ((eq scope 'project)
-						  ""
-						  )
-						 ((eq scope 'target)
-						  "l")))
-			 (stflag (cond ((or (eq texttype 'tagname)
-								(eq texttype 'tagregexp))
-							"")
-						   ((eq texttype 'tagcompletions)
-							"c")
-						   ((eq texttype 'regexp)
-							"g")
-						   ((eq texttype 'symbolname)
-							"s")
-						   (t "r"))))
-		 (cedet-gnu-global-call (list (concat flgs scopeflgs stflag)
-									  searchtext))))
-
-	 (fset 'cedet-gnu-global-search 'cedet-gnu-global-search-fset)
-	 ))
-
-
-(defun semantic-symref-hit-to-tag-via-buffer-fset (hit searchtxt searchtype &optional open-buffers)
-  "avoid missing reference"
-  (let* ((line (car hit))
-		 (file (cdr hit))
-		 (buff (find-buffer-visiting file))
-		 (tag nil)
-		 (tagList nil)
-		 (whichFunc nil)
-		 )
-    (cond
-     ;; We have a buffer already.  Check it out.
-     (buff
-      (set-buffer buff))
-
-     ;; We have a table, but it needs a refresh.
-     ;; This means we should load in that buffer.
-     (t
-      (let ((kbuff
-			 (if open-buffers
-				 ;; Even if we keep the buffers open, don't
-				 ;; let EDE ask lots of questions.
-				 (let ((ede-auto-add-method 'never))
-				   (find-file-noselect file t))
-			   ;; When not keeping the buffers open, then
-			   ;; don't setup all the fancy froo-froo features
-			   ;; either.
-			   (semantic-find-file-noselect file t))))
-		(set-buffer kbuff)
-		(push kbuff semantic-symref-recently-opened-buffers)
-		(semantic-fetch-tags)
-		))
-     )
-
-    ;; Too much baggage in goto-line
-    ;; (goto-line line)
-    (goto-char (point-min))
-    (forward-line (1- line))
-
-    ;; Search forward for the matching text
-    (when (re-search-forward searchtxt
-							 (point-at-eol)
-							 t)
-      (goto-char (match-beginning 0))
-      )
-
-    (setq tag (semantic-current-tag))
-	(unless (zerop (current-indentation))
-	  (setq whichFunc (which-function)))
-    ;; If we are searching for a tag, but bound the tag we are looking
-    ;; for, see if it resides in some other parent tag.
-    ;;
-    ;; If there is no parent tag, then we still need to hang the originator
-    ;; in our list.
-    (when (and (eq searchtype 'symbol)
-			   (string= (semantic-tag-name tag) searchtxt))
-      (setq tag (or (semantic-current-tag-parent) tag)))
-
-	;; 找不到tag时，使用which-fuction匹配本文件所有tag来查
-	(unless tag
-	  (let ((foundFlag-p nil )
-			(i 0))
-
-		(setq tagList (semantic-fetch-tags))
-		(while (and
-				(not foundFlag-p)
-				(<= i (length tagList)))
-
-		  ;; if found, set foundFlag-p
-		  
-		  (when (equal (semantic-tag-name (elt tagList i)) whichFunc)
-			(setq foundFlag-p t )
-			(setq tag (elt tagList i)))
-
-		  (setq i (1+ i))))
-	  )
-	;; 再找不到就创建一个空tag
-	(unless tag
-	  (setq tag (semantic-tag "/* COMMENT */" 'variable))
-	  (semantic--tag-put-property tag :filename (buffer-file-name)))
-
-    ;; Copy the tag, which adds a :filename property.
-    (when tag
-      (setq tag (semantic-tag-copy tag nil t))
-      ;; Ad this hit to the tag.
-      (semantic--tag-put-property tag :hit (list line)))
-    tag))
-(eval-after-load "symref"
-  '(progn
-	 (fset 'semantic-symref-hit-to-tag-via-buffer 'semantic-symref-hit-to-tag-via-buffer-fset)))
-
-;; semantic-symref-results-dump是symref生成按钮的函数
-(defun semantic-symref-produce-list-on-results-fset (res str)
-  "(semantic-symref-result-get-tags res nil)"
-  (when (not res) (error "No references found"))
-  (semantic-symref-result-get-tags res nil)
-  (message "Gathering References...done")
-  ;; Build a references buffer.
-  (let ((buff (get-buffer-create (format "*Symref %s" str))))
-    (switch-to-buffer-other-window buff)
-    (set-buffer buff)
-    (semantic-symref-results-mode)
-    (set (make-local-variable 'semantic-symref-current-results) res)
-    (semantic-symref-results-dump res)
-    (goto-char (point-min))))
-
-
-(defun semantic-symref-rb-toggle-expand-tag-fset (&optional button)
-  "kill non-open buffer and add line num"
-  (interactive)
-  (let* ((tag (button-get button 'tag))
-		 (kill-flag t)
-		 (all-buff-list (buffer-list))
-		 (buff (semantic-tag-buffer tag))
-		 (hits (semantic--tag-get-property tag :hit))
-		 (state (button-get button 'state))
-		 (text nil))
-	
-	(let ((foundFlag-p nil )
-		  (tag-filename (semantic--tag-get-property tag :filename))
-		  (i 0))
-
-	  (while (and
-			  (not foundFlag-p)
-			  (<= i (length all-buff-list)))
-
-		;; if found, set foundFlag-p
-		
-		(when (and (buffer-live-p (elt all-buff-list i))
-				   (equal (buffer-file-name (elt all-buff-list i)) tag-filename))
-		  (setq foundFlag-p t )
-		  (setq kill-flag nil))
-
-		(setq i (1+ i))))
-
-    (cond
-     ((eq state 'closed)
-      (with-current-buffer buff
-		(dolist (H hits)
-		  (goto-char (point-min))
-		  (forward-line (1- H))
-		  (beginning-of-line)
-		  (back-to-indentation)
-		  (setq text (cons (buffer-substring (point) (point-at-eol)) text)))
-		(setq text (nreverse text)))
-      (goto-char (button-start button))
-      (forward-char 1)
-      (let ((inhibit-read-only t))
-		(delete-char 1)
-		(insert "-")
-		(button-put button 'state 'open)
-		(save-excursion
-		  (end-of-line)
-		  (while text
-			(insert "\n")
-			(insert "    ")
-			(insert-button (format "[%s] %s" (car hits) (car text))
-						   'mouse-face 'highlight
-						   'face nil
-						   'action 'semantic-symref-rb-goto-match
-						   'tag tag
-						   'line (car hits))
-			(setq text (cdr text)
-				  hits (cdr hits))))))
-     ((eq state 'open)
-      (let ((inhibit-read-only t))
-		(button-put button 'state 'closed)
-		;; Delete the various bits.
-		(goto-char (button-start button))
-		(forward-char 1)
-		(delete-char 1)
-		(insert "+")
-		(save-excursion
-		  (end-of-line)
-		  (forward-char 1)
-		  (delete-region (point)
-						 (save-excursion
-						   (forward-char 1)
-						   (forward-line (length hits))
-						   (point)))))))
-	(if kill-flag
-		(kill-buffer buff))
-	))
-
-(defun semantic-tag-buffer-fset (tag)
-  "打开文件不记入recentf，并且打开较快，用完后最好手动kill"
-  (let ((buff (semantic-tag-in-buffer-p tag)))
-    (if buff
-		buff
-      ;; TAG has an originating file, read that file into a buffer, and
-      ;; return it.
-	  (if (semantic--tag-get-property tag :filename)
-		  (save-match-data
-			(semantic-find-file-noselect (semantic--tag-get-property tag :filename) t))
-		;; TAG is not in Emacs right now, no buffer is available.
-		))))
-
-(fset 'semantic-tag-buffer 'semantic-tag-buffer-fset)
-
-(defun semantic-symref-fset ()
-  ""
-  (interactive)
-  (semantic-fetch-tags)
-  (let (symbol res)
-	(setq symbol (semantic-current-tag))
-	;; Gather results and tags
-	(message "Gathering References for %s ..." (semantic-tag-name symbol))
-	(setq res (semantic-symref-find-references-by-name (semantic-tag-name symbol)))
-	(semantic-symref-produce-list-on-results res (semantic-tag-name symbol))))
-
-(eval-after-load "list"
-  '(progn
-	 (fset 'semantic-symref-rb-toggle-expand-tag 'semantic-symref-rb-toggle-expand-tag-fset)
-	 (fset 'semantic-symref 'semantic-symref-fset)
-	 (fset 'semantic-symref-produce-list-on-results 'semantic-symref-produce-list-on-results-fset)
-     ;; (fset 'semantic-symref-results-dump 'semantic-symref-results-dump-fset)
-     ;; (fset 'semantic-symref-rb-toggle-expand-tag 'semantic-symref-rb-toggle-expand-tag-fset)
-     ))
-
-;; 重写cedet函数 end
-
-(defun semantic-symref-find-references-by-symbolname (name &optional scope tool-return)
-  ""
-  (interactive "sName: ")
-  (let* ((inst (semantic-symref-instantiate
-				:searchfor name
-				:searchtype 'symbolname
-				:searchscope (or scope 'project)
-				:resulttype 'line))
-		 (result (semantic-symref-get-result inst)))
-	(when tool-return
-	  (set tool-return inst))
-	(prog1
-		(setq semantic-symref-last-result result)
-	  (when (called-interactively-p 'interactive)
-		(semantic-symref-data-debug-last-result))))
-  )
-
-;; 在symref result里继续symref
-(defun symref-in-result()
-  ""
-  (interactive)
-  (let (symbol res flag)
-	(setq symbol (thing-at-point 'symbol))
-	(setq flag nil)
-	(walk-windows
-	 #'(lambda (w)
-		 (unless flag
-		   (other-window 1)
-		   (while (or (eq major-mode 'c-mode)
-					  (eq major-mode 'c++-mode))
-			 ;; (push-button)
-			 ;; Gather results and tags
-			 (message "Gathering References for %s ..." symbol)
-			 (setq res (cond
-						((semantic-symref-find-references-by-name symbol))
-						((semantic-symref-find-references-by-symbolname symbol))))
-			 (semantic-symref-produce-list-on-results res symbol)
-			 (setq flag t))
-		   )))))
-
-
-(defun semantic-symref-just-symbol (&optional text)
-  ""
-  (interactive "*P")
-  (semantic-fetch-tags)
-  (let (symbol res)
-	(setq symbol (thing-at-point 'symbol))
-	(if (or text (not symbol))
-		(setq symbol (grep-read-regexp)))
-	(if (eq text 0)
-		(setq symbol (concat "\\<" symbol "\\>")))
-	;; Gather results and tags
-	(message "Gathering References for %s ..." symbol)
-	(setq res (cond
-			   ((semantic-symref-find-references-by-name symbol))
-			   ((semantic-symref-find-references-by-symbolname symbol))))
-	(semantic-symref-produce-list-on-results res symbol)))
-
-(defun semantic-symref-anything (&optional text)
-  ""
-  (interactive "*P")
-  (semantic-fetch-tags)
-  (let (symbol res)
-	(setq symbol (thing-at-point 'symbol))
-	(if (or text (not symbol))
-		(setq symbol (grep-read-regexp)))
-	(if (eq text 0)
-		(setq symbol (concat "\\<" symbol "\\>")))
-	;; Gather results and tags
-	(message "Gathering References for %s ..." symbol)
-	(setq res (semantic-symref-find-text symbol))
-	(semantic-symref-produce-list-on-results res symbol)))
-
-(defun semantic-pop-tag-mark ()             
-  "popup the tag save by semantic-goto-definition"   
-  (interactive)                                                    
-  (if (ring-empty-p semantic-tags-location-ring)                   
-	  (message "%s" "No more tags available")                      
-	(let* ((marker (ring-remove semantic-tags-location-ring 0))    
-		   (buff (marker-buffer marker))                        
-		   (pos (marker-position marker)))                   
-	  (if (not buff)                                               
-		  (message "Buffer has been deleted")                    
-		(switch-to-buffer buff)                                    
-		(goto-char pos))                                           
-	  (set-marker marker nil nil))))
-
+;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
 (dolist (command '(semantic-ia-fast-jump semantic-complete-jump helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path
-                                         semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event ycmd-goto ycmd-goto-imprecise
-                                         semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
-                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch))
+                                         semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
+                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol))
   (eval
    `(defadvice ,command (before jump-mru activate)
-      (ring-insert semantic-tags-location-ring (point-marker))
       (unless (featurep 'evil-jumps)
         (require 'evil))
       (when (featurep 'evil-jumps)
-        (evil--jumps-push))
-      (window-configuration-to-register :prev-win-layout)
+        (evil-set-jump))
+      ;; (window-configuration-to-register :prev-win-layout)
       )))
 
 
 (defadvice helm-gtags-find-tag-other-window (after helm-gtags-tag-other-back activate)
   ""
   (select-window (previous-window)))
-
-(defadvice semantic-symref-hide-buffer (after semantic-symref-hide-buffer-after activate)
-  ""
-  (jump-to-register :prev-win-layout))
-
-(defun ia-fast-jump-other ()
-  (interactive "")
-  (let ((pos (point)))
-	(save-selected-window
-	  (switch-to-buffer-other-window (current-buffer))
-	  (goto-char pos)
-	  (semantic-ia-fast-jump (point)))
-	))
 
 (defun set-c-word-mode ()
   ""
@@ -2480,7 +1676,7 @@ If FULL is t, copy full file name."
   (modify-syntax-entry ?- "w")
   (setq-local bm-cycle-all-buffers nil))
 
-(global-set-key (kbd "C-+") 'set-c-word-mode)
+(global-set-key (kbd "C-?") 'set-c-word-mode)
 
 (defun kill-spec-buffers ()
   ""
@@ -2514,17 +1710,13 @@ If FULL is t, copy full file name."
   ""
   (when (< (* 150 1024) (buffer-size))
 	;; (nlinum-mode -1)
-	(setq-local jit-lock-context-time 5)
-	(setq-local jit-lock-defer-time 5)
+	;; (setq-local jit-lock-context-time 1.5)
+	;; (setq-local jit-lock-defer-time 0.5)
 	(setq-local font-lock-maximum-decoration 2)
 	(font-lock-refresh-defaults)
 	(setq-local semantic-idle-scheduler-idle-time 60)
 	(setq-local company-idle-delay 3)
-    ;; (if (featurep 'ycmd-eldoc)
-    ;;     (setq-local ycmd-mode-hook (delq 'ycmd-eldoc-mode ycmd-mode-hook)))
-    (if (featurep 'lsp-mode)
-        (setq-local lsp-highlight-symbol-at-point nil))
-    (eldoc-mode -1)
+    ;; (eldoc-mode -1)
     ;; (ad-deactivate 'yank)
     ;; (ad-deactivate 'yank-pop)
     ;; (ad-deactivate 'undo)
@@ -2532,10 +1724,13 @@ If FULL is t, copy full file name."
 	;; (font-lock-mode -1 )
 	;; (jit-lock-mode nil)
 	;; (diff-hl-mode -1)
+    (message "Large file." )
 	))
 ;; 大文件不开semantic
-;; (add-to-list 'semantic-inhibit-functions
-;;              (lambda () (< (* 400 1024) (buffer-size))))
+(eval-after-load "semantic"
+  '(progn 
+     (add-to-list 'semantic-inhibit-functions
+                  (lambda () (< (* 150 1024) (buffer-size))))))
 
 (defun unix-to-dos-trim-M ()
   (interactive)
@@ -2804,18 +1999,18 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			(modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
 			(c-set-style "gzj")      ;定制C/C++缩进风格,到实际工作环境中要用guess style(main mode菜单里有个style子菜单)来添加详细的缩进风格。Press ‘C-c C-o’ to see the syntax at point
 			;; (fci-mode 1)
-			(setup-program-keybindings)
 			;; (hs-minor-mode 1)
 			;; (hide-ifdef-mode 1)
-			(setq-local ac-auto-start nil)
 			(setq-local indent-tabs-mode nil)
 			;; (company-mode 1)
-			(abbrev-mode 0)
+			(abbrev-mode -1)
 			;; (flycheck-mode 1)
             ;; (yas-minor-mode 1)          
 			;; (my-c-mode-common-hook-if0)
 			;; (jpk/c-mode-hook)
 			;; (setq-local company-idle-delay 0.5)
+            ;; (setq-local jit-lock-context-time 1.5)
+	        ;; (setq-local jit-lock-defer-time 0.5)
 			(check-large-file-hook)
 			;; (srecode-minor-mode 1)
 			(font-lock-add-keywords nil
@@ -2824,20 +2019,17 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 									1)
 			;; (superword-mode)                ;连字符不分割单词,影响move和edit，但是鼠标双击选择不管用 ，相对subword-mode
 			(define-key c-mode-base-map (kbd "C-{") 'my-hif-toggle-block)
-			(define-key semantic-symref-results-mode-map (kbd "<C-f12>") 'symref-in-result)
-			(define-key semantic-symref-results-mode-map (kbd "s") 'symref-in-result)
-            (define-key semantic-symref-results-mode-map [mouse-3] 'symref-results-right-click-event)
 			(set-default 'semantic-imenu-summary-function 'semantic-format-tag-uml-abbreviate)
 			))
 
 (add-hook 'emacs-lisp-mode-hook
 		  (lambda ()
 			(modify-syntax-entry ?- "w")
-			(setup-program-keybindings)
 			;; (flycheck-mode 1)
             ;; (yas-minor-mode 1)
 			;; (hs-minor-mode 1)
 			(company-mode 1)
+            (eldoc-mode 1)
 			(setq-local indent-tabs-mode nil)
 			(setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
@@ -2852,8 +2044,10 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			(define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
 			(define-key dired-mode-map "c" 'create-known-ede-project)
 			(define-key dired-mode-map (kbd "M-s") 'er/expand-region)
-			(diff-hl-dired-mode 1)
+			;; (diff-hl-dired-mode 1)
 			(dired-async-mode 1)
+            ;; (setq-local jit-lock-context-time 0.5)
+	        ;; (setq-local jit-lock-defer-time nil)
             (unless (memq 'Git vc-handled-backends)
               (setq-local vc-handled-backends (append '(Git) vc-handled-backends)))
 			))
@@ -2867,7 +2061,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 			(define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
 			(define-key comint-mode-map (kbd "<down>") 'comint-next-input)
             ;; (yas-minor-mode 1)
-			(company-mode 0)
+			(company-mode -1)
 			))
 
 (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
@@ -2878,7 +2072,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 ;; gtags symref 的结果都设置为C语法，主要为了highlight-symbol能正确
 (eval-after-load "cc-mode"
   '(progn
-	 (dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook cscope-list-entry-hook rscope-list-entry-hook ag-mode-hook))
+	 (dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook imenu-list-major-mode-hook))
 	   (add-hook hook
 				 (lambda()
 				   (setq truncate-lines t)
@@ -3041,11 +2235,20 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
 ;; 生成函数注释
 (global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
+(add-hook 'after-make-frame-functions (lambda (_) (custom-set-faces
+                                                   ;; custom-set-faces was added by Custom.
+                                                   ;; If you edit it by hand, you could mess it up, so be careful.
+                                                   ;; Your init file should contain only one such instance.
+                                                   ;; If there is more than one, they won't work right.
+                                                   '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
+                                                   '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
+                                                   '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold)))))) t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
  '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
  '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
