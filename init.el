@@ -137,10 +137,6 @@
      (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
-;; (semantic-mode t)
-;; (global-ede-mode t)
-(setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
-(set-default 'semantic-case-fold t)
 
 ;;修改标题栏，显示buffer的名字
 (setq frame-title-format "%b [%+] %f")
@@ -224,7 +220,6 @@
  '(explicit-shell-file-name "bash")
  '(fci-eol-char 32)
  '(fill-column 120)
- '(flycheck-check-syntax-automatically nil)
  '(flycheck-checker-error-threshold nil)
  '(flycheck-emacs-lisp-load-path (quote inherit))
  '(flycheck-indication-mode (quote right-fringe))
@@ -314,14 +309,6 @@
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
  '(save-place t nil (saveplace))
- '(semantic-c-dependency-system-include-path
-   (quote
-    ("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include" "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include" "C:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt" "C:/Program Files (x86)/Windows Kits/8.1/Include/um" "C:/Program Files (x86)/Windows Kits/8.1/Include/shared" "C:/Program Files (x86)/Windows Kits/8.1/Include/winrt")))
- '(semantic-idle-scheduler-idle-time 15)
- '(semantic-idle-scheduler-work-idle-time 600)
- '(semantic-imenu-bucketize-file nil)
- '(semantic-lex-spp-use-headers-flag t)
- '(semantic-symref-results-summary-function (quote semantic-format-tag-abbreviate))
  '(shell-completion-execonly nil)
  '(show-paren-mode t)
  '(show-paren-when-point-in-periphery t)
@@ -1370,12 +1357,12 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
 ;; cquery 全面的开发工具
 (with-eval-after-load 'lsp-mode
-  ;; (global-flycheck-mode t)
+  (global-flycheck-mode t)
   
   (yas-global-mode t)
   (require 'company-lsp)
   (push 'company-lsp company-backends)
-  ;; (global-company-mode t)
+  (global-company-mode t)
   ;; (setq company-lsp-async t)
   ;; (setq company-lsp-cache-candidates t)
   ;; (setq company-lsp-enable-recompletion t) ;比如第一次补全出std::，会继续补
@@ -1419,7 +1406,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq cquery-extra-init-params '(:diagnostics (:ontype json-false :frequencyms -1) :index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
+  (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
 
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
@@ -1449,6 +1436,8 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; (cquery-xref-find-custom "$cquery/references-read")
   ;; (cquery-xref-find-custom "$cquery/references-write")
   ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
+
+  ;; (setq lsp--workspaces (make-hash-table :test #'equal) ;;进程异常时，记录有残留，执行这句复原
   
   ;; 不折行
   (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
