@@ -60,7 +60,6 @@
 (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
 (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
 (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-(setenv "LLVMTOOL" "G:\\llvm\\llvm-6.0.1\\build\\Debug\\bin")
 ;; (setenv "GTAGSLABEL" "pygments")
 
 (setq python-shell-prompt-detect-enabled nil) ;用python27时需要加这个不然有warning
@@ -69,8 +68,6 @@
 
 (setenv "PATH"
         (concat
-         (getenv "LLVMTOOL")
-         path-separator
          (getenv "GITCMD")
          path-separator
          (getenv "PYTHON")
@@ -95,7 +92,6 @@
          path-separator
          (getenv "PATH")))
 
-(add-to-list 'exec-path (getenv "LLVMTOOL") t)
 (add-to-list 'exec-path (getenv "GITCMD") t)
 (add-to-list 'exec-path (getenv "PYTHON") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
@@ -129,7 +125,7 @@
 
 ;; Load CEDET
 (require 'srecode)
-;; (semantic-mode 1)
+(semantic-mode 1)
 ;; (global-srecode-minor-mode t)
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
 (eval-after-load "srecode/map"
@@ -137,6 +133,8 @@
      (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
+(setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
+;; (set-default 'semantic-case-fold t)
 
 ;;修改标题栏，显示buffer的名字
 (setq frame-title-format "%b [%+] %f")
@@ -182,7 +180,6 @@
  ;; If there is more than one, they won't work right.
  '(ad-redefinition-action (quote accept))
  '(ag-highlight-search t)
- '(auto-hscroll-mode (quote current-line))
  '(auto-save-default nil)
  '(autopair-blink nil)
  '(aw-scope (quote frame))
@@ -198,6 +195,7 @@
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
+ '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
@@ -224,13 +222,10 @@
  '(flycheck-emacs-lisp-load-path (quote inherit))
  '(flycheck-indication-mode (quote right-fringe))
  '(flycheck-navigation-minimum-level (quote error))
- '(flymake-fringe-indicator-position (quote right-fringe))
  '(frame-resize-pixelwise t)
  '(git-commit-fill-column 200)
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
- '(git-gutter:handled-backends (quote (git hg bzr svn)))
- '(git-gutter:update-interval 2)
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
  '(global-display-line-numbers-mode t)
@@ -249,11 +244,10 @@
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-select-result t)
- '(helm-gtags-display-style (quote detail))
- '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-suggested-key-mapping t)
  '(helm-gtags-update-interval-second 3)
+ '(helm-gtags-use-input-at-cursor t)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
@@ -276,9 +270,13 @@
  '(ivy-height 20)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
+ '(lsp-eldoc-hook (quote (lsp-hover)))
  '(lsp-highlight-symbol-at-point nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
- '(lsp-response-timeout 20)
+ '(lsp-response-timeout 15)
+ '(lsp-ui-doc-include-signature t)
+ '(lsp-ui-peek-always-show t)
+ '(lsp-ui-peek-peek-height 30)
  '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
  '(magit-git-global-arguments
@@ -309,6 +307,7 @@
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
  '(save-place t nil (saveplace))
+ '(semanticdb-default-save-directory "d:/semanticdb")
  '(shell-completion-execonly nil)
  '(show-paren-mode t)
  '(show-paren-when-point-in-periphery t)
@@ -682,7 +681,7 @@
      (define-key helm-gtags-mode-map (kbd "C-c g") 'helm-gtags-find-pattern)
      (define-key helm-gtags-mode-map (kbd "C-\\") 'helm-gtags-dwim)
      (define-key helm-gtags-mode-map (kbd "C-|") 'helm-gtags-find-tag-other-window)
-     (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-show-stack)
+     ;; (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-show-stack)
      ))
 
 (add-hook 'helm-update-hook
@@ -986,7 +985,7 @@
 
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
-(global-set-key (kbd "C-x t g") 'magit-blame)
+(global-set-key (kbd "C-x t g") 'magit-blame-addition)
 (global-set-key (kbd "C-x t l") 'magit-log-buffer-file)
 
 ;; 避免时区差8小时
@@ -1340,7 +1339,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
+  (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist (".*/COMMON/include/.*" ".*/dir1/dir2/.*"))))
 
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
@@ -1348,15 +1347,19 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; (setq cquery-sem-highlight-method 'font-lock)
   (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
   ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
+  (define-key c-mode-map (kbd "<f1>") 'lsp-ui-peek-find-definitions)
+  (define-key c++-mode-map (kbd "<f1>") 'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
+  ;; (define-key c-mode-map (kbd "<C-f12>") 'cquery-member-hierarchy) ;;此功能cquery中已经删除
+  ;; (define-key c++-mode-map (kbd "<C-f12>") 'cquery-member-hierarchy)
   (define-key c-mode-map (kbd "<f12>") 'cquery-call-hierarchy)
   (define-key c++-mode-map (kbd "<f12>") 'cquery-call-hierarchy)
-  (define-key c-mode-map (kbd "<C-f12>") 'cquery-member-hierarchy)
-  (define-key c++-mode-map (kbd "<C-f12>") 'cquery-member-hierarchy)
-  (define-key c-mode-map (kbd "<S-f12>") 'cquery-inheritance-hierarchy)
-  (define-key c++-mode-map (kbd "<S-f12>") 'cquery-inheritance-hierarchy)
-  (define-key c-mode-map (kbd "<M-f12>") (lambda () "" (interactive)
+
+  (define-key c-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
+  (define-key c++-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
+  (define-key c-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
                                            (setq lsp--workspaces (make-hash-table :test #'equal))))
-  (define-key c++-mode-map (kbd "<M-f12>") (lambda () "" (interactive)
+  (define-key c++-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
                                            (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
@@ -1428,6 +1431,8 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 (autoload 'clipmon-mode "clipmon" nil t)
 ;; clipmon-autoinsert-toggle 自动插入当前buffer
 
+;; 提高长行性能
+(autoload 'so-long-enable "so-long" nil t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1575,9 +1580,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(semantic-ia-fast-jump semantic-complete-jump helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path
-                                         semantic-decoration-include-visit my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle semantic-decoration-include-visit ff-find-other-file semantic-symref-just-symbol
-                                         semantic-symref-anything semantic-symref-fset xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol))
+(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -1586,7 +1589,6 @@ If FULL is t, copy full file name."
         (evil-set-jump))
       ;; (window-configuration-to-register :prev-win-layout)
       )))
-
 
 (defadvice helm-gtags-find-tag-other-window (after helm-gtags-tag-other-back activate)
   ""
@@ -1649,6 +1651,7 @@ If FULL is t, copy full file name."
     (font-lock-refresh-defaults)
     (setq-local semantic-idle-scheduler-idle-time 60)
     (setq-local company-idle-delay 3)
+    (setq-local cquery-sem-highlight-method nil)
     ;; (eldoc-mode -1)
     ;; (ad-deactivate 'yank)
     ;; (ad-deactivate 'yank-pop)
@@ -1659,11 +1662,6 @@ If FULL is t, copy full file name."
     ;; (diff-hl-mode -1)
     (message "Large file." )
     ))
-;; 大文件不开semantic
-;; (eval-after-load "semantic"
-;;   '(progn
-;;      (add-to-list 'semantic-inhibit-functions
-;;                   (lambda () (< (* 150 1024) (buffer-size))))))
 
 (defun unix-to-dos-trim-M ()
   (interactive)
@@ -1970,6 +1968,13 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map "c" 'create-known-ede-project)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
+			;; dired中用默认打开方式打开文件
+			(define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
+												   (if (eq system-type 'windows-nt)
+													   (progn
+														 (with-no-warnings
+														   (w32-shell-execute "open" (car (dired-get-marked-files)))))
+													 (dired-do-async-shell-command))))
             ;; (diff-hl-dired-mode 1)
             (dired-async-mode 1)
             ;; (setq-local jit-lock-context-time 0.5)
@@ -2090,7 +2095,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 
 ;; 文件跳转
-(global-set-key (kbd "<M-f6>") 'semantic-decoration-include-visit)
 (global-set-key (kbd "<C-f6>") 'find-file-at-point) ;ffap
 (global-set-key (kbd "M-o") 'ff-find-other-file) ;声明和实现之间跳转
 
@@ -2098,7 +2102,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
 
 ;; 重新加载文件
-(global-set-key (kbd "<f1>") 'revert-buffer)
+(global-set-key (kbd "<C-f1>") 'revert-buffer)
 (global-set-key (kbd "<M-f1>") 'reopen-file)
 
 ;; 对齐
@@ -2156,8 +2160,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 ;;evil jump(window-local jump)
 (autoload 'evil-jump-backward "evil" nil t)
 (global-set-key (kbd "M-,") 'evil-jump-backward)
-(global-set-key (kbd "C--") 'evil-jump-backward)
-(global-set-key (kbd "C-_") 'evil-jump-forward)
+(global-set-key (kbd "C-M-,") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
 ;; 生成函数注释
@@ -2177,6 +2180,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; If there is more than one, they won't work right.
  '(dired-async-message ((t (:foreground "midnight blue"))))
  '(dired-async-mode-message ((t (:foreground "blue violet"))))
+ '(helm-xref-file-name ((t (:foreground "dark cyan"))))
+ '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
  '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
  '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
