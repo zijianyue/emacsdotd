@@ -9,21 +9,24 @@
       '((top . 1) (left . 350) (width . 80) (height . 38)))
 
 (set-face-attribute
- ;; 'default nil :font "source code pro" :weight 'light :height 141) ;ultra-light
- 'default nil :font "Consolas 11")
+ 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
+ ;; 'default nil :font "inconsolata 14")
+ ;; 'default nil :font "Consolas 14")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Consolas 11"))
+;; (add-to-list 'default-frame-alist '(font . "Consolas 11"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
+					(font-spec :family "Heiti SC" :size 16)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
-(setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp")))
+(if (memq system-type '(darwin))
+    (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
+  (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
 (add-to-list 'custom-theme-load-path (concat site-lisp-directory "/spacemacs/spacemacs-theme"))
 ;; spacemacs theme setting
@@ -60,8 +63,11 @@
 (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
 (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
 (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-(setenv "LLVMTOOL" "G:\\llvm\\llvm-6.0.1\\build\\Debug\\bin")
+;; (setenv "LLVMTOOL" "G:\\llvm\\llvm-6.0.1\\build\\Debug\\bin")
+(setenv "LOCALBIN" "/usr/local/bin")
 ;; (setenv "GTAGSLABEL" "pygments")
+(setenv "MAVEN" "~/apache-maven-3.6.0/bin")
+
 
 (setq python-shell-prompt-detect-enabled nil) ;用python27时需要加这个不然有warning
 (setq python-shell-completion-native-enable nil) ;用python27时需要加这个不然有warning
@@ -69,9 +75,13 @@
 
 (setenv "PATH"
 		(concat
+         (getenv "MAVEN")
+         path-separator
+         (getenv "LOCALBIN")
+         path-separator
          (getenv "LLVMTOOL")
 		 path-separator    
-	         (getenv "GITCMD")
+         (getenv "GITCMD")
 		 path-separator
 		 (getenv "PYTHON")
 		 path-separator
@@ -95,6 +105,7 @@
 		 path-separator
 		 (getenv "PATH")))
 
+(add-to-list 'exec-path (getenv "LOCALBIN") t)
 (add-to-list 'exec-path (getenv "LLVMTOOL") t)
 (add-to-list 'exec-path (getenv "GITCMD") t)
 (add-to-list 'exec-path (getenv "PYTHON") t)
@@ -111,17 +122,17 @@
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
 (setq grep-program "grep -nH -F")		;-F按普通字符串搜索
 ;; 默认目录
-(setq default-directory "d:/")
+;; (setq default-directory "d:/")
 
 ;; 启动mode
 (setq initial-major-mode 'text-mode)
 
 ;; elpa
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-						 ("marmalade" . "http://marmalade-repo.org/packages/")
+						 ;; ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
 						 ;; ("melpa" . "http://melpa.milkbox.net/packages/")
-						 ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
+						 ("melpa-stable" . "http://stable.melpa.org/packages/")))
 ;; mini buffer 的大小保持不变
 ;; (setq resize-mini-windows nil)
 ;; 没有提示音,也不闪屏
@@ -171,7 +182,9 @@
 ;; 优先横分割窗口
 (setq split-width-threshold 9999)	;增大向右分割的要求
 ;; (setq split-height-threshold 0)
-
+;; mac上的键盘换位
+(setq mac-option-modifier 'super)
+(setq mac-command-modifier 'meta)
 ;; hi lock颜色不要hi-black-hb
 (setq hi-lock-face-defaults '("hi-yellow" "hi-pink" "hi-green" "hi-blue" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
 ;; 自动添加的设置
@@ -181,6 +194,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ad-redefinition-action (quote accept))
+ '(ag-arguments (quote ("-u" "--smart-case" "--stats")))
  '(ag-highlight-search t)
  '(auto-hscroll-mode (quote current-line))
  '(auto-save-default nil)
@@ -201,10 +215,9 @@
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
- '(custom-enabled-themes (quote (spacemacs-light)))
  '(custom-safe-themes
    (quote
-    ("66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+    ("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(delete-by-moving-to-trash t)
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
@@ -279,7 +292,6 @@
  '(ls-lisp-verbosity nil)
  '(lsp-highlight-symbol-at-point nil)
  '(lsp-response-timeout 30)
- '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
  '(magit-git-global-arguments
    (quote
@@ -296,6 +308,7 @@
  '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
+ '(ns-right-alternate-modifier (quote control))
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-log-done (quote time))
@@ -333,6 +346,8 @@
  '(yas-also-auto-indent-first-line t))
 
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
+;; all-the-icons
+(require 'all-the-icons)
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
 (setq gtags-disable-pushy-mouse-mapping t)
@@ -1100,8 +1115,9 @@
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
+;; (add-to-list 'load-path "/Applications/Emacs.app/Contents/Resources/site-lisp/tabbar")
 (require 'aquamacs-tabbar)
-(tabbar-mode)
+;; (tabbar-mode)
 ;; 防止undo后标签颜色不恢复
 (defadvice undo(after undo-after activate)
   ;;   (on-modifying-buffer) ;; tabbar
@@ -1181,17 +1197,11 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
                        )
                     "")
                   ) "")))
-      (concat close-button display-label key-label tabbar-separator-value))))
-
+      (concat close-button display-label key-label tabbar-separator-value)))
+  )
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
 (global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
-
-;; spacemacs
-(require 'spaceline-config)
-(spaceline-helm-mode 1)
-(spaceline-info-mode 1)
-(setq anzu-cons-mode-line-p nil)		;防止有两个anzu
 
 ;; 用diminish控制minor mode的显示
 (require 'diminish)
@@ -1202,6 +1212,12 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode " HG"))
 (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode))
 (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
+
+;; spacemacs
+(require 'spaceline-config)
+(spaceline-helm-mode 1)
+(spaceline-info-mode 1)
+(setq anzu-cons-mode-line-p nil)		;防止有两个anzu
 
 ;; 鼠标指向dos处时，弹出文件编码信息
 (spaceline-define-segment buffer-encoding-abbrev-mouse
@@ -1285,6 +1301,15 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
 (spaceline-emacs-theme-mod)
 
+;; doom
+(require 'doom-themes)
+(doom-themes-treemacs-config)
+(doom-themes-org-config)
+(load-theme 'doom-nord t)
+(require 'doom-modeline)
+(doom-modeline-mode 1)
+(setq doom-modeline-github nil)
+
 ;; org screenshort
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
@@ -1356,35 +1381,160 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
      ))
 
 ;; cquery 全面的开发工具
-(with-eval-after-load 'lsp-mode
-  (global-flycheck-mode t)
+;; (with-eval-after-load 'lsp-mode
+;;   (global-flycheck-mode t)
   
-  (yas-global-mode t)
+;;   (yas-global-mode t)
+;;   (require 'company-lsp)
+;;   (push 'company-lsp company-backends)
+;;   (global-company-mode t)
+;;   ;; (setq company-lsp-async t)
+;;   ;; (setq company-lsp-cache-candidates t)
+;;   ;; (setq company-lsp-enable-recompletion t) ;比如第一次补全出std::，会继续补
+;;   (require 'lsp-ui)
+;;   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+;;   (setq lsp-ui-doc-enable nil)
+;;   ;; (setq lsp-ui-flycheck-enable nil)
+;;   (setq lsp-ui-imenu-enable nil)        ;打开大文件太卡
+;;   ;; (setq lsp-ui-peek-enable nil)
+;;   (setq lsp-ui-sideline-enable nil)
+;;   (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
+
+;;   (require 'helm-xref)
+;;   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+;;   (require 'ivy-xref)
+;;   ;; (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
+;;   (global-set-key (kbd "C-c C-r") 'ivy-resume)
+;;   (define-key ivy-minibuffer-map (kbd "C-M-m") 'ivy-partial-or-done)
+;;   (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-call)
+
+;;   (global-set-key (kbd "M-.") 'xref-find-definitions)
+
+;;   ;; imenu只显示返回值和函数名，参数不显示(太卡)
+;;   (defun lsp--symbol-to-imenu-elem-fset (sym)
+;;     (let ((pt (lsp--position-to-point
+;;                (gethash "start" (gethash "range" (gethash "location" sym)))))
+;;           (name (gethash "name" sym))
+;;           (container (gethash "containerName" sym)))
+;;       (cons (if (and lsp-imenu-show-container-name container)
+;;                 (substring container 0 (string-match "(" container))
+;;               name)
+;;             (if imenu-use-markers (lsp--point-to-marker pt) pt))))
+  
+;;   ;; (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
+
+;;   ;; (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
+;;   )
+;; (autoload 'lsp-cquery-enable "cquery" nil t)
+;; (with-eval-after-load 'cquery
+;;   (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery"))
+;;   ;; Use t for true, :json-false for false, :json-null for null
+;;   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
+;;   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
+;;   (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
+
+;;   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
+;; ;;;; enable semantic highlighting:
+;;   ;; (setq cquery-sem-highlight-method 'overlay)
+;;   ;; (setq cquery-sem-highlight-method 'font-lock)
+;;   (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
+;;   ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
+
+;;   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
+;;   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
+;;   (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
+;;   (define-key cquery-tree-mode-map (kbd "n") (lambda () "" (interactive)
+;;                                                (forward-line 1)
+;;                                                (back-to-indentation)))
+;;   (define-key cquery-tree-mode-map (kbd "p") (lambda () "" (interactive)
+;;                                                (forward-line -1)
+;;                                                (back-to-indentation)))
+;;   (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
+;;   ;; (cquery-use-default-rainbow-sem-highlight)
+;;   ;; 其他功能
+;;   ;; (cquery-xref-find-custom "$cquery/base")
+;;   ;; (cquery-xref-find-custom "$cquery/callers")
+;;   ;; (cquery-xref-find-custom "$cquery/derived")
+;;   ;; (cquery-xref-find-custom "$cquery/vars")
+;;   ;; (cquery-xref-find-custom "$cquery/random")
+;;   ;; (cquery-xref-find-custom "$cquery/references-address")"
+;;   ;; (cquery-xref-find-custom "$cquery/references-read")
+;;   ;; (cquery-xref-find-custom "$cquery/references-write")
+;;   ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
+
+;;   ;; (setq lsp--workspaces (make-hash-table :test #'equal) ;;进程异常时，记录有残留，执行这句复原
+  
+;;   ;; 不折行
+;;   (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
+;;     (eval
+;;      `(defadvice ,command (after cquery-after activate)
+;;         (setq truncate-lines t)
+;;         )))
+
+;;   ;; 解决乱码
+;;   (defun cquery-tree--make-prefix-fset (node number nchildren depth)
+;;     "."
+;;     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
+;;            (symbol (if (= depth 0)
+;;                        (if (cquery-tree-node-parent node)
+;;                            "< "
+;;                          "")
+;;                      (if (cquery-tree-node-has-children node)
+;;                          (if (cquery-tree-node-expanded node) "└- " "└+ ")
+;;                        (if (eq number (- nchildren 1)) "└* " "├* ")))))
+;;       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
+;;   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
+
+;;   (defadvice cquery-member-hierarchy (around cquery-member-hierarchy-ar activate)
+;;     (setq temp cquery-tree-initial-levels)
+;;     (setq cquery-tree-initial-levels 2)
+;;     ad-do-it
+;;     (setq cquery-tree-initial-levels temp))
+;;   )
+
+;; lsp python
+;; (autoload 'lsp-python-enable "lsp-python" nil t)
+;; (with-eval-after-load 'lsp-python
+;;   (add-hook 'python-mode-hook #'lsp-python-enable)
+;;   )
+
+;; lsp java
+;; (autoload 'lsp-java-enable "lsp-java" nil t)
+;; (with-eval-after-load 'lsp-java
+;;   (add-hook 'java-mode-hook #'lsp-java-enable)
+;;   )
+(setq lsp-java-server-install-dir "~/jdt-language-serve")
+
+;; lsp new version
+(autoload 'lsp "lsp-mode" nil t)
+(with-eval-after-load 'lsp-mode
+  ;; lsp框架
+  (require 'lsp-ui)
   (require 'company-lsp)
+  (require 'helm-lsp)
+  (require 'helm-xref)
+  (require 'projectile)
+  (require 'dap-mode)
+  (require 'treemacs)
+  (require 'lsp-java-treemacs)
+  ;; lsp server
+  (require 'lsp-java)
+  (require 'cquery)
+  ;; add hook use lsp
+  (add-hook 'c-mode-hook #'lsp)
+  (add-hook 'c++-mode-hook #'lsp)
+  (add-hook 'java-mode-hook #'lsp)
+  (add-hook 'python-mode-hook #'lsp)    ;lsp-mode自带server
+  ;; config for use
   (push 'company-lsp company-backends)
   (global-company-mode t)
-  ;; (setq company-lsp-async t)
-  ;; (setq company-lsp-cache-candidates t)
-  ;; (setq company-lsp-enable-recompletion t) ;比如第一次补全出std::，会继续补
-  (require 'lsp-ui)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  (setq lsp-ui-doc-enable nil)
-  ;; (setq lsp-ui-flycheck-enable nil)
-  (setq lsp-ui-imenu-enable nil)        ;打开大文件太卡
-  ;; (setq lsp-ui-peek-enable nil)
-  (setq lsp-ui-sideline-enable nil)
-  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
-
-  (require 'helm-xref)
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
-  (require 'ivy-xref)
-  ;; (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
-  (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (define-key ivy-minibuffer-map (kbd "C-M-m") 'ivy-partial-or-done)
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-call)
+  ;; (global-flycheck-mode t)
+  (yas-global-mode t)
+  (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
 
-  (global-set-key (kbd "M-.") 'xref-find-definitions)
-
+  ;; 函数重写
   ;; imenu只显示返回值和函数名，参数不显示(太卡)
   (defun lsp--symbol-to-imenu-elem-fset (sym)
     (let ((pt (lsp--position-to-point
@@ -1398,22 +1548,28 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   
   ;; (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
 
-  ;; (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
   )
-(autoload 'lsp-cquery-enable "cquery" nil t)
+
+;; debug
+(autoload 'dap-mode "dap-mode" nil t)
+(autoload 'dap-ui-mode "dap-ui" nil t)
+(with-eval-after-load 'dap-mode
+  (require 'dap-python)
+  (require 'dap-java)
+  )
+
+;; cquery c/c++ lsp server
 (with-eval-after-load 'cquery
   (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery"))
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
+  ;; (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist ("COMMON/include" "dir1/dir2"))))
 
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
-  (add-hook 'c-mode-common-hook 'lsp-cquery-enable)
-  ;; (remove-hook 'c-mode-common-hook 'lsp-cquery-enable)
 
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
@@ -1424,21 +1580,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (define-key cquery-tree-mode-map (kbd "p") (lambda () "" (interactive)
                                                (forward-line -1)
                                                (back-to-indentation)))
-  (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
-  ;; (cquery-use-default-rainbow-sem-highlight)
-  ;; 其他功能
-  ;; (cquery-xref-find-custom "$cquery/base")
-  ;; (cquery-xref-find-custom "$cquery/callers")
-  ;; (cquery-xref-find-custom "$cquery/derived")
-  ;; (cquery-xref-find-custom "$cquery/vars")
-  ;; (cquery-xref-find-custom "$cquery/random")
-  ;; (cquery-xref-find-custom "$cquery/references-address")"
-  ;; (cquery-xref-find-custom "$cquery/references-read")
-  ;; (cquery-xref-find-custom "$cquery/references-write")
-  ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
-
-  ;; (setq lsp--workspaces (make-hash-table :test #'equal) ;;进程异常时，记录有残留，执行这句复原
-  
+  (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)  
   ;; 不折行
   (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
     (eval
@@ -1459,32 +1601,41 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
                        (if (eq number (- nchildren 1)) "└* " "├* ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
-
-  (defadvice cquery-member-hierarchy (around cquery-member-hierarchy-ar activate)
-    (setq temp cquery-tree-initial-levels)
-    (setq cquery-tree-initial-levels 2)
-    ad-do-it
-    (setq cquery-tree-initial-levels temp))
   )
 
-;; lsp python
-(autoload 'lsp-python-enable "lsp-python" nil t)
-(with-eval-after-load 'lsp-python
-  (add-hook 'python-mode-hook #'lsp-python-enable)
-  )
-
-;; lsp java
-(autoload 'lsp-java-enable "lsp-java" nil t)
-(with-eval-after-load 'lsp-java
-  (add-hook 'java-mode-hook #'lsp-java-enable)
-  )
-(setq lsp-java-server-install-dir "D:\\jdt-language-server-latest")
-
+;; projectile
+(autoload 'projectile-mode "projectile-mode" nil t)
 
 ;; clipmon监视剪贴板
 (autoload 'clipmon-mode "clipmon" nil t)
 ;; clipmon-autoinsert-toggle 自动插入当前buffer
 
+;; jdee
+;; (require 'jdee)
+;; (custom-set-variables
+;;  '(jdee-server-dir "~/jdee-server/target"))
+
+;; meghanada
+(autoload 'meghanada-mode "meghanada" nil t)
+(with-eval-after-load 'meghanada
+  (add-hook 'java-mode-hook
+            (lambda ()
+              ;; meghanada-mode on
+              (meghanada-mode t)
+              (flycheck-mode +1)
+              (setq c-basic-offset 2)
+              ;; use code format
+              (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))))
+(cond
+ ((eq system-type 'windows-nt)
+  (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+  (setq meghanada-maven-path "mvn.cmd"))
+ (t
+  (setq meghanada-java-path "java")
+  (setq meghanada-maven-path "mvn")))
+
+;; treemacs
+(autoload 'treemacs "treemacs" nil t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2229,15 +2380,13 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
                                                    ;; If you edit it by hand, you could mess it up, so be careful.
                                                    ;; Your init file should contain only one such instance.
                                                    ;; If there is more than one, they won't work right.
-                                                   '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
-                                                   '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
-                                                   '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold)))))) t)
+                                                   ;; '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
+                                                  ;; '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
+                                                  ;; '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
+                                                  )) t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
- '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
- '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
