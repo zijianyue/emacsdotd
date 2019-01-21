@@ -64,6 +64,8 @@
 (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
 (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
 (setenv "MAVEN" "~/apache-maven-3.6.0/bin")
+(setenv "LOCALBIN" "/usr/local/bin")    ;for mac
+
 ;; (setenv "GTAGSLABEL" "pygments")
 
 
@@ -73,6 +75,8 @@
 
 (setenv "PATH"
 		(concat
+         (getenv "LOCALBIN")
+		 path-separator  
          (getenv "MAVEN")
 		 path-separator    
          (getenv "GITCMD")
@@ -132,7 +136,7 @@
 
 ;; Load CEDET
 (require 'srecode)
-(semantic-mode 1)
+;; (semantic-mode 1)
 ;; (global-srecode-minor-mode t)
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
 (eval-after-load "srecode/map"
@@ -311,6 +315,7 @@
  '(pcmpl-gnu-tarfile-regexp "")
  '(powerline-default-separator (quote box))
  '(powerline-gui-use-vcs-glyph t)
+ '(proced-filter (quote emacs))
  '(recentf-auto-cleanup 600)
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
@@ -1306,7 +1311,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 (autoload 'wgrep-rg-setup "wgrep-rg")
 (add-hook 'rg-mode-hook 'wgrep-rg-setup)
 
-(setq lsp-java-server-install-dir "~/jdt-language-serve")
+(setq lsp-java-server-install-dir "~/jdt-language-server")
 
 ;; lsp new version
 (autoload 'lsp "lsp-mode" nil t)
@@ -1336,6 +1341,8 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   (global-company-mode t)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-ui-sideline-enable nil)
   (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
 
   ;; 函数重写
@@ -1441,6 +1448,7 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 
 ;; treemacs
 (autoload 'treemacs "treemacs" nil t)
+;; treemacs-add-project-to-workspace
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
