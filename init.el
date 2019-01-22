@@ -1266,15 +1266,33 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; (spaceline-emacs-theme-mod)
 ;; (load-theme 'spacemacs-light)
 
-;; ;; doom
+;; doom theme with its mode line
 (require 'doom-themes)
 ;; (doom-themes-treemacs-config)
 (doom-themes-org-config)
 (load-theme 'doom-nord t)
 (require 'doom-modeline)
-(doom-modeline-mode 1)
 (setq doom-modeline-github nil)
 (setq doom-modeline-buffer-file-name-style 'buffer-name)
+;; add which-func in inactive window
+(doom-modeline-def-segment misc-info-for-all
+  "Mode line construct for miscellaneous information.
+By default, this shows the information specified by `global-mode-string'."
+  '(" " mode-line-misc-info))
+
+(doom-modeline-def-modeline 'main-misc-for-all
+  '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
+  '(misc-info-for-all persp-name lsp github debug minor-modes input-method buffer-encoding major-mode process vcs checker))
+
+(defun doom-modeline-set-main-misc-for-all-modeline (&optional default)
+  "Set main mode-line.
+If DEFAULT is non-nil, set the default mode-line for all buffers with misc in inactive window also."
+  (doom-modeline-set-modeline 'main-misc-for-all default))
+
+(fset 'doom-modeline-set-main-modeline 'doom-modeline-set-main-misc-for-all-modeline)
+(doom-modeline-mode 1)
+
+
 ;; org screenshort
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
@@ -1466,7 +1484,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 
 ;; 显示对齐线
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
-(add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides)
+(add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
 (setq highlight-indent-guides-character ?\|)
 
