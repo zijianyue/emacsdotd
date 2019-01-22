@@ -9,9 +9,9 @@
       '((top . 1) (left . 350) (width . 80) (height . 38)))
 
 (set-face-attribute
- 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
+ ;; 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
  ;; 'default nil :font "inconsolata 14")
- ;; 'default nil :font "Consolas 14")
+ 'default nil :font "Consolas 13")
 
 ;; 新开的窗口保持字体
 ;; (add-to-list 'default-frame-alist '(font . "Consolas 11"))
@@ -20,7 +20,7 @@
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
 					charset
-					(font-spec :family "Heiti SC" :size 16)));mac中Heiti SC能中英文等高
+					(font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -28,7 +28,7 @@
     (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
-(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/spacemacs/spacemacs-theme"))
+(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/spacemacs-theme"))
 ;; spacemacs theme setting
 (setq spacemacs-theme-comment-bg nil)
 (setq spacemacs-theme-org-height nil)
@@ -330,6 +330,7 @@
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
+ '(treemacs-tag-follow-mode t)
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
@@ -396,6 +397,9 @@
 
 (eval-after-load "company"
   '(progn
+     ;; (require 'company-box)             ;补全带图标
+     ;; (add-hook 'company-mode-hook 'company-box-mode)
+
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -1174,102 +1178,103 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
 
 ;; spacemacs
-(require 'spaceline-config)
-(spaceline-helm-mode 1)
-(spaceline-info-mode 1)
-(setq anzu-cons-mode-line-p nil)		;防止有两个anzu
+;; (require 'spaceline-config)
+;; (spaceline-helm-mode 1)
+;; (spaceline-info-mode 1)
+;; (setq anzu-cons-mode-line-p nil)		;防止有两个anzu
 
-;; 鼠标指向dos处时，弹出文件编码信息
-(spaceline-define-segment buffer-encoding-abbrev-mouse
-  "The line ending convention used in the buffer with mouse prompt of buffer encoding info."
-  (let ((buf-coding (format "%s" buffer-file-coding-system)))
-    (if (string-match "\\(dos\\|unix\\|mac\\)" buf-coding)
-        (setq buf-coding (match-string 1 buf-coding))
-      buf-coding)
-    (propertize buf-coding
-                'help-echo (if buffer-file-coding-system
-                               (format "Buffer coding system (%s): %s
-mouse-1: Describe coding system
-mouse-3: Set coding system"
-                                       (if enable-multibyte-characters "multi-byte" "unibyte")
-                                       (symbol-name buffer-file-coding-system))
-                             "Buffer coding system: none specified"))))
+;; ;; 鼠标指向dos处时，弹出文件编码信息
+;; (spaceline-define-segment buffer-encoding-abbrev-mouse
+;;   "The line ending convention used in the buffer with mouse prompt of buffer encoding info."
+;;   (let ((buf-coding (format "%s" buffer-file-coding-system)))
+;;     (if (string-match "\\(dos\\|unix\\|mac\\)" buf-coding)
+;;         (setq buf-coding (match-string 1 buf-coding))
+;;       buf-coding)
+;;     (propertize buf-coding
+;;                 'help-echo (if buffer-file-coding-system
+;;                                (format "Buffer coding system (%s): %s
+;; mouse-1: Describe coding system
+;; mouse-3: Set coding system"
+;;                                        (if enable-multibyte-characters "multi-byte" "unibyte")
+;;                                        (symbol-name buffer-file-coding-system))
+;;                              "Buffer coding system: none specified"))))
 
-;; 让which-func强制刷新
-(spaceline-define-segment which-function-ignore-active
-  (when (bound-and-true-p which-function-mode)
-    (let* ((current (format-mode-line which-func-current)))
-      (when (string-match "{\\(.*\\)}" current)
-        (setq current (match-string 1 current)))
-      (propertize current
-                  'local-map which-func-keymap
-                  'face 'which-func
-                  'mouse-face 'mode-line-highlight
-                  'help-echo "mouse-1: go to beginning\n\
-mouse-2: toggle rest visibility\n\
-mouse-3: go to end"))))
+;; ;; 让which-func强制刷新
+;; (spaceline-define-segment which-function-ignore-active
+;;   (when (bound-and-true-p which-function-mode)
+;;     (let* ((current (format-mode-line which-func-current)))
+;;       (when (string-match "{\\(.*\\)}" current)
+;;         (setq current (match-string 1 current)))
+;;       (propertize current
+;;                   'local-map which-func-keymap
+;;                   'face 'which-func
+;;                   'mouse-face 'mode-line-highlight
+;;                   'help-echo "mouse-1: go to beginning\n\
+;; mouse-2: toggle rest visibility\n\
+;; mouse-3: go to end"))))
 
-;; 自定义theme使用上面两个segment
-(defun spaceline--theme-mod (left second-left &rest additional-segments)
-  "Convenience function for the spacemacs and emacs themes."
-  (spaceline-install `(,left
-                       anzu
-                       auto-compile
-                       ,second-left
-                       major-mode
-                       (process :when active)
-                       ((flycheck-error flycheck-warning flycheck-info)
-                        :when active)
-                       (minor-modes :when active)
-                       (mu4e-alert-segment :when active)
-                       (erc-track :when active)
-                       (version-control :when active)
-                       (org-pomodoro :when active)
-                       (org-clock :when active)
-                       nyan-cat)
+;; ;; 自定义theme使用上面两个segment
+;; (defun spaceline--theme-mod (left second-left &rest additional-segments)
+;;   "Convenience function for the spacemacs and emacs themes."
+;;   (spaceline-install `(,left
+;;                        anzu
+;;                        auto-compile
+;;                        ,second-left
+;;                        major-mode
+;;                        (process :when active)
+;;                        ((flycheck-error flycheck-warning flycheck-info)
+;;                         :when active)
+;;                        (minor-modes :when active)
+;;                        (mu4e-alert-segment :when active)
+;;                        (erc-track :when active)
+;;                        (version-control :when active)
+;;                        (org-pomodoro :when active)
+;;                        (org-clock :when active)
+;;                        nyan-cat)
 
-                     `(which-function-ignore-active
-                       (python-pyvenv :fallback python-pyenv)
-                       (battery :when active)
-                       selection-info
-                       input-method
-                       ((buffer-encoding-abbrev-mouse
-                         point-position
-                         line-column)
-                        :separator " | ")
-                       (global :when active)
-                       ,@additional-segments
-                       buffer-position
-                       hud))
+;;                      `(which-function-ignore-active
+;;                        (python-pyvenv :fallback python-pyenv)
+;;                        (battery :when active)
+;;                        selection-info
+;;                        input-method
+;;                        ((buffer-encoding-abbrev-mouse
+;;                          point-position
+;;                          line-column)
+;;                         :separator " | ")
+;;                        (global :when active)
+;;                        ,@additional-segments
+;;                        buffer-position
+;;                        hud))
 
-  (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
+;;   (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
 
-(defun spaceline-emacs-theme-mod (&rest additional-segments)
-  "Install a modeline close to the one used by Spacemacs, but which
-looks better without third-party dependencies.
+;; (defun spaceline-emacs-theme-mod (&rest additional-segments)
+;;   "Install a modeline close to the one used by Spacemacs, but which
+;; looks better without third-party dependencies.
 
-ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
-`buffer-position'."
-  (apply 'spaceline--theme-mod
-         '(((((persp-name :fallback workspace-number)
-              window-number) :separator "|")
-            buffer-modified
-            buffer-size)
-           :face highlight-face)
-         '(buffer-id remote-host)
-         additional-segments))
+;; ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
+;; `buffer-position'."
+;;   (apply 'spaceline--theme-mod
+;;          '(((((persp-name :fallback workspace-number)
+;;               window-number) :separator "|")
+;;             buffer-modified
+;;             buffer-size)
+;;            :face highlight-face)
+;;          '(buffer-id remote-host)
+;;          additional-segments))
 
-(spaceline-emacs-theme-mod)
+;; (spaceline-emacs-theme-mod)
+;; (load-theme 'spacemacs-light)
 
-;; doom
+;; ;; doom
 (require 'doom-themes)
-(doom-themes-treemacs-config)
+;; (doom-themes-treemacs-config)
 (doom-themes-org-config)
 (load-theme 'doom-nord t)
 (require 'doom-modeline)
 (doom-modeline-mode 1)
 (setq doom-modeline-github nil)
-
+(setq doom-modeline-buffer-file-name-style 'buffer-name)
 ;; org screenshort
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
@@ -1337,13 +1342,13 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
   ;; config for use
 ;; (global-flycheck-mode t)
   (yas-global-mode t)
-  (push 'company-lsp company-backends)
-  (global-company-mode t)
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (defadvice lsp--auto-configure(after lsp--auto-configure-after activate)
+    (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
+
   (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
   (setq lsp-prefer-flymake nil)
   (setq lsp-ui-sideline-enable nil)
-  (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
+  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
 
   ;; 函数重写
   ;; imenu只显示返回值和函数名，参数不显示(太卡)
@@ -1449,6 +1454,14 @@ ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
 ;; treemacs
 (autoload 'treemacs "treemacs" nil t)
 ;; treemacs-add-project-to-workspace
+
+;; 边写边自动缩进
+(autoload 'aggressive-indent-mode "aggressive-indent" nil t)
+(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+
+;; 自动缩进
+(autoload 'auto-indent-mode "auto-indent-mode" nil t)
+(setq auto-indent-indent-style 'conservative)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1519,6 +1532,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                      lisp-mode
                      c-mode
                      c++-mode
+                     python-mode
+                     java-mode
                      ))
            (let ((mark-even-if-inactive transient-mark-mode))
              (indent-region (region-beginning) (region-end) nil))))))
@@ -1971,6 +1986,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (company-mode 1)
             (eldoc-mode 1)
             (setq-local indent-tabs-mode nil)
+            ;; (add-to-list 'company-backends '(company-capf :with company-yasnippet :with company-dabbrev-code))
             (setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
