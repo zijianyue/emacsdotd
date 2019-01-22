@@ -1457,11 +1457,19 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 
 ;; 边写边自动缩进
 (autoload 'aggressive-indent-mode "aggressive-indent" nil t)
-(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 
 ;; 自动缩进
 (autoload 'auto-indent-mode "auto-indent-mode" nil t)
-(setq auto-indent-indent-style 'conservative)
+;; (add-hook 'emacs-lisp-mode-hook #'auto-indent-mode)
+
+
+;; 显示对齐线
+(autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
+(add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides)
+(setq highlight-indent-guides-method 'character)
+(setq highlight-indent-guides-character ?\|)
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
