@@ -29,6 +29,8 @@
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
 (add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/spacemacs-theme"))
+(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/emacs-doom-themes-master/themes"))
+
 ;; spacemacs theme setting
 (setq spacemacs-theme-comment-bg nil)
 (setq spacemacs-theme-org-height nil)
@@ -103,6 +105,7 @@
          path-separator
          (getenv "PATH")))
 
+(add-to-list 'exec-path (getenv "LOCALBIN")) ;放最前面 带t是append
 (add-to-list 'exec-path (getenv "GITCMD") t)
 (add-to-list 'exec-path (getenv "PYTHON") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
@@ -113,6 +116,7 @@
 (add-to-list 'exec-path (getenv "CYGWIN") t)
 (add-to-list 'exec-path (getenv "CPPCHECK") t)
 (add-to-list 'exec-path (getenv "PDFLATEX") t)
+(add-to-list 'exec-path (getenv "MAVEN") t)
 
 ;; windows的find跟gnu 的grep有冲突
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
@@ -213,9 +217,10 @@
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
+ '(custom-enabled-themes (quote (doom-nord)))
  '(custom-safe-themes
    (quote
-    ("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+    ("6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(delete-by-moving-to-trash t)
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
@@ -748,9 +753,12 @@
 ;; markdown mode
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
+(autoload 'gfm-mode "markdown-mode"
+  "Major mode for editing GitHub Flavored Markdown files" t)
+(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
 
 ;; 打开大文件
 (require 'vlf-setup)
@@ -1270,7 +1278,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (require 'doom-themes)
 ;; (doom-themes-treemacs-config)
 (doom-themes-org-config)
-(load-theme 'doom-nord t)
+;; (load-theme 'doom-nord t)
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
 (setq doom-modeline-buffer-file-name-style 'buffer-name)
