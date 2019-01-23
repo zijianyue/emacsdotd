@@ -196,7 +196,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ad-redefinition-action (quote accept))
- '(ag-arguments (quote ("-u" "--smart-case" "--stats")))
  '(ag-highlight-search t)
  '(auto-hscroll-mode (quote current-line))
  '(auto-save-default nil)
@@ -1568,6 +1567,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                      c++-mode
                      python-mode
                      java-mode
+                     nxml-mode
                      ))
            (let ((mark-even-if-inactive transient-mark-mode))
              (indent-region (region-beginning) (region-end) nil))))))
