@@ -52,6 +52,12 @@
 ;;                         (base64-encode-string "usrname:password")))))
 
 ;; 环境变量
+;; mac or linux环境变量设置从系统拷贝
+;; (when (memq window-system '(ns x))
+;;   (require 'exec-path-from-shell)
+;;   (exec-path-from-shell-copy-env "PYTHONPATH")
+;;   (exec-path-from-shell-initialize))
+
 (setenv "HOME" (expand-file-name "~"))
 (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
 (setenv "MINGW" "C:\\MinGW\\bin")
@@ -60,12 +66,13 @@
 (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
 (setenv "GTAGSBIN" "c:\\gtags\\bin")
 (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
+(setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/")
 (setenv "CYGWIN" "C:\\cygwin\\bin")
 (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
 (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
 (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
 (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-(setenv "MAVEN" "~/apache-maven-3.6.0/bin")
+(setenv "MAVEN_HOME" "~/apache-maven-3.6.0/bin")
 (setenv "LOCALBIN" "/usr/local/bin")    ;for mac
 
 ;; (setenv "GTAGSLABEL" "pygments")
@@ -77,9 +84,11 @@
 
 (setenv "PATH"
 		(concat
+         (getenv "PYTHONMAC")
+		 path-separator 
          (getenv "LOCALBIN")
 		 path-separator  
-         (getenv "MAVEN")
+         (getenv "MAVEN_HOME")
 		 path-separator    
          (getenv "GITCMD")
 		 path-separator
@@ -105,7 +114,9 @@
          path-separator
          (getenv "PATH")))
 
-(add-to-list 'exec-path (getenv "LOCALBIN")) ;放最前面 带t是append
+(add-to-list 'exec-path (getenv "LOCALBIN")) ;放前面 带t是append
+(add-to-list 'exec-path (getenv "PYTHONMAC"))
+
 (add-to-list 'exec-path (getenv "GITCMD") t)
 (add-to-list 'exec-path (getenv "PYTHON") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
@@ -116,7 +127,7 @@
 (add-to-list 'exec-path (getenv "CYGWIN") t)
 (add-to-list 'exec-path (getenv "CPPCHECK") t)
 (add-to-list 'exec-path (getenv "PDFLATEX") t)
-(add-to-list 'exec-path (getenv "MAVEN") t)
+(add-to-list 'exec-path (getenv "MAVEN_HOME") t)
 
 ;; windows的find跟gnu 的grep有冲突
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
@@ -351,6 +362,7 @@
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
 ;; all-the-icons
 (require 'all-the-icons)
+
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
 (setq gtags-disable-pushy-mouse-mapping t)
@@ -1400,7 +1412,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; cquery c/c++ lsp server
 (with-eval-after-load 'cquery
-  (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery"))
+  (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery")) ;on mac
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
@@ -1421,9 +1433,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (define-key c-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
   (define-key c++-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
   (define-key c-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
-                                           (setq lsp--workspaces (make-hash-table :test #'equal))))
+                                             (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key c++-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
-                                           (setq lsp--workspaces (make-hash-table :test #'equal))))
+                                               (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
   (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
@@ -1482,18 +1494,15 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 边写边自动缩进
 (autoload 'aggressive-indent-mode "aggressive-indent" nil t)
-;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-
-;; 自动缩进
-(autoload 'auto-indent-mode "auto-indent-mode" nil t)
-;; (add-hook 'emacs-lisp-mode-hook #'auto-indent-mode)
-
+(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 
 ;; 显示对齐线
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
 (add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides-mode)
-(setq highlight-indent-guides-method 'character)
-(setq highlight-indent-guides-character ?\|)
+(with-eval-after-load 'highlight-indent-guides
+  (setq highlight-indent-guides-method 'character)
+  ;; (setq highlight-indent-guides-character ?\|)
+  )
 
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
@@ -2237,9 +2246,9 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
                                                    ;; Your init file should contain only one such instance.
                                                    ;; If there is more than one, they won't work right.
                                                    ;; '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
-                                                  ;; '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
-                                                  ;; '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
-                                                  )) t)
+                                                   ;; '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
+                                                   ;; '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
+                                                   )) t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
