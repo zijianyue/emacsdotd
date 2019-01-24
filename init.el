@@ -19,8 +19,8 @@
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
-					charset
-					(font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
+                    charset
+                    (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -83,33 +83,33 @@
 (define-coding-system-alias 'UTF-8 'utf-8)       ;防止Warning (mule): Invalid coding system ‘UTF-8’ is specified for the current buffer/file by the :coding tag.
 
 (setenv "PATH"
-		(concat
+        (concat
          (getenv "PYTHONMAC")
-		 path-separator 
+         path-separator
          (getenv "LOCALBIN")
-		 path-separator  
+         path-separator
          (getenv "MAVEN_HOME")
-		 path-separator    
+         path-separator
          (getenv "GITCMD")
-		 path-separator
-		 (getenv "PYTHON")
-		 path-separator
-		 (getenv "MSYS")
-		 path-separator
-		 (getenv "MINGW")
-		 path-separator
-		 (getenv "PUTTY")
-		 path-separator
-		 (getenv "LLVM")
-		 path-separator
-		 (getenv "CMAKE")
-		 path-separator
-		 (getenv "GTAGSBIN")
-		 path-separator
-		 (getenv "CYGWIN")
-		 path-separator
-		 (getenv "CPPCHECK")
-		 path-separator
+         path-separator
+         (getenv "PYTHON")
+         path-separator
+         (getenv "MSYS")
+         path-separator
+         (getenv "MINGW")
+         path-separator
+         (getenv "PUTTY")
+         path-separator
+         (getenv "LLVM")
+         path-separator
+         (getenv "CMAKE")
+         path-separator
+         (getenv "GTAGSBIN")
+         path-separator
+         (getenv "CYGWIN")
+         path-separator
+         (getenv "CPPCHECK")
+         path-separator
          (getenv "PDFLATEX")
          path-separator
          (getenv "PATH")))
@@ -140,10 +140,10 @@
 
 ;; elpa
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-						 ;; ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ;; ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
-						 ;; ("melpa" . "http://melpa.milkbox.net/packages/")
-						 ("melpa-stable" . "http://stable.melpa.org/packages/")))
+                         ;; ("melpa" . "http://melpa.milkbox.net/packages/")
+                         ("melpa-stable" . "http://stable.melpa.org/packages/")))
 ;; mini buffer 的大小保持不变
 ;; (setq resize-mini-windows nil)
 ;; 没有提示音,也不闪屏
@@ -198,6 +198,8 @@
 ;; mac上的键盘换位
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
+;; mac上输入中文闪烁的问题，五笔或拼音
+(setq redisplay-dont-pause nil)
 ;; hi lock颜色不要hi-black-hb
 (setq hi-lock-face-defaults '("hi-yellow" "hi-pink" "hi-green" "hi-blue" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
 ;; 自动添加的设置
@@ -231,7 +233,6 @@
  '(custom-safe-themes
    (quote
     ("6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
- '(delete-by-moving-to-trash t)
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
  '(dired-listing-switches "-alh")
@@ -243,7 +244,6 @@
  '(electric-pair-mode t)
  '(enable-local-variables :all)
  '(eww-search-prefix "http://cn.bing.com/search?q=")
- '(explicit-shell-file-name "bash")
  '(fci-eol-char 32)
  '(fill-column 120)
  '(flycheck-checker-error-threshold nil)
@@ -2043,13 +2043,13 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map "c" 'create-known-ede-project)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
-			;; dired中用默认打开方式打开文件
-			(define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
-												   (if (eq system-type 'windows-nt)
-													   (progn
-														 (with-no-warnings
-														   (w32-shell-execute "open" (car (dired-get-marked-files)))))
-													 (dired-do-async-shell-command))))
+            ;; dired中用默认打开方式打开文件
+            (define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
+                                                   (if (eq system-type 'windows-nt)
+                                                       (progn
+                                                         (with-no-warnings
+                                                           (w32-shell-execute "open" (car (dired-get-marked-files)))))
+                                                     (dired-do-async-shell-command))))
             ;; (diff-hl-dired-mode 1)
             (dired-async-mode 1)
             ;; (setq-local jit-lock-context-time 0.5)
