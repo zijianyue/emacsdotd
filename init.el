@@ -305,6 +305,7 @@
  '(ls-lisp-verbosity nil)
  '(lsp-highlight-symbol-at-point nil)
  '(lsp-response-timeout 30)
+ '(mac-right-option-modifier (quote control))
  '(magit-diff-use-overlays nil)
  '(magit-git-global-arguments
    (quote
@@ -2092,6 +2093,11 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             ))
 
 ;; org 设置
+;; 标题自动加时间戳 '(16)代表两个c-u
+(defadvice org-insert-heading (after org-insert-heading-after activate)
+  (org-time-stamp '(16))
+  (search-backward "<")
+  (save-excursion (insert " ")))        ;跳到开头并插个空格
 ;; 显示缩进
 (setq org-startup-indented t)
 ;; org导出pdf, org要用utf-8保存
@@ -2240,15 +2246,25 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
 ;; 生成函数注释
 (global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
-(add-hook 'after-make-frame-functions (lambda (_) (custom-set-faces
-                                                   ;; custom-set-faces was added by Custom.
-                                                   ;; If you edit it by hand, you could mess it up, so be careful.
-                                                   ;; Your init file should contain only one such instance.
-                                                   ;; If there is more than one, they won't work right.
-                                                   ;; '(tabbar-default ((t (:inherit nil :stipple nil :background "SystemMenuBar" :foreground "black" :box nil :strike-through nil :underline nil :slant normal :weight normal :height 0.9 :width normal :family "Consolas"))))
-                                                   ;; '(tabbar-selected-modified ((t (:inherit tabbar-selected :foreground "firebrick" :weight bold))))
-                                                   ;; '(tabbar-unselected-modified ((t (:inherit tabbar-unselected :foreground "firebrick" :weight bold))))
-                                                   )) t)
+;; face修改
+(defun change-face ()
+  ""
+  (copy-face 'mode-line-inactive 'tabbar-default)
+  (set-face-attribute 'tabbar-default nil
+                      :height 1.0
+                      :family "Consolas")
+  (copy-face 'tooltip 'tabbar-selected)
+  (copy-face 'tabbar-selected 'tabbar-selected-highlight)
+  (copy-face 'tabbar-default 'tabbar-unselected)
+  (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
+  (copy-face 'tabbar-modified 'tabbar-selected-modified)
+  (copy-face 'tabbar-modified 'tabbar-unselected-modified))
+
+(change-face)
+(add-hook 'after-make-frame-functions (lambda (_) (change-face)))
+(defadvice load-theme (after load-theme-af activate)
+  (change-face))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
