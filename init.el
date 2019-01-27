@@ -75,9 +75,11 @@
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd"))
 
 (when (eq system-type 'darwin)
+  (setenv "LIBEXEC" "/usr/local/opt/python/libexec/bin")
   (setenv "MAVEN_HOME" "~/apache-maven-3.6.0/bin")
   (setenv "LOCALBIN" "/usr/local/bin")    ;for mac
-  (setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/"))
+  ;; (setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/")
+  )
 
 ;; (setenv "GTAGSLABEL" "pygments")
 
@@ -88,6 +90,8 @@
 
 (setenv "PATH"
         (concat
+         (getenv "LIBEXEC")
+         path-separator
          (getenv "PYTHONMAC")
          path-separator
          (getenv "LOCALBIN")
@@ -118,6 +122,7 @@
          path-separator
          (getenv "PATH")))
 
+(add-to-list 'exec-path (getenv "LIBEXEC")) ;放前面 带t是append
 (add-to-list 'exec-path (getenv "LOCALBIN")) ;放前面 带t是append
 (add-to-list 'exec-path (getenv "PYTHONMAC"))
 
@@ -154,12 +159,11 @@
 (setq ring-bell-function 'ignore)
 
 ;; Load CEDET
-(require 'srecode)
-;; (semantic-mode 1)
-;; (global-srecode-minor-mode t)
+(autoload 'global-srecode-minor-mode "srecode" nil t)
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
-(eval-after-load "srecode/map"
+(eval-after-load "srecode"
   '(progn
+     (semantic-mode 1) 
      (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
@@ -349,7 +353,6 @@
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
- '(treemacs-tag-follow-mode t)
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
@@ -1495,6 +1498,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; treemacs
 (autoload 'treemacs "treemacs" nil t)
+(with-eval-after-load "treemacs"
+  (treemacs-tag-follow-mode t))
 ;; treemacs-add-project-to-workspace
 
 ;; 边写边自动缩进
@@ -1659,7 +1664,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol))
+(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -1846,77 +1851,78 @@ then remove all hi-lock highlighting."
      ))
 
 ;; C++中给函数前面加上类名
-(define-mode-local-override semantic-format-tag-uml-abbreviate
-  c++-mode (token &optional parent color)
-  "Return an UML string describing TOKEN for C and C++.
+(with-eval-after-load "mode-local"
+  (define-mode-local-override semantic-format-tag-uml-abbreviate
+    c++-mode (token &optional parent color)
+    "Return an UML string describing TOKEN for C and C++.
 Optional PARENT and COLOR as specified with
 `semantic-abbreviate-tag-default'."
-  ;; If we have special template things, append.
-  (concat  (semantic-format-tag-uml-abbreviate-default-fset token parent color)
-           (semantic-c-template-string token parent color)))
+    ;; If we have special template things, append.
+    (concat  (semantic-format-tag-uml-abbreviate-default-fset token parent color)
+             (semantic-c-template-string token parent color)))
 
-(defun semantic-format-tag-uml-abbreviate-default-fset (tag &optional parent color)
-  "Return a UML style abbreviation for TAG.
+  (defun semantic-format-tag-uml-abbreviate-default-fset (tag &optional parent color)
+    "Return a UML style abbreviation for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors."
-  (let* ((name (semantic-format-tag-name tag parent color))
-         (type  (semantic--format-tag-uml-type tag color))
-         (protstr (semantic-format-tag-uml-protection tag parent color))
-         (tag-parent-str
-          (or (when (and (semantic-tag-of-class-p tag 'function)
-                         (semantic-tag-function-parent tag))
-                (concat (semantic-tag-function-parent tag)
-                        semantic-format-parent-separator))
-              ""))
-         (text nil))
-    (setq text
-          (concat
-           tag-parent-str
-           protstr
-           (if type (concat name type)
-             name)))
-    (if color
-        (setq text (semantic--format-uml-post-colorize text tag parent)))
-    text))
-(define-mode-local-override semantic-format-tag-uml-prototype
-  c++-mode (token &optional parent color)
-  "Return an UML string describing TOKEN for C and C++.
+    (let* ((name (semantic-format-tag-name tag parent color))
+           (type  (semantic--format-tag-uml-type tag color))
+           (protstr (semantic-format-tag-uml-protection tag parent color))
+           (tag-parent-str
+            (or (when (and (semantic-tag-of-class-p tag 'function)
+                           (semantic-tag-function-parent tag))
+                  (concat (semantic-tag-function-parent tag)
+                          semantic-format-parent-separator))
+                ""))
+           (text nil))
+      (setq text
+            (concat
+             tag-parent-str
+             protstr
+             (if type (concat name type)
+               name)))
+      (if color
+          (setq text (semantic--format-uml-post-colorize text tag parent)))
+      text))
+  (define-mode-local-override semantic-format-tag-uml-prototype
+    c++-mode (token &optional parent color)
+    "Return an UML string describing TOKEN for C and C++.
 Optional PARENT and COLOR as specified with
 `semantic-abbreviate-tag-default'."
-  ;; If we have special template things, append.
-  (concat  (semantic-format-tag-uml-prototype-default-fset token parent color)
-           (semantic-c-template-string token parent color)))
-(defun semantic-format-tag-uml-prototype-default-fset (tag &optional parent color)
-  "Return a UML style prototype for TAG.
+    ;; If we have special template things, append.
+    (concat  (semantic-format-tag-uml-prototype-default-fset token parent color)
+             (semantic-c-template-string token parent color)))
+  (defun semantic-format-tag-uml-prototype-default-fset (tag &optional parent color)
+    "Return a UML style prototype for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors."
-  (let* ((class (semantic-tag-class tag))
-         (cp (semantic-format-tag-name tag parent color))
-         (type (semantic--format-tag-uml-type tag color))
-         (prot (semantic-format-tag-uml-protection tag parent color))
-         (tag-parent-str
-          (or (when (and (semantic-tag-of-class-p tag 'function)
-                         (semantic-tag-function-parent tag))
-                (concat (semantic-tag-function-parent tag)
-                        semantic-format-parent-separator))
-              ""))
-         (argtext
-          (cond ((eq class 'function)
-                 (concat
-                  " ("
-                  (semantic--format-tag-arguments
-                   (semantic-tag-function-arguments tag)
-                   #'semantic-format-tag-uml-prototype
-                   color)
-                  ")"))
-                ((eq class 'type)
-                 "{}")))
-         (text nil))
-    (setq text (concat tag-parent-str prot cp argtext type))
-    (if color
-        (setq text (semantic--format-uml-post-colorize text tag parent)))
-    text
-    ))
+    (let* ((class (semantic-tag-class tag))
+           (cp (semantic-format-tag-name tag parent color))
+           (type (semantic--format-tag-uml-type tag color))
+           (prot (semantic-format-tag-uml-protection tag parent color))
+           (tag-parent-str
+            (or (when (and (semantic-tag-of-class-p tag 'function)
+                           (semantic-tag-function-parent tag))
+                  (concat (semantic-tag-function-parent tag)
+                          semantic-format-parent-separator))
+                ""))
+           (argtext
+            (cond ((eq class 'function)
+                   (concat
+                    " ("
+                    (semantic--format-tag-arguments
+                     (semantic-tag-function-arguments tag)
+                     #'semantic-format-tag-uml-prototype
+                     color)
+                    ")"))
+                  ((eq class 'type)
+                   "{}")))
+           (text nil))
+      (setq text (concat tag-parent-str prot cp argtext type))
+      (if color
+          (setq text (semantic--format-uml-post-colorize text tag parent)))
+      text
+      )))
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
