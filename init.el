@@ -24,8 +24,9 @@
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
-(if (memq system-type '(darwin))
-    (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
+(if (eq system-type 'darwin)
+    ;; (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
+    (setq site-lisp-directory "/usr/local/share/emacs/site-lisp")
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
 (add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/spacemacs-theme"))
@@ -58,22 +59,25 @@
 ;;   (exec-path-from-shell-copy-env "PYTHONPATH")
 ;;   (exec-path-from-shell-initialize))
 
-(setenv "HOME" (expand-file-name "~"))
-(setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
-(setenv "MINGW" "C:\\MinGW\\bin")
-(setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
-(setenv "LLVM" "C:\\Program Files\\LLVM\\bin")
-(setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
-(setenv "GTAGSBIN" "c:\\gtags\\bin")
-(setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
-(setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/")
-(setenv "CYGWIN" "C:\\cygwin\\bin")
-(setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
-(setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
-(setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
-(setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-(setenv "MAVEN_HOME" "~/apache-maven-3.6.0/bin")
-(setenv "LOCALBIN" "/usr/local/bin")    ;for mac
+(when (memq system-type '(windows-nt ms-dos))
+  (setenv "HOME" (expand-file-name "~"))
+  (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
+  (setenv "MINGW" "C:\\MinGW\\bin")
+  (setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
+  (setenv "LLVM" "C:\\Program Files\\LLVM\\bin")
+  (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
+  (setenv "GTAGSBIN" "c:\\gtags\\bin")
+  (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
+  (setenv "CYGWIN" "C:\\cygwin\\bin")
+  (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
+  (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
+  (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
+  (setenv "GITCMD" "C:\\Program Files\\Git\\cmd"))
+
+(when (eq system-type 'darwin)
+  (setenv "MAVEN_HOME" "~/apache-maven-3.6.0/bin")
+  (setenv "LOCALBIN" "/usr/local/bin")    ;for mac
+  (setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/"))
 
 ;; (setenv "GTAGSLABEL" "pygments")
 
@@ -259,7 +263,6 @@
  '(git-gutter:update-interval 2)
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
- '(global-display-line-numbers-mode t)
  '(global-eldoc-mode nil)
  '(global-hl-line-sticky-flag t)
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
@@ -737,25 +740,25 @@
 
 ;; 行号性能改善
 (autoload 'nlinum-mode "nlinum" nil t)
-;; (require 'nlinum )
-;; (global-nlinum-mode 1)
-;; ;; Preset `nlinum-format' for minimum width.
-;; (defun my-nlinum-mode-hook ()
-;;   (when nlinum-mode
-;;     (setq-local nlinum-format
-;;                 (concat "%" (number-to-string
-;;                              ;; Guesstimate number of buffer lines.
-;;                              (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
-;;                         "d"))))
-;; (add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
-;; ;; 避免 “ERROR: Invalid face: linum” error
-;; (defun initialize-nlinum (&optional frame)
-;;   (require 'nlinum)
-;;   (add-hook 'prog-mode-hook 'nlinum-mode))
-;; (when (daemonp)
-;;   (add-hook 'window-setup-hook 'initialize-nlinum)
-;;   (defadvice make-frame (around toggle-nlinum-mode compile activate)
-;;  (nlinum-mode -1) ad-do-it (nlinum-mode 1)))
+(autoload 'global-nlinum-mode "nlinum" nil t)
+(global-nlinum-mode 1)
+;; Preset `nlinum-format' for minimum width.
+(defun my-nlinum-mode-hook ()
+  (when nlinum-mode
+    (setq-local nlinum-format
+                (concat "%" (number-to-string
+                             ;; Guesstimate number of buffer lines.
+                             (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
+                        "d"))))
+(add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
+;; 避免 “ERROR: Invalid face: linum” error
+(defun initialize-nlinum (&optional frame)
+  (require 'nlinum)
+  (add-hook 'prog-mode-hook 'nlinum-mode))
+(when (daemonp)
+  (add-hook 'window-setup-hook 'initialize-nlinum)
+  (defadvice make-frame (around toggle-nlinum-mode compile activate)
+    (nlinum-mode -1) ad-do-it (nlinum-mode 1)))
 
 ;; lua mode
 (autoload 'lua-mode "lua-mode" "Lua editing mode." t)
@@ -993,9 +996,10 @@
 
 ;; magit
 ;; 环境变量PATH里面一定要有C:\Program Files\Git\cmd, 不能有C:\Program Files\TortoiseGit\bin，否则git命令在shell里不好使
-(setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
-(setenv "SSH_ASKPASS" "git-gui--askpass")
-(setenv "GIT_SSH" "c:/Program Files (x86)/PuTTY/plink.exe")
+(when (eq system-type 'windows-nt)
+  (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
+  (setenv "SSH_ASKPASS" "git-gui--askpass")
+  (setenv "GIT_SSH" "c:/Program Files (x86)/PuTTY/plink.exe"))
 ;; 要想保存密码不用每次输入得修改.git-credentials和.gitconfig
 ;; 解决magit和服务器的乱码问题，不需要在.gitconfig中改118n的配置(比如配置成gb2312)
 (defun my-git-commit-hook ()
@@ -1101,7 +1105,7 @@
 
 ;; (add-to-list 'load-path "/Applications/Emacs.app/Contents/Resources/site-lisp/tabbar")
 (require 'aquamacs-tabbar)
-;; (tabbar-mode)
+(tabbar-mode)
 ;; 防止undo后标签颜色不恢复
 (defadvice undo(after undo-after activate)
   ;;   (on-modifying-buffer) ;; tabbar
@@ -1499,7 +1503,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 显示对齐线
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
-(add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides-mode)
+;; (add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides-mode)
 (with-eval-after-load 'highlight-indent-guides
   (setq highlight-indent-guides-method 'character)
   ;; (setq highlight-indent-guides-character ?\|)
@@ -2254,8 +2258,9 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
                       :height 1.0
                       :family "Consolas")
   (copy-face 'tooltip 'tabbar-selected)
+  (copy-face 'mode-line-inactive 'tabbar-button)
   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
-  (copy-face 'tabbar-default 'tabbar-unselected)
+  (copy-face 'mode-line-inactive 'tabbar-unselected)
   (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
   (copy-face 'tabbar-modified 'tabbar-selected-modified)
   (copy-face 'tabbar-modified 'tabbar-unselected-modified))
