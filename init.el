@@ -205,8 +205,6 @@
 ;; mac上的键盘换位
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
-;; mac上输入中文闪烁的问题，五笔或拼音 emacs-mac中没有这个现象
-(setq redisplay-dont-pause nil)
 ;; hi lock颜色不要hi-black-hb
 (setq hi-lock-face-defaults '("hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
 ;; 自动添加的设置
