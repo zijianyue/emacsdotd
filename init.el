@@ -3,6 +3,7 @@
 ;; Setting English Font
 
 ;; (package-initialize)
+(require 'all-the-icons)
 
 ;; 窗口位置 大小
 (setq initial-frame-alist
@@ -11,16 +12,17 @@
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
  ;; 'default nil :font "inconsolata 14")
- 'default nil :font "Consolas 13")
+ 'default nil :font "Consolas 11")
 
 ;; 新开的窗口保持字体
-;; (add-to-list 'default-frame-alist '(font . "Consolas 11"))
+(add-to-list 'default-frame-alist '(font . "Consolas 11"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
-                    (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
+                    ;; (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
+                    (font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -53,18 +55,12 @@
 ;;                         (base64-encode-string "usrname:password")))))
 
 ;; 环境变量
-;; mac or linux环境变量设置从系统拷贝
-;; (when (memq window-system '(ns x))
-;;   (require 'exec-path-from-shell)
-;;   (exec-path-from-shell-copy-env "PYTHONPATH")
-;;   (exec-path-from-shell-initialize))
-
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "HOME" (expand-file-name "~"))
   (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
   (setenv "MINGW" "C:\\MinGW\\bin")
   (setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
-  (setenv "LLVM" "C:\\Program Files\\LLVM\\bin")
+  (setenv "LLVM" "G:\\llvm-release\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
   (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
@@ -72,7 +68,10 @@
   (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
   (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
-  (setenv "GITCMD" "C:\\Program Files\\Git\\cmd"))
+  (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
+  (setenv "JAVA_HOME" "G:\\Program Files\\Java\\jdk1.8.0_191")
+  (setenv "MAVEN_HOME" "G:\\apache-maven-3.6.0\\bin")
+  )
 
 (when (eq system-type 'darwin)
   (setenv "LIBEXEC" "/usr/local/opt/python/libexec/bin")
@@ -82,7 +81,6 @@
   )
 
 ;; (setenv "GTAGSLABEL" "pygments")
-
 
 (setq python-shell-prompt-detect-enabled nil) ;用python27时需要加这个不然有warning
 (setq python-shell-completion-native-enable nil) ;用python27时需要加这个不然有warning
@@ -126,7 +124,7 @@
 (add-to-list 'exec-path (getenv "LOCALBIN")) ;放前面 带t是append
 (add-to-list 'exec-path (getenv "PYTHONMAC"))
 
-(add-to-list 'exec-path (getenv "GITCMD") t)
+(add-to-list 'exec-path (getenv "GITCMD"))
 (add-to-list 'exec-path (getenv "PYTHON") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
 (add-to-list 'exec-path (getenv "MSYS") t)
@@ -149,9 +147,7 @@
 
 ;; elpa
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ;; ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
-                         ;; ("melpa" . "http://melpa.milkbox.net/packages/")
                          ("melpa-stable" . "http://stable.melpa.org/packages/")))
 ;; mini buffer 的大小保持不变
 ;; (setq resize-mini-windows nil)
@@ -159,16 +155,19 @@
 (setq ring-bell-function 'ignore)
 
 ;; Load CEDET
+;; 生成函数注释
+(global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
+(autoload 'srecode-document-insert-comment "srecode" nil t)
 (autoload 'global-srecode-minor-mode "srecode" nil t)
 ;; 设置模板路径,把模板放到"~/.emacs.d/.srecode/"，避免拷来拷去
-(eval-after-load "srecode"
+(eval-after-load "srecode/map"
   '(progn
-     (semantic-mode 1) 
+     (semantic-mode 1)
      (setq srecode-map-load-path (list (expand-file-name "~/.emacs.d/srecode/")
                                        (srecode-map-base-template-dir)
                                        ))))
 (setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
-;; (set-default 'semantic-case-fold t)
+(set-default 'semantic-case-fold t)
 
 ;;修改标题栏，显示buffer的名字
 (setq frame-title-format "%b [%+] %f")
@@ -206,10 +205,10 @@
 ;; mac上的键盘换位
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
-;; mac上输入中文闪烁的问题，五笔或拼音
+;; mac上输入中文闪烁的问题，五笔或拼音 emacs-mac中没有这个现象
 (setq redisplay-dont-pause nil)
 ;; hi lock颜色不要hi-black-hb
-(setq hi-lock-face-defaults '("hi-yellow" "hi-pink" "hi-green" "hi-blue" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
+(setq hi-lock-face-defaults '("hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b"))
 ;; 自动添加的设置
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -218,22 +217,25 @@
  ;; If there is more than one, they won't work right.
  '(ad-redefinition-action (quote accept))
  '(ag-highlight-search t)
- '(auto-hscroll-mode (quote current-line))
  '(auto-save-default nil)
  '(autopair-blink nil)
+ '(avy-background t)
  '(aw-scope (quote frame))
  '(backward-delete-char-untabify-method nil)
  '(bookmark-save-flag 1)
  '(bookmark-sort-flag nil)
  '(c-electric-pound-behavior (quote (alignleft)))
  '(cc-search-directories (quote ("." "/usr/include" "/usr/local/include/*" "../*")))
+ '(ccls-tree-initial-levels 1)
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
  '(company-dabbrev-other-buffers t)
+ '(company-ycmd-request-sync-timeout 0)
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
+ '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
@@ -252,39 +254,38 @@
  '(electric-pair-mode t)
  '(enable-local-variables :all)
  '(eww-search-prefix "http://cn.bing.com/search?q=")
+ '(explicit-shell-file-name "bash")
  '(fci-eol-char 32)
  '(fill-column 120)
  '(flycheck-checker-error-threshold nil)
  '(flycheck-emacs-lisp-load-path (quote inherit))
  '(flycheck-indication-mode (quote right-fringe))
  '(flycheck-navigation-minimum-level (quote error))
- '(flymake-fringe-indicator-position (quote right-fringe))
  '(frame-resize-pixelwise t)
  '(git-commit-fill-column 200)
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
- '(git-gutter:handled-backends (quote (git hg bzr svn)))
- '(git-gutter:update-interval 2)
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
  '(global-eldoc-mode nil)
  '(global-hl-line-sticky-flag t)
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
  '(gtags-ignore-case nil)
+ '(gud-pdb-command-name "python -i -m pdb")
  '(helm-ag-base-command "ag --nocolor --nogroup -S -Q ")
  '(helm-ag-fuzzy-match t)
  '(helm-allow-mouse t)
  '(helm-always-two-windows t)
  '(helm-buffer-max-length 40)
- '(helm-candidate-number-limit 2000)
+ '(helm-candidate-number-limit 1000)
  '(helm-case-fold-search t)
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
  '(helm-gtags-auto-update t)
+ '(helm-gtags-cache-max-result-size 104857600)
  '(helm-gtags-cache-select-result t)
- '(helm-gtags-display-style (quote detail))
  '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-suggested-key-mapping t)
@@ -300,9 +301,10 @@
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
- '(imenu-list-idle-update-delay 1.2)
+ '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
  '(imenu-max-items 1000)
+ '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
  '(isearch-allow-scroll t)
  '(ivy-count-format "(%d/%d) ")
@@ -310,17 +312,22 @@
  '(ivy-height 25)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
- '(lsp-highlight-symbol-at-point nil)
- '(lsp-response-timeout 30)
+ '(lsp-eldoc-hook (quote (lsp-hover)))
+ '(lsp-imenu-sort-methods (quote (kind position)))
+ '(lsp-java-import-gradle-enabled nil)
+ '(lsp-java-java-path "G:\\Program Files\\Java\\jdk1.8.0_191\\bin\\java.exe")
+ '(lsp-java-server-install-dir "D:/jdt-language-server-latest")
+ '(lsp-java-update-build-configuration (quote interactive))
+ '(lsp-java-workspace-cache-dir "g:/lsp-java-workspace/.cache/")
+ '(lsp-java-workspace-dir "g:/lsp-java-workspace/")
+ '(lsp-response-timeout 20)
+ '(lsp-ui-doc-include-signature t)
+ '(lsp-ui-peek-always-show t)
+ '(lsp-ui-peek-peek-height 30)
  '(mac-right-option-modifier (quote control))
- '(magit-diff-use-overlays nil)
- '(magit-git-global-arguments
-   (quote
-    ("--no-pager" "--literal-pathspecs" "-c" "core.preloadindex=true" "-c" "log.showSignature=false" "-c" "i18n.logOutputEncoding=gbk")))
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
  '(magit-log-section-commit-count 0)
- '(magit-refresh-status-buffer nil)
  '(make-backup-files nil)
  '(menu-bar-mode nil)
  '(mode-require-final-newline nil)
@@ -328,6 +335,7 @@
  '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
+ '(nxml-child-indent 4)
  '(ns-right-alternate-modifier (quote control))
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
@@ -339,20 +347,30 @@
  '(powerline-default-separator (quote box))
  '(powerline-gui-use-vcs-glyph t)
  '(proced-filter (quote emacs))
+ '(proced-format (quote medium))
+ '(proced-tree-flag t)
  '(recentf-auto-cleanup 600)
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
  '(save-place t nil (saveplace))
+ '(semantic-c-dependency-system-include-path
+   (quote
+    ("G:/vs2017/VC/Tools/MSVC/14.15.26726/ATLMFC/include" "G:/vs2017/VC/Tools/MSVC/14.15.26726/include" "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6.1/include/um" "C:/Program Files (x86)/Windows Kits/10/include/10.0.17134.0/ucrt")))
+ '(semantic-idle-scheduler-idle-time 5)
+ '(semantic-idle-scheduler-work-idle-time 600)
+ '(semantic-symref-results-summary-function (quote semantic-format-tag-abbreviate))
+ '(semanticdb-default-save-directory "d:/semanticdb")
  '(shell-completion-execonly nil)
  '(show-paren-mode t)
  '(show-paren-when-point-in-periphery t)
  '(show-paren-when-point-inside-paren t)
  '(size-indication-mode t)
- '(sln-mode-devenv-2008 "Devenv.com")
  '(switch-window-shortcut-style (quote (quote qwerty)))
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
+ '(treemacs-follow-after-init t)
+ '(treemacs-show-cursor t)
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
@@ -364,36 +382,61 @@
  '(xref-prompt-for-identifier
    (quote
     (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
- '(yas-also-auto-indent-first-line t))
-
+ '(yas-also-auto-indent-first-line t)
+ '(ycmd-confirm-fixit nil)
+ '(ycmd-delete-process-delay 15)
+ '(ycmd-file-type-map
+   (quote
+    ((java-mode "java")
+     (c++-mode "cpp")
+     (c-mode "c")
+     (caml-mode "ocaml")
+     (csharp-mode "cs")
+     (d-mode "d")
+     (erlang-mode "erlang")
+     (go-mode "go")
+     (js-mode "javascript")
+     (js2-mode "javascript")
+     (objc-mode "objc")
+     (perl-mode "perl")
+     (cperl-mode "perl")
+     (php-mode "php")
+     (python-mode "python")
+     (ruby-mode "ruby")
+     (rust-mode "rust")
+     (scala-mode "scala")
+     (tuareg-mode "ocaml")
+     (typescript-mode "typescript"))))
+ '(ycmd-idle-change-delay 3)
+ '(ycmd-parse-conditions (quote (save idle-change mode-enabled buffer-focus)))
+ '(ycmd-seed-identifiers-with-keywords t)
+ '(ycmd-server-args (quote ("--idle_suicide_seconds=10800")))
+ '(ycmd-startup-timeout 20))
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
-;; all-the-icons
-(require 'all-the-icons)
-
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
 (setq gtags-disable-pushy-mouse-mapping t)
 (autoload 'gtags-mode "gtags" nil t)
 (eval-after-load "gtags"
   '(progn
-     (define-key gtags-mode-map [C-down-mouse-1] 'ignore)
-     (define-key gtags-mode-map [C-down-mouse-3] 'ignore)
+     ;; (define-key gtags-mode-map [C-down-mouse-1] 'ignore)
+     ;; (define-key gtags-mode-map [C-down-mouse-3] 'ignore)
      (define-key gtags-mode-map [mouse-3] 'ignore)
      (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-by-event)
-     (define-key gtags-mode-map (kbd "<C-mouse-3>") 'gtags-pop-stack)
+     (define-key gtags-mode-map (kbd "<M-mouse-3>") 'gtags-pop-stack)
      (define-key gtags-mode-map (kbd "<mouse-3>") 'gtags-pop-stack)
-     (define-key gtags-mode-map (kbd "<C-mouse-1>") 'gtags-find-tag-by-event)
+     (define-key gtags-mode-map (kbd "<M-mouse-1>") 'gtags-find-tag-by-event)
      (define-key gtags-mode-map (kbd "C-c i") 'gtags-find-with-idutils)
      (define-key gtags-select-mode-map "p" 'previous-line)
      (define-key gtags-select-mode-map "n" 'next-line)
      (define-key gtags-select-mode-map "q" 'gtags-pop-stack)
-     (define-key gtags-select-mode-map [C-down-mouse-3] 'ignore)
+     ;; (define-key gtags-select-mode-map [C-down-mouse-3] 'ignore)
      (define-key gtags-select-mode-map [mouse-3] 'ignore)
-     (define-key gtags-select-mode-map [C-down-mouse-1] 'ignore)
+     ;; (define-key gtags-select-mode-map [C-down-mouse-1] 'ignore)
      (define-key gtags-select-mode-map [mouse-2] 'gtags-select-tag-by-event)
-     (define-key gtags-select-mode-map (kbd "<C-mouse-3>") 'gtags-pop-stack)
+     (define-key gtags-select-mode-map (kbd "<M-mouse-3>") 'gtags-pop-stack)
      ;; (define-key gtags-select-mode-map (kbd "<mouse-3>") 'gtags-pop-stack)
-     (define-key gtags-select-mode-map (kbd "<C-mouse-1>") 'gtags-select-tag-by-event)
+     (define-key gtags-select-mode-map (kbd "<M-mouse-1>") 'gtags-select-tag-by-event)
      ))
 
 ;; 选中单位
@@ -420,9 +463,6 @@
 
 (eval-after-load "company"
   '(progn
-     ;; (require 'company-box)             ;补全带图标
-     ;; (add-hook 'company-mode-hook 'company-box-mode)
-
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -666,13 +706,12 @@
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
 
-(eval-after-load "helm"
-  '(progn
-     (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
-     (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-     (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-     (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;默认是M-D, M-spc是mark, M-a是全选， M-m是toggle mark
-     ))
+(with-eval-after-load "helm"
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+  (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+  (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;默认是M-D, M-spc是mark, M-a是全选， M-m是toggle mark
+  )
 
 (eval-after-load "helm-files"
   '(progn
@@ -692,7 +731,7 @@
 
 (global-set-key (kbd "C-c b") 'helm-gtags-find-files)
 (global-set-key (kbd "C-c B") 'gtags-find-file)
-(global-set-key (kbd "C-c d") 'helm-gtags-find-tag)
+(global-set-key (kbd "C-c d") 'helm-gtags-find-tag) ;要在空白处使用才能输入，否则是查找光标下的符号
 (global-set-key (kbd "<f6>") 'helm-gtags-select-path)
 (global-set-key (kbd "<f7>") 'helm-gtags-select)
 (global-set-key (kbd "<S-f5>") 'helm-gtags-create-tags) ;可以指定路径和label
@@ -706,6 +745,13 @@
      (gtags-mode 1)
      (remove-hook 'after-save-hook 'gtags-auto-update)
      (helm-gtags-mode 1)
+     (defadvice helm-gtags--update-tags-command(before helm-gtags-update-tags-bef activate)
+       (if (bound-and-true-p ycmd-mode)
+           (progn
+             (unless (ycmd-running-p) (ycmd-open))
+             (ycmd-parse-buffer)))
+       ;; (semantic-force-refresh)
+       )
      (add-hook 'c-mode-common-hook
                (lambda ()
                  (gtags-mode 1)
@@ -795,6 +841,7 @@
 (define-key cua--cua-keys-keymap [(meta v)] nil)
 (autoload 'ace-window "ace-window" nil t)
 (autoload 'ace-jump-char-mode "ace-jump-mode" nil t)
+(autoload 'avy-goto-line "avy" nil t)
 
 (eval-after-load "ace-window"
   '(progn
@@ -803,6 +850,17 @@
 (eval-after-load "ace-jump-mode"
   '(progn
      (setq ace-jump-mode-move-keys (loop for i from ?a to ?z collect i))))
+
+(eval-after-load "avy"
+  '(progn
+     ;; (avy-setup-default)
+     (setq avy-keys (loop for i from ?a to ?z collect i))
+     (eval-after-load "isearch"
+       '(define-key isearch-mode-map (kbd "M-;") 'avy-isearch))
+     (global-set-key (kbd "C-c C-j") 'avy-resume)))
+
+(global-set-key (kbd "M-g M-g") 'avy-goto-line)
+(global-set-key (kbd "M-g j") 'avy-goto-char-timer)
 
 (global-set-key (kbd "M-v") 'ace-window)
 (global-set-key (kbd "M-j") 'ace-jump-char-mode)
@@ -999,10 +1057,13 @@
 
 ;; magit
 ;; 环境变量PATH里面一定要有C:\Program Files\Git\cmd, 不能有C:\Program Files\TortoiseGit\bin，否则git命令在shell里不好使
-(when (eq system-type 'windows-nt)
+(when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
   (setenv "SSH_ASKPASS" "git-gui--askpass")
-  (setenv "GIT_SSH" "c:/Program Files (x86)/PuTTY/plink.exe"))
+  (setenv "GIT_SSH" "c:/Program Files (x86)/PuTTY/plink.exe")
+  ;; (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定
+  )
+
 ;; 要想保存密码不用每次输入得修改.git-credentials和.gitconfig
 ;; 解决magit和服务器的乱码问题，不需要在.gitconfig中改118n的配置(比如配置成gb2312)
 (defun my-git-commit-hook ()
@@ -1024,7 +1085,7 @@
 
 (autoload 'magit-status "magit" nil t)
 (autoload 'magit-dispatch-popup "magit" nil t)
-(autoload 'magit-blame "magit" nil t)
+(autoload 'magit-blame-addition "magit" nil t)
 (autoload 'magit-log-buffer-file "magit" nil t)
 (autoload 'magit-clone "magit" nil t)
 
@@ -1106,7 +1167,6 @@
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-;; (add-to-list 'load-path "/Applications/Emacs.app/Contents/Resources/site-lisp/tabbar")
 (require 'aquamacs-tabbar)
 (tabbar-mode)
 ;; 防止undo后标签颜色不恢复
@@ -1188,8 +1248,186 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
                        )
                     "")
                   ) "")))
-      (concat close-button display-label key-label tabbar-separator-value)))
-  )
+      (concat close-button display-label key-label tabbar-separator-value))))
+
+;; ycmd
+;; 文件中不能有当前编码无法识别的字符，否则ycmd会出错
+;; 会报(wrong-type-argument number-or-marker-p nil)错误
+;; 解决办法：c-x RET f输入utf-8回车，会提示乱码的位置
+
+;; 标准加载方式
+;; (require 'ycmd)
+;; (add-hook 'after-init-hook #'global-ycmd-mode)
+;; (require 'company-ycmd)
+;; (company-ycmd-setup)
+;; (require 'flycheck-ycmd)
+;; (flycheck-ycmd-setup)
+
+;; (autoload 'ycmd-mode "ycmd" nil t)
+;; (autoload 'global-ycmd-mode "ycmd" nil t)
+
+;; (global-set-key (kbd "M-.") 'ycmd-goto-imprecise)
+(global-set-key (kbd "M-p") (lambda () "" (interactive)
+                              (require 'ycmd )
+                              (unless (ycmd-running-p) (ycmd-open))
+                              (unless ycmd-mode (ycmd-mode 1))
+                              (ycmd-get-type t)
+                              ))
+;; (global-set-key (kbd "M-p") 'ycmd-get-type)
+(global-set-key (kbd "C-.") (lambda () "" (interactive)
+                              (require 'ycmd )
+                              (unless (ycmd-running-p) (ycmd-open))
+                              (unless ycmd-mode (ycmd-mode 1))
+                              (ycmd-get-parent)
+                              ))
+
+(eval-after-load "company-ycmd"
+  '(progn
+     ;; 让company-ycmd能够在字符串和注释中补全
+     (defun company-ycmd--prefix-fset ()
+       "Prefix-command handler for the company backend."
+       (and ycmd-mode
+            buffer-file-name
+            (ycmd-running-p)
+            ;; (or (not (company-in-string-or-comment))
+            ;;  (company-ycmd--in-include))
+            (or (company-grab-symbol-cons "\\.\\|->\\|::\\|/" 2)
+                'stop)))
+     (fset 'company-ycmd--prefix 'company-ycmd--prefix-fset)))
+
+(eval-after-load "ycmd"
+  '(progn
+     (defun ycmd--options-contents-fset (hmac-secret)
+       ""
+       (let ((hmac-secret (base64-encode-string hmac-secret))
+             (global-config (or ycmd-global-config ""))
+             (extra-conf-whitelist (or ycmd-extra-conf-whitelist []))
+             (confirm-extra-conf (if (eq ycmd-extra-conf-handler 'load) 0 1))
+             (gocode-binary-path (or ycmd-gocode-binary-path ""))
+             (godef-binary-path (or ycmd-godef-binary-path ""))
+             (rust-src-path (or ycmd-rust-src-path ""))
+             (racerd-binary-path (or ycmd-racerd-binary-path ""))
+             (python-binary-path (or ycmd-python-binary-path "")))
+         `((filepath_completion_use_working_dir . 0)
+           (auto_trigger . 1)
+           (min_num_of_chars_for_completion . 2) ;写死2，保证server 2个字符就可以补全
+           (min_num_identifier_candidate_chars . 0)
+           (semantic_triggers . ())
+           (filetype_specific_completion_to_disable (gitcommit . 1))
+           (collect_identifiers_from_comments_and_strings . 0)
+           (max_num_identifier_candidates . ,ycmd-max-num-identifier-candidates)
+           (extra_conf_globlist . ,extra-conf-whitelist)
+           (global_ycm_extra_conf . ,global-config)
+           (confirm_extra_conf . ,confirm-extra-conf)
+           (max_diagnostics_to_display . 1000) ;原来是30
+           (auto_start_csharp_server . 1)
+           (auto_stop_csharp_server . 1)
+           (use_ultisnips_completer . 1)
+           (csharp_server_port . 0)
+           (hmac_secret . ,hmac-secret)
+           (server_keep_logfiles . 1)
+           (gocode_binary_path . ,gocode-binary-path)
+           (godef_binary_path . ,godef-binary-path)
+           (rust_src_path . ,rust-src-path)
+           (racerd_binary_path . ,racerd-binary-path)
+           (python_binary_path . ,python-binary-path))))
+     (fset 'ycmd--options-contents 'ycmd--options-contents-fset)
+     ))
+
+;; -u解决hang的问题
+(set-variable 'ycmd-server-command '("c:/python27/python.exe" "-u" "G:/ycmd/ycmd"))
+;; (setq ycmd-server-command (list "python" (expand-file-name "~/ycmd/ycmd")))
+
+(set-variable 'ycmd-global-config "C:/Users/g00280886/AppData/Roaming/global_config.py")
+(setq ycmd-extra-conf-handler 'load)
+;; (setq ycmd--log-enabled t)
+(setq url-show-status nil)
+;; (setq ycmd-request-message-level -1)
+(setq request-message-level -1)
+
+(eval-after-load "ycmd"
+  '(progn
+     (message "ycmd")
+     (global-ycmd-mode 1)
+     (require 'company-ycmd)
+     (company-ycmd-setup)
+     (global-company-mode 1)
+     ;; (global-srecode-minor-mode t)
+     (yas-global-mode 1)
+     (require 'taglist)
+     (add-hook 'ycmd-file-parse-result-hook 'tag-list-update-safe-for-ycmd)
+
+     ;; 起个定时器刷新
+     (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
+
+     (defun do-reparse ()
+       (message "do reparse and ycmd timer deactive")
+       (ycmd--conditional-parse)
+       (cancel-timer reparse-timer))
+
+     (defun reparse-current-buffer ()
+       ""
+       (interactive "")
+       (company-ycmd--init)
+       (when (bound-and-true-p ycmd-mode)
+         (message "reparse ycmd timer active")
+         (cond ((or (eq ycmd--last-status-change 'unparsed)
+                    (eq ycmd--last-status-change 'errored))
+                (do-reparse))
+               ((eq ycmd--last-status-change 'parsed)
+                (cancel-timer reparse-timer)))))
+
+     ;; (add-hook 'c-mode-common-hook
+     ;;            (lambda ()
+     ;;              (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
+     ;;              ))
+
+     ;; 强制用语法补全，函数参数，全局变量等都能补
+     (defun company-ycmd-semantic-complete ()
+       (interactive)
+       (let ((ycmd-force-semantic-completion t))
+         (company-complete)))
+     (global-set-key (kbd "<M-S-return>") 'company-ycmd-semantic-complete)
+     (global-set-key (kbd "M-.") (lambda () "" (interactive)
+                                   (require 'ycmd )
+                                   (unless (ycmd-running-p) (ycmd-open))
+                                   (unless ycmd-mode (ycmd-mode 1))
+                                   (ycmd-goto)
+                                   ))
+     (global-set-key (kbd "C-c p") 'ycmd-get-type)
+     (global-set-key (kbd "C-c o") 'ycmd-goto-imprecise)
+
+     (global-set-key (kbd "C-c t") 'ycmd-fixit)
+
+     (require 'flycheck-ycmd)
+     ;; 下面函数有bug，由于路径中存在反斜杠导致flycheck的错误无法显示
+     (defun flycheck-ycmd--result-to-error-fset (result checker)
+       "Convert ycmd parse RESULT for CHECKER into a flycheck error object."
+       (let-alist result
+         (when (string-equal (replace-regexp-in-string "\\\\" "/" .location.filepath ) (buffer-file-name))
+           (flycheck-error-new
+            :line .location.line_num
+            :column .location.column_num
+            :buffer (current-buffer)
+            :filename .location.filepath
+            :message (concat .text (when (eq .fixit_available t) " (FixIt)"))
+            :checker checker
+            :level (assoc-default .kind flycheck-ycmd--level-map 'string-equal 'error)))))
+     (fset 'flycheck-ycmd--result-to-error 'flycheck-ycmd--result-to-error-fset)
+     (flycheck-ycmd-setup)
+     (add-hook 'python-mode-hook (lambda () (add-to-list 'flycheck-disabled-checkers 'ycmd)))
+     (global-flycheck-mode 1)
+
+     (unless (featurep 'lsp)
+       (require 'ycmd-eldoc)
+       (add-hook 'ycmd-mode-hook 'ycmd-eldoc-mode)
+       (global-eldoc-mode 1)
+       (unless (< (* 150 1024) (buffer-size))
+         (ycmd-eldoc-mode +1)))
+
+     ;; (setq ycmd-force-semantic-completion t)
+     ))
+
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
 (global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
@@ -1202,14 +1440,16 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (eval-after-load "hideshow" '(diminish 'hs-minor-mode))
 ;; (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode " HG"))
 (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode))
-(eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
+;; (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
+
+;; modeline和主题定制
 
 ;; spacemacs
 ;; (require 'spaceline-config)
+;; ;; (spaceline-emacs-theme) 这句不用写，下面有自定义的spaceline-emacs-theme-mod
 ;; (spaceline-helm-mode 1)
 ;; (spaceline-info-mode 1)
 ;; (setq anzu-cons-mode-line-p nil)		;防止有两个anzu
-
 ;; ;; 鼠标指向dos处时，弹出文件编码信息
 ;; (spaceline-define-segment buffer-encoding-abbrev-mouse
 ;;   "The line ending convention used in the buffer with mouse prompt of buffer encoding info."
@@ -1243,35 +1483,40 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; ;; 自定义theme使用上面两个segment
 ;; (defun spaceline--theme-mod (left second-left &rest additional-segments)
 ;;   "Convenience function for the spacemacs and emacs themes."
-;;   (spaceline-install `(,left
-;;                        anzu
-;;                        auto-compile
-;;                        ,second-left
-;;                        major-mode
-;;                        (process :when active)
-;;                        ((flycheck-error flycheck-warning flycheck-info)
-;;                         :when active)
-;;                        (minor-modes :when active)
-;;                        (mu4e-alert-segment :when active)
-;;                        (erc-track :when active)
-;;                        (version-control :when active)
-;;                        (org-pomodoro :when active)
-;;                        (org-clock :when active)
-;;                        nyan-cat)
-
-;;                      `(which-function-ignore-active
-;;                        (python-pyvenv :fallback python-pyenv)
-;;                        (battery :when active)
-;;                        selection-info
-;;                        input-method
-;;                        ((buffer-encoding-abbrev-mouse
-;;                          point-position
-;;                          line-column)
-;;                         :separator " | ")
-;;                        (global :when active)
-;;                        ,@additional-segments
-;;                        buffer-position
-;;                        hud))
+;;   (spaceline-compile
+;;     `(,left
+;;       (anzu :priority 95)
+;;       auto-compile
+;;       ,second-left
+;;       (major-mode :priority 79)
+;;       (process :when active)
+;;       ((flycheck-error flycheck-warning flycheck-info)
+;;        :when active
+;;        :priority 89)
+;;       (minor-modes :when active
+;;                    :priority 9)
+;;       (mu4e-alert-segment :when active)
+;;       (erc-track :when active)
+;;       (version-control :when active
+;;                        :priority 78)
+;;       (org-pomodoro :when active)
+;;       (org-clock :when active)
+;;       nyan-cat)
+;;     `(which-function-ignore-active
+;;       (python-pyvenv :fallback python-pyenv)
+;;       (purpose :priority 94)
+;;       (battery :when active)
+;;       (selection-info :priority 95)
+;;       input-method
+;;       ((buffer-encoding-abbrev-mouse
+;;         point-position
+;;         line-column)
+;;        :separator " | "
+;;        :priority 96)
+;;       (global :when active)
+;;       ,@additional-segments
+;;       (buffer-position :priority 99)
+;;       (hud :priority 99)))
 
 ;;   (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
 
@@ -1286,20 +1531,22 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;;               window-number) :separator "|")
 ;;             buffer-modified
 ;;             buffer-size)
-;;            :face highlight-face)
-;;          '(buffer-id remote-host)
+;;            :face highlight-face
+;;            :priority 100)
+;;          '((buffer-id remote-host)
+;;            :priority 98)
 ;;          additional-segments))
 
 ;; (spaceline-emacs-theme-mod)
-;; (load-theme 'spacemacs-light)
 
 ;; doom theme with its mode line
 (require 'doom-themes)
-;; (doom-themes-treemacs-config)
 (doom-themes-org-config)
-;; (load-theme 'doom-nord t)
+;; (doom-themes-treemacs-config) ;; 这句会导致treemacs的tag显示不出来
+;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
+(setq inhibit-compacting-font-caches t) ; laggy issue on Windows
 (setq doom-modeline-buffer-file-name-style 'buffer-name)
 ;; add which-func in inactive window
 (doom-modeline-def-segment misc-info-for-all
@@ -1318,7 +1565,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 (fset 'doom-modeline-set-main-modeline 'doom-modeline-set-main-misc-for-all-modeline)
 (doom-modeline-mode 1)
-
 
 ;; org screenshort
 (autoload 'org-download-screenshot "org-download" nil t)
@@ -1361,42 +1607,56 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'wgrep-rg-setup "wgrep-rg")
 (add-hook 'rg-mode-hook 'wgrep-rg-setup)
 
-(setq lsp-java-server-install-dir "~/jdt-language-server")
-
-;; lsp new version
-(autoload 'lsp "lsp-mode" nil t)
+;; lsp IDE级插件
+(autoload 'projectile-mode "projectile" nil t)
+(autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
 (with-eval-after-load 'lsp-mode
-  ;; lsp框架
+  (require 'projectile)
+  (require 'flycheck)
   (require 'lsp-ui)
+  (require 'yasnippet)
   (require 'company-yasnippet)
   (require 'company-lsp)
+  (require 'cquery)
+  ;; (require 'ccls)
+  (require 'lsp-java)
   (require 'helm-lsp)
   (require 'helm-xref)
-  (require 'projectile)
-  (require 'dap-mode)
-  (require 'treemacs)
-  (require 'lsp-java-treemacs)
-  ;; lsp server
-  (require 'lsp-java)
-  (require 'cquery)
-  ;; add hook use lsp
+
+
+  (add-hook 'java-mode-hook #'lsp)
   (add-hook 'c-mode-hook #'lsp)
   (add-hook 'c++-mode-hook #'lsp)
-  (add-hook 'java-mode-hook #'lsp)
-  (add-hook 'python-mode-hook #'lsp)    ;lsp-mode自带server
-  ;; config for use
-;; (global-flycheck-mode t)
+  (add-hook 'python-mode-hook #'lsp)
+
+  ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡
+  ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
+  ;;   (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
+
+
   (yas-global-mode t)
-  (defadvice lsp--auto-configure(after lsp--auto-configure-after activate)
-    (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
 
-  (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+  ;; (setq lsp-auto-guess-root t)
+
   (setq lsp-prefer-flymake nil)
+  (setq lsp-ui-imenu-enable nil)        ;打开大文件太卡
   (setq lsp-ui-sideline-enable nil)
-  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
+  (setq lsp-ui-doc-enable nil)          ;用手动lsp-describe-thing-at-point替代
+  ;; (setq lsp-auto-configure nil)
+  (global-company-mode t)
+  (setq company-lsp-enable-recompletion nil)
 
-  ;; 函数重写
-  ;; imenu只显示返回值和函数名，参数不显示(太卡)
+  ;; (global-flycheck-mode t)
+  (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+  (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
+  ;; (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
+
+  (global-set-key (kbd "<f1>") 'lsp-ui-peek-find-definitions)
+  (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
+
+  (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
+
+  ;; imenu只显示返回值和函数名，参数不显示
   (defun lsp--symbol-to-imenu-elem-fset (sym)
     (let ((pt (lsp--position-to-point
                (gethash "start" (gethash "range" (gethash "location" sym)))))
@@ -1408,42 +1668,57 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
             (if imenu-use-markers (lsp--point-to-marker pt) pt))))
 
   (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
+
+  (with-eval-after-load 'lsp-java
+    (global-flycheck-mode t)
+    (setq lsp-ui-imenu-enable t)
+    (require 'lsp-java-treemacs)
+    ;; (lsp-java-treemacs-register)
+    ;; (dap-mode t)
+    ;; (dap-ui-mode t)
+    (defun lsp-java-treemacs--is-root-fset (dir-or-project)
+      "Return whether DIR-OR-PROJECT is root of a project."
+      (let ((dir (if (stringp dir-or-project)
+                     dir-or-project
+                   (treemacs-project->path dir-or-project))))
+
+        (when-lsp-workspace (lsp-java--find-workspace (lsp--path-to-uri dir)) ;diff here
+                            (-contains? (lsp-java--get-project-uris lsp--cur-workspace)
+                                        (lsp--path-to-uri dir)))))
+
+    (fset 'lsp-java-treemacs--is-root 'lsp-java-treemacs--is-root-fset)
+
+    (defun lsp-java-treemacs-unregister-fset ()
+      "Unregister extension."
+      (interactive)
+      (remove-hook 'lsp-workspace-folders-change 'lsp-java-treemacs--folders-change)
+      (treemacs-remove-project-extension 'treemacs-EXTERNAL-LIBRARY-extension
+                                         'top) ;diff here
+      (treemacs-remove-directory-extension 'treemacs-EXTERNAL-LIBRARY-extension
+                                           'top)) ;diff here
+
+    (fset 'lsp-java-treemacs-unregister 'lsp-java-treemacs-unregister-fset)
+    )
   )
 
-;; debug
-(autoload 'dap-mode "dap-mode" nil t)
-(autoload 'dap-ui-mode "dap-ui" nil t)
-(with-eval-after-load 'dap-mode
-  (require 'dap-python)
-  (require 'dap-java)
-  )
-
-;; cquery c/c++ lsp server
+;; cquery config
 (with-eval-after-load 'cquery
-  (setq cquery-executable (expand-file-name "~/cquery/build/release/bin/cquery")) ;on mac
+  (setq cquery-executable "G:/cquery/build/release/bin/cquery")
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq cquery-extra-init-params '(:index (:comments 0 :blacklist (".*") :whitelist (".*/COMMON/include/.*" ".*/dir1/dir2/.*"))))
-
+  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*" ".*/netconf/.*" ".*/ftpc/.*" ".*/xsm/.*" ".*/sshc/.*"))))
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
-  ;; (cquery-use-default-rainbow-sem-highlight)
 
-  (define-key c-mode-map (kbd "<f1>") 'lsp-ui-peek-find-definitions)
-  (define-key c++-mode-map (kbd "<f1>") 'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
-  (define-key c-mode-map (kbd "<f12>") 'cquery-call-hierarchy)
-  (define-key c++-mode-map (kbd "<f12>") 'cquery-call-hierarchy)
+  (global-set-key (kbd "<f12>") 'cquery-call-hierarchy)
 
-  (define-key c-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
-  (define-key c++-mode-map (kbd "<S-f12>") 'lsp-execute-code-action)
-  (define-key c-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
-                                             (setq lsp--workspaces (make-hash-table :test #'equal))))
-  (define-key c++-mode-map (kbd "<C-S-f12>") (lambda () "" (interactive)
-                                               (setq lsp--workspaces (make-hash-table :test #'equal))))
+  (global-set-key (kbd "<S-f12>") 'lsp-execute-code-action)
+  ;;进程异常时，记录有残留，执行这句复原
+  (global-set-key (kbd "<C-S-f12>") (lambda () "" (interactive)
+                                      (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
   (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
@@ -1454,6 +1729,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                                (forward-line -1)
                                                (back-to-indentation)))
   (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
+  ;; (cquery-use-default-rainbow-sem-highlight)
   ;; 其他功能
   ;; (cquery-xref-find-custom "$cquery/base")
   ;; (cquery-xref-find-custom "$cquery/callers")
@@ -1464,8 +1740,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (cquery-xref-find-custom "$cquery/references-read")
   ;; (cquery-xref-find-custom "$cquery/references-write")
   ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
-
-  ;; (setq lsp--workspaces (make-hash-table :test #'equal)) ;;进程异常时，记录有残留，执行这句复原
 
   ;; 不折行
   (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
@@ -1487,33 +1761,102 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                        (if (eq number (- nchildren 1)) "└* " "├* ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
+
+  (defadvice cquery-member-hierarchy (around cquery-member-hierarchy-ar activate)
+    (setq temp cquery-tree-initial-levels)
+    (setq cquery-tree-initial-levels 2)
+    ad-do-it
+    (setq cquery-tree-initial-levels temp))
   )
 
-;; projectile
-(autoload 'projectile-mode "projectile-mode" nil t)
+;; ;; ccls config
+;; (with-eval-after-load 'ccls
+;;   (setq ccls-executable "g:/ccls/Release/ccls.exe")
+;;   (setq ccls-initialization-options '(:index (:comments 2 :blacklist (".*") :whitelist (".*/pclint/.*" ".*/COMMON/include/.*" ".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*"))))
+
+;;   ;; (setq ccls-args '("-log-file=/tmp/ccls.log"))
+;;   ;; 不折行
+;;   (dolist (command '(ccls-call-hierarchy ccls-inheritance-hierarchy ccls-member-hierarchy))
+;;     (eval
+;;      `(defadvice ,command (after ccls-after activate)
+;;         (setq truncate-lines t)
+;;         )))
+;;   ;; 消除乱码
+;;   (defun ccls-tree--make-prefix-fset (node number nchildren depth)
+;;     "."
+;;     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
+;;            (symbol (if (= depth 0)
+;;                        (if (ccls-tree-node-parent node)
+;;                            "< "
+;;                          "")
+;;                      (if (ccls-tree-node-has-children node)
+;;                          (if (ccls-tree-node-expanded node) "└-" "└+")
+;;                        (if (eq number (- nchildren 1)) "└*" "├*")))))
+;;       (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
+
+;;   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
+;;   (defadvice ccls-member-hierarchy (around ccls-member-hierarchy-ar activate)
+;;     (setq temp ccls-tree-initial-levels)
+;;     (setq ccls-tree-initial-levels 2)
+;;     ad-do-it
+;;     (setq ccls-tree-initial-levels temp))
+;;   )
 
 ;; clipmon监视剪贴板
 (autoload 'clipmon-mode "clipmon" nil t)
 ;; clipmon-autoinsert-toggle 自动插入当前buffer
 
+;; pkg-info for flycheck
+(autoload 'pkg-info-version-info "pkg-info" nil t)
+
 ;; treemacs
 (autoload 'treemacs "treemacs" nil t)
-(with-eval-after-load "treemacs"
-  (treemacs-tag-follow-mode t))
-;; treemacs-add-project-to-workspace
+(with-eval-after-load 'treemacs
+  (treemacs-tag-follow-mode)
+  (add-hook 'treemacs-mode-hook
+            (lambda ()
+              (setq truncate-lines t))))
 
-;; 边写边自动缩进
-(autoload 'aggressive-indent-mode "aggressive-indent" nil t)
-(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+;; dap-mode 调试
+(autoload 'dap-mode "dap-mode" nil t)
+(autoload 'dap-ui-mode "dap-ui" nil t)
+(with-eval-after-load 'dap-mode
+  (require 'dap-java)
+  (require 'dap-python))
 
-;; 显示对齐线
+;; 对齐线
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
-;; (add-hook 'emacs-lisp-mode-hook #'highlight-indent-guides-mode)
+(add-hook 'nxml-mode-hook 'highlight-indent-guides-mode)
+(add-hook 'emacs-lisp-mode-hook 'highlight-indent-guides-mode)
+
+
 (with-eval-after-load 'highlight-indent-guides
   (setq highlight-indent-guides-method 'character)
   ;; (setq highlight-indent-guides-character ?\|)
-  )
+  (setq highlight-indent-guides-delay 0.7))
 
+;; kotlin mode 跟java转换的一种语言
+(autoload 'kotlin-mode "kotlin-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.kt$" . kotlin-mode))
+
+;; 边写边自动缩进
+(autoload 'aggressive-indent-mode "aggressive-indent" nil t)
+(with-eval-after-load 'aggressive-indent
+  (add-to-list
+   'aggressive-indent-dont-indent-if
+   '(and (derived-mode-p 'c++-mode 'java-mode)
+         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+                             (thing-at-point 'line))))))
+
+(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+
+;; yaml mode
+(autoload 'yaml-mode "yaml-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
+(add-hook 'yaml-mode-hook
+          '(lambda ()
+             (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1664,7 +2007,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol lsp-find-declaration  lsp-find-implementation lsp-find-type-definition  ycmd-goto ycmd-goto-imprecise))
+(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition ycmd-goto ycmd-goto-imprecise))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -1851,78 +2194,79 @@ then remove all hi-lock highlighting."
      ))
 
 ;; C++中给函数前面加上类名
-(with-eval-after-load "mode-local"
-  (define-mode-local-override semantic-format-tag-uml-abbreviate
-    c++-mode (token &optional parent color)
-    "Return an UML string describing TOKEN for C and C++.
+(with-eval-after-load 'semantic/format
+  (lambda ()
+    (define-mode-local-override semantic-format-tag-uml-abbreviate
+      c++-mode (token &optional parent color)
+      "Return an UML string describing TOKEN for C and C++.
 Optional PARENT and COLOR as specified with
 `semantic-abbreviate-tag-default'."
-    ;; If we have special template things, append.
-    (concat  (semantic-format-tag-uml-abbreviate-default-fset token parent color)
-             (semantic-c-template-string token parent color)))
+      ;; If we have special template things, append.
+      (concat  (semantic-format-tag-uml-abbreviate-default-fset token parent color)
+               (semantic-c-template-string token parent color)))
 
-  (defun semantic-format-tag-uml-abbreviate-default-fset (tag &optional parent color)
-    "Return a UML style abbreviation for TAG.
+    (defun semantic-format-tag-uml-abbreviate-default-fset (tag &optional parent color)
+      "Return a UML style abbreviation for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors."
-    (let* ((name (semantic-format-tag-name tag parent color))
-           (type  (semantic--format-tag-uml-type tag color))
-           (protstr (semantic-format-tag-uml-protection tag parent color))
-           (tag-parent-str
-            (or (when (and (semantic-tag-of-class-p tag 'function)
-                           (semantic-tag-function-parent tag))
-                  (concat (semantic-tag-function-parent tag)
-                          semantic-format-parent-separator))
-                ""))
-           (text nil))
-      (setq text
-            (concat
-             tag-parent-str
-             protstr
-             (if type (concat name type)
-               name)))
-      (if color
-          (setq text (semantic--format-uml-post-colorize text tag parent)))
-      text))
-  (define-mode-local-override semantic-format-tag-uml-prototype
-    c++-mode (token &optional parent color)
-    "Return an UML string describing TOKEN for C and C++.
+      (let* ((name (semantic-format-tag-name tag parent color))
+             (type  (semantic--format-tag-uml-type tag color))
+             (protstr (semantic-format-tag-uml-protection tag parent color))
+             (tag-parent-str
+              (or (when (and (semantic-tag-of-class-p tag 'function)
+                             (semantic-tag-function-parent tag))
+                    (concat (semantic-tag-function-parent tag)
+                            semantic-format-parent-separator))
+                  ""))
+             (text nil))
+        (setq text
+              (concat
+               tag-parent-str
+               protstr
+               (if type (concat name type)
+                 name)))
+        (if color
+            (setq text (semantic--format-uml-post-colorize text tag parent)))
+        text))
+    (define-mode-local-override semantic-format-tag-uml-prototype
+      c++-mode (token &optional parent color)
+      "Return an UML string describing TOKEN for C and C++.
 Optional PARENT and COLOR as specified with
 `semantic-abbreviate-tag-default'."
-    ;; If we have special template things, append.
-    (concat  (semantic-format-tag-uml-prototype-default-fset token parent color)
-             (semantic-c-template-string token parent color)))
-  (defun semantic-format-tag-uml-prototype-default-fset (tag &optional parent color)
-    "Return a UML style prototype for TAG.
+      ;; If we have special template things, append.
+      (concat  (semantic-format-tag-uml-prototype-default-fset token parent color)
+               (semantic-c-template-string token parent color)))
+    (defun semantic-format-tag-uml-prototype-default-fset (tag &optional parent color)
+      "Return a UML style prototype for TAG.
 Optional argument PARENT is the parent type if TAG is a detail.
 Optional argument COLOR means highlight the prototype with font-lock colors."
-    (let* ((class (semantic-tag-class tag))
-           (cp (semantic-format-tag-name tag parent color))
-           (type (semantic--format-tag-uml-type tag color))
-           (prot (semantic-format-tag-uml-protection tag parent color))
-           (tag-parent-str
-            (or (when (and (semantic-tag-of-class-p tag 'function)
-                           (semantic-tag-function-parent tag))
-                  (concat (semantic-tag-function-parent tag)
-                          semantic-format-parent-separator))
-                ""))
-           (argtext
-            (cond ((eq class 'function)
-                   (concat
-                    " ("
-                    (semantic--format-tag-arguments
-                     (semantic-tag-function-arguments tag)
-                     #'semantic-format-tag-uml-prototype
-                     color)
-                    ")"))
-                  ((eq class 'type)
-                   "{}")))
-           (text nil))
-      (setq text (concat tag-parent-str prot cp argtext type))
-      (if color
-          (setq text (semantic--format-uml-post-colorize text tag parent)))
-      text
-      )))
+      (let* ((class (semantic-tag-class tag))
+             (cp (semantic-format-tag-name tag parent color))
+             (type (semantic--format-tag-uml-type tag color))
+             (prot (semantic-format-tag-uml-protection tag parent color))
+             (tag-parent-str
+              (or (when (and (semantic-tag-of-class-p tag 'function)
+                             (semantic-tag-function-parent tag))
+                    (concat (semantic-tag-function-parent tag)
+                            semantic-format-parent-separator))
+                  ""))
+             (argtext
+              (cond ((eq class 'function)
+                     (concat
+                      " ("
+                      (semantic--format-tag-arguments
+                       (semantic-tag-function-arguments tag)
+                       #'semantic-format-tag-uml-prototype
+                       color)
+                      ")"))
+                    ((eq class 'type)
+                     "{}")))
+             (text nil))
+        (setq text (concat tag-parent-str prot cp argtext type))
+        (if color
+            (setq text (semantic--format-uml-post-colorize text tag parent)))
+        text
+        ))))
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
@@ -2003,25 +2347,19 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
                 (substatement-label . 0)
                 (template-args-cont c-lineup-template-args +))))
 
-(add-hook 'c-mode-common-hook
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (abbrev-mode -1)))
+
+(add-hook 'c-mode-hook           ;c-mode-common-hook不只是c 和c++,java也算
           (lambda ()
             (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
             (c-set-style "gzj")      ;定制C/C++缩进风格,到实际工作环境中要用guess style(main mode菜单里有个style子菜单)来添加详细的缩进风格。Press ‘C-c C-o’ to see the syntax at point
             ;; (fci-mode 1)
             ;; (hs-minor-mode 1)
             ;; (hide-ifdef-mode 1)
-            (setq-local indent-tabs-mode nil)
-            ;; (company-mode 1)
-            (abbrev-mode -1)
-            ;; (flycheck-mode 1)
-            ;; (yas-minor-mode 1)
-            ;; (my-c-mode-common-hook-if0)
-            ;; (jpk/c-mode-hook)
-            ;; (setq-local company-idle-delay 0.5)
-            ;; (setq-local jit-lock-context-time 1.5)
-            ;; (setq-local jit-lock-defer-time 0.5)
+            (setq-local indent-tabs-mode nil) ;tab用空格填充
             (check-large-file-hook)
-            ;; (srecode-minor-mode 1)
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
                                        1  font-lock-function-name-face keep))
@@ -2029,6 +2367,113 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             ;; (superword-mode)                ;连字符不分割单词,影响move和edit，但是鼠标双击选择不管用 ，相对subword-mode
             (define-key c-mode-base-map (kbd "C-{") 'my-hif-toggle-block)
             (set-default 'semantic-imenu-summary-function 'semantic-format-tag-uml-abbreviate)
+            ))
+
+(add-hook 'c++-mode-hook           ;c-mode-common-hook不只是c 和c++,java也算
+          (lambda ()
+            (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
+            (c-set-style "gzj")      ;定制C/C++缩进风格,到实际工作环境中要用guess style(main mode菜单里有个style子菜单)来添加详细的缩进风格。Press ‘C-c C-o’ to see the syntax at point
+            ;; (fci-mode 1)
+            ;; (hs-minor-mode 1)
+            ;; (hide-ifdef-mode 1)
+            (setq-local indent-tabs-mode nil) ;tab用空格填充
+            (check-large-file-hook)
+            (font-lock-add-keywords nil
+                                    '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
+                                       1  font-lock-function-name-face keep))
+                                    1)
+            ;; (superword-mode)                ;连字符不分割单词,影响move和edit，但是鼠标双击选择不管用 ，相对subword-mode
+            (define-key c-mode-base-map (kbd "C-{") 'my-hif-toggle-block)
+            (set-default 'semantic-imenu-summary-function 'semantic-format-tag-uml-abbreviate)
+            ))
+
+(c-add-style "java_gzj"
+             '("java"
+               (c-basic-offset . 4)     ; Guessed value
+               (c-offsets-alist
+                (annotation-top-cont . 0)   ; Guessed value
+                (arglist-intro . ++)    ; Guessed value
+                (block-close . 0)       ; Guessed value
+                (case-label . +)        ; Guessed value
+                (catch-clause . 0)      ; Guessed value
+                (class-close . 0)       ; Guessed value
+                (class-open . 0)        ; Guessed value
+                (defun-block-intro . +) ; Guessed value
+                (else-clause . 0)       ; Guessed value
+                (func-decl-cont . ++)   ; Guessed value
+                (inclass . +)           ; Guessed value
+                (inline-close . 0)      ; Guessed value
+                (statement . 0)         ; Guessed value
+                (statement-block-intro . +) ; Guessed value
+                (statement-case-intro . +)  ; Guessed value
+                (statement-cont . ++)   ; Guessed value
+                (substatement-open . 0) ; Guessed value
+                (topmost-intro . 0)     ; Guessed value
+                (access-label . 0)
+                (annotation-var-cont . +)
+                (arglist-close . c-lineup-close-paren)
+                (arglist-cont c-lineup-gcc-asm-reg 0)
+                (arglist-cont-nonempty . c-lineup-arglist)
+                (block-open . 0)
+                (brace-entry-open . 0)
+                (brace-list-close . 0)
+                (brace-list-entry . c-lineup-under-anchor)
+                (brace-list-intro . +)
+                (brace-list-open . 0)
+                (c . c-lineup-C-comments)
+                (comment-intro . c-lineup-comment)
+                (composition-close . 0)
+                (composition-open . 0)
+                (cpp-define-intro c-lineup-cpp-define +)
+                (cpp-macro . -1000)
+                (cpp-macro-cont . +)
+                (defun-close . 0)
+                (defun-open . 0)
+                (do-while-closure . 0)
+                (extern-lang-close . 0)
+                (extern-lang-open . 0)
+                (friend . 0)
+                (incomposition . +)
+                (inexpr-class . +)
+                (inexpr-statement . +)
+                (inextern-lang . +)
+                (inher-cont . c-lineup-multi-inher)
+                (inher-intro . +)
+                (inlambda . c-lineup-inexpr-block)
+                (inline-open . 0)
+                (inmodule . +)
+                (innamespace . +)
+                (knr-argdecl . 0)
+                (knr-argdecl-intro . 5)
+                (label . +)
+                (lambda-intro-cont . +)
+                (member-init-cont . c-lineup-multi-inher)
+                (member-init-intro . +)
+                (module-close . 0)
+                (module-open . 0)
+                (namespace-close . 0)
+                (namespace-open . 0)
+                (objc-method-args-cont . c-lineup-ObjC-method-args)
+                (objc-method-call-cont c-lineup-ObjC-method-call-colons c-lineup-ObjC-method-call +)
+                (objc-method-intro .
+                                   [0])
+                (statement-case-open . +)
+                (stream-op . c-lineup-streamop)
+                (string . -1000)
+                (substatement . +)
+                (substatement-label . +)
+                (template-args-cont c-lineup-template-args +)
+                (topmost-intro-cont . +))))
+
+(add-hook 'java-mode-hook
+          (lambda ()
+            (c-set-style "java_gzj")
+            ;; (aggressive-indent-mode)
+            (setq-local indent-tabs-mode nil) ;tab用空格填充
+            (font-lock-add-keywords nil
+                                    '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
+                                       1  font-lock-function-name-face keep))
+                                    1)
             ))
 
 (add-hook 'emacs-lisp-mode-hook
@@ -2040,7 +2485,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (company-mode 1)
             (eldoc-mode 1)
             (setq-local indent-tabs-mode nil)
-            ;; (add-to-list 'company-backends '(company-capf :with company-yasnippet :with company-dabbrev-code))
             (setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
@@ -2081,6 +2525,19 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (company-mode -1)
             ))
 
+;; xml
+(add-hook 'nxml-mode-hook
+          (lambda () "DOCSTRING" (interactive)
+            (setq-local indent-tabs-mode nil) ;tab用空格填充
+            (set-c-word-mode)))
+
+;; python
+(add-hook 'python-mode-hook
+          (lambda () "" (interactive)
+            (modify-syntax-entry ?_ "w")
+            (modify-syntax-entry ?- "w")
+            ))
+
 (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 (remove-hook 'comint-output-filter-functions 'comint-postoutput-scroll-to-bottom)
 
@@ -2104,7 +2561,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; org 设置
 ;; 标题自动加时间戳 '(16)代表两个c-u
-(defadvice org-insert-heading (after org-insert-heading-after activate)
+(defadvice org-insert-heading(after org-insert-heading-after activate)
   (org-time-stamp '(16))
   (search-backward "<")
   (save-excursion (insert " ")))        ;跳到开头并插个空格
@@ -2254,25 +2711,28 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "C-M-,") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
-;; 生成函数注释
-(global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
-;; face修改
+
+;; face修改，用copy-face刷掉原来的face属性
 (defun change-face ()
   ""
   (copy-face 'mode-line-inactive 'tabbar-default)
   (set-face-attribute 'tabbar-default nil
                       :height 1.0
-                      :family "Consolas")
+                      :family "Consolas"
+                      )
   (copy-face 'tooltip 'tabbar-selected)
-  (copy-face 'mode-line-inactive 'tabbar-button)
   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
-  (copy-face 'mode-line-inactive 'tabbar-unselected)
-  (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
-  (copy-face 'tabbar-modified 'tabbar-selected-modified)
-  (copy-face 'tabbar-modified 'tabbar-unselected-modified))
 
+  (copy-face 'tabbar-default 'tabbar-unselected)
+  (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
+
+  (copy-face 'tabbar-modified 'tabbar-selected-modified)
+  (copy-face 'tabbar-modified 'tabbar-unselected-modified)
+  )
 (change-face)
-(add-hook 'after-make-frame-functions (lambda (_) (change-face)))
+(add-hook 'after-make-frame-functions
+          (lambda (_)                   ;这里如果不用(_)会报参数错误
+            (change-face)))
 (defadvice load-theme (after load-theme-af activate)
   (change-face))
 
@@ -2281,4 +2741,6 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(helm-xref-file-name ((t (:foreground "dark cyan"))))
+ '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
