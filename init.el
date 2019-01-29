@@ -21,8 +21,8 @@
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
-                    ;; (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
-                    (font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
+                    (font-spec :family "Heiti SC" :size 12)));mac中Heiti SC能中英文等高
+;; (font-spec :family "新宋体" :size 16)))
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -31,13 +31,7 @@
     (setq site-lisp-directory "/usr/local/share/emacs/site-lisp")
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
-(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/spacemacs-theme"))
 (add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/emacs-doom-themes-master/themes"))
-
-;; spacemacs theme setting
-(setq spacemacs-theme-comment-bg nil)
-(setq spacemacs-theme-org-height nil)
-
 ;;-----------------------------------------------------------设置-----------------------------------------------------------;;
 ;; 只有一个实例
 (server-force-delete)
@@ -229,7 +223,6 @@
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
  '(company-dabbrev-other-buffers t)
- '(company-ycmd-request-sync-timeout 0)
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
@@ -284,7 +277,6 @@
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 104857600)
  '(helm-gtags-cache-select-result t)
- '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-suggested-key-mapping t)
  '(helm-gtags-update-interval-second 3)
@@ -380,36 +372,8 @@
  '(xref-prompt-for-identifier
    (quote
     (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
- '(yas-also-auto-indent-first-line t)
- '(ycmd-confirm-fixit nil)
- '(ycmd-delete-process-delay 15)
- '(ycmd-file-type-map
-   (quote
-    ((java-mode "java")
-     (c++-mode "cpp")
-     (c-mode "c")
-     (caml-mode "ocaml")
-     (csharp-mode "cs")
-     (d-mode "d")
-     (erlang-mode "erlang")
-     (go-mode "go")
-     (js-mode "javascript")
-     (js2-mode "javascript")
-     (objc-mode "objc")
-     (perl-mode "perl")
-     (cperl-mode "perl")
-     (php-mode "php")
-     (python-mode "python")
-     (ruby-mode "ruby")
-     (rust-mode "rust")
-     (scala-mode "scala")
-     (tuareg-mode "ocaml")
-     (typescript-mode "typescript"))))
- '(ycmd-idle-change-delay 3)
- '(ycmd-parse-conditions (quote (save idle-change mode-enabled buffer-focus)))
- '(ycmd-seed-identifiers-with-keywords t)
- '(ycmd-server-args (quote ("--idle_suicide_seconds=10800")))
- '(ycmd-startup-timeout 20))
+ '(yas-also-auto-indent-first-line t))
+
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
@@ -743,13 +707,6 @@
      (gtags-mode 1)
      (remove-hook 'after-save-hook 'gtags-auto-update)
      (helm-gtags-mode 1)
-     (defadvice helm-gtags--update-tags-command(before helm-gtags-update-tags-bef activate)
-       (if (bound-and-true-p ycmd-mode)
-           (progn
-             (unless (ycmd-running-p) (ycmd-open))
-             (ycmd-parse-buffer)))
-       ;; (semantic-force-refresh)
-       )
      (add-hook 'c-mode-common-hook
                (lambda ()
                  (gtags-mode 1)
@@ -1248,184 +1205,6 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
                   ) "")))
       (concat close-button display-label key-label tabbar-separator-value))))
 
-;; ycmd
-;; 文件中不能有当前编码无法识别的字符，否则ycmd会出错
-;; 会报(wrong-type-argument number-or-marker-p nil)错误
-;; 解决办法：c-x RET f输入utf-8回车，会提示乱码的位置
-
-;; 标准加载方式
-;; (require 'ycmd)
-;; (add-hook 'after-init-hook #'global-ycmd-mode)
-;; (require 'company-ycmd)
-;; (company-ycmd-setup)
-;; (require 'flycheck-ycmd)
-;; (flycheck-ycmd-setup)
-
-;; (autoload 'ycmd-mode "ycmd" nil t)
-;; (autoload 'global-ycmd-mode "ycmd" nil t)
-
-;; (global-set-key (kbd "M-.") 'ycmd-goto-imprecise)
-(global-set-key (kbd "M-p") (lambda () "" (interactive)
-                              (require 'ycmd )
-                              (unless (ycmd-running-p) (ycmd-open))
-                              (unless ycmd-mode (ycmd-mode 1))
-                              (ycmd-get-type t)
-                              ))
-;; (global-set-key (kbd "M-p") 'ycmd-get-type)
-(global-set-key (kbd "C-.") (lambda () "" (interactive)
-                              (require 'ycmd )
-                              (unless (ycmd-running-p) (ycmd-open))
-                              (unless ycmd-mode (ycmd-mode 1))
-                              (ycmd-get-parent)
-                              ))
-
-(eval-after-load "company-ycmd"
-  '(progn
-     ;; 让company-ycmd能够在字符串和注释中补全
-     (defun company-ycmd--prefix-fset ()
-       "Prefix-command handler for the company backend."
-       (and ycmd-mode
-            buffer-file-name
-            (ycmd-running-p)
-            ;; (or (not (company-in-string-or-comment))
-            ;;  (company-ycmd--in-include))
-            (or (company-grab-symbol-cons "\\.\\|->\\|::\\|/" 2)
-                'stop)))
-     (fset 'company-ycmd--prefix 'company-ycmd--prefix-fset)))
-
-(eval-after-load "ycmd"
-  '(progn
-     (defun ycmd--options-contents-fset (hmac-secret)
-       ""
-       (let ((hmac-secret (base64-encode-string hmac-secret))
-             (global-config (or ycmd-global-config ""))
-             (extra-conf-whitelist (or ycmd-extra-conf-whitelist []))
-             (confirm-extra-conf (if (eq ycmd-extra-conf-handler 'load) 0 1))
-             (gocode-binary-path (or ycmd-gocode-binary-path ""))
-             (godef-binary-path (or ycmd-godef-binary-path ""))
-             (rust-src-path (or ycmd-rust-src-path ""))
-             (racerd-binary-path (or ycmd-racerd-binary-path ""))
-             (python-binary-path (or ycmd-python-binary-path "")))
-         `((filepath_completion_use_working_dir . 0)
-           (auto_trigger . 1)
-           (min_num_of_chars_for_completion . 2) ;写死2，保证server 2个字符就可以补全
-           (min_num_identifier_candidate_chars . 0)
-           (semantic_triggers . ())
-           (filetype_specific_completion_to_disable (gitcommit . 1))
-           (collect_identifiers_from_comments_and_strings . 0)
-           (max_num_identifier_candidates . ,ycmd-max-num-identifier-candidates)
-           (extra_conf_globlist . ,extra-conf-whitelist)
-           (global_ycm_extra_conf . ,global-config)
-           (confirm_extra_conf . ,confirm-extra-conf)
-           (max_diagnostics_to_display . 1000) ;原来是30
-           (auto_start_csharp_server . 1)
-           (auto_stop_csharp_server . 1)
-           (use_ultisnips_completer . 1)
-           (csharp_server_port . 0)
-           (hmac_secret . ,hmac-secret)
-           (server_keep_logfiles . 1)
-           (gocode_binary_path . ,gocode-binary-path)
-           (godef_binary_path . ,godef-binary-path)
-           (rust_src_path . ,rust-src-path)
-           (racerd_binary_path . ,racerd-binary-path)
-           (python_binary_path . ,python-binary-path))))
-     (fset 'ycmd--options-contents 'ycmd--options-contents-fset)
-     ))
-
-;; -u解决hang的问题
-(set-variable 'ycmd-server-command '("c:/python27/python.exe" "-u" "G:/ycmd/ycmd"))
-;; (setq ycmd-server-command (list "python" (expand-file-name "~/ycmd/ycmd")))
-
-(set-variable 'ycmd-global-config "C:/Users/g00280886/AppData/Roaming/global_config.py")
-(setq ycmd-extra-conf-handler 'load)
-;; (setq ycmd--log-enabled t)
-(setq url-show-status nil)
-;; (setq ycmd-request-message-level -1)
-(setq request-message-level -1)
-
-(eval-after-load "ycmd"
-  '(progn
-     (message "ycmd")
-     (global-ycmd-mode 1)
-     (require 'company-ycmd)
-     (company-ycmd-setup)
-     (global-company-mode 1)
-     ;; (global-srecode-minor-mode t)
-     (yas-global-mode 1)
-     (require 'taglist)
-     (add-hook 'ycmd-file-parse-result-hook 'tag-list-update-safe-for-ycmd)
-
-     ;; 起个定时器刷新
-     (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
-
-     (defun do-reparse ()
-       (message "do reparse and ycmd timer deactive")
-       (ycmd--conditional-parse)
-       (cancel-timer reparse-timer))
-
-     (defun reparse-current-buffer ()
-       ""
-       (interactive "")
-       (company-ycmd--init)
-       (when (bound-and-true-p ycmd-mode)
-         (message "reparse ycmd timer active")
-         (cond ((or (eq ycmd--last-status-change 'unparsed)
-                    (eq ycmd--last-status-change 'errored))
-                (do-reparse))
-               ((eq ycmd--last-status-change 'parsed)
-                (cancel-timer reparse-timer)))))
-
-     ;; (add-hook 'c-mode-common-hook
-     ;;            (lambda ()
-     ;;              (setq reparse-timer (run-at-time 5 3 'reparse-current-buffer))
-     ;;              ))
-
-     ;; 强制用语法补全，函数参数，全局变量等都能补
-     (defun company-ycmd-semantic-complete ()
-       (interactive)
-       (let ((ycmd-force-semantic-completion t))
-         (company-complete)))
-     (global-set-key (kbd "<M-S-return>") 'company-ycmd-semantic-complete)
-     (global-set-key (kbd "M-.") (lambda () "" (interactive)
-                                   (require 'ycmd )
-                                   (unless (ycmd-running-p) (ycmd-open))
-                                   (unless ycmd-mode (ycmd-mode 1))
-                                   (ycmd-goto)
-                                   ))
-     (global-set-key (kbd "C-c p") 'ycmd-get-type)
-     (global-set-key (kbd "C-c o") 'ycmd-goto-imprecise)
-
-     (global-set-key (kbd "C-c t") 'ycmd-fixit)
-
-     (require 'flycheck-ycmd)
-     ;; 下面函数有bug，由于路径中存在反斜杠导致flycheck的错误无法显示
-     (defun flycheck-ycmd--result-to-error-fset (result checker)
-       "Convert ycmd parse RESULT for CHECKER into a flycheck error object."
-       (let-alist result
-         (when (string-equal (replace-regexp-in-string "\\\\" "/" .location.filepath ) (buffer-file-name))
-           (flycheck-error-new
-            :line .location.line_num
-            :column .location.column_num
-            :buffer (current-buffer)
-            :filename .location.filepath
-            :message (concat .text (when (eq .fixit_available t) " (FixIt)"))
-            :checker checker
-            :level (assoc-default .kind flycheck-ycmd--level-map 'string-equal 'error)))))
-     (fset 'flycheck-ycmd--result-to-error 'flycheck-ycmd--result-to-error-fset)
-     (flycheck-ycmd-setup)
-     (add-hook 'python-mode-hook (lambda () (add-to-list 'flycheck-disabled-checkers 'ycmd)))
-     (global-flycheck-mode 1)
-
-     (unless (featurep 'lsp)
-       (require 'ycmd-eldoc)
-       (add-hook 'ycmd-mode-hook 'ycmd-eldoc-mode)
-       (global-eldoc-mode 1)
-       (unless (< (* 150 1024) (buffer-size))
-         (ycmd-eldoc-mode +1)))
-
-     ;; (setq ycmd-force-semantic-completion t)
-     ))
-
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
 (global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
@@ -1441,102 +1220,6 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
 
 ;; modeline和主题定制
-
-;; spacemacs
-;; (require 'spaceline-config)
-;; ;; (spaceline-emacs-theme) 这句不用写，下面有自定义的spaceline-emacs-theme-mod
-;; (spaceline-helm-mode 1)
-;; (spaceline-info-mode 1)
-;; (setq anzu-cons-mode-line-p nil)		;防止有两个anzu
-;; ;; 鼠标指向dos处时，弹出文件编码信息
-;; (spaceline-define-segment buffer-encoding-abbrev-mouse
-;;   "The line ending convention used in the buffer with mouse prompt of buffer encoding info."
-;;   (let ((buf-coding (format "%s" buffer-file-coding-system)))
-;;     (if (string-match "\\(dos\\|unix\\|mac\\)" buf-coding)
-;;         (setq buf-coding (match-string 1 buf-coding))
-;;       buf-coding)
-;;     (propertize buf-coding
-;;                 'help-echo (if buffer-file-coding-system
-;;                                (format "Buffer coding system (%s): %s
-;; mouse-1: Describe coding system
-;; mouse-3: Set coding system"
-;;                                        (if enable-multibyte-characters "multi-byte" "unibyte")
-;;                                        (symbol-name buffer-file-coding-system))
-;;                              "Buffer coding system: none specified"))))
-
-;; ;; 让which-func强制刷新
-;; (spaceline-define-segment which-function-ignore-active
-;;   (when (bound-and-true-p which-function-mode)
-;;     (let* ((current (format-mode-line which-func-current)))
-;;       (when (string-match "{\\(.*\\)}" current)
-;;         (setq current (match-string 1 current)))
-;;       (propertize current
-;;                   'local-map which-func-keymap
-;;                   'face 'which-func
-;;                   'mouse-face 'mode-line-highlight
-;;                   'help-echo "mouse-1: go to beginning\n\
-;; mouse-2: toggle rest visibility\n\
-;; mouse-3: go to end"))))
-
-;; ;; 自定义theme使用上面两个segment
-;; (defun spaceline--theme-mod (left second-left &rest additional-segments)
-;;   "Convenience function for the spacemacs and emacs themes."
-;;   (spaceline-compile
-;;     `(,left
-;;       (anzu :priority 95)
-;;       auto-compile
-;;       ,second-left
-;;       (major-mode :priority 79)
-;;       (process :when active)
-;;       ((flycheck-error flycheck-warning flycheck-info)
-;;        :when active
-;;        :priority 89)
-;;       (minor-modes :when active
-;;                    :priority 9)
-;;       (mu4e-alert-segment :when active)
-;;       (erc-track :when active)
-;;       (version-control :when active
-;;                        :priority 78)
-;;       (org-pomodoro :when active)
-;;       (org-clock :when active)
-;;       nyan-cat)
-;;     `(which-function-ignore-active
-;;       (python-pyvenv :fallback python-pyenv)
-;;       (purpose :priority 94)
-;;       (battery :when active)
-;;       (selection-info :priority 95)
-;;       input-method
-;;       ((buffer-encoding-abbrev-mouse
-;;         point-position
-;;         line-column)
-;;        :separator " | "
-;;        :priority 96)
-;;       (global :when active)
-;;       ,@additional-segments
-;;       (buffer-position :priority 99)
-;;       (hud :priority 99)))
-
-;;   (setq-default mode-line-format '("%e" (:eval (spaceline-ml-main)))))
-
-;; (defun spaceline-emacs-theme-mod (&rest additional-segments)
-;;   "Install a modeline close to the one used by Spacemacs, but which
-;; looks better without third-party dependencies.
-
-;; ADDITIONAL-SEGMENTS are inserted on the right, between `global' and
-;; `buffer-position'."
-;;   (apply 'spaceline--theme-mod
-;;          '(((((persp-name :fallback workspace-number)
-;;               window-number) :separator "|")
-;;             buffer-modified
-;;             buffer-size)
-;;            :face highlight-face
-;;            :priority 100)
-;;          '((buffer-id remote-host)
-;;            :priority 98)
-;;          additional-segments))
-
-;; (spaceline-emacs-theme-mod)
-
 ;; doom theme with its mode line
 (require 'doom-themes)
 (doom-themes-org-config)
@@ -1627,7 +1310,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'c++-mode-hook #'lsp)
   (add-hook 'python-mode-hook #'lsp)
 
-  ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡
+  ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
   ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
   ;;   (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
 
@@ -1766,39 +1449,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     ad-do-it
     (setq cquery-tree-initial-levels temp))
   )
-
-;; ;; ccls config
-;; (with-eval-after-load 'ccls
-;;   (setq ccls-executable "g:/ccls/Release/ccls.exe")
-;;   (setq ccls-initialization-options '(:index (:comments 2 :blacklist (".*") :whitelist (".*/pclint/.*" ".*/COMMON/include/.*" ".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*"))))
-
-;;   ;; (setq ccls-args '("-log-file=/tmp/ccls.log"))
-;;   ;; 不折行
-;;   (dolist (command '(ccls-call-hierarchy ccls-inheritance-hierarchy ccls-member-hierarchy))
-;;     (eval
-;;      `(defadvice ,command (after ccls-after activate)
-;;         (setq truncate-lines t)
-;;         )))
-;;   ;; 消除乱码
-;;   (defun ccls-tree--make-prefix-fset (node number nchildren depth)
-;;     "."
-;;     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
-;;            (symbol (if (= depth 0)
-;;                        (if (ccls-tree-node-parent node)
-;;                            "< "
-;;                          "")
-;;                      (if (ccls-tree-node-has-children node)
-;;                          (if (ccls-tree-node-expanded node) "└-" "└+")
-;;                        (if (eq number (- nchildren 1)) "└*" "├*")))))
-;;       (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
-
-;;   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
-;;   (defadvice ccls-member-hierarchy (around ccls-member-hierarchy-ar activate)
-;;     (setq temp ccls-tree-initial-levels)
-;;     (setq ccls-tree-initial-levels 2)
-;;     ad-do-it
-;;     (setq ccls-tree-initial-levels temp))
-;;   )
 
 ;; clipmon监视剪贴板
 (autoload 'clipmon-mode "clipmon" nil t)
@@ -2005,7 +1655,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition ycmd-goto ycmd-goto-imprecise))
+(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -2069,7 +1719,6 @@ If FULL is t, copy full file name."
 (defun check-large-file-hook ()
   ""
   (when (< (* 150 1024) (buffer-size))
-    ;; (nlinum-mode -1)
     ;; (setq-local jit-lock-context-time 1.5)
     ;; (setq-local jit-lock-defer-time 0.5)
     (setq-local font-lock-maximum-decoration 2)
@@ -2078,10 +1727,6 @@ If FULL is t, copy full file name."
     (setq-local company-idle-delay 3)
     (setq-local cquery-sem-highlight-method nil)
     ;; (eldoc-mode -1)
-    ;; (ad-deactivate 'yank)
-    ;; (ad-deactivate 'yank-pop)
-    ;; (ad-deactivate 'undo)
-
     ;; (font-lock-mode -1 )
     ;; (jit-lock-mode nil)
     ;; (diff-hl-mode -1)
