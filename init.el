@@ -1534,6 +1534,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (add-hook 'yaml-mode-hook
           '(lambda ()
              (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+
+(autoload 'counsel-gtags-mode "counsel-gtags" nil t)
+(autoload 'ivy-mode "ivy" nil t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2394,12 +2397,17 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
                       :height 100
                       :family "Consolas"
                       )
+  
   (copy-face 'line-number-current-line 'tabbar-selected)
   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
 
   (copy-face 'mode-line-inactive 'tabbar-unselected)
   (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
 
+  (copy-face 'tabbar-unselected 'tabbar-modified)
+  (set-face-attribute 'tabbar-modified nil
+                      :foreground (face-foreground 'error)
+                      )
   (copy-face 'tabbar-modified 'tabbar-selected-modified)
   (copy-face 'tabbar-modified 'tabbar-unselected-modified)
   )
