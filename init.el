@@ -3,6 +3,22 @@
 ;; Setting English Font
 
 ;; (package-initialize)
+;; 目录复杂的移到.emacs.d目录下并专门指定load-path，防止load-path过多
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/all-the-icons"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/evil"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs/src/elisp"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
+
+;; 打印调用函数的性能方法如下
+;; M-x elp-instrument-package magit即查看magit包所有方法用掉的时间
+;; 执行 magit-status
+;; M-x elp-results 查看结果
+;; M-x elp-restore-all取消
+
+;; magit debug命令
+;; magit-version magit-emacs-Q-command magit-debug-git-executable with-editor-debug
 (require 'all-the-icons)
 
 ;; 窗口位置 大小
@@ -31,7 +47,7 @@
     (setq site-lisp-directory "/usr/local/share/emacs/site-lisp")
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
-(add-to-list 'custom-theme-load-path (concat site-lisp-directory "/themes/emacs-doom-themes-master/themes"))
+(add-to-list 'custom-theme-load-path (concat user-emacs-directory "/site-lisp/emacs-doom-themes/themes"))
 ;;-----------------------------------------------------------设置-----------------------------------------------------------;;
 ;; 只有一个实例
 (server-force-delete)
@@ -230,10 +246,10 @@
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
  '(cursor-type t)
- '(custom-enabled-themes (quote (doom-nord)))
+ '(custom-enabled-themes (quote (doom-tomorrow-night)))
  '(custom-safe-themes
    (quote
-    ("6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+    ("8aca557e9a17174d8f847fb02870cb2bb67f3b6e808e46c0e54a44e3e18e1020" "6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
  '(dired-listing-switches "-alh")
@@ -325,8 +341,8 @@
  '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
- '(nxml-child-indent 4)
  '(ns-right-alternate-modifier (quote control))
+ '(nxml-child-indent 4)
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-log-done (quote time))
@@ -361,6 +377,7 @@
  '(tool-bar-mode nil)
  '(treemacs-follow-after-init t)
  '(treemacs-show-cursor t)
+ '(treemacs-width 60)
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
@@ -1223,7 +1240,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; doom theme with its mode line
 (require 'doom-themes)
 (doom-themes-org-config)
-;; (doom-themes-treemacs-config) ;; 这句会导致treemacs的tag显示不出来
+(doom-themes-treemacs-config)
 ;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
@@ -1354,6 +1371,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (global-flycheck-mode t)
     (setq lsp-ui-imenu-enable t)
     (require 'lsp-java-treemacs)
+    (global-set-key (kbd "<f12>") 'xref-find-references)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1380,6 +1398,17 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
     (fset 'lsp-java-treemacs-unregister 'lsp-java-treemacs-unregister-fset)
     )
+  ;; xref按键重定义
+  (define-key xref--button-map [mouse-1] 'ignore)
+  (define-key xref--button-map (kbd "<double-mouse-1") 'xref-show-location-at-point)
+  (defun xref--mouse-2 (event)
+    "Move point to the button and show the xref definition."
+    (interactive "e")
+    (mouse-set-point event)
+    (forward-line 0)
+    ;; (xref--search-property 'xref-item)
+    (xref-show-location-at-point))
+  (fset 'xref--mouse-2 'xref--mouse-2-fset)
   )
 
 ;; cquery config
@@ -1460,9 +1489,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; treemacs
 (autoload 'treemacs "treemacs" nil t)
 (with-eval-after-load 'treemacs
-  (treemacs-tag-follow-mode)
   (add-hook 'treemacs-mode-hook
             (lambda ()
+              (treemacs-tag-follow-mode)
               (setq truncate-lines t))))
 
 ;; dap-mode 调试
@@ -1480,7 +1509,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 (with-eval-after-load 'highlight-indent-guides
   (setq highlight-indent-guides-method 'character)
-  ;; (setq highlight-indent-guides-character ?\|)
+  (setq highlight-indent-guides-character ?\|)
   (setq highlight-indent-guides-delay 0.7))
 
 ;; kotlin mode 跟java转换的一种语言
@@ -1496,7 +1525,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
                              (thing-at-point 'line))))))
 
-(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 
 ;; yaml mode
 (autoload 'yaml-mode "yaml-mode" nil t)
@@ -2358,15 +2387,17 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 ;; face修改，用copy-face刷掉原来的face属性
 (defun change-face ()
   ""
-  (copy-face 'mode-line-inactive 'tabbar-default)
+  (require 'doom-modeline)
+  ;; (require 'wid-edit)
+  (copy-face 'doom-modeline-inactive-bar 'tabbar-default)
   (set-face-attribute 'tabbar-default nil
-                      :height 1.0
+                      :height 100
                       :family "Consolas"
                       )
-  (copy-face 'tooltip 'tabbar-selected)
+  (copy-face 'line-number-current-line 'tabbar-selected)
   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
 
-  (copy-face 'tabbar-default 'tabbar-unselected)
+  (copy-face 'mode-line-inactive 'tabbar-unselected)
   (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
 
   (copy-face 'tabbar-modified 'tabbar-selected-modified)
