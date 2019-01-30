@@ -242,6 +242,8 @@
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
  '(confirm-kill-emacs (quote y-or-n-p))
+ '(counsel-gtags-auto-update t)
+ '(counsel-gtags-update-interval-second 3)
  '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cua-mode t nil (cua-base))
@@ -275,9 +277,9 @@
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
  '(global-eldoc-mode nil)
+ '(global-hl-line-mode t)
  '(global-hl-line-sticky-flag t)
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
- '(gtags-ignore-case nil)
  '(gud-pdb-command-name "python -i -m pdb")
  '(helm-ag-base-command "ag --nocolor --nogroup -S -Q ")
  '(helm-ag-fuzzy-match t)
@@ -290,12 +292,6 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
- '(helm-gtags-auto-update t)
- '(helm-gtags-cache-max-result-size 104857600)
- '(helm-gtags-cache-select-result t)
- '(helm-gtags-ignore-case t)
- '(helm-gtags-suggested-key-mapping t)
- '(helm-gtags-update-interval-second 3)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
@@ -375,8 +371,10 @@
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
+ '(treemacs-collapse-dirs 3)
  '(treemacs-follow-after-init t)
  '(treemacs-show-cursor t)
+ '(treemacs-space-between-root-nodes nil)
  '(treemacs-width 60)
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
@@ -401,6 +399,7 @@
   '(progn
      ;; (define-key gtags-mode-map [C-down-mouse-1] 'ignore)
      ;; (define-key gtags-mode-map [C-down-mouse-3] 'ignore)
+     (remove-hook 'after-save-hook 'gtags-auto-update)
      (define-key gtags-mode-map [mouse-3] 'ignore)
      (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-by-event)
      (define-key gtags-mode-map (kbd "<M-mouse-3>") 'gtags-pop-stack)
@@ -664,25 +663,7 @@
 (autoload 'helm-M-x "helm-config" nil t)
 (autoload 'helm-find-files "helm-config" nil t)
 
-
-(autoload 'helm-gtags-mode "helm-gtags" nil t)
-(autoload 'helm-gtags-select "helm-gtags" nil t)
-(autoload 'helm-gtags-select-path "helm-gtags" nil t)
-(autoload 'helm-gtags-find-tag "helm-gtags" nil t)
-(autoload 'helm-gtags-find-files "helm-gtags" nil t)
-(autoload 'helm-gtags-create-tags "helm-gtags" nil t)
-(autoload 'helm-gtags-update-tags "helm-gtags" nil t)
-(autoload 'helm-gtags-dwim "helm-gtags" nil t)
-(autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
-
-(autoload 'gtags-find-file "gtags" nil t)
-
-(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-
-(autoload 'helm-occur "helm-gtags" nil t)
-(autoload 'helm-swoop "helm-swoop" nil t)
-(autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
-
+(autoload 'helm-occur "helm-regexp" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
 
@@ -705,44 +686,10 @@
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume)
 (global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
-(global-set-key (kbd "M-]") 'helm-swoop)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
 
-(global-set-key (kbd "C-c b") 'helm-gtags-find-files)
-(global-set-key (kbd "C-c B") 'gtags-find-file)
-(global-set-key (kbd "C-c d") 'helm-gtags-find-tag) ;要在空白处使用才能输入，否则是查找光标下的符号
-(global-set-key (kbd "<f6>") 'helm-gtags-select-path)
-(global-set-key (kbd "<f7>") 'helm-gtags-select)
-(global-set-key (kbd "<S-f5>") 'helm-gtags-create-tags) ;可以指定路径和label
-(global-set-key (kbd "<f5>") 'helm-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
-
-(global-set-key (kbd "C-\\") 'helm-gtags-dwim)
-(global-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
-
-(eval-after-load "helm-gtags"
-  '(progn
-     (gtags-mode 1)
-     (remove-hook 'after-save-hook 'gtags-auto-update)
-     (helm-gtags-mode 1)
-     (add-hook 'c-mode-common-hook
-               (lambda ()
-                 (gtags-mode 1)
-                 (helm-gtags-mode 1)))
-     (define-key helm-gtags-mode-map (kbd "C-]") nil)
-     (define-key helm-gtags-mode-map (kbd "C-t") nil)
-     (define-key helm-gtags-mode-map (kbd "M-*") nil)
-     (define-key helm-gtags-mode-map (kbd "M-,") nil)
-     (define-key helm-gtags-mode-map (kbd "M-.") nil)
-     (define-key helm-gtags-mode-map (kbd "C-c t") nil)
-     (define-key helm-gtags-mode-map (kbd "C-c s") 'helm-gtags-find-symbol)
-     (define-key helm-gtags-mode-map (kbd "C-c r") 'helm-gtags-find-rtag)
-     (define-key helm-gtags-mode-map (kbd "C-c f") 'helm-gtags-parse-file)
-     (define-key helm-gtags-mode-map (kbd "C-c g") 'helm-gtags-find-pattern)
-     (define-key helm-gtags-mode-map (kbd "C-\\") 'helm-gtags-dwim)
-     (define-key helm-gtags-mode-map (kbd "C-|") 'helm-gtags-find-tag-other-window)
-     ;; (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-show-stack)
-     ))
+(global-set-key (kbd "C-c b") 'gtags-find-file)
 
 (add-hook 'helm-update-hook
           (lambda ()
@@ -925,7 +872,7 @@
 (autoload 'ag-dired "ag" nil t)
 (autoload 'ag-dired-regexp "ag" nil t)
 
-(global-set-key (kbd "<f9>") 'ag-this-file)
+(global-set-key (kbd "<C-M-f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
 ;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
 (global-set-key (kbd "<S-f9>") 'ag-dired)
@@ -1029,6 +976,8 @@
      ))
 
 ;; magit
+(setq inhibit-compacting-font-cache t)  ;改善性能试验
+
 ;; 环境变量PATH里面一定要有C:\Program Files\Git\cmd, 不能有C:\Program Files\TortoiseGit\bin，否则git命令在shell里不好使
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
@@ -1233,8 +1182,6 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (eval-after-load "anzu" '(diminish 'anzu-mode))
 (eval-after-load "hideif" '(diminish 'hide-ifdef-mode))
 (eval-after-load "hideshow" '(diminish 'hs-minor-mode))
-;; (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode " HG"))
-(eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode))
 ;; (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
 
 ;; modeline和主题定制
@@ -1504,29 +1451,19 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 对齐线
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
-(add-hook 'nxml-mode-hook 'highlight-indent-guides-mode)
-(add-hook 'emacs-lisp-mode-hook 'highlight-indent-guides-mode)
-
+;; (add-hook 'nxml-mode-hook 'highlight-indent-guides-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'highlight-indent-guides-mode)
+(autoload 'highlight-indentation-mode "highlight-indentation" nil t)
 
 (with-eval-after-load 'highlight-indent-guides
   (setq highlight-indent-guides-method 'character)
   (setq highlight-indent-guides-character ?\|)
-  (setq highlight-indent-guides-delay 0.7))
+  ;; (setq highlight-indent-guides-delay 0.7)
+  )
 
 ;; kotlin mode 跟java转换的一种语言
 (autoload 'kotlin-mode "kotlin-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.kt$" . kotlin-mode))
-
-;; 边写边自动缩进
-(autoload 'aggressive-indent-mode "aggressive-indent" nil t)
-(with-eval-after-load 'aggressive-indent
-  (add-to-list
-   'aggressive-indent-dont-indent-if
-   '(and (derived-mode-p 'c++-mode 'java-mode)
-         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                             (thing-at-point 'line))))))
-
-;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 
 ;; yaml mode
 (autoload 'yaml-mode "yaml-mode" nil t)
@@ -1536,8 +1473,34 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
           '(lambda ()
              (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
+;; swiper
+;; 替代helm-gtags
 (autoload 'counsel-gtags-mode "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-file "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-definition "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-reference "counsel-gtags" nil t)
+(autoload 'counsel-gtags-dwim "counsel-gtags" nil t)
+(autoload 'counsel-gtags-dwim "counsel-gtags-create-tags" nil t)
+(autoload 'counsel-gtags-dwim "counsel-gtags-update-tags" nil t)
+
+(global-set-key (kbd "<f6>") 'counsel-gtags-find-file)
+(global-set-key (kbd "<f7>") 'counsel-gtags-find-definition)
+(global-set-key (kbd "C-\\") 'counsel-gtags-dwim)
+(global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;可以指定路径和label
+(global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
+(global-set-key (kbd "C-c s") 'counsel-gtags-find-symbol)
+(global-set-key (kbd "C-c r") 'counsel-gtags-find-reference)
+
+;; 接管输入
 (autoload 'ivy-mode "ivy" nil t)
+(ivy-mode)
+;; 接管搜索
+(autoload 'swiper "swiper" nil t)
+(global-set-key (kbd "<f9>") 'swiper)
+(define-key isearch-mode-map (kbd "<f9>") 'swiper-from-isearch)
+
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1688,7 +1651,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
+(dolist (command '(counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -1697,10 +1660,6 @@ If FULL is t, copy full file name."
         (evil-set-jump))
       ;; (window-configuration-to-register :prev-win-layout)
       )))
-
-(defadvice helm-gtags-find-tag-other-window (after helm-gtags-tag-other-back activate)
-  ""
-  (select-window (previous-window)))
 
 ;; 设置单词连接
 (defun set-c-word-mode ()
@@ -2144,7 +2103,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (add-hook 'java-mode-hook
           (lambda ()
             (c-set-style "java_gzj")
-            ;; (aggressive-indent-mode)
+            (hs-minor-mode 1)
             (setq-local indent-tabs-mode nil) ;tab用空格填充
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
@@ -2323,7 +2282,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "M-o") 'ff-find-other-file) ;声明和实现之间跳转
 
 ;; rename buffer可用于给shell改名，起多个shell用
-(global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
+;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
+(global-set-key (kbd "<M-f2>") 'bookmark-jump)
 
 ;; 重新加载文件
 (global-set-key (kbd "<C-f1>") 'revert-buffer)
