@@ -381,6 +381,7 @@
  '(undo-outer-limit 20000000)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "gezijian")
+ '(vc-handled-backends (quote (Git SVN)))
  '(vc-svn-program "C:\\Program Files\\TortoiseSVN\\bin\\svn")
  '(vlf-batch-size 10000000)
  '(which-function-mode t)
