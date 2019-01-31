@@ -262,6 +262,7 @@
  '(electric-pair-inhibit-predicate (quote electric-pair-conservative-inhibit))
  '(electric-pair-mode t)
  '(enable-local-variables :all)
+ '(enable-recursive-minibuffers t)
  '(eww-search-prefix "http://cn.bing.com/search?q=")
  '(explicit-shell-file-name "bash")
  '(fci-eol-char 32)
@@ -276,6 +277,7 @@
  '(git-commit-summary-max-length 200)
  '(global-auto-revert-mode t)
  '(global-diff-hl-mode nil)
+ '(global-display-line-numbers-mode t)
  '(global-eldoc-mode nil)
  '(global-hl-line-mode t)
  '(global-hl-line-sticky-flag t)
@@ -301,7 +303,6 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
- '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -312,6 +313,7 @@
  '(ivy-count-format "(%d/%d) ")
  '(ivy-format-function (quote ivy-format-function-arrow))
  '(ivy-height 25)
+ '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook (quote (lsp-hover)))
@@ -710,7 +712,7 @@
 ;; 行号性能改善
 (autoload 'nlinum-mode "nlinum" nil t)
 (autoload 'global-nlinum-mode "nlinum" nil t)
-(global-nlinum-mode 1)
+;; (global-nlinum-mode 1)
 ;; Preset `nlinum-format' for minimum width.
 (defun my-nlinum-mode-hook ()
   (when nlinum-mode
@@ -1188,7 +1190,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 ;; doom theme with its mode line
 (require 'doom-themes)
 (doom-themes-org-config)
-(doom-themes-treemacs-config)
+(doom-themes-treemacs-config)           ;这句会导致treemacs无法点击打开文件的tags，但是可以在文件名上右键选择打开
 ;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
@@ -1439,6 +1441,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (with-eval-after-load 'treemacs
   (add-hook 'treemacs-mode-hook
             (lambda ()
+              (setq treemacs-collapse-dirs 4)
+              (treemacs-git-mode 'deferred)
               (treemacs-tag-follow-mode)
               (setq truncate-lines t))))
 
@@ -1481,8 +1485,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'counsel-gtags-find-definition "counsel-gtags" nil t)
 (autoload 'counsel-gtags-find-reference "counsel-gtags" nil t)
 (autoload 'counsel-gtags-dwim "counsel-gtags" nil t)
-(autoload 'counsel-gtags-dwim "counsel-gtags-create-tags" nil t)
-(autoload 'counsel-gtags-dwim "counsel-gtags-update-tags" nil t)
+(autoload 'counsel-gtags-create-tags "counsel-gtags" nil t)
+(autoload 'counsel-gtags-update-tags "counsel-gtags" nil t)
 
 (global-set-key (kbd "<f6>") 'counsel-gtags-find-file)
 (global-set-key (kbd "<f7>") 'counsel-gtags-find-definition)
@@ -1495,6 +1499,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; 接管输入
 (autoload 'ivy-mode "ivy" nil t)
 (ivy-mode)
+(ivy-toggle-fuzzy)
+(autoload 'counsel-mode "counsel" nil t) ;counsel-faces可以显示face list
+
 ;; 接管搜索
 (autoload 'swiper "swiper" nil t)
 (global-set-key (kbd "<f9>") 'swiper)
@@ -2283,7 +2290,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; rename buffer可用于给shell改名，起多个shell用
 ;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
-(global-set-key (kbd "<M-f2>") 'bookmark-jump)
+(global-set-key (kbd "<M-f9>") 'bookmark-jump)
 
 ;; 重新加载文件
 (global-set-key (kbd "<C-f1>") 'revert-buffer)
