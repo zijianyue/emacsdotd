@@ -10,6 +10,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs/src/elisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors"))
 
 ;; 打印调用函数的性能方法如下
 ;; M-x elp-instrument-package magit即查看magit包所有方法用掉的时间
@@ -246,12 +247,12 @@
  '(counsel-gtags-update-interval-second 3)
  '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
- '(cua-mode t nil (cua-base))
  '(cursor-type t)
  '(custom-enabled-themes (quote (doom-tomorrow-night)))
  '(custom-safe-themes
    (quote
     ("8aca557e9a17174d8f847fb02870cb2bb67f3b6e808e46c0e54a44e3e18e1020" "6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+ '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
  '(dired-listing-switches "-alh")
@@ -428,6 +429,7 @@
 (require 'redo+)
 (setq undo-no-redo t)
 (global-set-key (kbd "C-/") 'redo)
+(global-set-key (kbd "C-z") 'undo)
 
 ;; stl(解析vector map等)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
@@ -687,7 +689,7 @@
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume)
-(global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
+;; (global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
 
@@ -760,7 +762,7 @@
   (anzu-mode 1))
 
 ;; ace
-(define-key cua--cua-keys-keymap [(meta v)] nil)
+;; (define-key cua--cua-keys-keymap [(meta v)] nil)
 (autoload 'ace-window "ace-window" nil t)
 (autoload 'ace-jump-char-mode "ace-jump-mode" nil t)
 (autoload 'avy-goto-line "avy" nil t)
@@ -784,7 +786,7 @@
 (global-set-key (kbd "M-g M-g") 'avy-goto-line)
 (global-set-key (kbd "M-g j") 'avy-goto-char-timer)
 
-(global-set-key (kbd "M-v") 'ace-window)
+(global-set-key (kbd "M-o") 'ace-window)
 (global-set-key (kbd "M-j") 'ace-jump-char-mode)
 
 
@@ -1498,16 +1500,28 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 接管输入
 (autoload 'ivy-mode "ivy" nil t)
+(global-set-key (kbd "<M-apps>") 'ivy-resume)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+
 (ivy-mode)
 (ivy-toggle-fuzzy)
 (autoload 'counsel-mode "counsel" nil t) ;counsel-faces可以显示face list
+(with-eval-after-load "counsel"
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 
 ;; 接管搜索
 (autoload 'swiper "swiper" nil t)
 (global-set-key (kbd "<f9>") 'swiper)
-(define-key isearch-mode-map (kbd "<f9>") 'swiper-from-isearch)
+(define-key isearch-mode-map (kbd "<f9>") (lambda () (interactive)
+                                            (unless (featurep 'swiper)
+                                              (require 'swiper))
+                                            (swiper-from-isearch)))
 
-
+;; 多光标操作
+(autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
+(autoload 'mc/edit-lines "multiple-cursors" nil t)
+(global-set-key (kbd "C-c d") 'mc/mark-all-like-this)
+(global-set-key (kbd "C-c e") 'mc/edit-lines)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1599,7 +1613,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (defun select-match ()
   "select between match paren"
   (interactive)
-  (cua-set-mark)
+  (set-mark-command nil)
   (his-match-paren 1))
 
 (global-set-key (kbd "C-'") 'his-match-paren)
@@ -2286,7 +2300,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; 文件跳转
 (global-set-key (kbd "<C-f6>") 'find-file-at-point) ;ffap
-(global-set-key (kbd "M-o") 'ff-find-other-file) ;声明和实现之间跳转
+(global-set-key (kbd "<M-f6>") 'ff-find-other-file) ;声明和实现之间跳转
 
 ;; rename buffer可用于给shell改名，起多个shell用
 ;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
@@ -2301,6 +2315,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; shell
 (global-set-key (kbd "<f10>") 'shell)
+(global-set-key (kbd "<S-f10>") 'eshell)
+
 
 ;; 行号栏选择行
 (global-set-key (kbd "<left-margin> <down-mouse-1>") 'mouse-drag-region)
@@ -2317,7 +2333,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
   '(progn
      (define-key icomplete-minibuffer-map (kbd "<return>") 'minibuffer-force-complete-and-exit)))
 ;; set-mark
-(global-set-key (kbd "C-,") 'cua-set-mark)
+(global-set-key (kbd "C-,") 'set-mark-command) ;mac上用右边的option改成ctrl才可以按c-,左边的ctrl不好使
+
 ;; whitespace
 (global-set-key (kbd "C-=") 'whitespace-mode)
 (global-set-key (kbd "C-+") 'whitespace-cleanup-region)
@@ -2350,10 +2367,18 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (put 'narrow-to-region 'disabled nil)
 ;;evil jump(window-local jump)
 (autoload 'evil-jump-backward "evil" nil t)
+(autoload 'evil-jump-forward "evil" nil t)
+
 (global-set-key (kbd "M-,") 'evil-jump-backward)
 (global-set-key (kbd "C-M-,") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
+;; 列模式
+(global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
+;; 列模式另外一个选择
+;; c-x spc激活列模式，C-x r开头的命令来操作详见https://www.gnu.org/software/emacs/manual/html_node/emacs/Rectangles.html#Rectangles
+;; 常用的c-x r t替换字符串
+(global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
 ;; face修改，用copy-face刷掉原来的face属性
 (defun change-face ()
