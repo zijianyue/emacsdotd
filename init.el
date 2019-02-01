@@ -786,7 +786,7 @@
 (global-set-key (kbd "M-g M-g") 'avy-goto-line)
 (global-set-key (kbd "M-g j") 'avy-goto-char-timer)
 
-(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key (kbd "M-v") 'ace-window) ;翻页用page up代替
 (global-set-key (kbd "M-j") 'ace-jump-char-mode)
 
 
@@ -1522,7 +1522,38 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'mc/edit-lines "multiple-cursors" nil t)
 (global-set-key (kbd "C-c d") 'mc/mark-all-like-this)
 (global-set-key (kbd "C-c e") 'mc/edit-lines)
-;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
+
+;; mew mail client
+(autoload 'mew "mew" nil t)
+(autoload 'mew-send "mew" nil t)
+
+;; Optional setup (Read Mail menu):
+(setq read-mail-command 'mew)
+
+;; Optional setup (e.g. C-xm for sending a message):
+(autoload 'mew-user-agent-compose "mew" nil t)
+(if (boundp 'mail-user-agent)
+    (setq mail-user-agent 'mew-user-agent))
+(if (fboundp 'define-mail-user-agent)
+    (define-mail-user-agent
+      'mew-user-agent
+      'mew-user-agent-compose
+      'mew-draft-send-message
+      'mew-draft-kill
+      'mew-send-hook))
+
+;; account
+(setq mew-user "32694438")
+(setq mew-mail-domain "qq.com")
+(setq mew-smtp-server "smtp.qq.com")
+
+;; 163的imap被服务器老断开,用上面pop的方式可以收
+(setq mew-proto "%")
+(setq mew-imap-user "32694438")  ;; (user-login-name)
+(setq mew-imap-server "imap.qq.com")    ;; mgtplcpnbelmbjcc
+(setq mew-use-cached-passwd t)
+(setq mew-passwd-timer-unit 40320)      ;密码缓存一月，如果不退出的话
+;;-----------------------------------------------------------plugin. end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
 ;; 资源管理器中打开
@@ -2295,7 +2326,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<M-S-right>") 'windmove-right)
 (global-set-key (kbd "C-S-o") 'other-frame)
 (global-set-key (kbd "C-S-n") 'make-frame-command)
-(global-set-key (kbd "<M-f9>") 'delete-frame)
+(global-set-key (kbd "<C-f10>") 'delete-frame)
 
 
 ;; 文件跳转
@@ -2380,6 +2411,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 ;; 常用的c-x r t替换字符串
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
+(global-set-key (kbd "C-v") 'yank)
 ;; face修改，用copy-face刷掉原来的face属性
 (defun change-face ()
   ""
