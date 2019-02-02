@@ -346,8 +346,10 @@
  '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
+ '(neo-autorefresh t)
  '(neo-show-hidden-files t)
  '(neo-smart-open t)
+ '(neo-theme (quote icons))
  '(neo-vc-integration (quote (face char)))
  '(neo-window-width 35)
  '(ns-right-alternate-modifier (quote control))
@@ -1596,8 +1598,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (setq mew-passwd-timer-unit 40320)      ;密码缓存一月，如果不退出的话
 
 ;; nedtree explorer
-(autoload 'neotree "neotree" nil t)
-(global-set-key (kbd "<M-f7>") 'neotree)
+(autoload 'neotree-toggle "neotree" nil t)
+(global-set-key (kbd "<M-f7>") 'neotree-toggle)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
