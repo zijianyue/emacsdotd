@@ -5,12 +5,15 @@
 ;; (package-initialize)
 ;; 目录复杂的移到.emacs.d目录下并专门指定load-path，防止load-path过多
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/all-the-icons"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/expand-region"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/evil"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs/src/elisp"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs-master/src/elisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode-master"))
+
 
 ;; 打印调用函数的性能方法如下
 ;; M-x elp-instrument-package magit即查看magit包所有方法用掉的时间
@@ -287,7 +290,7 @@
  '(helm-ag-base-command "ag --nocolor --nogroup -S -Q ")
  '(helm-ag-fuzzy-match t)
  '(helm-allow-mouse t)
- '(helm-always-two-windows t)
+ '(helm-autoresize-mode t)
  '(helm-buffer-max-length 40)
  '(helm-candidate-number-limit 1000)
  '(helm-case-fold-search t)
@@ -295,12 +298,17 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
+ '(helm-gtags-cache-max-result-size 104857600)
+ '(helm-gtags-cache-select-result t)
+ '(helm-gtags-fuzzy-match t)
+ '(helm-gtags-ignore-case t)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
      (c-mode . semantic-format-tag-uml-prototype)
      (c++-mode . semantic-format-tag-uml-prototype)
      (emacs-lisp-mode . semantic-format-tag-abbreviate-emacs-lisp-mode))))
+ '(helm-split-window-inside-p t)
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
@@ -670,6 +678,9 @@
 (autoload 'helm-occur "helm-regexp" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
+(autoload 'helm-gtags-select "helm-gtags" nil t)
+(autoload 'helm-gtags-select-path "helm-gtags" nil t)
+(autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
 
 (with-eval-after-load "helm"
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
@@ -1503,12 +1514,15 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<M-apps>") 'ivy-resume)
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 
+(with-eval-after-load "ivy"
+  (ivy-toggle-fuzzy))
+
 (ivy-mode)
-(ivy-toggle-fuzzy)
+
 (autoload 'counsel-mode "counsel" nil t) ;counsel-faces可以显示face list
 (with-eval-after-load "counsel"
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
-
+;; (counsel-mode)
 ;; 接管搜索
 (autoload 'swiper "swiper" nil t)
 (global-set-key (kbd "<f9>") 'swiper)
@@ -1703,7 +1717,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
+(dolist (command '(helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
