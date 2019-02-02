@@ -13,6 +13,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode-master"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree-dev"))
 
 
 ;; 打印调用函数的性能方法如下
@@ -345,6 +346,10 @@
  '(mouse-drag-and-drop-region t)
  '(mouse-wheel-progressive-speed nil)
  '(mouse-wheel-scroll-amount (quote (3 ((shift) . 1) ((control)))))
+ '(neo-show-hidden-files t)
+ '(neo-smart-open t)
+ '(neo-vc-integration (quote (face char)))
+ '(neo-window-width 35)
  '(ns-right-alternate-modifier (quote control))
  '(nxml-child-indent 4)
  '(org-download-screenshot-file "f:/org/screenshot.png")
@@ -672,7 +677,7 @@
 (autoload 'helm-M-x "helm-config" nil t)
 (autoload 'helm-find-files "helm-config" nil t)
 
-(autoload 'helm-occur "helm-regexp" nil t)
+(autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
 (autoload 'helm-gtags-select "helm-gtags" nil t)
@@ -1103,6 +1108,28 @@
 
 (require 'aquamacs-tabbar)
 (tabbar-mode)
+;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
+;; (defun tabbar-gzj-inhibit-function ()
+;;   ""
+;;   (member (buffer-name)
+;;           (list "*helm gtags*" "")))
+;; (add-to-list 'tabbar-inhibit-functions 'tabbar-gzj-inhibit-function)
+
+;; (defun tabbar-line-fset ()
+;;   "Return the header line templates that represent the tab bar.
+;; Inhibit display of the tab bar in current window if any of the
+;; `tabbar-inhibit-functions' return non-nil."
+;;   (cond
+;;    ((run-hook-with-args-until-success 'tabbar-inhibit-functions)
+;;     ;; Don't show the tab bar.
+;;     (setq header-line-format nil))
+;;    ((tabbar-current-tabset t)
+;;     ;; When available, use a cached tab bar value, else recompute it.
+;;     (or (tabbar-template tabbar-current-tabset)
+;;         (tabbar-line-format tabbar-current-tabset)))))
+
+;; (fset 'tabbar-line 'tabbar-line-fset)
+
 ;; 防止undo后标签颜色不恢复
 (defadvice undo(after undo-after activate)
   ;;   (on-modifying-buffer) ;; tabbar
@@ -1447,10 +1474,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'pkg-info-version-info "pkg-info" nil t)
 
 ;; treemacs
+(global-set-key (kbd "<M-f6>") 'treemacs)
 (autoload 'treemacs "treemacs" nil t)
 (with-eval-after-load 'treemacs
   (add-hook 'treemacs-mode-hook
             (lambda ()
+              (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode)
+              (define-key treemacs-mode-map (kbd "e") 'treemacs-toggle-node)
               (setq treemacs-collapse-dirs 4)
               (treemacs-git-mode 'deferred)
               (treemacs-tag-follow-mode)
@@ -1564,7 +1594,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (setq mew-imap-server "imap.qq.com")    ;; mgtplcpnbelmbjcc
 (setq mew-use-cached-passwd t)
 (setq mew-passwd-timer-unit 40320)      ;密码缓存一月，如果不退出的话
-;;-----------------------------------------------------------plugin. end-----------------------------------------------------------;;
+
+;; nedtree explorer
+(autoload 'neotree "neotree" nil t)
+(global-set-key (kbd "<M-f7>") 'neotree)
+;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
 ;; 资源管理器中打开
@@ -2320,9 +2354,9 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<M-S-f8>") 'highlight-regexp)
 
 ;;使用find递归查找文件
-(global-set-key (kbd "<M-f7>") 'find-name-dired) ;找文件名
-(global-set-key (kbd "<C-f7>") 'find-grep-dired) ;找文件内容
-(global-set-key (kbd "<C-M-f7>") 'kill-find)
+;; (global-set-key (kbd "<M-f7>") 'find-name-dired) ;找文件名 用ag-dired代替
+;; (global-set-key (kbd "<C-f7>") 'find-grep-dired) ;找文件内容 用ag-files和my-ag代替
+;; (global-set-key (kbd "<C-M-f7>") 'kill-find)
 
 ;; 窗口管理
 (global-set-key (kbd "C-S-w") 'kill-buffer-and-window)
@@ -2342,7 +2376,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 
 ;; 文件跳转
 (global-set-key (kbd "<C-f6>") 'find-file-at-point) ;ffap
-(global-set-key (kbd "<M-f6>") 'ff-find-other-file) ;声明和实现之间跳转
+(global-set-key (kbd "<M-o>") 'ff-find-other-file) ;声明和实现之间跳转
 
 ;; rename buffer可用于给shell改名，起多个shell用
 ;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
