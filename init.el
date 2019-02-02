@@ -2497,4 +2497,5 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
  ;; If there is more than one, they won't work right.
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
+ '(neo-vc-default-face ((t (:foreground "dark gray"))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
