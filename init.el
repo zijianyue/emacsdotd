@@ -298,10 +298,6 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
- '(helm-gtags-cache-max-result-size 104857600)
- '(helm-gtags-cache-select-result t)
- '(helm-gtags-fuzzy-match t)
- '(helm-gtags-ignore-case t)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
@@ -312,6 +308,7 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
+ '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -1517,7 +1514,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (with-eval-after-load "ivy"
   (ivy-toggle-fuzzy))
 
-(ivy-mode)
+;; (ivy-mode)
 
 (autoload 'counsel-mode "counsel" nil t) ;counsel-faces可以显示face list
 (with-eval-after-load "counsel"
