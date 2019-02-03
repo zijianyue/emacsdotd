@@ -337,6 +337,7 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
+ '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -700,6 +701,7 @@
 
 ;; helm系列
 ;; C-c 1/2/3... C-x 1/2/3 是直接选中离当前行第几个candi C-c是往下数，C-x是往上数，省的上下移动
+;; C-@ 是标记文件
 (autoload 'helm-mode "helm-config" nil t)
 (autoload 'helm-show-kill-ring "helm-config" nil t)
 (autoload 'helm-semantic-or-imenu "helm-config" nil t)

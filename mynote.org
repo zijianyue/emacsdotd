@@ -1,0 +1,424 @@
+#+ATTR_LATEX: :environment cn-article
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [UTF8,a4paper]
+#+LATEX_HEADER: \usepackage[BoldFont,SlantFont,CJKsetspaces,CJKchecksingle]{xeCJK}
+#+LATEX_HEADER: \XeTeXlinebreaklocale "zh"
+#+LATEX_HEADER: \XeTeXlinebreakskip = 0pt plus 1pt
+#+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
+#+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
+#+LATEX_HEADER: \setmonofont{Courier New}
+#+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
+#+LATEX_HEADER: \setCJKmonofont{MingLiU}
+#+LATEX_HEADER: \usepackage{listings}
+
+#+LATEX_HEADER: \tolerance=1000
+#+LATEX_HEADER: \date{\today}
+#+LATEX_HEADER: \title{Org导出中文PDF}
+#+OPTIONS: \n:t
+
+* git
+** git避免输入用户名密码
+HOME目录下创建.git-credentials
+
+内容是 https://zijianyue:gzjsy1314@github.com
+
+然后进入shell
+
+git config --global credential.helper store
+
+查看.gitconfig文件，会多了一项：
+
+[credential]
+
+    helper = store
+    
+** git的PATH设置
+安装官方git，选路径时选第2个，即把git/cmd/添加到PATH中，这样就可以使用git命令
+又不会引起其他命令的混乱
+
+** git push 前要先打开pageant并加载指定ppk文件，对于SSH下载下来的文件这样才能push成功
+
+* 其他
+** pscp problem when called from bash 
+
+Hi,
+using pscp from "cmd" in Windows woks well but when it is used from bash, host:path is not correctly interpreted, it needs to add an additional / before the path to be well interpreted.
+For example:
+pscp -v myFile mylogin@myHost:/tmp/myDir
+gives messages
+Looking up host "myHost;C"
+ssh_init: Host does not exist
+
+pscp -v myFile mylogin@myHost://tmp/myDir
+works well (with message
+Looking up host "myHost")
+
+** psftp get 和 put时local dir就是起psftp命令时的目录
+可以用lpwd显示，也可以用lcd \path\to\new\dir修改
+
+** win7拒绝访问sendto文件夹
+在我的电脑的地址栏输入
+#+BEGIN_EXAMPLE
+shell:sendto
+#+END_EXAMPLE
+即可
+* emacs
+** srecode编辑模式C-c c-c是确认修改生效
+** dired中S即dired-do-symlink可以给exe创建快捷方式（symlink or soft link），并放到指定位置。
+** 插件修改
+
+*** CEDET的修改：
+  
+**** 1 修改cedet-global.el，添加
+ 		      ((eq texttype 'regexp)
+ 		      "g")
++              ((eq texttype 'symbolname)
++               "s")
+**** 2 在ect/srecode中修改c.srt和doc-cpp.srt
+**** 3 到.emacs.d下把srecode-map.el删除
+**** 4 list.el 中semantic-symref-produce-list-on-results
+(semantic-symref-result-get-tags res nil)
+这个是控制要不要把symref的文件都打开(原来是传t，改为nil)
+**** 5 symref会过滤.h中的项是semantic-symref-result-get-tags中做的,对该函数做如下修改（详细见symbre.el）
+
+		   ;; 找不到tag时，使用which-fuction匹配本文件所有tag来查找
+#+BEGIN_SRC emacs-lisp
+(unless tag
+			 (let ((foundFlag-p nil )
+				   (i 0))
+
+			   (while (and
+					   (not foundFlag-p)
+					   (<= i (length tagList)))
+
+				 ;; if found, set foundFlag-p
+				 
+				 (when (equal (semantic-tag-name (elt tagList i)) whichFunc)
+				   (setq foundFlag-p t )
+				   (setq tag (elt tagList i)))
+
+				 (setq i (1+ i))))
+			   )
+#+END_SRC
+		   
+
+**** 6 symref把行号加上
+修改semantic-symref-rb-toggle-expand-tag
+#+BEGIN_SRC emacs-lisp
+	    (insert-button (format "[%s] %s" (car hits) (car text))
+#+END_SRC
+
+
+
+**** 7 symref 重命名时对于semantic-symref-anything不好使，要修改list.el
+在semantic-symref-list-map-open-hits中修改
+	      (while (re-search-forward oldsym (point-at-eol) t)
+
+**** 8 修改semantic-symref-anything 注释会被过滤的问题
+  ;; 再找不到就创建一个空tag
+			   (unless tag
+				 (setq tag (semantic-tag "/* COMMENT */" 'variable))
+				 (semantic--tag-put-property tag :filename (buffer-file-name)))
+
+
+*** helm-files.el的修改
+;; (require 'dired-x)
+
+*** nlinum.el的修改
+(defun nlinum--setup-window ()
+  (let ((width (if (display-graphic-p)
+                   (ceiling
+                    (let ((width (nlinum--face-width 'linum)))
+                      (if width
+                          (/ (* nlinum--width 1.0 width)
+                             (frame-char-width))
+                        (/ (* nlinum--width 1.0
+                              (nlinum--face-height 'linum))
+                           (frame-char-height)))))
+                 nlinum--width)))
+    (set-window-margins nil (if nlinum-mode (if (< nlinum--width width)
+												width
+											  nlinum--width))
+                        (cdr (window-margins)))))
+
+*** comment-box功能
+给代码加上块注释
+
+*** <M-home>和<M-end>可以将其他窗口的光标移到开始或结尾
+
+** dynamic-library-alist显示依赖的dll
+** buffer中插入变量值
+#+BEGIN_SRC emacs-lisp
+ (insert (format "[%s] " (car hits)))
+#+END_SRC
+** 查看diff时，apply hunk可以把变更给取消
+** 搭建emacs编译环境时
+把C:/MinGW/msys/1.0/etc下的fstab.sample改名为fstab
+XPM源码中的simx.h和xpm.h复制到 C:/MinGW/include/X11 下
+** How to Undo the Unpushed Commits in Magit?
+In Magit buffer *magit: ..*,
+
+Hit x
+Select origin/master
+Above action will undo all the commits that haven’t been pushed to github.com. It will still preserve the modified states of the yet-to-be staged/committed files.
+
+** magit部分提交修改
+用tab展开修改，假如有多个hunk，在要提交的hunk上stage（s键），如果失败可能是无法单独提交该hunk
+
+** 安装pygments
+先安装python 2.7 或 3.4
+再打开cmd 切换到pygments根目录执行c:\python34\python.exe setup.py install即可，有可能得先下载setuptools
+确认版本
+C:\Users\g00280886>C:\Python34\Scripts\pygmentize.exe -V
+Pygments version 2.1, (c) 2006-2015 by Georg Brandl.
+
+
+** .dir-locals.el具体实现有关函数hack-dir-local-variables
+** c-forward-conditional是#if #end之间移动，不能带else，c-up-conditional是不同深度的#之间内外移动，可以带else
+** sdcv词典放的位置 ~\.stardict\dic
+** cscope处理不了文件中有extern c
+** 编译rtags要在cygwin中装cmake openssl-dev libclang-static ncurse make.
+** cygwin中装libglib是给sdcv用的
+** m-q 自动换行的用法
+先设置(setq-default fill-column 80)，或者用快捷键c-x f，然后选中一段文字m-q
+** ycmd编译
+系统需求：CMAKE PYTHON34或27
+下载ycmd和third-party(这个目录在运行ycmd后会有python lib的cache，比如python3的，如果直接拷贝使用的话，比如ycm_core.pyd是python2编译出来的，就会报错：Ycmd error: ycm_core library compiled for Python 2 but loaded in Python 3.)
+在ycmd下新建目录ycmd-build，进去后起命令行cmake -G "Visual Studio 14" -DPATH_TO_LLVM_ROOT="C:/Program Files (x86)/LLVM" -DUSE_PYTHON2=OFF . ../cpp，成功后会生成一个VS的工程，用VS打开后编译 ycm_core ，成功后会在ycmd根目录下生成 ycm_core.pyd 和 libclang.dll ，这样emacs-ycmd就能用了
+如果有c++ runtime error 把C:\Program Files\CMake\bin下的msvcp120.dll和msvcr120.dll改名(C:\Program Files\ImageMagick-6.9.1-Q16下还有一份)，保证全局只有一份
+** 直接打开图片显示二进制
+把dynamic-library-alist中指定的dll拷贝到emacs/bin目录下
+** org
+*** org-mode如何显示图片	
+把图片放到org文件所在目录下
+在org文件中填写文件名
+并打开iimage-mode
+c-l刷新即可
+*** org-mode中使用截图												 
+安装imagemagick，并勾选convert
+通过org-download插件截图，配置org-download截图方法为imagemagick/convert
+先用其他截图工具把截图保存到剪贴板后，用org-download-screenshot功能把截图放到org文件中
+[[file:data/9d/672d37-da36-4d09-9713-4b5de0d2559a/screenshot_2017-12-20_11-52-21.png]]
+*** org-mode导出html后换行变空格的解决办法
+在org文件开头加
+#+BEGIN_SRC
+#+OPTIONS: \n:t
+#+END_SRC
+*** org checklist示例
+1) [-] abc [50%]
+   - [-] ddd [2/3]
+     1) [ ] dasf
+     2) [X] llll
+     3) [X] asdfasd
+   - [X] a;ll
+2) [X] cde
+
+
+1. [ ] t1
+2. [X] t2
+
+*** org 导出pdf
+(1) CTeX版本: 下载地址http://www.ctex.org/CTeXDownload, 下载Full包
+
+(2) 修改导出命令 (setq org-latex-pdf-process (quote ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f")))
+
+(3) org文件头增加设置
+#+BEGIN_SRC latex
+  ,#+ATTR_LATEX: :environment cn-article
+  ,#+LATEX_CLASS: article
+  ,#+LATEX_CLASS_OPTIONS: [UTF8,a4paper]
+  ,#+LATEX_HEADER: \usepackage[BoldFont,SlantFont,CJKsetspaces,CJKchecksingle]{xeCJK}
+  ,#+LATEX_HEADER: \XeTeXlinebreaklocale "zh"
+  ,#+LATEX_HEADER: \XeTeXlinebreakskip = 0pt plus 1pt
+  ,#+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
+  ,#+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
+  ,#+LATEX_HEADER: \setmonofont{Courier New}
+  ,#+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
+  ,#+LATEX_HEADER: \setCJKmonofont{MingLiU}
+  ,#+LATEX_HEADER: \usepackage{listings}
+
+  ,#+LATEX_HEADER: \tolerance=1000
+  ,#+LATEX_HEADER: \date{\today}
+  ,#+LATEX_HEADER: \title{Org导出中文PDF}
+#+END_SRC
+
+(4) org文件保存成utf-8
+(5) org-download-image-dir用默认设置，也就是图片要保存到org文件当前目录下，否则导出pdf会失败
+
+*** org中输入代码段
+快捷键 <s TAB
+s	#+BEGIN_SRC ... #+END_SRC 
+e	#+BEGIN_EXAMPLE ... #+END_EXAMPLE
+q	#+BEGIN_QUOTE ... #+END_QUOTE 
+v	#+BEGIN_VERSE ... #+END_VERSE 
+c	#+BEGIN_CENTER ... #+END_CENTER 
+l	#+BEGIN_LaTeX ... #+END_LaTeX 
+L	#+LaTeX: 
+h	#+BEGIN_HTML ... #+END_HTML 
+H	#+HTML: 
+a	#+BEGIN_ASCII ... #+END_ASCII 
+A	#+ASCII: 
+i	#+INDEX: line 
+I	#+INCLUDE: line 
+
+示例：
+#+BEGIN_SRC c
+  GPATH_PARM_ASSERT_RET_VAL((NULL != pstTopoGroup->pstPaths), GPATH_ERR);
+  GPATH_PARM_ASSERT_RET_VAL((NULL != pThis), GPATH_ERR);
+
+  GPATH_DBG_PRINT("[CALCI]: proc single topo_group, calcId[%u], batchId[%u], seq[%u], "
+      "path_num[%u], deadlock[0x%x]",
+      pstLspResult->uiCalcId,
+      uiBatchId,
+      ,*puiSeqNum,
+      pstTopoGroup->ulPathNum,
+      pstTopoGroup->bIsDeadLock);
+#+END_SRC
+
+** pdf-tools 研究
+
+** MAC版本使用注意 <2019-01-25 Fri 13:56>
+要安装 brew cask install emacs,先brew tap railwaycat/emacsmacport切换源，这个版本用的carbon库，tabbar的显示正常
+
+修改~/.bash_profile并sourc~/.bash_profile这样终端输入emacs或者emacs -Q就能启动GUI版本,这段也要加到~/.bashrc中，这样emacs中的shell中的emacs命令也会关联到新版本
+# 在终端下打开文件,替换命令行默认的emacs
+alias emacs="${EMACS_HOME}/Emacs"
+# GUI方式打开文件
+alias e="${EMACS_HOME}/bin/emacsclient -n"
+
+** ssh自动添加hostkey到know_hosts <2019-01-25 Fri 20:31>
+当我们用ssh连接到其他linux平台时，会遇到以下提示：
+
+The authenticity of host ‘git.sws.com (10.42.1.88)’ can’t be established. 
+ECDSA key fingerprint is 53:b9:f9:30:67:ec:34:88:e8:bc:2a:a4:6f:3e:97:95. 
+Are you sure you want to continue connecting (yes/no)? yes 
+而此时必须输入yes，连接才能建立。
+
+但其实我们可以在ssh_config配置文件中配置此项，
+
+打开/etc/ssh/ssh_config文件：
+
+找到： 
+# StrictHostKeyChecking ask 
+修改为 
+StrictHostKeyChecking no
+
+这个选项会自动的把 想要登录的机器的SSH pub key 添加到 /root/.ssh/know_hosts 中。
+
+** 不好用的功能 <2019-01-25 Fri 22:20>
+
+** 安装brew install emacs-mac后的提示记录 <2019-01-27 Sun 23:16>
+This is YAMAMOTO Mitsuharu's "Mac port" addition to
+GNU Emacs 26. This provides a native GUI support for Mac OS X
+10.6 - 10.14. After installing, see README-mac and NEWS-mac
+in /usr/local/opt/emacs-mac for the port details.
+
+Emacs.app was installed to:
+  /usr/local/opt/emacs-mac
+
+To link the application to default Homebrew App location:
+  ln -s /usr/local/opt/emacs-mac/Emacs.app /Applications
+Other ways please refer:
+  https://github.com/railwaycat/homebrew-emacsmacport/wiki/Alternative-way-of-place-Emacs.app-to-Applications-directory
+
+For an Emacs.app CLI starter, see:
+  https://gist.github.com/4043945
+
+另外安装好后，在~/.bash_profile和~/.bashrc中添加以下语句，bash_profile是给终端用的，
+要source一下并重启终端才生效，后面是emacs启动后shell使用的不用source
+EMACS_HOME=/Applications/Emacs.app/Contents/MacOS
+# 在终端下打开文件,替换命令行默认的emacs
+alias emacs="${EMACS_HOME}/Emacs"
+
+** mew config <2019-02-01 Fri 22:44>
+pop方式
+(setq mew-pop-user "zijianyue")  ;; (user-login-name)
+(setq mew-pop-server "pop.163.com")    ;; if not localhost
+(setq mew-pop-auth 'pass)              ;防止APOP password is not supported by this server
+debug
+(setq mew-debug t)
+ '(mew-pop-delete nil)
+
+
+** tabbar过滤buffer <2019-02-03 Sun 00:29>
+#+BEGIN_SRC elisp 
+ (defun tabbar-gzj-inhibit-function ()
+   ""
+   (member (buffer-name)
+           (list "*helm gtags*" "")))
+ (add-to-list 'tabbar-inhibit-functions 'tabbar-gzj-inhibit-function)
+
+ (defun tabbar-line-fset ()
+   "Return the header line templates that represent the tab bar.
+ Inhibit display of the tab bar in current window if any of the
+ `tabbar-inhibit-functions' return non-nil."
+   (cond
+    ((run-hook-with-args-until-success 'tabbar-inhibit-functions)
+     ;; Don't show the tab bar.
+     (setq header-line-format nil))
+    ((tabbar-current-tabset t)
+     ;; When available, use a cached tab bar value, else recompute it.
+     (or (tabbar-template tabbar-current-tabset)
+         (tabbar-line-format tabbar-current-tabset)))))
+
+ (fset 'tabbar-line 'tabbar-line-fset)
+#+END_SRC
+
+** gtags 过滤 <2019-02-03 Sun 11:38>
+~/.globalrc编写skip时不要写在最前，也不要写在最后
+* python 
+** 有用的网址
+PEP 索引的网址是： http://python.org/dev/peps.
+** pip安装和升级
+# install command line tools
+$ xcode-select --install
+ 
+# if pip not installed
+$ sudo easy_install pip
+ 
+# show current pip version
+$ pip --version
+ 
+# upgrade pip
+$ sudo pip install --upgrade pip
+* java
+** maven 的setting.xml
+建立maven项目会需要去仓库下载一些相关的依赖包。maven默认的中央仓库是英国，所以我们把中央仓库改为maven阿里云中央仓库。
+
+修改maven根目录下的conf文件夹中的setting.xml文件，内容如下：
+  <localRepository>/Users/shangri-la/.m2/repository</localRepository>
+ <mirrors>
+    <mirror>
+      <id>alimaven</id>
+      <name>aliyun maven</name>
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+      <mirrorOf>central</mirrorOf>        
+    </mirror>
+  </mirrors>
+
+* MAC使用
+** 截屏
+如果是截取全屏，用 shift+command+3 就可以快速截取整个屏幕，截图自动保存在桌面，文件名为截取时间，格式为png
+
+如果是截取部分屏幕，用 shift+command+4 ，此时，鼠标显示会变成一个十字光标，此时可以任意选择自己想要截取的部分屏幕，之后松开鼠标，截图就成功了，截图自动保存在桌面，文件名为截取时间，格式为png
+** 终端报错
+-bash: /etc/profile: Permission denied in Terminal
+解决办法
+sudo chmod 755 /etc/profile
+** Mac显示隐藏文件快捷键
+96  Vergil_wj 
+2017.05.17 09:07* 字数 111 阅读 7449评论 2喜欢 2
+第一种:
+在 macOS Sierra，我们可以使用快捷键 ⌘⇧.(Command + Shift + .) 来快速（在 Finder 中）显示和隐藏隐藏文件了。
+
+第二种:
+在终端使用:
+
+//显示隐藏文件
+defaults write com.apple.finder AppleShowAllFiles -bool true
+//不显示隐藏文件
+defaults write com.apple.finder AppleShowAllFiles -bool false
+
+最后需要重启Finder:
+
+重启Finder：窗口左上角的苹果标志-->强制退出-->Finder-->重新启动
