@@ -1111,7 +1111,7 @@
     (erase-buffer)
     (message "searching for %s ..." word)
 
-    (let ((process (start-process  "sdcv" "*sdcv*"  "sdcv" "-n" "--utf8-input" "--utf8-output" word)))
+    (let ((process (start-process  "sdcv" "*sdcv*"  "sdcv" "-nc" "--utf8-input" "--utf8-output" (concat "--data-dir=" (expand-file-name user-emacs-directory) ".stardict/dic")  word)))
       (set-process-sentinel
        process
        (lambda (process signal)
