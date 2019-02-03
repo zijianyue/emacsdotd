@@ -295,6 +295,34 @@
  '(helm-buffer-max-length 40)
  '(helm-candidate-number-limit 1000)
  '(helm-case-fold-search t)
+ '(helm-completing-read-handlers-alist
+   (quote
+    ((describe-function . helm-completing-read-symbols)
+     (describe-variable . helm-completing-read-symbols)
+     (describe-symbol . helm-completing-read-symbols)
+     (debug-on-entry . helm-completing-read-symbols)
+     (find-function . helm-completing-read-symbols)
+     (disassemble . helm-completing-read-symbols)
+     (trace-function . helm-completing-read-symbols)
+     (trace-function-foreground . helm-completing-read-symbols)
+     (trace-function-background . helm-completing-read-symbols)
+     (find-tag . helm-completing-read-default-find-tag)
+     (org-capture . helm-org-completing-read-tags)
+     (org-set-tags . helm-org-completing-read-tags)
+     (ffap-alternate-file)
+     (tmm-menubar)
+     (find-file . helm-completing-read-symbols)
+     (find-file-at-point . helm-completing-read-sync-default-handler)
+     (ffap . helm-completing-read-sync-default-handler)
+     (execute-extended-command . helm-completing-read-symbols)
+     (dired-do-rename . helm-read-file-name-handler-1)
+     (dired-do-copy . helm-read-file-name-handler-1)
+     (dired-do-symlink . helm-read-file-name-handler-1)
+     (dired-do-relsymlink . helm-read-file-name-handler-1)
+     (dired-do-hardlink . helm-read-file-name-handler-1)
+     (basic-save-buffer . helm-read-file-name-handler-1)
+     (write-file . helm-read-file-name-handler-1)
+     (write-region . helm-read-file-name-handler-1))))
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
@@ -309,7 +337,6 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
- '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -672,6 +699,8 @@
 (autoload 'dired-async-mode "dired-async.el" nil t)
 
 ;; helm系列
+;; C-c 1/2/3... C-x 1/2/3 是直接选中离当前行第几个candi C-c是往下数，C-x是往上数，省的上下移动
+(autoload 'helm-mode "helm-config" nil t)
 (autoload 'helm-show-kill-ring "helm-config" nil t)
 (autoload 'helm-semantic-or-imenu "helm-config" nil t)
 (autoload 'helm-for-files "helm-config" nil t)
@@ -687,6 +716,17 @@
 (autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
 
 (with-eval-after-load "helm"
+  ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
+  (helm-mode 1)
+  ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
+  (require 'helm-ls-git)
+  (global-set-key (kbd "C-x C-d") 'helm-browse-project)
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+  (global-set-key (kbd "<M-f9>") #'helm-filtered-bookmarks)
+  ;; (fset 'bookmark-jump 'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
+
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
   (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
@@ -703,6 +743,7 @@
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
+(global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume)
 ;; (global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
@@ -1402,7 +1443,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; cquery config
 (with-eval-after-load 'cquery
-  (setq cquery-executable "G:/cquery/build/release/bin/cquery")
+  (if (memq system-type '(windows-nt ms-dos))
+      (setq cquery-executable "G:/cquery/build/release/bin/cquery")
+    (setq cquery-executable "~/cquery/build/release/bin/cquery"))
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
@@ -1563,7 +1606,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; 多光标操作
 (autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
 (autoload 'mc/edit-lines "multiple-cursors" nil t)
-(global-set-key (kbd "C-c d") 'mc/mark-all-like-this)
+(global-set-key (kbd "C-c f") 'mc/mark-all-like-this)
 (global-set-key (kbd "C-c e") 'mc/edit-lines)
 
 ;; mew mail client
