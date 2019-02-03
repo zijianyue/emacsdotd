@@ -295,34 +295,6 @@
  '(helm-buffer-max-length 40)
  '(helm-candidate-number-limit 1000)
  '(helm-case-fold-search t)
- '(helm-completing-read-handlers-alist
-   (quote
-    ((describe-function . helm-completing-read-symbols)
-     (describe-variable . helm-completing-read-symbols)
-     (describe-symbol . helm-completing-read-symbols)
-     (debug-on-entry . helm-completing-read-symbols)
-     (find-function . helm-completing-read-symbols)
-     (disassemble . helm-completing-read-symbols)
-     (trace-function . helm-completing-read-symbols)
-     (trace-function-foreground . helm-completing-read-symbols)
-     (trace-function-background . helm-completing-read-symbols)
-     (find-tag . helm-completing-read-default-find-tag)
-     (org-capture . helm-org-completing-read-tags)
-     (org-set-tags . helm-org-completing-read-tags)
-     (ffap-alternate-file)
-     (tmm-menubar)
-     (find-file . helm-completing-read-symbols)
-     (find-file-at-point . helm-completing-read-sync-default-handler)
-     (ffap . helm-completing-read-sync-default-handler)
-     (execute-extended-command . helm-completing-read-symbols)
-     (dired-do-rename . helm-read-file-name-handler-1)
-     (dired-do-copy . helm-read-file-name-handler-1)
-     (dired-do-symlink . helm-read-file-name-handler-1)
-     (dired-do-relsymlink . helm-read-file-name-handler-1)
-     (dired-do-hardlink . helm-read-file-name-handler-1)
-     (basic-save-buffer . helm-read-file-name-handler-1)
-     (write-file . helm-read-file-name-handler-1)
-     (write-region . helm-read-file-name-handler-1))))
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
@@ -713,14 +685,18 @@
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
+(autoload 'helm-gtags-find-tag "helm-gtags" nil t)
+(autoload 'helm-gtags-find-files "helm-gtags" nil t)
 (autoload 'helm-gtags-select "helm-gtags" nil t)
 (autoload 'helm-gtags-select-path "helm-gtags" nil t)
 (autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
+
 
 (with-eval-after-load "helm"
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
   (helm-mode 1)
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
+  ;; 
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
   (global-set-key (kbd "M-x") #'helm-M-x)
@@ -728,11 +704,28 @@
   (global-set-key (kbd "<M-f9>") #'helm-filtered-bookmarks)
   ;; (fset 'bookmark-jump 'helm-filtered-bookmarks)
   (global-set-key (kbd "C-x C-f") #'helm-find-files)
+  (global-set-key (kbd "C-x b") #'helm-buffers-list)
+
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
   (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
   (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;默认是M-D, M-spc是mark, M-a是全选， M-m是toggle mark
+  ;; helm-locate设置 C-x c l
+  (when (memq system-type '(windows-nt ms-dos))
+    (setq helm-locate-command "es %s -sort run-count %s") ;增加排序功能
+    (defun helm-es-hook ()
+      (when (and (equal (assoc-default 'name (helm-get-current-source)) "Locate")
+                 (string-match "\\`es" helm-locate-command))
+        (mapc (lambda (file)
+                (call-process "es" nil nil nil
+                              "-inc-run-count" (convert-standard-filename file)))
+              (helm-marked-candidates))))
+    (add-hook 'helm-find-many-files-after-hook 'helm-es-hook))
+  (when (eq system-type 'darwin)
+    (setq helm-locate-fuzzy-match nil)
+    (setq helm-locate-command "mdfind -name %s %s")
+    )
   )
 
 (eval-after-load "helm-files"
@@ -746,12 +739,16 @@
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
-(global-set-key (kbd "<S-apps>") 'helm-resume)
+(global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
 ;; (global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
 
-(global-set-key (kbd "C-c b") 'gtags-find-file)
+(global-set-key (kbd "C-c b") 'helm-gtags-find-files)
+(global-set-key (kbd "C-c g") 'helm-gtags-find-tag) ;要在空白处使用才能输入，否则是查找光标下的符号
+(global-set-key (kbd "<f6>") 'helm-gtags-select-path)
+(global-set-key (kbd "<f7>") 'helm-gtags-select)
+(global-set-key (kbd "C-c v") 'helm-gtags-find-rtag)
 
 (add-hook 'helm-update-hook
           (lambda ()
@@ -916,7 +913,7 @@
                        )
                   (reopen-file))))))
 (global-set-key (kbd "M-g h") 'toggle-git-backend)
-
+(toggle-git-backend)
 ;; wgrep
 (autoload 'wgrep-setup "wgrep")
 (add-hook 'grep-setup-hook 'wgrep-setup)
@@ -1038,8 +1035,6 @@
      ))
 
 ;; magit
-(setq inhibit-compacting-font-cache t)  ;改善性能试验
-
 ;; 环境变量PATH里面一定要有C:\Program Files\Git\cmd, 不能有C:\Program Files\TortoiseGit\bin，否则git命令在shell里不好使
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
@@ -1057,7 +1052,7 @@
 ;;   (set-buffer-file-coding-system 'chinese-gbk-unix))
 
 ;; 删除自带的git支持，在触发相关命令时再打开
-(setq-default vc-handled-backends (delq 'Git vc-handled-backends))
+;; (setq-default vc-handled-backends (delq 'Git vc-handled-backends))
 
 ;; (add-hook 'magit-mode-hook 'my-git-commit-hook)
 ;; (add-hook 'magit-status-mode-hook 'my-git-commit-hook)
@@ -1096,7 +1091,7 @@
 (global-set-key (kbd "<C-f10>") 'purpose-mode)
 (global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
 
-;; 星际译王 词典放在自己的home目录下的.startdict/dic/ 要把字典解压成文件夹，url：http://download.huzheng.org
+;; 星际译王 词典放在自己的home目录下的.stardict/dic/ 要把字典解压成文件夹，url：http://download.huzheng.org
 (defun kid-sdcv-to-buffer (&optional input)
   (interactive "P")
   (let ((word (if mark-active
@@ -1111,7 +1106,8 @@
     (erase-buffer)
     (message "searching for %s ..." word)
 
-    (let ((process (start-process  "sdcv" "*sdcv*"  "sdcv" "-nc" "--utf8-input" "--utf8-output" (concat "--data-dir=" (expand-file-name user-emacs-directory) ".stardict/dic")  word)))
+    (let ((process (start-process  "sdcv" "*sdcv*"  "sdcv" "-n" "--utf8-input" "--utf8-output" (concat "--data-dir=" (expand-file-name user-emacs-directory) ".stardict/dic")  word)))
+    ;; (let ((process (start-process  "sdcv" "*sdcv*"  "sdcv" "-n" "--utf8-input" "--utf8-output"  word)))
       (set-process-sentinel
        process
        (lambda (process signal)
@@ -1592,9 +1588,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (ivy-toggle-fuzzy))
 
 ;; (ivy-mode)
-
-(autoload 'counsel-mode "counsel" nil t) ;counsel-faces可以显示face list
+;; counsel-yank-pop显示历史默认M-y
+;; counsel-git查看当前工程下的文件通过git
+;; counsel-faces可以显示face list
+(autoload 'counsel-mode "counsel" nil t) 
 (with-eval-after-load "counsel"
+  (when (eq system-type 'darwin)
+    (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind))
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 ;; (counsel-mode)
 ;; 接管搜索

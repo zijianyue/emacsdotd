@@ -2,13 +2,13 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("site-lisp-dot"
- (filename . "~/.emacs.d/site-lisp/")
- (front-context-string . "all-the-icons\n  ")
- (rear-context-string . "52B  1 27 22:34 ")
- (position . 240))
+(("dotemacs"
+ (filename . "~/.emacs.d/init.el")
+ (front-context-string . "\n(global-set-key")
+ (rear-context-string . "d-region\" nil t)")
+ (position . 17473))
 ("mynote.org"
- (filename . "~/my-init/mynote.org")
+ (filename . "~/.emacs.d/mynote.org")
  (front-context-string . "#+ATTR_LATEX: :e")
  (rear-context-string)
  (position . 1))
@@ -22,14 +22,14 @@
  (front-context-string . ".git\n  drwxr-xr-")
  (rear-context-string . "16B  1 27 22:34 ")
  (position . 243))
+("site-lisp-dot"
+ (filename . "~/.emacs.d/site-lisp/")
+ (front-context-string . "all-the-icons\n  ")
+ (rear-context-string . "52B  1 27 22:34 ")
+ (position . 240))
 ("temp"
  (filename . "/var/folders/8y/fmg_gjy97kd3hkb_2lhngns40000gn/T/")
  (front-context-string . ".AddressBookLock")
  (rear-context-string . "60B  3 28 20:04 ")
  (position . 272))
-("dotemacs"
- (filename . "~/.emacs.d/init.el")
- (front-context-string . "\n(global-set-key")
- (rear-context-string . "d-region\" nil t)")
- (position . 17473))
 )
