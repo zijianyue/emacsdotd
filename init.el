@@ -1645,25 +1645,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
-;; 资源管理器中打开
-(defun open-in-desktop-select (&optional dired)
-  (interactive "P")
-  (let ((file (buffer-name)))
-    (if dired
-        ;; (setq file (dired-get-filename 'no-dir)) ;xp
-        (setq file (replace-regexp-in-string "/" "\\\\" (dired-get-filename) )) ;win7
-      ;; (setq file (file-name-nondirectory (buffer-file-name) )) ;xp
-      (setq file (replace-regexp-in-string "/" "\\\\" (buffer-file-name) ))) ;win7
-    (call-process-shell-command (concat "explorer" "/select," file))
-    )
-  )
-
-
-(defun open-in-desktop-select-dired(arg)
-  (interactive "P")
-  (open-in-desktop-select t)
-  )
-
 ;; toggle hide/show #if
 (defun my-hif-toggle-block ()
   "toggle hide/show-ifdef-block --lgfang"
@@ -1766,8 +1747,8 @@ If FULL is t, copy full file name."
       (message "%s" strmod))))
 
 (global-set-key (kbd "<M-f3>") 'copy-file-name) ;加上任意的参数就是复制全路径，比如m-0
-(global-set-key (kbd "<C-f4>") 'open-in-desktop-select)
-
+(global-set-key (kbd "<C-f3>") 'ergoemacs-open-in-desktop)
+(global-set-key (kbd "<C-f4>") 'ergoemacs-open-in-external-app)
 ;;剪切、复制当前行
 (defadvice kill-ring-save (before slickcopy activate compile)
   "When called interactively with no active region, copy a single line instead."
@@ -2043,6 +2024,43 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (setq text (semantic--format-uml-post-colorize text tag parent)))
         text
         ))))
+
+;; 在资源管理器中打开
+(defun ergoemacs-open-in-desktop ()
+  "Show current file in desktop (OS's file manager)."
+  (interactive)
+  (cond
+   ((string-equal system-type "windows-nt")
+    (w32-shell-execute "explore" (replace-regexp-in-string "/" "\\" default-directory t t)))
+   ((string-equal system-type "darwin") (shell-command "open ."))
+   ((string-equal system-type "gnu/linux")
+    (let ((process-connection-type nil)) (start-process "" nil "xdg-open" "."))
+    ;; (shell-command "xdg-open .") ;; 2013-02-10 this sometimes froze emacs till the folder is closed. ⁖ with nautilus
+    ) ))
+
+;; 用默认的程序打开
+(defun ergoemacs-open-in-external-app ()
+  "Open the current file or dired marked files in external app."
+  (interactive)
+  (let ( doIt
+         (myFileList
+          (cond
+           ((string-equal major-mode "dired-mode") (dired-get-marked-files))
+           (t (list (buffer-file-name))) ) ) )
+
+    (setq doIt (if (<= (length myFileList) 5)
+                   t
+                 (y-or-n-p "Open more than 5 files?") ) )
+
+    (when doIt
+      (cond
+       ((string-equal system-type "windows-nt")
+        (mapc (lambda (fPath) (w32-shell-execute "open" (replace-regexp-in-string "/" "\\" fPath t t)) ) myFileList)
+        )
+       ((string-equal system-type "darwin")
+        (mapc (lambda (fPath) (shell-command (format "open \"%s\"" fPath)) )  myFileList) )
+       ((string-equal system-type "gnu/linux")
+        (mapc (lambda (fPath) (let ((process-connection-type nil)) (start-process "" nil "xdg-open" fPath)) ) myFileList) ) ) ) ) )
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
@@ -2268,8 +2286,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (add-hook 'dired-mode-hook
           (lambda ()
             (define-key dired-mode-map "b" 'dired-up-directory)
-            (define-key dired-mode-map "e" 'open-in-desktop-select-dired)
-            (define-key dired-mode-map (kbd "<C-f3>") 'open-in-desktop-select-dired)
+            (define-key dired-mode-map "e" 'ergoemacs-open-in-desktop)
+            (define-key dired-mode-map ";" 'ergoemacs-open-in-external-app)
             (define-key dired-mode-map "/" 'isearch-forward)
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map "c" 'create-known-ede-project)
