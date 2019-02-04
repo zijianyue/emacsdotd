@@ -724,7 +724,7 @@
     (add-hook 'helm-find-many-files-after-hook 'helm-es-hook))
   (when (eq system-type 'darwin)
     (setq helm-locate-fuzzy-match nil)
-    (setq helm-locate-command "mdfind -name %s %s")
+    (setq helm-locate-command "mdfind -name %s %s") ;结果与mdfind不完全一致，counsel-locate没问题
     )
   )
 
@@ -1085,11 +1085,6 @@
      (remove-hook 'server-switch-hook 'magit-commit-diff) ;提交时不显示差异，如需显示敲c-c c-d
      ))
 
-;; purpose
-(autoload 'purpose-mode "window-purpose" nil t)
-(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t)
-(global-set-key (kbd "<C-f10>") 'purpose-mode)
-(global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
 
 ;; 星际译王 词典放在自己的home目录下的.stardict/dic/ 要把字典解压成文件夹，url：http://download.huzheng.org
 (defun kid-sdcv-to-buffer (&optional input)
@@ -1591,6 +1586,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; counsel-yank-pop显示历史默认M-y
 ;; counsel-git查看当前工程下的文件通过git
 ;; counsel-faces可以显示face list
+(global-set-key (kbd "<C-f10>") 'counsel-locate)
+(autoload 'counsel-locate "counsel" nil t) 
 (autoload 'counsel-mode "counsel" nil t) 
 (with-eval-after-load "counsel"
   (when (eq system-type 'darwin)
@@ -2418,7 +2415,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (global-set-key (kbd "<M-S-right>") 'windmove-right)
 (global-set-key (kbd "C-S-o") 'other-frame)
 (global-set-key (kbd "C-S-n") 'make-frame-command)
-(global-set-key (kbd "<C-f10>") 'delete-frame)
+(global-set-key (kbd "<S-f4>") 'delete-frame)
 
 
 ;; 文件跳转
