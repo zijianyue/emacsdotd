@@ -70,6 +70,10 @@
 ;;                         (base64-encode-string "usrname:password")))))
 
 ;; 环境变量
+(when (memq window-system '(mac ns))
+  (require 'exec-path-from-shell)
+  (exec-path-from-shell-initialize))
+
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "HOME" (expand-file-name "~"))
   (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
