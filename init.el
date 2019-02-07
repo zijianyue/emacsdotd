@@ -318,10 +318,8 @@
      (org-set-tags . helm-org-completing-read-tags)
      (ffap-alternate-file)
      (tmm-menubar)
-     (find-file . helm-completing-read-sync-default-handler)
      (find-file-at-point . helm-completing-read-sync-default-handler)
      (ffap . helm-completing-read-sync-default-handler)
-     (execute-extended-command . helm-completing-read-default-handler)
      (dired-do-rename . helm-read-file-name-handler-1)
      (dired-do-copy . helm-read-file-name-handler-1)
      (dired-do-symlink . helm-read-file-name-handler-1)
@@ -731,7 +729,6 @@
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
   ;; (helm-mode 1)
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
-  ;; 
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
 
