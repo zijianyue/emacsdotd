@@ -920,7 +920,8 @@
                        )
                   (reopen-file))))))
 (global-set-key (kbd "M-g h") 'toggle-git-backend)
-(toggle-git-backend)
+(when (memq system-type '(windows-nt ms-dos))
+  (toggle-git-backend))
 ;; wgrep
 (autoload 'wgrep-setup "wgrep")
 (add-hook 'grep-setup-hook 'wgrep-setup)
