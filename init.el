@@ -14,6 +14,8 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode-master"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree-dev"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/swiper-master"))
+
 
 
 ;; 打印调用函数的性能方法如下
