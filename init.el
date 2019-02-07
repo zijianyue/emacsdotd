@@ -302,6 +302,34 @@
  '(helm-buffer-max-length 40)
  '(helm-candidate-number-limit 1000)
  '(helm-case-fold-search t)
+ '(helm-completing-read-handlers-alist
+   (quote
+    ((describe-function . helm-completing-read-symbols)
+     (describe-variable . helm-completing-read-symbols)
+     (describe-symbol . helm-completing-read-symbols)
+     (debug-on-entry . helm-completing-read-symbols)
+     (find-function . helm-completing-read-symbols)
+     (disassemble . helm-completing-read-symbols)
+     (trace-function . helm-completing-read-symbols)
+     (trace-function-foreground . helm-completing-read-symbols)
+     (trace-function-background . helm-completing-read-symbols)
+     (find-tag . helm-completing-read-default-find-tag)
+     (org-capture . helm-org-completing-read-tags)
+     (org-set-tags . helm-org-completing-read-tags)
+     (ffap-alternate-file)
+     (tmm-menubar)
+     (find-file . helm-completing-read-sync-default-handler)
+     (find-file-at-point . helm-completing-read-sync-default-handler)
+     (ffap . helm-completing-read-sync-default-handler)
+     (execute-extended-command . helm-completing-read-default-handler)
+     (dired-do-rename . helm-read-file-name-handler-1)
+     (dired-do-copy . helm-read-file-name-handler-1)
+     (dired-do-symlink . helm-read-file-name-handler-1)
+     (dired-do-relsymlink . helm-read-file-name-handler-1)
+     (dired-do-hardlink . helm-read-file-name-handler-1)
+     (basic-save-buffer . helm-read-file-name-handler-1)
+     (write-file . helm-read-file-name-handler-1)
+     (write-region . helm-read-file-name-handler-1))))
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
@@ -316,7 +344,6 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
- '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -681,13 +708,14 @@
 ;; helm系列
 ;; C-c 1/2/3... C-x 1/2/3 是直接选中离当前行第几个candi C-c是往下数，C-x是往上数，省的上下移动
 ;; C-@ 是标记文件
-(autoload 'helm-mode "helm-config" nil t)
+(autoload 'helm-mode "helm-config" nil t) ;开启helm-mode时要先关闭ido-mode否则不生效
 (autoload 'helm-show-kill-ring "helm-config" nil t)
 (autoload 'helm-semantic-or-imenu "helm-config" nil t)
 (autoload 'helm-for-files "helm-config" nil t)
 (autoload 'helm-resume "helm-config" nil t)
 (autoload 'helm-M-x "helm-config" nil t)
 (autoload 'helm-find-files "helm-config" nil t)
+(autoload 'helm-locate "helm-config" nil t)
 
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
@@ -701,18 +729,17 @@
 
 (with-eval-after-load "helm"
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
-  (helm-mode 1)
+  ;; (helm-mode 1)
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
   ;; 
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
-  (global-set-key (kbd "M-x") #'helm-M-x)
-  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-  (global-set-key (kbd "<M-f9>") #'helm-filtered-bookmarks)
-  ;; (fset 'bookmark-jump 'helm-filtered-bookmarks)
-  (global-set-key (kbd "C-x C-f") #'helm-find-files)
-  (global-set-key (kbd "C-x b") #'helm-buffers-list)
 
+  (define-key global-map [remap execute-extended-command] 'helm-M-x)
+  (define-key global-map [remap list-buffers] 'helm-buffers-list)
+  (define-key global-map [remap find-file] 'helm-find-files)
+  (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
+  (define-key global-map [remap occur] 'helm-occur)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
@@ -753,8 +780,8 @@
 
 (global-set-key (kbd "C-c b") 'helm-gtags-find-files)
 (global-set-key (kbd "C-c g") 'helm-gtags-find-tag) ;要在空白处使用才能输入，否则是查找光标下的符号
-(global-set-key (kbd "<f6>") 'helm-gtags-select-path)
-(global-set-key (kbd "<f7>") 'helm-gtags-select)
+;; (global-set-key (kbd "<f6>") 'helm-gtags-select-path)
+;; (global-set-key (kbd "<f7>") 'helm-gtags-select)
 (global-set-key (kbd "C-c v") 'helm-gtags-find-rtag)
 
 (add-hook 'helm-update-hook
@@ -1349,8 +1376,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'cquery)
   ;; (require 'ccls)
   (require 'lsp-java)
-  (require 'helm-lsp)
-  (require 'helm-xref)
+  ;; (require 'helm-lsp)
+  ;; (require 'helm-xref)
 
 
   (add-hook 'java-mode-hook #'lsp)
@@ -1376,7 +1403,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq company-lsp-enable-recompletion nil)
 
   ;; (global-flycheck-mode t)
-  (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
+  ;; (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
   (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
   ;; (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
 
@@ -1588,8 +1615,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 
 (with-eval-after-load "ivy"
-  (setq ivy-re-builders-alist
-        '((t . ivy--regex-fuzzy)))
+  ;; (setq ivy-re-builders-alist
+  ;;       '((t . ivy--regex-fuzzy)))
   ;; (ivy-toggle-fuzzy)
   )
 
