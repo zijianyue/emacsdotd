@@ -1151,28 +1151,28 @@
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
 (require 'aquamacs-tabbar)
-(tabbar-mode)
 ;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
-(defun tabbar-gzj-inhgibit-function ()
-  ""
-  (member (buffer-name)
-          (list "*helm*" "")))
-(add-to-list 'tabbar-inhibit-functions 'tabbar-gzj-inhibit-function)
+;; (defun tabbar-gzj-inhgibit-function ()
+;;   ""
+;;   (member (buffer-name)
+;;           (list "*helm*")))
+;; (add-to-list 'tabbar-inhibit-functions 'tabbar-gzj-inhibit-function)
 
-(defun tabbar-line-fset ()
-  "Return the header line templates that represent the tab bar.
-Inhibit display of the tab bar in current window if any of the
-`tabbar-inhibit-functions' return non-nil."
-  (cond
-   ((run-hook-with-args-until-success 'tabbar-inhibit-functions)
-    ;; Don't show the tab bar.
-    (setq header-line-format nil))
-   ((tabbar-current-tabset t)
-    ;; When available, use a cached tab bar value, else recompute it.
-    (or (tabbar-template tabbar-current-tabset)
-        (tabbar-line-format tabbar-current-tabset)))))
+;; (defun tabbar-line-fset ()
+;;   "Return the header line templates that represent the tab bar.
+;; Inhibit display of the tab bar in current window if any of the
+;; `tabbar-inhibit-functions' return non-nil."
+;;   (cond
+;;    ((run-hook-with-args-until-success 'tabbar-inhibit-functions)
+;;     ;; Don't show the tab bar.
+;;     (setq header-line-format nil))
+;;    ((tabbar-current-tabset t)
+;;     ;; When available, use a cached tab bar value, else recompute it.
+;;     (or (tabbar-template tabbar-current-tabset)
+;;         (tabbar-line-format tabbar-current-tabset)))))
 
-(fset 'tabbar-line 'tabbar-line-fset)
+;; (fset 'tabbar-line 'tabbar-line-fset)
+(tabbar-mode)
 
 ;; 防止undo后标签颜色不恢复
 (defadvice undo(after undo-after activate)
@@ -1588,7 +1588,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 
 (with-eval-after-load "ivy"
-  (ivy-toggle-fuzzy))
+  (setq ivy-re-builders-alist
+        '((t . ivy--regex-fuzzy)))
+  ;; (ivy-toggle-fuzzy)
+  )
 
 ;; (ivy-mode)
 ;; counsel-yank-pop显示历史默认M-y
