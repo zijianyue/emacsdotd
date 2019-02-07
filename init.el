@@ -735,11 +735,11 @@
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
 
-  (define-key global-map [remap execute-extended-command] 'helm-M-x)
-  (define-key global-map [remap list-buffers] 'helm-buffers-list)
-  (define-key global-map [remap find-file] 'helm-find-files)
-  (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
-  (define-key global-map [remap occur] 'helm-occur)
+  ;; (define-key global-map [remap execute-extended-command] 'helm-M-x)
+  ;; (define-key global-map [remap list-buffers] 'helm-buffers-list)
+  ;; (define-key global-map [remap find-file] 'helm-find-files)
+  ;; (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
+  ;; (define-key global-map [remap occur] 'helm-occur)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
