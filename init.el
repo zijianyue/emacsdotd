@@ -7,7 +7,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/all-the-icons"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/expand-region"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/evil"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java-master"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs-master/src/elisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
@@ -332,6 +332,7 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
+ '(helm-mode-fuzzy-match t)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
