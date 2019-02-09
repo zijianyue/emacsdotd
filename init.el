@@ -760,8 +760,13 @@
 
 (global-set-key (kbd "M-g k") 'toggle-helm-key)
 
+(defadvice helm-mode (after helm-mode-af activate)
+  ""
+  (toggle-helm-key))
+
 (with-eval-after-load "helm-mode"
   (ido-mode nil))
+
 (with-eval-after-load "helm"
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
   ;; (helm-mode 1)
