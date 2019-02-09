@@ -745,12 +745,10 @@
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
-  (global-set-key (kbd "<f9>") 'helm-occur)
   (global-set-key (kbd "C-x b") 'helm-buffers-list)
   (global-set-key (kbd "M-x") 'helm-M-x)
   (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (global-set-key (kbd "C-x r b") 'helm-filtered-bookmarks)
-  (global-set-key (kbd "<M-f9>") 'helm-filtered-bookmarks)
+  (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
@@ -779,13 +777,17 @@
      (define-key helm-read-file-map (kbd "<C-backspace>") 'backward-kill-word)
      ))
 
+(global-set-key (kbd "<f9>") 'helm-occur)
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
+(autoload 'helm-swoop "helm-swoop" nil t)
 (global-set-key (kbd "M-]") 'helm-swoop)
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(setq helm-swoop-split-with-multiple-windows t)
 (global-set-key (kbd "C-c j") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
