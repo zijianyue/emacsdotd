@@ -97,7 +97,7 @@
    | C++                   | [[https://github.com/MaskRay/ccls][ccls]]                                      | [[https://github.com/MaskRay/emacs-ccls][emacs-ccls]]    | [[https://github.com/MaskRay/ccls][ccls]]                                                     | Yes (via llvm debug adapter) |
    | C++                   | [[https://clang.llvm.org/extra/clangd.html][clangd]]                                    | Yes           | [[https://clang.llvm.org/extra/clangd.html][clangd]]                                                   | Yes (via llvm debug adapter) |
    | C++                   | [[https://github.com/cquery-project/cquery][cquery]]                                    | [[https://github.com/cquery-project/emacs-cquery][emacs-cquery]]  | [[https://github.com/cquery-project/cquery][cquery]]                                                   | Yes (via llvm debug adapter) |
-   | CSS                   | [[https://github.com/vscode-langservers/vscode-css-languageserver-bin][css]]                                       | Yes           | npm install -g vscode-css-languageserver-bin             |                              |
+   | CSS/LessCSS/SASS/SCSS | [[https://github.com/vscode-langservers/vscode-css-languageserver-bin][css]]                                   | Yes           | npm install -g vscode-css-languageserver-bin             |                              |
    | Dart                  | [[https://github.com/natebosch/dart_language_server][dart_language_server]]                      | Yes           | pub global activate dart_language_server                 |                              |
    | Elixir                | [[https://github.com/JakeBecker/elixir-ls][elixir-ls]]                                 | Yes           | [[https://github.com/JakeBecker/elixir-ls][elixir-ls]]                                                | Yes                          |
    | Fortran               | [[https://github.com/hansec/fortran-language-server][fortran-language-server]]                   | Yes           | pip install fortran-language-server                      |                              |
@@ -140,6 +140,7 @@
    - ~lsp-lens-mode~ (experimental) - Turn on/off lenses in the current file.
 ** Settings
    - ~lsp-print-io~ - If non-nil, print all messages to and from the language server to ~*lsp-log*~.
+   - ~lsp-print-performance~ - If non-nil, print performance info. to ~*lsp-log*~.
    - ~lsp-inhibit-message~ - If non-nil, inhibit the message echo via ~inhibit-message~.
    - ~lsp-report-if-no-buffer~ - If non nil the errors will be reported even when the file is not open.
    - ~lsp-keep-workspace-alive~ - If non nil keep workspace alive when the last workspace buffer is closed.

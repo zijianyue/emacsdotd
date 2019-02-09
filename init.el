@@ -328,10 +328,18 @@
      (basic-save-buffer . helm-read-file-name-handler-1)
      (write-file . helm-read-file-name-handler-1)
      (write-region . helm-read-file-name-handler-1))))
+ '(helm-completion-in-region-fuzzy-match t)
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
+ '(helm-gtags-auto-update t)
+ '(helm-gtags-cache-max-result-size 104857600)
+ '(helm-gtags-cache-select-result t)
+ '(helm-gtags-fuzzy-match t)
+ '(helm-gtags-ignore-case t)
+ '(helm-gtags-suggested-key-mapping t)
+ '(helm-gtags-update-interval-second 3)
  '(helm-mode-fuzzy-match t)
  '(helm-semantic-display-style
    (quote
@@ -343,6 +351,8 @@
  '(helm-truncate-lines t t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
+ '(ido-everywhere t)
+ '(ido-mode (quote both) nil (ido))
  '(imenu-list-focus-after-activation t)
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
@@ -719,12 +729,15 @@
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 
-(autoload 'helm-gtags-find-tag "helm-gtags" nil t)
-(autoload 'helm-gtags-find-files "helm-gtags" nil t)
+(autoload 'helm-gtags-mode "helm-gtags" nil t)
 (autoload 'helm-gtags-select "helm-gtags" nil t)
 (autoload 'helm-gtags-select-path "helm-gtags" nil t)
+(autoload 'helm-gtags-find-tag "helm-gtags" nil t)
+(autoload 'helm-gtags-find-files "helm-gtags" nil t)
+(autoload 'helm-gtags-create-tags "helm-gtags" nil t)
+(autoload 'helm-gtags-update-tags "helm-gtags" nil t)
+(autoload 'helm-gtags-dwim "helm-gtags" nil t)
 (autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
-
 
 (with-eval-after-load "helm"
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
@@ -732,12 +745,12 @@
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
-
-  ;; (define-key global-map [remap execute-extended-command] 'helm-M-x)
-  ;; (define-key global-map [remap list-buffers] 'helm-buffers-list)
-  ;; (define-key global-map [remap find-file] 'helm-find-files)
-  ;; (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
-  ;; (define-key global-map [remap occur] 'helm-occur)
+  (global-set-key (kbd "<f9>") 'helm-occur)
+  (global-set-key (kbd "C-x b") 'helm-buffers-list)
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  (global-set-key (kbd "C-x r b") 'helm-filtered-bookmarks)
+  (global-set-key (kbd "<M-f9>") 'helm-filtered-bookmarks)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
@@ -772,15 +785,45 @@
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
-;; (global-set-key (kbd "<M-apps>") 'helm-ag-this-file)
+(global-set-key (kbd "M-]") 'helm-swoop)
+(global-set-key (kbd "C-c j") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
 
 (global-set-key (kbd "C-c b") 'helm-gtags-find-files)
+(global-set-key (kbd "C-c B") 'gtags-find-file)
 (global-set-key (kbd "C-c g") 'helm-gtags-find-tag) ;要在空白处使用才能输入，否则是查找光标下的符号
-;; (global-set-key (kbd "<f6>") 'helm-gtags-select-path)
-;; (global-set-key (kbd "<f7>") 'helm-gtags-select)
+(global-set-key (kbd "<f6>") 'helm-gtags-select-path)
+(global-set-key (kbd "<f7>") 'helm-gtags-select)
 (global-set-key (kbd "C-c v") 'helm-gtags-find-rtag)
+(global-set-key (kbd "<S-f5>") 'helm-gtags-create-tags) ;可以指定路径和label
+(global-set-key (kbd "<f5>") 'helm-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
+(global-set-key (kbd "C-\\") 'helm-gtags-dwim)
+(global-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
+
+(eval-after-load "helm-gtags"
+  '(progn
+     (gtags-mode 1)
+     (remove-hook 'after-save-hook 'gtags-auto-update)
+     (helm-gtags-mode 1)
+     (add-hook 'c-mode-common-hook
+               (lambda ()
+                 (gtags-mode 1)
+                 (helm-gtags-mode 1)))
+     (define-key helm-gtags-mode-map (kbd "C-]") nil)
+     (define-key helm-gtags-mode-map (kbd "C-t") nil)
+     (define-key helm-gtags-mode-map (kbd "M-*") nil)
+     (define-key helm-gtags-mode-map (kbd "M-,") nil)
+     (define-key helm-gtags-mode-map (kbd "M-.") nil)
+     (define-key helm-gtags-mode-map (kbd "C-c t") nil)
+     (define-key helm-gtags-mode-map (kbd "C-c s") 'helm-gtags-find-symbol)
+     (define-key helm-gtags-mode-map (kbd "C-c r") 'helm-gtags-find-rtag)
+     (define-key helm-gtags-mode-map (kbd "C-c f") 'helm-gtags-parse-file)
+     (define-key helm-gtags-mode-map (kbd "C-c g") 'helm-gtags-find-pattern)
+     (define-key helm-gtags-mode-map (kbd "C-\\") 'helm-gtags-dwim)
+     (define-key helm-gtags-mode-map (kbd "C-|") 'helm-gtags-find-tag-other-window)
+     ;; (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-show-stack)
+     ))
 
 (add-hook 'helm-update-hook
           (lambda ()
@@ -1290,6 +1333,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (eval-after-load "anzu" '(diminish 'anzu-mode))
 (eval-after-load "hideif" '(diminish 'hide-ifdef-mode))
 (eval-after-load "hideshow" '(diminish 'hs-minor-mode))
+(eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode))
 ;; (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
 
 ;; modeline和主题定制
@@ -1599,13 +1643,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'counsel-gtags-create-tags "counsel-gtags" nil t)
 (autoload 'counsel-gtags-update-tags "counsel-gtags" nil t)
 
-(global-set-key (kbd "<f6>") 'counsel-gtags-find-file)
-(global-set-key (kbd "<f7>") 'counsel-gtags-find-definition)
-(global-set-key (kbd "C-\\") 'counsel-gtags-dwim)
-(global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;可以指定路径和label
-(global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
-(global-set-key (kbd "C-c s") 'counsel-gtags-find-symbol)
-(global-set-key (kbd "C-c r") 'counsel-gtags-find-reference)
+;; (global-set-key (kbd "<f6>") 'counsel-gtags-find-file)
+;; (global-set-key (kbd "<f7>") 'counsel-gtags-find-definition)
+;; (global-set-key (kbd "C-\\") 'counsel-gtags-dwim)
+;; (global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;可以指定路径和label
+;; (global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
+;; (global-set-key (kbd "C-c s") 'counsel-gtags-find-symbol)
+;; (global-set-key (kbd "C-c r") 'counsel-gtags-find-reference)
 
 ;; 接管输入
 (autoload 'ivy-mode "ivy" nil t)
@@ -1631,12 +1675,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 ;; (counsel-mode)
 ;; 接管搜索
-(autoload 'swiper "swiper" nil t)
-(global-set-key (kbd "<f9>") 'swiper)
-(define-key isearch-mode-map (kbd "<f9>") (lambda () (interactive)
-                                            (unless (featurep 'swiper)
-                                              (require 'swiper))
-                                            (swiper-from-isearch)))
+;; (autoload 'swiper "swiper" nil t)
+;; (global-set-key (kbd "<f9>") 'swiper)
+;; (define-key isearch-mode-map (kbd "<f9>") (lambda () (interactive)
+ ;;                                            (unless (featurep 'swiper)
+ ;;                                              (require 'swiper))
+ ;;                                            (swiper-from-isearch)))
 
 ;; 多光标操作
 (autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
