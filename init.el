@@ -295,6 +295,7 @@
  '(global-hl-line-sticky-flag t)
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
  '(gud-pdb-command-name "python -i -m pdb")
+ '(helm-M-x-fuzzy-match t)
  '(helm-ag-base-command "ag --nocolor --nogroup -S -Q ")
  '(helm-ag-fuzzy-match t)
  '(helm-allow-mouse t)
@@ -739,16 +740,34 @@
 (autoload 'helm-gtags-dwim "helm-gtags" nil t)
 (autoload 'helm-gtags-find-rtag "helm-gtags" nil t)
 
+(defun toggle-helm-key ()
+  ""
+  (interactive)
+  (if helm-mode
+      (progn
+        (message "helm mode t")
+        ;; (define-key global-map [remap find-files] 'helm-find-files)
+        (define-key global-map [remap execute-extended-command] 'helm-M-x)
+        (define-key global-map [remap switch-to-buffer] 'helm-buffers-list)
+        (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks))
+    (progn
+      (message "helm mode nil")
+      ;; (define-key global-map [remap find-files] nil)
+      (define-key global-map [remap execute-extended-command] nil)
+      (define-key global-map [remap switch-to-buffer] nil)
+      (define-key global-map [remap bookmark-jump] nil))
+    ))
+
+(global-set-key (kbd "M-g k") 'toggle-helm-key)
+
+(with-eval-after-load "helm-mode"
+  (ido-mode nil))
 (with-eval-after-load "helm"
   ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
   ;; (helm-mode 1)
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
-  (global-set-key (kbd "C-x b") 'helm-buffers-list)
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (define-key global-map [remap bookmark-jump] 'helm-filtered-bookmarks)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
