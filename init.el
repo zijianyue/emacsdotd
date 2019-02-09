@@ -787,6 +787,7 @@
 (autoload 'helm-swoop "helm-swoop" nil t)
 (global-set-key (kbd "M-]") 'helm-swoop)
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(define-key isearch-mode-map (kbd "M-]") 'helm-swoop-from-isearch)
 (setq helm-swoop-split-with-multiple-windows t)
 (global-set-key (kbd "C-c j") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
