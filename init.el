@@ -370,11 +370,7 @@
  '(lsp-eldoc-hook (quote (lsp-hover)))
  '(lsp-imenu-sort-methods (quote (kind position)))
  '(lsp-java-import-gradle-enabled nil)
- '(lsp-java-java-path "G:\\Program Files\\Java\\jdk1.8.0_191\\bin\\java.exe")
- '(lsp-java-server-install-dir "D:/jdt-language-server-latest")
  '(lsp-java-update-build-configuration (quote interactive))
- '(lsp-java-workspace-cache-dir "g:/lsp-java-workspace/.cache/")
- '(lsp-java-workspace-dir "g:/lsp-java-workspace/")
  '(lsp-response-timeout 20)
  '(lsp-ui-doc-include-signature t)
  '(lsp-ui-peek-always-show t)
@@ -809,6 +805,7 @@
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
 (autoload 'helm-swoop "helm-swoop" nil t)
+(autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
 (global-set-key (kbd "M-]") 'helm-swoop)
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
 (define-key isearch-mode-map (kbd "M-]") 'helm-swoop-from-isearch)
@@ -1433,8 +1430,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (add-hook 'rg-mode-hook 'wgrep-rg-setup)
 
 ;; lsp IDE级插件
+(when (memq system-type '(windows-nt ms-dos))
+    (setq lsp-java-server-install-dir "D:/jdt-language-server-latest/")
+    (setq lsp-java-workspace-cache-dir "g:/lsp-java-workspace/.cache/")
+    (setq lsp-java-workspace-dir "g:/lsp-java-workspace/"))  
+
 (autoload 'projectile-mode "projectile" nil t)
 (autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
+(autoload 'helm-lsp-workspace-symbol "helm-lsp" nil t)
 (with-eval-after-load 'lsp-mode
   (require 'projectile)
   (require 'flycheck)
@@ -1445,7 +1448,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'cquery)
   ;; (require 'ccls)
   (require 'lsp-java)
-  ;; (require 'helm-lsp)
+  (require 'helm-lsp)
   ;; (require 'helm-xref)
 
 
@@ -2397,8 +2400,8 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
             (define-key dired-mode-map ";" 'ergoemacs-open-in-external-app)
             (define-key dired-mode-map "/" 'isearch-forward)
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
-            (define-key dired-mode-map "c" 'create-known-ede-project)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
+            (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
             ;; dired中用默认打开方式打开文件
             (define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
                                                    (if (eq system-type 'windows-nt)
