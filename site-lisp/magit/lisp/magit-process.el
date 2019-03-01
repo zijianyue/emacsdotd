@@ -1,6 +1,6 @@
 ;;; magit-process.el --- process functionality  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -620,8 +620,11 @@ Magit status buffer."
                             'face 'magit-section-heading))))
       (magit-insert-heading)
       (when errlog
-        (insert-file-contents errlog)
-        (goto-char (1- (point-max))))
+        (if (bufferp errlog)
+            (insert (with-current-buffer errlog
+                      (buffer-substring-no-properties (point-min) (point-max))))
+          (insert-file-contents errlog)
+          (goto-char (1- (point-max)))))
       (insert "\n"))))
 
 (defun magit-process-truncate-log ()

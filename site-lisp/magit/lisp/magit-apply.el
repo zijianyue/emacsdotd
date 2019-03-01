@@ -1,6 +1,6 @@
 ;;; magit-apply.el --- apply Git diffs  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -37,9 +37,11 @@
 (require 'magit-diff)
 (require 'magit-wip)
 
+(require 'transient) ; See #3732.
+
 ;; For `magit-apply'
-(declare-function magit-am-popup "magit-sequence" (&optional arg))
-(declare-function magit-patch-apply-popup "magit-files" (&optional arg))
+(declare-function magit-am "magit-sequence" ())
+(declare-function magit-patch-apply "magit-files" ())
 ;; For `magit-discard-files'
 (declare-function magit-checkout-stage "magit-merge" (file arg))
 (declare-function magit-checkout-read-stage "magit-merge" (file))
@@ -129,11 +131,11 @@ so causes the change to be applied to the index as well."
       (`(,(or `unstaged `staged) ,_)
        (user-error "Change is already in the working tree"))
       (`(untracked ,(or `file `files))
-       (magit-am-popup))
+       (magit-am))
       (`(,_ region) (magit-apply-region it args))
       (`(,_   hunk) (magit-apply-hunk   it args))
       (`(,_  hunks) (magit-apply-hunks  it args))
-      (`(rebase-sequence file) (magit-patch-apply-popup))
+      (`(rebase-sequence file) (magit-patch-apply))
       (`(,_   file) (magit-apply-diff   it args))
       (`(,_  files) (magit-apply-diffs  it args)))))
 
@@ -361,6 +363,8 @@ ignored) files."
                  (magit-diff-scope)
                  (magit-apply--diff-ignores-whitespace-p))
       (`(untracked     ,_  ,_) (user-error "Cannot unstage untracked changes"))
+      (`(unstaged    file  ,_) (magit-unstage-intent (list (oref it value))))
+      (`(unstaged   files  ,_) (magit-unstage-intent (magit-region-values nil t)))
       (`(unstaged      ,_  ,_) (user-error "Already unstaged"))
       (`(staged    region  ,_) (magit-apply-region it "--reverse" "--cached"))
       (`(staged      hunk  ,_) (magit-apply-hunk   it "--reverse" "--cached"))
@@ -400,6 +404,12 @@ without requiring confirmation."
       (magit-run-git "rm" "--cached" "--" files)
     (magit-run-git "reset" "HEAD" "--" files))
   (magit-wip-commit-after-apply files " after unstage"))
+
+(defun magit-unstage-intent (files)
+  (if-let ((staged (magit-staged-files))
+           (intent (--filter (member it staged) files)))
+      (magit-unstage-1 intent)
+    (user-error "Already unstaged")))
 
 ;;;###autoload
 (defun magit-unstage-all ()

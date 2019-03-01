@@ -17,9 +17,11 @@ magit-mode.elc:		magit-section.elc magit-git.elc
 magit-margin.elc:	magit-section.elc magit-mode.elc
 magit-process.elc:	magit-utils.elc magit-section.elc \
 			magit-git.elc magit-mode.elc
+magit-transient.elc:	magit-git.elc magit-mode.elc magit-process.elc
 magit-autorevert.elc:	magit-git.elc magit-process.elc
 magit-core.elc:		magit-margin.elc magit-utils.elc \
-			magit-section.elc magit-git.elc magit-mode.elc \
+			magit-section.elc magit-git.elc \
+			magit-transient.elc magit-mode.elc \
 			magit-process.elc magit-autorevert.elc
 magit-diff.elc:		git-commit.elc magit-core.elc
 magit-log.elc:		magit-core.elc magit-diff.elc
@@ -31,9 +33,8 @@ magit.elc:		git-commit.elc magit-core.elc magit-diff.elc \
 magit-status.elc:	magit.elc
 magit-refs.elc: 	magit.elc
 magit-files.elc:	magit.elc
-magit-collab.elc:	magit.elc
 magit-reset.elc:        magit.elc
-magit-branch.elc:	magit.elc magit-collab.elc magit-reset.elc
+magit-branch.elc:	magit.elc magit-reset.elc
 magit-merge.elc:        magit.elc
 magit-tag.elc:          magit.elc
 magit-worktree.elc:	magit.elc
@@ -43,7 +44,7 @@ magit-commit.elc:	magit.elc magit-sequence.elc
 magit-remote.elc:	magit.elc
 magit-clone.elc:	magit.elc
 magit-fetch.elc:	magit.elc
-magit-pull.elc:		magit.elc
+magit-pull.elc:		magit.elc magit-remote.elc
 magit-push.elc:		magit.elc
 magit-patch.elc:	magit.elc
 magit-bisect.elc:	magit.elc

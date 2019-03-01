@@ -21,6 +21,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/phi-search-master"))
 
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
 ;; 打印调用函数的性能方法如下
 ;; M-x elp-instrument-package magit即查看magit包所有方法用掉的时间
@@ -106,6 +107,7 @@
   (setenv "MAVEN_HOME" "~/apache-maven-3.6.0/bin")
   (setenv "LOCALBIN" "/usr/local/bin")    ;for mac
   ;; (setenv "PYTHONMAC" "/Library/Frameworks/Python.framework/Versions/2.7/bin/")
+  (setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home")
   (setenv "PATH"
         (concat
          (getenv "LIBEXEC")
@@ -260,16 +262,6 @@
                                 ;; "ivy-minibuffer-match-face-4" "ivy-minibuffer-match-face-3" "ivy-minibuffer-match-face-2" "ivy-minibuffer-match-face-1"
                                 "hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b")))
 
-;; 内存回收
-;; (add-hook 'focus-out-hook #'garbage-collect)
-
-;; 一些备用的设置
-;; (setq scroll-conservatively 10000)
-;; (setq scroll-margin 1)
-;; (setq scroll-step 1)
-;; (setq window-combination-resize t)
-;; (setq jit-lock-defer-time 0)
-;; (setq fast-but-imprecise-scrolling t)
 
 ;; 自动添加的设置
 (custom-set-variables
@@ -301,10 +293,10 @@
  '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cursor-type t)
- '(custom-enabled-themes (quote (doom-one-light)))
+ '(custom-enabled-themes (quote (doom-one)))
  '(custom-safe-themes
    (quote
-    ("b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "e2cb7af647319c52b9ae376227d7e030f5266c754f52c274232d79fd0897c7a5" "2a94d296d281444656de6a0b0bd3a1779a1003f9bec66391d40100e01befc199" "e808202286c793bb4e8e4dcc4206514498e4b574d7f02391cc9acc4f6503d8a1" "14464db12e3a2efcf4b31c853fcc998daefe1a3a7089d3e5f7db108652f7fe57" "86d59bd0ba1574288b4a99cbe22459ff1b1b508163060829666b4ee52ffc828f" "876daa5c5f2284c90cba63f23ac3eab7d3518ed70c0e06b5647a8eef15dc58da" "34429cba5ed98ae761fd97dbd48aa6b7f3332f847d8114c2cee963d839c5a609" "55ff1b187304abeb43eb61ff3151deee8d64e749c5b622981ad0f6399defce06" "7fbe60a417014422753256d98eaed04b1912f1d6b022d8653b1076f02fa8af6c" "0057790eb50d79ddfb009d5285f8db6771f4b6ef32b1adc3cb928cd373beacbb" "213243810fa279745c2c373b7dfd4f5a8b96bef34d40609c6841f05ed2b35b45" "f19c42e831da5ded403575bdfb94ea7ebcfe04fdab08a9842912a1528acb5c68" "9f00e2c7aaa792dd441ca0eb3e466311ef3b8eaeb1c46f21be79a55693318b29" "a49acdbb9b08ce6470d263f14c4fdd4a91db3a718f9cc2e2c7d795dc76cfdd1a" "341ac05b01bd993019da315a1471884e0023530c1c29fdc3d7b4e0a6f6e759aa" "8aca557e9a17174d8f847fb02870cb2bb67f3b6e808e46c0e54a44e3e18e1020" "6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+    ("6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "e2cb7af647319c52b9ae376227d7e030f5266c754f52c274232d79fd0897c7a5" "2a94d296d281444656de6a0b0bd3a1779a1003f9bec66391d40100e01befc199" "e808202286c793bb4e8e4dcc4206514498e4b574d7f02391cc9acc4f6503d8a1" "14464db12e3a2efcf4b31c853fcc998daefe1a3a7089d3e5f7db108652f7fe57" "86d59bd0ba1574288b4a99cbe22459ff1b1b508163060829666b4ee52ffc828f" "876daa5c5f2284c90cba63f23ac3eab7d3518ed70c0e06b5647a8eef15dc58da" "34429cba5ed98ae761fd97dbd48aa6b7f3332f847d8114c2cee963d839c5a609" "55ff1b187304abeb43eb61ff3151deee8d64e749c5b622981ad0f6399defce06" "7fbe60a417014422753256d98eaed04b1912f1d6b022d8653b1076f02fa8af6c" "0057790eb50d79ddfb009d5285f8db6771f4b6ef32b1adc3cb928cd373beacbb" "213243810fa279745c2c373b7dfd4f5a8b96bef34d40609c6841f05ed2b35b45" "f19c42e831da5ded403575bdfb94ea7ebcfe04fdab08a9842912a1528acb5c68" "9f00e2c7aaa792dd441ca0eb3e466311ef3b8eaeb1c46f21be79a55693318b29" "a49acdbb9b08ce6470d263f14c4fdd4a91db3a718f9cc2e2c7d795dc76cfdd1a" "341ac05b01bd993019da315a1471884e0023530c1c29fdc3d7b4e0a6f6e759aa" "8aca557e9a17174d8f847fb02870cb2bb67f3b6e808e46c0e54a44e3e18e1020" "6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
@@ -314,7 +306,7 @@
  '(dired-recursive-deletes (quote always))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(electric-indent-mode t)
- '(electric-pair-inhibit-predicate (quote electric-pair-conservative-inhibit))
+ '(electric-pair-inhibit-predicate (quote electric-pair-default-inhibit))
  '(electric-pair-mode t)
  '(enable-local-variables :all)
  '(enable-recursive-minibuffers t)
@@ -474,7 +466,6 @@
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
  '(treemacs-follow-after-init t)
- '(treemacs-python-executable "g:/Python3/python.exe")
  '(treemacs-show-cursor t)
  '(treemacs-tag-follow-cleanup nil)
  '(treemacs-width 50)
@@ -1570,6 +1561,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     (require 'lsp-java-treemacs)
     (global-set-key (kbd "<f12>") 'xref-find-references)
+    ;; use STS4
+    (require 'lsp-java-boot)
+
+    ;; to enable the lenses
+    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1690,6 +1687,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<M-f6>") 'treemacs)
 (autoload 'treemacs "treemacs" nil t)
 (with-eval-after-load 'treemacs
+  (if (eq system-type 'windows-nt)
+      (setq treemacs-python-executable "g:/Python3/python.exe"))
   (add-hook 'treemacs-mode-hook
             (lambda ()
               ;; (treemacs-git-mode 'deferred) ;太卡

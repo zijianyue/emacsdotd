@@ -127,10 +127,17 @@ running 'man git-rebase' at the command line) for details.
 
 ;;;***
 
+;;;### (autoloads nil "lv" "lv.el" (0 0 0 0))
+;;; Generated autoloads from lv.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "lv" '("lv-")))
+
+;;;***
+
 ;;;### (autoloads nil "magit" "magit.el" (0 0 0 0))
 ;;; Generated autoloads from magit.el
- (autoload 'magit-dispatch-popup "magit" nil t)
- (autoload 'magit-run-popup "magit" nil t)
+ (autoload 'magit-dispatch "magit" nil t)
+ (autoload 'magit-run "magit" nil t)
 
 (autoload 'magit-git-command "magit" "\
 Execute COMMAND asynchronously; display output.
@@ -253,7 +260,7 @@ See `auto-revert-mode' for more information on Auto-Revert mode.
 
 ;;;### (autoloads nil "magit-bisect" "magit-bisect.el" (0 0 0 0))
 ;;; Generated autoloads from magit-bisect.el
- (autoload 'magit-bisect-popup "magit-bisect" nil t)
+ (autoload 'magit-bisect "magit-bisect" nil t)
 
 (autoload 'magit-bisect-start "magit-bisect" "\
 Start a bisect session.
@@ -261,7 +268,7 @@ Start a bisect session.
 Bisecting a bug means to find the commit that introduced it.
 This command starts such a bisect session by asking for a know
 good and a bad commit.  To move the session forward use the
-other actions from the bisect popup (\\<magit-status-mode-map>\\[magit-bisect-popup]).
+other actions from the bisect transient command (\\<magit-status-mode-map>\\[magit-bisect]).
 
 \(fn BAD GOOD)" t nil)
 
@@ -306,30 +313,11 @@ bisect run'.
 
 ;;;### (autoloads nil "magit-blame" "magit-blame.el" (0 0 0 0))
 ;;; Generated autoloads from magit-blame.el
-
-(autoload 'magit-blame-echo "magit-blame" "\
-For each line show the revision in which it was added.
-Show the information about the chunk at point in the echo area
-when moving between chunks.  Unlike other blaming commands, do
-not turn on `read-only-mode'.
-
-\(fn)" t nil)
-
-(autoload 'magit-blame-addition "magit-blame" "\
-For each line show the revision in which it was added.
-
-\(fn)" t nil)
-
-(autoload 'magit-blame-removal "magit-blame" "\
-For each line show the revision in which it was removed.
-
-\(fn)" t nil)
-
-(autoload 'magit-blame-reverse "magit-blame" "\
-For each line show the last revision in which it still exists.
-
-\(fn)" t nil)
- (autoload 'magit-blame-popup "magit-blame" nil t)
+ (autoload 'magit-blame-echo "magit-blame" nil t)
+ (autoload 'magit-blame-addition "magit-blame" nil t)
+ (autoload 'magit-blame-removal "magit-blame" nil t)
+ (autoload 'magit-blame-reverse "magit-blame" nil t)
+ (autoload 'magit-blame "magit-blame" nil t)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-blame" '("magit-")))
 
@@ -445,7 +433,7 @@ Create a Magit submodule list bookmark.
 
 ;;;### (autoloads nil "magit-branch" "magit-branch.el" (0 0 0 0))
 ;;; Generated autoloads from magit-branch.el
- (autoload 'magit-branch-popup "magit" nil t)
+ (autoload 'magit-branch "magit" nil t)
 
 (autoload 'magit-checkout "magit-branch" "\
 Checkout REVISION, updating the index and the working tree.
@@ -518,12 +506,6 @@ Create and checkout an orphan BRANCH with contents from revision START-POINT.
 \(git checkout --orphan [ARGS] BRANCH START-POINT).
 
 \(fn BRANCH START-POINT &optional ARGS)" t nil)
-
-(autoload 'magit-branch-pull-request "magit-branch" "\
-Create and configure a new branch from a pull-request.
-Please see the manual for more information.
-
-\(fn PR)" t nil)
 
 (autoload 'magit-branch-spinoff "magit-branch" "\
 Create new branch from the unpushed commits.
@@ -607,131 +589,7 @@ Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\",
 and also rename the respective reflog file.
 
 \(fn BRANCH)" t nil)
-
-(autoload 'magit-branch-config-popup "magit-branch" "\
-Popup console for setting branch variables.
-
-\(fn BRANCH)" t nil)
-
-(autoload 'magit-edit-branch*description "magit-branch" "\
-Edit the description of the current branch.
-With a prefix argument edit the description of another branch.
-
-The description for the branch named NAME is stored in the Git
-variable `branch.<name>.description'.
-
-\(fn BRANCH)" t nil)
-
-(autoload 'magit-set-branch*merge/remote "magit-branch" "\
-Set or unset the upstream of the current branch.
-With a prefix argument do so for another branch.
-
-When the branch in question already has an upstream then simply
-unsets it.  Invoke this command again to set another upstream.
-
-Together the Git variables `branch.<name>.remote' and
-`branch.<name>.merge' define the upstream branch of the local
-branch named NAME.  The value of `branch.<name>.remote' is the
-name of the upstream remote.  The value of `branch.<name>.merge'
-is the full reference of the upstream branch, on the remote.
-
-Non-interactively, when UPSTREAM is non-nil, then always set it
-as the new upstream, regardless of whether another upstream was
-already set.  When nil, then always unset.
-
-\(fn BRANCH UPSTREAM)" t nil)
-
-(autoload 'magit-cycle-branch*rebase "magit-branch" "\
-Cycle the value of `branch.<name>.rebase' for the current branch.
-With a prefix argument cycle the value for another branch.
-
-The Git variables `branch.<name>.rebase' controls whether pulling
-into the branch named NAME is done by rebasing that branch onto
-the fetched branch or by merging that branch.
-
-When `true' then pulling is done by rebasing.
-When `false' then pulling is done by merging.
-
-When that variable is undefined then the value of `pull.rebase'
-is used instead.  It defaults to `false'.
-
-\(fn BRANCH)" t nil)
-
-(autoload 'magit-cycle-branch*pushRemote "magit-branch" "\
-Cycle the value of `branch.<name>.pushRemote' for the current branch.
-With a prefix argument cycle the value for another branch.
-
-The Git variable `branch.<name>.pushRemote' specifies the remote
-that the branch named NAME is usually pushed to.  The value has
-to be the name of an existing remote.
-
-If that variable is undefined, then the value of the Git variable
-`remote.pushDefault' is used instead, provided that it is defined,
-which by default it is not.
-
-\(fn BRANCH)" t nil)
-
-(autoload 'magit-cycle-pull\.rebase "magit-branch" "\
-Cycle the repository-local value of `pull.rebase'.
-
-The Git variable `pull.rebase' specifies whether pulling is done
-by rebasing or by merging.  It can be overwritten using the Git
-variable `branch.<name>.rebase'.
-
-When `true' then pulling is done by rebasing.
-When `false' (the default) then pulling is done by merging.
-
-\(fn)" t nil)
-
-(autoload 'magit-cycle-remote\.pushDefault "magit-branch" "\
-Cycle the repository-local value of `remote.pushDefault'.
-
-The Git variable `remote.pushDefault' specifies the remote that
-local branches are usually pushed to.  It can be overwritten
-using the Git variable `branch.<name>.pushRemote'.
-
-\(fn)" t nil)
-
-(autoload 'magit-cycle-branch*autoSetupMerge "magit-branch" "\
-Cycle the repository-local value of `branch.autoSetupMerge'.
-
-The Git variable `branch.autoSetupMerge' under what circumstances
-creating a branch (named NAME) should result in the variables
-`branch.<name>.merge' and `branch.<name>.remote' being set
-according to the starting point used to create the branch.  If
-the starting point isn't a branch, then these variables are never
-set.
-
-When `always' then the variables are set regardless of whether
-the starting point is a local or a remote branch.
-
-When `true' (the default) then the variable are set when the
-starting point is a remote branch, but not when it is a local
-branch.
-
-When `false' then the variables are never set.
-
-\(fn)" t nil)
-
-(autoload 'magit-cycle-branch*autoSetupRebase "magit-branch" "\
-Cycle the repository-local value of `branch.autoSetupRebase'.
-
-The Git variable `branch.autoSetupRebase' specifies whether
-creating a branch (named NAME) should result in the variable
-`branch.<name>.rebase' being set to `true'.
-
-When `always' then the variable is set regardless of whether the
-starting point is a local or a remote branch.
-
-When `local' then the variable are set when the starting point
-is a local branch, but not when it is a remote branch.
-
-When `remote' then the variable are set when the starting point
-is a remote branch, but not when it is a local branch.
-
-When `never' (the default) then the variable is never set.
-
-\(fn)" t nil)
+ (autoload 'magit-branch-configure "magit-branch" nil t)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-branch" '("magit-")))
 
@@ -750,23 +608,9 @@ Then show the status buffer for the new repository.
 
 ;;;***
 
-;;;### (autoloads nil "magit-collab" "magit-collab.el" (0 0 0 0))
-;;; Generated autoloads from magit-collab.el
-
-(autoload 'magit-browse-pull-request "magit-collab" "\
-Visit pull-request PR using `browse-url'.
-
-Currently this only supports Github, but that restriction will
-be lifted eventually to support other Git forges.
-
-\(fn PR)" t nil)
-
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-collab" '("magit-")))
-
-;;;***
-
 ;;;### (autoloads nil "magit-commit" "magit-commit.el" (0 0 0 0))
 ;;; Generated autoloads from magit-commit.el
+ (autoload 'magit-commit "magit-commit" nil t)
 
 (autoload 'magit-commit-create "magit-commit" "\
 Create a new commit on `HEAD'.
@@ -855,28 +699,14 @@ that is you) or committer date is available as the previous
 history element.
 
 \(fn DATE)" t nil)
- (autoload 'magit-commit-absorb-popup "magit-commit" nil t)
+ (autoload 'magit-commit-absorb "magit-commit" nil t)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-commit" '("magit-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-commit" '("magit")))
 
 ;;;***
 
 ;;;### (autoloads nil "magit-diff" "magit-diff.el" (0 0 0 0))
 ;;; Generated autoloads from magit-diff.el
-
-(autoload 'magit-diff-popup "magit-diff" "\
-Popup console for diff commands.
-
-\(fn ARG)" t nil)
-
-(autoload 'magit-diff-buffer-file-popup "magit-diff" "\
-Popup console for diff commands.
-
-This is a variant of `magit-diff-popup' which shows the same popup
-but which limits the diff to the file being visited in the current
-buffer.
-
-\(fn)" t nil)
 
 (autoload 'magit-diff-dwim "magit-diff" "\
 Show changes for the thing at point.
@@ -948,13 +778,13 @@ for a revision.
 
 \(fn REV &optional ARGS FILES MODULE)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-diff" '("magit-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-diff" '("magit")))
 
 ;;;***
 
 ;;;### (autoloads nil "magit-ediff" "magit-ediff.el" (0 0 0 0))
 ;;; Generated autoloads from magit-ediff.el
- (autoload 'magit-ediff-popup "magit-ediff" nil t)
+ (autoload 'magit-ediff "magit-ediff" nil)
 
 (autoload 'magit-ediff-resolve "magit-ediff" "\
 Resolve outstanding conflicts in FILE using Ediff.
@@ -1038,7 +868,7 @@ stash that were staged.
 
 \(fn STASH)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-ediff" '("magit-ediff-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-ediff" '("magit-ediff")))
 
 ;;;***
 
@@ -1181,6 +1011,26 @@ points at it) otherwise.
 
 \(fn &optional TYPE)" t nil)
 
+(autoload 'magit-diff-edit-hunk-commit "magit-extras" "\
+From a hunk, edit the respective commit and visit the file.
+
+First visit the file being modified by the hunk at the correct
+location using `magit-diff-visit-file'.  This actually visits a
+blob.  When point is on a diff header, not within an individual
+hunk, then this visits the blob the first hunk is about.
+
+Then invoke `magit-edit-line-commit', which uses an interactive
+rebase to make the commit editable, or if that is not possible
+because the commit is not reachable from `HEAD' by checking out
+that commit directly.  This also causes the actual worktree file
+to be visited.
+
+Neither the blob nor the file buffer are killed when finishing
+the rebase.  If that is undesirable, then it might be better to
+use `magit-rebase-edit-command' instead of this command.
+
+\(fn)" t nil)
+
 (autoload 'magit-reshelve-since "magit-extras" "\
 Change the author and committer dates of the commits since REV.
 
@@ -1235,7 +1085,8 @@ argument is used, then save the revision at its tip to the
 
 When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
-above.
+above.  If a prefix argument is used and the region is within a
+hunk, strip the outer diff marker column.
 
 \(fn)" t nil)
 
@@ -1276,17 +1127,9 @@ patch application, a cherry-pick, a revert, or a bisect.
 
 ;;;### (autoloads nil "magit-fetch" "magit-fetch.el" (0 0 0 0))
 ;;; Generated autoloads from magit-fetch.el
- (autoload 'magit-fetch-popup "magit-fetch" nil t)
-
-(autoload 'magit-fetch-from-pushremote "magit-fetch" "\
-Fetch from the push-remote of the current branch.
-
-\(fn ARGS)" t nil)
-
-(autoload 'magit-fetch-from-upstream "magit-fetch" "\
-Fetch from the upstream repository of the current branch.
-
-\(fn ARGS)" t nil)
+ (autoload 'magit-fetch "magit-fetch" nil t)
+ (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
+ (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
 
 (autoload 'magit-fetch-other "magit-fetch" "\
 Fetch from another repository.
@@ -1350,7 +1193,7 @@ Like `magit-find-file', but create a new window or reuse an
 existing one.
 
 \(fn REV FILE)" t nil)
- (autoload 'magit-file-popup "magit" nil t)
+ (autoload 'magit-file-dispatch "magit" nil t)
 
 (defvar global-magit-file-mode t "\
 Non-nil if Global Magit-File mode is enabled.
@@ -1393,17 +1236,35 @@ Checkout FILE from REV.
 ;;;### (autoloads nil "magit-gitignore" "magit-gitignore.el" (0 0
 ;;;;;;  0 0))
 ;;; Generated autoloads from magit-gitignore.el
- (autoload 'magit-gitignore-popup "magit-gitignore" nil t)
+ (autoload 'magit-gitignore "magit-gitignore" nil t)
 
-(autoload 'magit-gitignore-globally "magit-gitignore" "\
-Instruct Git to globally ignore FILE-OR-PATTERN.
+(autoload 'magit-gitignore-in-topdir "magit-gitignore" "\
+Add the Git ignore RULE to the top-level \".gitignore\" file.
+Since this file is tracked, it is shared with other clones of the
+repository.  Also stage the file.
 
-\(fn FILE-OR-PATTERN)" t nil)
+\(fn RULE)" t nil)
 
-(autoload 'magit-gitignore-locally "magit-gitignore" "\
-Instruct Git to locally ignore FILE-OR-PATTERN.
+(autoload 'magit-gitignore-in-subdir "magit-gitignore" "\
+Add the Git ignore RULE to a \".gitignore\" file.
+Prompted the user for a directory and add the rule to the
+\".gitignore\" file in that directory.  Since such files are
+tracked, they are shared with other clones of the repository.
+Also stage the file.
 
-\(fn FILE-OR-PATTERN)" t nil)
+\(fn RULE DIRECTORY)" t nil)
+
+(autoload 'magit-gitignore-in-gitdir "magit-gitignore" "\
+Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
+Rules in that file only affects this clone of the repository.
+
+\(fn RULE)" t nil)
+
+(autoload 'magit-gitignore-on-system "magit-gitignore" "\
+Add the Git ignore RULE to the file specified by `core.excludesFile'.
+Rules that are defined in that file affect all local repositories.
+
+\(fn RULE)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-gitignore" '("magit-")))
 
@@ -1530,15 +1391,6 @@ beginning of the line.
 ;;;### (autoloads nil "magit-log" "magit-log.el" (0 0 0 0))
 ;;; Generated autoloads from magit-log.el
 
-(autoload 'magit-log-buffer-file-popup "magit-log" "\
-Popup console for log commands.
-
-This is a variant of `magit-log-popup' which shows the same popup
-but which limits the log to the file being visited in the current
-buffer.
-
-\(fn)" t nil)
-
 (autoload 'magit-log-current "magit-log" "\
 Show log for the current branch.
 When `HEAD' is detached or with a prefix argument show log for
@@ -1622,7 +1474,7 @@ Show commits in a branch that are not merged in the upstream branch.
 
 \(fn HEAD UPSTREAM)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-log" '("magit-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-log" '("magit")))
 
 ;;;***
 
@@ -1635,7 +1487,7 @@ Show commits in a branch that are not merged in the upstream branch.
 
 ;;;### (autoloads nil "magit-merge" "magit-merge.el" (0 0 0 0))
 ;;; Generated autoloads from magit-merge.el
- (autoload 'magit-merge-popup "magit" nil t)
+ (autoload 'magit-merge "magit" nil t)
 
 (autoload 'magit-merge-plain "magit-merge" "\
 Merge commit REV into the current branch; using default message.
@@ -1675,7 +1527,7 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
+if `forge-branch-pullreq' was used to create the merged branch,
 branch, then also remove the respective remote branch.
 
 \(fn BRANCH &optional ARGS)" t nil)
@@ -1687,8 +1539,8 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
-branch, then also remove the respective remote branch.
+if `forge-branch-pullreq' was used to create the merged branch,
+then also remove the respective remote branch.
 
 \(fn BRANCH &optional ARGS)" t nil)
 
@@ -1724,40 +1576,25 @@ Abort the current merge operation.
 
 ;;;### (autoloads nil "magit-notes" "magit-notes.el" (0 0 0 0))
 ;;; Generated autoloads from magit-notes.el
- (autoload 'magit-notes-popup "magit" nil t)
+ (autoload 'magit-notes "magit" nil t)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-notes" '("magit-")))
 
 ;;;***
 
+;;;### (autoloads nil "magit-obsolete" "magit-obsolete.el" (0 0 0
+;;;;;;  0))
+;;; Generated autoloads from magit-obsolete.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-obsolete" '("magit--magit-popup-warning")))
+
+;;;***
+
 ;;;### (autoloads nil "magit-patch" "magit-patch.el" (0 0 0 0))
 ;;; Generated autoloads from magit-patch.el
- (autoload 'magit-patch-popup "magit-patch" nil t)
-
-(autoload 'magit-format-patch "magit-patch" "\
-Create patches for the commits in RANGE.
-When a single commit is given for RANGE, create a patch for the
-changes introduced by that commit (unlike 'git format-patch'
-which creates patches for all commits that are reachable from
-`HEAD' but not from the specified commit).
-
-\(fn RANGE ARGS FILES)" t nil)
-
-(autoload 'magit-request-pull "magit-patch" "\
-Request upstream to pull from you public repository.
-
-URL is the url of your publically accessible repository.
-START is a commit that already is in the upstream repository.
-END is the last commit, usually a branch name, which upstream
-is asked to pull.  START has to be reachable from that commit.
-
-\(fn URL START END)" t nil)
- (autoload 'magit-patch-apply-popup "magit-patch" nil t)
-
-(autoload 'magit-patch-apply "magit-patch" "\
-Apply the patch file FILE.
-
-\(fn FILE &rest ARGS)" t nil)
+ (autoload 'magit-patch "magit-patch" nil t)
+ (autoload 'magit-patch-create "magit-patch" nil t)
+ (autoload 'magit-patch-apply "magit-patch" nil t)
 
 (autoload 'magit-patch-save "magit-patch" "\
 Write current diff into patch FILE.
@@ -1784,7 +1621,17 @@ same differences as those shown in the buffer are always used.
 
 \(fn FILE &optional ARG)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-patch" '("magit-patch-save-arguments")))
+(autoload 'magit-request-pull "magit-patch" "\
+Request upstream to pull from you public repository.
+
+URL is the url of your publically accessible repository.
+START is a commit that already is in the upstream repository.
+END is the last commit, usually a branch name, which upstream
+is asked to pull.  START has to be reachable from that commit.
+
+\(fn URL START END)" t nil)
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-patch" '("magit-")))
 
 ;;;***
 
@@ -1804,18 +1651,9 @@ same differences as those shown in the buffer are always used.
 
 ;;;### (autoloads nil "magit-pull" "magit-pull.el" (0 0 0 0))
 ;;; Generated autoloads from magit-pull.el
- (autoload 'magit-pull-popup "magit-pull" nil t)
- (autoload 'magit-pull-and-fetch-popup "magit-pull" nil t)
-
-(autoload 'magit-pull-from-pushremote "magit-pull" "\
-Pull from the push-remote of the current branch.
-
-\(fn ARGS)" t nil)
-
-(autoload 'magit-pull-from-upstream "magit-pull" "\
-Pull from the upstream of the current branch.
-
-\(fn ARGS)" t nil)
+ (autoload 'magit-pull "magit-pull" nil t)
+ (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
+ (autoload 'magit-pull-from-upstream "magit-pull" nil t)
 
 (autoload 'magit-pull-branch "magit-pull" "\
 Pull from a branch read in the minibuffer.
@@ -1828,28 +1666,9 @@ Pull from a branch read in the minibuffer.
 
 ;;;### (autoloads nil "magit-push" "magit-push.el" (0 0 0 0))
 ;;; Generated autoloads from magit-push.el
- (autoload 'magit-push-popup "magit-push" nil t)
-
-(autoload 'magit-push-current-to-pushremote "magit-push" "\
-Push the current branch to `branch.<name>.pushRemote'.
-If that variable is unset, then push to `remote.pushDefault'.
-
-When `magit-push-current-set-remote-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then push to it.  With a prefix argument
-the push-remote can be changed before pushed to it.
-
-\(fn ARGS &optional PUSH-REMOTE)" t nil)
-
-(autoload 'magit-push-current-to-upstream "magit-push" "\
-Push the current branch to its upstream branch.
-
-When `magit-push-current-set-remote-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from the
-user, set it, and then push to it.  With a prefix argument the
-upstream can be changed before pushed to it.
-
-\(fn ARGS &optional UPSTREAM)" t nil)
+ (autoload 'magit-push "magit-push" nil t)
+ (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
+ (autoload 'magit-push-current-to-upstream "magit-push" nil t)
 
 (autoload 'magit-push-current "magit-push" "\
 Push the current branch to a branch read in the minibuffer.
@@ -1901,13 +1720,6 @@ these Git variables: `push.default', `remote.pushDefault',
 `branch.<branch>.pushRemote', `branch.<branch>.remote',
 `branch.<branch>.merge', and `remote.<remote>.push'.
 
-To add this command to the push popup add this to your init file:
-
-  (with-eval-after-load \\='magit-remote
-    (magit-define-popup-action \\='magit-push-popup ?P
-      \\='magit-push-implicitly--desc
-      \\='magit-push-implicitly ?p t))
-
 The function `magit-push-implicitly--desc' attempts to predict
 what this command will do.  The value it returns is displayed in
 the popup buffer.
@@ -1925,13 +1737,6 @@ these Git variables: `push.default', `remote.pushDefault',
 `branch.<branch>.pushRemote', `branch.<branch>.remote',
 `branch.<branch>.merge', and `remote.<remote>.push'.
 
-To add this command to the push popup add this to your init file:
-
-  (with-eval-after-load \\='magit-remote
-    (magit-define-popup-action \\='magit-push-popup ?r
-      \\='magit-push-to-remote--desc
-      \\='magit-push-to-remote ?p t))
-
 \(fn REMOTE ARGS)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-push" '("magit-")))
@@ -1940,28 +1745,23 @@ To add this command to the push popup add this to your init file:
 
 ;;;### (autoloads nil "magit-refs" "magit-refs.el" (0 0 0 0))
 ;;; Generated autoloads from magit-refs.el
-
-(autoload 'magit-show-refs-popup "magit-refs" "\
-Popup console for `magit-show-refs'.
-
-\(fn &optional ARG)" t nil)
+ (autoload 'magit-show-refs "magit-refs" nil t)
 
 (autoload 'magit-show-refs-head "magit-refs" "\
 List and compare references in a dedicated buffer.
-Refs are compared with `HEAD'.
+Compared with `HEAD'.
 
 \(fn &optional ARGS)" t nil)
 
 (autoload 'magit-show-refs-current "magit-refs" "\
 List and compare references in a dedicated buffer.
-Refs are compared with the current branch or `HEAD' if
-it is detached.
+Compare with the current branch or `HEAD' if it is detached.
 
 \(fn &optional ARGS)" t nil)
 
-(autoload 'magit-show-refs "magit-refs" "\
+(autoload 'magit-show-refs-other "magit-refs" "\
 List and compare references in a dedicated buffer.
-Refs are compared with a branch read from the user.
+Compared with a branch read from the user.
 
 \(fn &optional REF ARGS)" t nil)
 
@@ -1971,7 +1771,7 @@ Refs are compared with a branch read from the user.
 
 ;;;### (autoloads nil "magit-remote" "magit-remote.el" (0 0 0 0))
 ;;; Generated autoloads from magit-remote.el
- (autoload 'magit-remote-popup "magit-remote" nil t)
+ (autoload 'magit-remote "magit-remote" nil t)
 
 (autoload 'magit-remote-add "magit-remote" "\
 Add a remote named REMOTE and fetch it.
@@ -2023,11 +1823,7 @@ Unset the local representation of REMOTE's default branch.
 Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\".
 
 \(fn REMOTE)" t nil)
-
-(autoload 'magit-remote-config-popup "magit-remote" "\
-Popup console for setting remote variables.
-
-\(fn REMOTE)" t nil)
+ (autoload 'magit-remote-configure "magit-remote" nil t)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-remote" '("magit-")))
 
@@ -2050,7 +1846,7 @@ repositories are displayed.
 
 ;;;### (autoloads nil "magit-reset" "magit-reset.el" (0 0 0 0))
 ;;; Generated autoloads from magit-reset.el
- (autoload 'magit-reset-popup "magit" nil t)
+ (autoload 'magit-reset "magit" nil t)
 
 (autoload 'magit-reset-mixed "magit-reset" "\
 Reset the `HEAD' and index to COMMIT, but not the working tree.
@@ -2096,7 +1892,7 @@ With a prefix argument reset the working tree otherwise don't.
 
 \(fn COMMIT &optional HARD)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-reset" '("magit-reset-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-reset" '("magit-reset")))
 
 ;;;***
 
@@ -2126,7 +1922,7 @@ Abort the current cherry-pick or revert sequence.
 This discards all changes made since the sequence started.
 
 \(fn)" t nil)
- (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
+ (autoload 'magit-cherry-pick "magit-sequence" nil t)
 
 (autoload 'magit-cherry-copy "magit-sequence" "\
 Copy COMMITS from another branch onto the current branch.
@@ -2175,7 +1971,7 @@ If a conflict occurs, then you have to fix that and finish
 the process manually.
 
 \(fn COMMITS BRANCH START-POINT &optional ARGS)" t nil)
- (autoload 'magit-revert-popup "magit-sequence" nil t)
+ (autoload 'magit-revert "magit-sequence" nil t)
 
 (autoload 'magit-revert-and-commit "magit-sequence" "\
 Revert COMMIT by creating a new commit.
@@ -2192,7 +1988,7 @@ the region selects multiple commits, then revert all of them,
 without prompting.
 
 \(fn COMMIT &optional ARGS)" t nil)
- (autoload 'magit-am-popup "magit-sequence" nil t)
+ (autoload 'magit-am "magit-sequence" nil t)
 
 (autoload 'magit-am-apply-patches "magit-sequence" "\
 Apply the patches FILES.
@@ -2219,18 +2015,9 @@ Abort the current patch applying sequence.
 This discards all changes made since the sequence started.
 
 \(fn)" t nil)
- (autoload 'magit-rebase-popup "magit-sequence" nil t)
-
-(autoload 'magit-rebase-onto-pushremote "magit-sequence" "\
-Rebase the current branch onto `branch.<name>.pushRemote'.
-If that variable is unset, then rebase onto `remote.pushDefault'.
-
-\(fn ARGS)" t nil)
-
-(autoload 'magit-rebase-onto-upstream "magit-sequence" "\
-Rebase the current branch onto its upstream branch.
-
-\(fn ARGS)" t nil)
+ (autoload 'magit-rebase "magit-sequence" nil t)
+ (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
+ (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
 
 (autoload 'magit-rebase-branch "magit-sequence" "\
 Rebase the current branch onto a branch read in the minibuffer.
@@ -2299,11 +2086,11 @@ Abort the current rebase operation, restoring the original branch.
 
 ;;;### (autoloads nil "magit-stash" "magit-stash.el" (0 0 0 0))
 ;;; Generated autoloads from magit-stash.el
- (autoload 'magit-stash-popup "magit-stash" nil t)
+ (autoload 'magit-stash "magit-stash" nil t)
 
 (autoload 'magit-stash-both "magit-stash" "\
 Create a stash of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'.
 
@@ -2320,7 +2107,7 @@ Applying the resulting stash has the inverse effect.
 
 (autoload 'magit-stash-worktree "magit-stash" "\
 Create a stash of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'.
 
@@ -2328,7 +2115,7 @@ while two prefix arguments are equivalent to `--all'.
 
 (autoload 'magit-stash-keep-index "magit-stash" "\
 Create a stash of the index and working tree, keeping index intact.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'.
 
@@ -2336,7 +2123,7 @@ while two prefix arguments are equivalent to `--all'.
 
 (autoload 'magit-snapshot-both "magit-stash" "\
 Create a snapshot of the index and working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'.
 
@@ -2350,7 +2137,7 @@ Unstaged and untracked changes are not stashed.
 
 (autoload 'magit-snapshot-worktree "magit-stash" "\
 Create a snapshot of unstaged changes in the working tree.
-Untracked files are included according to popup arguments.
+Untracked files are included according to infix arguments.
 One prefix argument is equivalent to `--include-untracked'
 while two prefix arguments are equivalent to `--all'.
 
@@ -2422,10 +2209,36 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally.
 
 (autoload 'magit-status "magit-status" "\
 Show the status of the current Git repository in a buffer.
-With a prefix argument prompt for a repository to be shown.
-With two prefix arguments prompt for an arbitrary directory.
-If that directory isn't the root of an existing repository,
-then offer to initialize it as a new repository.
+
+If the current directory isn't located within a Git repository,
+then prompt for an existing repository or an arbitrary directory,
+depending on option `magit-repository-directories', and show the
+status of the selected repository instead.
+
+* If that option specifies any existing repositories, then offer
+  those for completion and show the status buffer for the
+  selected one.
+
+* Otherwise read an arbitrary directory using regular file-name
+  completion.  If the selected directory is the top-level of an
+  existing working tree, then show the status buffer for that.
+
+* Otherwise offer to initialize the selected directory as a new
+  repository.  After creating the repository show its status
+  buffer.
+
+These fallback behaviors can also be forced using one or more
+prefix arguments:
+
+* With two prefix arguments (or more precisely a numeric prefix
+  value of 16 or greater) read an arbitrary directory and act on
+  it as described above.  The same could be accomplished using
+  the command `magit-init'.
+
+* With a single prefix argument read an existing repository, or
+  if none can be found based on `magit-repository-directories',
+  then fall back to the same behavior as with two prefix
+  arguments.
 
 \(fn &optional DIRECTORY CACHE)" t nil)
 
@@ -2441,72 +2254,18 @@ then offer to initialize it as a new repository.
 ;;;### (autoloads nil "magit-submodule" "magit-submodule.el" (0 0
 ;;;;;;  0 0))
 ;;; Generated autoloads from magit-submodule.el
- (autoload 'magit-submodule-popup "magit-submodule" nil t)
-
-(autoload 'magit-submodule-add "magit-submodule" "\
-Add the repository at URL as a module.
-
-Optional PATH is the path to the module relative to the root of
-the superproject.  If it is nil, then the path is determined
-based on the URL.  Optional NAME is the name of the module.  If
-it is nil, then PATH also becomes the name.
-
-\(fn URL &optional PATH NAME ARGS)" t nil)
+ (autoload 'magit-submodule "magit-submodule" nil t)
+ (autoload 'magit-submodule-add "magit-submodule" nil t)
 
 (autoload 'magit-submodule-read-name-for-path "magit-submodule" "\
 
 
 \(fn PATH &optional PREFER-SHORT)" nil nil)
-
-(autoload 'magit-submodule-register "magit-submodule" "\
-Register MODULES.
-
-With a prefix argument act on all suitable modules.  Otherwise,
-if the region selects modules, then act on those.  Otherwise, if
-there is a module at point, then act on that.  Otherwise read a
-single module from the user.
-
-\(fn MODULES)" t nil)
-
-(autoload 'magit-submodule-populate "magit-submodule" "\
-Create MODULES working directories, checking out the recorded commits.
-
-With a prefix argument act on all suitable modules.  Otherwise,
-if the region selects modules, then act on those.  Otherwise, if
-there is a module at point, then act on that.  Otherwise read a
-single module from the user.
-
-\(fn MODULES)" t nil)
-
-(autoload 'magit-submodule-update "magit-submodule" "\
-Update MODULES by checking out the recorded commits.
-
-With a prefix argument act on all suitable modules.  Otherwise,
-if the region selects modules, then act on those.  Otherwise, if
-there is a module at point, then act on that.  Otherwise read a
-single module from the user.
-
-\(fn MODULES ARGS)" t nil)
-
-(autoload 'magit-submodule-synchronize "magit-submodule" "\
-Synchronize url configuration of MODULES.
-
-With a prefix argument act on all suitable modules.  Otherwise,
-if the region selects modules, then act on those.  Otherwise, if
-there is a module at point, then act on that.  Otherwise read a
-single module from the user.
-
-\(fn MODULES ARGS)" t nil)
-
-(autoload 'magit-submodule-unpopulate "magit-submodule" "\
-Remove working directories of MODULES.
-
-With a prefix argument act on all suitable modules.  Otherwise,
-if the region selects modules, then act on those.  Otherwise, if
-there is a module at point, then act on that.  Otherwise read a
-single module from the user.
-
-\(fn MODULES ARGS)" t nil)
+ (autoload 'magit-submodule-register "magit-submodule" nil t)
+ (autoload 'magit-submodule-populate "magit-submodule" nil t)
+ (autoload 'magit-submodule-update "magit-submodule" nil t)
+ (autoload 'magit-submodule-synchronize "magit-submodule" nil t)
+ (autoload 'magit-submodule-unpopulate "magit-submodule" nil t)
 
 (autoload 'magit-submodule-remove "magit-submodule" "\
 Unregister MODULES and remove their working directories.
@@ -2574,7 +2333,9 @@ Display a list of the current repository's submodules.
 
 ;;;### (autoloads nil "magit-subtree" "magit-subtree.el" (0 0 0 0))
 ;;; Generated autoloads from magit-subtree.el
- (autoload 'magit-subtree-popup "magit-subtree" nil t)
+ (autoload 'magit-subtree "magit-subtree" nil t)
+ (autoload 'magit-subtree-import "magit-subtree" nil t)
+ (autoload 'magit-subtree-export "magit-subtree" nil t)
 
 (autoload 'magit-subtree-add "magit-subtree" "\
 Add REF from REPOSITORY as a new subtree at PREFIX.
@@ -2612,7 +2373,7 @@ Extract the history of the subtree PREFIX.
 
 ;;;### (autoloads nil "magit-tag" "magit-tag.el" (0 0 0 0))
 ;;; Generated autoloads from magit-tag.el
- (autoload 'magit-tag-popup "magit" nil t)
+ (autoload 'magit-tag "magit" nil t)
 
 (autoload 'magit-tag-create "magit-tag" "\
 Create a new tag with the given NAME at REV.
@@ -2638,19 +2399,37 @@ Offer to delete tags missing locally from REMOTE, and vice versa.
 \(fn TAGS REMOTE-TAGS REMOTE)" t nil)
 
 (autoload 'magit-tag-release "magit-tag" "\
-Create an opinionated release tag.
+Create an annotated release tag.
 
-Assume version tags that match \"\\\\`v?[0-9]\\\\(\\\\.[0-9]\\\\)*\\\\'\".
-Prompt for the name of the new tag using the highest existing tag
-as initial input and call \"git tag --annotate --sign -m MSG\" TAG,
-regardless of whether these arguments are enabled in the popup.
-Given a TAG \"v1.2.3\" and a repository \"/path/to/foo-bar\", the
-MESSAGE would be \"Foo-Bar 1.2.3\".
+Assume that release tags match `magit-release-tag-regexp'.
 
-Because it is so opinionated, this command is not available from
-the tag popup by default.
+First prompt for the name of the new tag using the highest
+existing tag as initial input and leaving it to the user to
+increment the desired part of the version string.
 
-\(fn TAG)" t nil)
+Then prompt for the message of the new tag.  Base the proposed
+tag message on the message of the highest tag, provided that
+that contains the corresponding version string and substituting
+the new version string for that.  Otherwise propose something
+like \"Foo-Bar 1.2.3\", given, for example, a TAG \"v1.2.3\" and a
+repository located at something like \"/path/to/foo-bar\".
+
+Then call \"git tag --annotate --sign -m MSG TAG\" to create the,
+tag, regardless of whether these arguments are enabled in the
+popup.  Finally show the refs buffer to let the user quickly
+review the result.
+
+\(fn TAG MSG)" t nil)
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-tag" '("magit-")))
+
+;;;***
+
+;;;### (autoloads nil "magit-transient" "magit-transient.el" (0 0
+;;;;;;  0 0))
+;;; Generated autoloads from magit-transient.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-transient" '("magit-")))
 
 ;;;***
 
@@ -2772,7 +2551,7 @@ a Git repository.
 ;;;### (autoloads nil "magit-worktree" "magit-worktree.el" (0 0 0
 ;;;;;;  0))
 ;;; Generated autoloads from magit-worktree.el
- (autoload 'magit-worktree-popup "magit-worktree" nil t)
+ (autoload 'magit-worktree "magit-worktree" nil t)
 
 (autoload 'magit-worktree-checkout "magit-worktree" "\
 Checkout BRANCH in a new worktree at PATH.
@@ -2785,6 +2564,13 @@ Create a new BRANCH and check it out in a new worktree at PATH.
 \(fn PATH BRANCH START-POINT &optional FORCE)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-worktree" '("magit-")))
+
+;;;***
+
+;;;### (autoloads nil "transient" "transient.el" (0 0 0 0))
+;;; Generated autoloads from transient.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "transient" '("transient-" "post-transient-hook" "current-transient-" "define-")))
 
 ;;;***
 
@@ -2807,7 +2593,7 @@ commands to use the current Emacs instance as \"the editor\".
 
 This works in `shell-mode', `term-mode' and `eshell-mode'.
 
-\(fn &optional (envvar \"EDITOR\"))" t nil)
+\(fn &optional (ENVVAR \"EDITOR\"))" t nil)
 
 (autoload 'with-editor-export-git-editor "with-editor" "\
 Like `with-editor-export-editor' but always set `$GIT_EDITOR'.
@@ -2875,7 +2661,7 @@ else like the former.
 
 ;;;***
 
-;;;### (autoloads nil nil ("magit-core.el" "magit-obsolete.el" "magit-version.el")
+;;;### (autoloads nil nil ("magit-core.el" "magit-pkg.el" "magit-version.el")
 ;;;;;;  (0 0 0 0))
 
 ;;;***

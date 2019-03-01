@@ -1,6 +1,6 @@
 ;;; magit-status.el --- the grand overview  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -96,7 +96,7 @@ all."
   "The section point is placed on when a status buffer is created.
 
 When such a buffer is merely being refreshed or being shown again
-after it was merely burried, then this option has no effect.
+after it was merely buried, then this option has no effect.
 
 If this is nil, then point remains on the very first section as
 usual.  Otherwise it has to be a list of integers and section
@@ -190,10 +190,36 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
 ;;;###autoload
 (defun magit-status (&optional directory cache)
   "Show the status of the current Git repository in a buffer.
-With a prefix argument prompt for a repository to be shown.
-With two prefix arguments prompt for an arbitrary directory.
-If that directory isn't the root of an existing repository,
-then offer to initialize it as a new repository."
+
+If the current directory isn't located within a Git repository,
+then prompt for an existing repository or an arbitrary directory,
+depending on option `magit-repository-directories', and show the
+status of the selected repository instead.
+
+* If that option specifies any existing repositories, then offer
+  those for completion and show the status buffer for the
+  selected one.
+
+* Otherwise read an arbitrary directory using regular file-name
+  completion.  If the selected directory is the top-level of an
+  existing working tree, then show the status buffer for that.
+
+* Otherwise offer to initialize the selected directory as a new
+  repository.  After creating the repository show its status
+  buffer.
+
+These fallback behaviors can also be forced using one or more
+prefix arguments:
+
+* With two prefix arguments (or more precisely a numeric prefix
+  value of 16 or greater) read an arbitrary directory and act on
+  it as described above.  The same could be accomplished using
+  the command `magit-init'.
+
+* With a single prefix argument read an existing repository, or
+  if none can be found based on `magit-repository-directories',
+  then fall back to the same behavior as with two prefix
+  arguments."
   (interactive
    (let ((magit--refresh-cache (list (cons 0 0))))
      (list (and (or current-prefix-arg (not (magit-toplevel)))
@@ -212,8 +238,7 @@ then offer to initialize it as a new repository."
                        (format "%s is a repository.  Create another in %s? "
                                toplevel directory)
                      (format "Create repository in %s? " directory)))
-              ;; Creating a new repository will invalidate cached
-              ;; values.
+              ;; Creating a new repository invalidates cached values.
               (setq magit--refresh-cache nil)
               (magit-init directory))))
       (magit-status-internal default-directory))))
@@ -297,7 +322,7 @@ Type \\[magit-refresh] to refresh the current buffer.
 Type \\[magit-section-toggle] to expand or hide the section at point.
 Type \\[magit-visit-thing] to visit the change or commit at point.
 
-Type \\[magit-dispatch-popup] to see available prefix popups.
+Type \\[magit-dispatch] to invoke major commands.
 
 Staging and applying changes is documented in info node
 `(magit)Staging and Unstaging' and info node `(magit)Applying'.
@@ -310,7 +335,7 @@ Staging and applying changes is documented in info node
 \\[magit-reverse] to reverse it.
 
 \\<magit-status-mode-map>\
-Type \\[magit-commit-popup] to create a commit.
+Type \\[magit-commit] to create a commit.
 
 \\{magit-status-mode-map}"
   :group 'magit-status
@@ -426,6 +451,8 @@ detached `HEAD'."
   (let ((output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
+      (when (equal summary "")
+        (setq summary "(no commit message)"))
       (if branch
           (magit-insert-section (branch branch)
             (insert (format "%-10s" "Head: "))
@@ -438,7 +465,9 @@ detached `HEAD'."
         (magit-insert-section (commit commit)
           (insert (format "%-10s" "Head: "))
           (insert (propertize commit 'face 'magit-hash))
-          (insert ?\s summary ?\n))))))
+          (insert ?\s)
+          (insert (funcall magit-log-format-message-function nil summary))
+          (insert ?\n))))))
 
 (cl-defun magit-insert-upstream-branch-header
     (&optional (branch (magit-get-current-branch))
@@ -461,9 +490,11 @@ detached `HEAD'."
           (pcase-let ((`(,url ,branch) (split-string pull " ")))
             (insert branch " from " url " "))
         (insert pull " ")
-        (--if-let (and (magit-rev-verify pull)
-                       (magit-rev-format "%s" pull))
-            (insert (funcall magit-log-format-message-function pull it))
+        (if (magit-rev-verify pull)
+            (insert (funcall magit-log-format-message-function pull
+                             (funcall magit-log-format-message-function nil
+                                      (or (magit-rev-format "%s" pull)
+                                          "(no commit message)"))))
           (insert (propertize "is missing" 'face 'font-lock-warning-face))))
       (insert ?\n))))
 
@@ -478,9 +509,11 @@ detached `HEAD'."
                        (magit-rev-format "%h" push))
         (insert (propertize it 'face 'magit-hash) ?\s))
       (insert (propertize push 'face 'magit-branch-remote) ?\s)
-      (--if-let (and (magit-rev-verify push)
-                     (magit-rev-format "%s" push))
-          (insert (funcall magit-log-format-message-function push it))
+      (if (magit-rev-verify push)
+          (insert (funcall magit-log-format-message-function push
+                           (funcall magit-log-format-message-function nil
+                                    (or (magit-rev-format "%s" push)
+                                        "(no commit message)"))))
         (insert (propertize "is missing" 'face 'font-lock-warning-face)))
       (insert ?\n))))
 

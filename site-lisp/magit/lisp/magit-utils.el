@@ -1,6 +1,6 @@
 ;;; magit-utils.el --- various utilities  -*- lexical-binding: t; coding: utf-8 -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -56,9 +56,10 @@
 (eval-when-compile (require 'vc-git))
 (declare-function vc-git--run-command-string "vc-git" (file &rest args))
 
-(defvar magit-wip-before-change-mode)
+(eval-when-compile (require 'which-func))
+(declare-function which-function "which-func" ())
 
-(require 'magit-popup)
+(defvar magit-wip-before-change-mode)
 
 ;;; Options
 
@@ -91,12 +92,14 @@ alphabetical order, depending on your version of Ivy."
     (magit-stash-format-patch nil t)
     (magit-stash-drop         nil ask)
     (magit-stash-pop          nil ask)
+    (forge-browse-dwim        nil t)
     (forge-browse-commit      nil t)
     (forge-browse-branch      nil t)
     (forge-browse-remote      nil t)
     (forge-browse-issue       nil t)
     (forge-browse-pullreq     nil t)
     (forge-edit-topic-title   nil t)
+    (forge-edit-topic-state   nil t)
     (forge-edit-topic-labels  nil t)
     (forge-edit-topic-assignees nil t)
     (forge-visit-issue        nil t)
@@ -706,7 +709,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (replace-regexp-in-string
      "-" " " (concat (upcase (substring prompt 0 1)) (substring prompt 1)))))
 
-(defun magit-read-number-string (prompt &optional default)
+(defun magit-read-number-string (prompt &optional default _history)
   "Like `read-number' but return value is a string.
 DEFAULT may be a number or a numeric string."
   (number-to-string
@@ -738,12 +741,8 @@ See info node `(magit)Debugging Tools' for more information."
                            (error "Cannot find mandatory dependency %s" lib)))))
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "dash"
-                       "ghub"
-                       "graphql"
                        "lv"
-                       "magit-popup"
                        "transient"
-                       "treepy"
                        "with-editor"
                        ;; Obviously `magit' itself is needed too.
                        "magit"
@@ -887,6 +886,41 @@ that it will align with the text area."
   (interactive)
   (kill-buffer (current-buffer)))
 
+(defun magit--buffer-string (&optional min max trim)
+  "Like `buffer-substring-no-properties' but the arguments are optional.
+
+This combines the benefits of `buffer-string', `buffer-substring'
+and `buffer-substring-no-properties' into one function that is
+not as painful to use as the latter.  I.e. you can write
+  (magit--buffer-string)
+instead of
+  (buffer-substring-no-properties (point-min)
+                                  (point-max))
+
+Optional MIN defaults to the value of `point-min'.
+Optional MAX defaults to the value of `point-max'.
+
+If optional TRIM is non-nil, then all leading and trailing
+whitespace is remove.  If it is the newline character, then
+one trailing newline is added."
+  ;; Lets write that one last time and be done with it:
+  (let ((str (buffer-substring-no-properties (or min (point-min))
+                                             (or max (point-max)))))
+    (if trim
+        (concat (string-trim str)
+                (and (eq trim ?\n) "\n"))
+      str)))
+
+(cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
+  (cl-find-if (lambda (o)
+                (let ((p (overlay-properties o)))
+                  (and (plist-member p prop)
+                       (or (not sval)
+                           (funcall (or testfn #'eql)
+                                    (plist-get p prop)
+                                    val)))))
+              (overlays-at pos t)))
+
 ;;; Kludges for Emacs Bugs
 
 (defun magit-file-accessible-directory-p (filename)
@@ -958,6 +992,15 @@ and https://github.com/magit/magit/issues/2295."
           ;; This `nreverse' call is the only code change made to the
           ;; `completion-pcm--all-completions' that shipped with Emacs 25.1.
           (nreverse poss))))))
+
+(defun magit-which-function ()
+  "Return current function name based on point.
+
+This is a simple wrapper around `which-function', that resets
+Imenu's potentially outdated and therefore unreliable cache by
+setting `imenu--index-alist' to nil before calling that function."
+  (setq imenu--index-alist nil)
+  (which-function))
 
 ;;; Kludges for Incompatible Modes
 
@@ -1047,7 +1090,7 @@ or (last of all) the value of EXP."
               (`woman (require 'woman)
                       (woman (match-string 1 node)))
               (_
-               (user-error "Invalid value for `magit-view-git-documentation'")))
+               (user-error "Invalid value for `magit-view-git-manual-method'")))
           (funcall fn fork)))
     (funcall fn fork)))
 
@@ -1077,6 +1120,67 @@ the %s(1) manpage.
 ;;;###autoload
 (advice-add 'org-man-export :around
             'org-man-export--magit-gitman)
+
+;;; Bitmaps
+
+(when (fboundp 'define-fringe-bitmap)
+  (define-fringe-bitmap 'magit-fringe-bitmap+
+    [#b00000000
+     #b00011000
+     #b00011000
+     #b01111110
+     #b01111110
+     #b00011000
+     #b00011000
+     #b00000000])
+  (define-fringe-bitmap 'magit-fringe-bitmap-
+    [#b00000000
+     #b00000000
+     #b00000000
+     #b01111110
+     #b01111110
+     #b00000000
+     #b00000000
+     #b00000000])
+
+  (define-fringe-bitmap 'magit-fringe-bitmap>
+    [#b01100000
+     #b00110000
+     #b00011000
+     #b00001100
+     #b00011000
+     #b00110000
+     #b01100000
+     #b00000000])
+  (define-fringe-bitmap 'magit-fringe-bitmapv
+    [#b00000000
+     #b10000010
+     #b11000110
+     #b01101100
+     #b00111000
+     #b00010000
+     #b00000000
+     #b00000000])
+
+  (define-fringe-bitmap 'magit-fringe-bitmap-bold>
+    [#b11100000
+     #b01110000
+     #b00111000
+     #b00011100
+     #b00011100
+     #b00111000
+     #b01110000
+     #b11100000])
+  (define-fringe-bitmap 'magit-fringe-bitmap-boldv
+    [#b10000001
+     #b11000011
+     #b11100111
+     #b01111110
+     #b00111100
+     #b00011000
+     #b00000000
+     #b00000000])
+  )
 
 ;;; Miscellaneous
 

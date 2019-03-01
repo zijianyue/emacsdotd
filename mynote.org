@@ -15,7 +15,7 @@
 #+LATEX_HEADER: \date{\today}
 #+LATEX_HEADER: \title{Org导出中文PDF}
 #+OPTIONS: \n:t
-
+ams666.com amsdizhi.com
 * git
 ** git避免输入用户名密码
 HOME目录下创建.git-credentials

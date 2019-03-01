@@ -1,6 +1,6 @@
 ;;; magit-merge.el --- merge functionality  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -36,25 +36,44 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-merge-popup "magit" nil t)
-(magit-define-popup magit-merge-popup
-  "Popup console for merge commands."
+;;;###autoload (autoload 'magit-merge "magit" nil t)
+(define-transient-command magit-merge ()
+  "Merge branches."
   :man-page "git-merge"
-  :switches '((?f "Fast-forward only" "--ff-only")
-              (?n "No fast-forward"   "--no-ff"))
-  :options  '((?s "Strategy" "--strategy="))
-  :actions  '((?m "Merge"                  magit-merge-plain)
-              (?p "Preview merge"          magit-merge-preview)
-              (?e "Merge and edit message" magit-merge-editmsg) nil
-              (?n "Merge but don't commit" magit-merge-nocommit)
-              (?s "Squash merge"           magit-merge-squash)
-              (?a "Absorb"                 magit-merge-absorb)
-              (?i "Merge into"             magit-merge-into))
-  :sequence-actions   '((?m "Commit merge" magit-commit-create)
-                        (?a "Abort merge"  magit-merge-abort))
-  :sequence-predicate 'magit-merge-in-progress-p
-  :default-action 'magit-merge
-  :max-action-columns 2)
+  ["Arguments"
+   :if-not magit-merge-in-progress-p
+   ("-f" "Fast-forward only" "--ff-only")
+   ("-n" "No fast-forward"   "--no-ff")
+   (magit-merge:--strategy)
+   (5 magit:--gpg-sign)]
+  ["Actions"
+   :if-not magit-merge-in-progress-p
+   [("m" "Merge"                  magit-merge-plain)
+    ("e" "Merge and edit message" magit-merge-editmsg)
+    ("n" "Merge but don't commit" magit-merge-nocommit)
+    ("a" "Absorb"                 magit-merge-absorb)]
+   [("p" "Preview merge"          magit-merge-preview)
+    ?\n
+    ("s" "Squash merge"           magit-merge-squash)
+    ("i" "Merge into"             magit-merge-into)]]
+  ["Actions"
+   :if magit-merge-in-progress-p
+   ("m" "Commit merge" magit-commit-create)
+   ("a" "Abort merge"  magit-merge-abort)])
+
+(defun magit-merge-arguments ()
+  (transient-args 'magit-merge))
+
+(define-infix-argument magit-merge:--strategy ()
+  :description "Strategy"
+  :class 'transient-option
+  ;; key for merge: "-s"
+  ;; key for cherry-pick and revert: "=s"
+  ;; shortarg for merge: "-s"
+  ;; shortarg for cherry-pick and revert: none
+  :key "-s"
+  :argument "--strategy="
+  :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
@@ -106,7 +125,7 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
+if `forge-branch-pullreq' was used to create the merged branch,
 branch, then also remove the respective remote branch."
   (interactive
    (list (magit-read-other-local-branch
@@ -128,8 +147,8 @@ Before merging, force push the source branch to its push-remote,
 provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
-if `magit-branch-pull-request' was used to create the merged
-branch, then also remove the respective remote branch."
+if `forge-branch-pullreq' was used to create the merged branch,
+then also remove the respective remote branch."
   (interactive (list (magit-read-other-local-branch "Absorb branch")
                      (magit-merge-arguments)))
   (magit--merge-absort branch args))

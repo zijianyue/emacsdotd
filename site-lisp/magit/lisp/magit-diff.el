@@ -1,6 +1,6 @@
 ;;; magit-diff.el --- inspect Git diffs  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -46,14 +46,18 @@
 (defvar gravatar-size)
 ;; For `magit-show-commit' and `magit-diff-show-or-scroll'
 (declare-function magit-current-blame-chunk "magit-blame" ())
-(eval-when-compile
-  (cl-pushnew 'orig-rev eieio--known-slot-names))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 (defvar git-rebase-line)
 ;; For `magit-diff-unmerged'
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))
+;; For `magit-diff--dwim'
+(declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
+
+(eval-when-compile
+  (cl-pushnew 'base-ref eieio--known-slot-names)
+  (cl-pushnew 'orig-rev eieio--known-slot-names))
 
 (require 'diff-mode)
 (require 'smerge-mode)
@@ -158,14 +162,22 @@ keep their distinct foreground colors."
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
-nil    never show fine differences.
-t      show fine differences for the current diff hunk only.
-`all'  show fine differences for all displayed diff hunks."
+nil    Never show fine differences.
+t      Show fine differences for the current diff hunk only.
+`all'  Show fine differences for all displayed diff hunks."
   :group 'magit-diff
   :safe (lambda (val) (memq val '(nil t all)))
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Current" t)
                  (const :tag "All" all)))
+
+(defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
+  "Whether to ignore whitespace changes in word-granularity differences."
+  :package-version '(magit . "2.91.0")
+  :set-after '(smerge-refine-ignore-whitespace)
+  :group 'magit-diff
+  :safe 'booleanp
+  :type 'boolean)
 
 (put 'magit-diff-refine-hunk 'permanent-local t)
 
@@ -177,7 +189,7 @@ opening large and/or many files, so the widths are cached in
 the variable `magit-diff--tab-width-cache'.  Set that to nil
 to invalidate the cache.
 
-nil       Never ajust tab width.  Use `tab-width's value from
+nil       Never adjust tab width.  Use `tab-width's value from
           the Magit buffer itself instead.
 
 t         If the corresponding file-visiting buffer exits, then
@@ -192,22 +204,46 @@ NUMBER    Like `always', but don't visit files larger than NUMBER
           bytes."
   :package-version '(magit . "2.12.0")
   :group 'magit-diff
-  :type '(choice (const :tag "Never" nil)
-                 (const :tag "If file-visiting buffer exists" t)
-                 (const :tag "... or file isn't larger than bytes" all)
-                 (const :tag "Always" always)))
+  :type '(choice (const   :tag "Never" nil)
+                 (const   :tag "If file-visiting buffer exists" t)
+                 (integer :tag "If file isn't larger than N bytes")
+                 (const   :tag "Always" always)))
 
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
-See `magit-diff-highlight-trailing',
-`magit-diff-highlight-indentation'.  The symbol t means in all
-diffs, `status' means only in the status buffer, and nil means
-nowhere."
+
+nil            Never highlight whitespace errors.
+t              Highlight whitespace errors everywhere.
+`uncommitted'  Only highlight whitespace errors in diffs
+               showing uncommitted changes.
+
+For backward compatibility `status' is treated as a synonym
+for `uncommitted'.
+
+The option `magit-diff-paint-whitespace-lines' controls for
+what lines (added/remove/context) errors are highlighted.
+
+The options `magit-diff-highlight-trailing' and
+`magit-diff-highlight-indentation' control what kind of
+whitespace errors are highlighted."
   :group 'magit-diff
-  :safe (lambda (val) (memq val '(t nil status)))
-  :type '(choice (const :tag "Always" t)
-                 (const :tag "Never" nil)
-                 (const :tag "In status buffer" status)))
+  :safe (lambda (val) (memq val '(t nil uncommitted status)))
+  :type '(choice (const :tag "In all diffs" t)
+                 (const :tag "Only in uncommitted changes" uncommitted)
+                 (const :tag "Never" nil)))
+
+(defcustom magit-diff-paint-whitespace-lines t
+  "Specify in what kind of lines to highlight whitespace errors.
+
+t         Highlight only in added lines.
+`both'    Highlight in added and removed lines.
+`all'     Highlight in added, removed and context lines."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-diff
+  :safe (lambda (val) (memq val '(t both all)))
+  :type '(choice (const :tag "in added lines" t)
+                 (const :tag "in added and removed lines" both)
+                 (const :tag "in added, removed and context lines" all)))
 
 (defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
@@ -625,82 +661,62 @@ and `:slant'."
 ;;; Commands
 ;;;; Diff popups
 
-(defconst magit-diff-popup-common-keywords
-  '(:variable magit-diff-arguments
-              :man-page "git-diff"))
+(define-transient-command magit-diff ()
+  "Show changes between different versions."
+  :man-page "git-diff"
+  :value 'magit-diff--initial-value
+  ["Limit arguments"
+   (magit:--)
+   (magit-diff:--ignore-submodules)
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+  ["Context arguments"
+   (magit-diff:-U)
+   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+  ["Tune arguments"
+   (magit-diff:--diff-algorithm)
+   (magit-diff:-M)
+   (magit-diff:-C)
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat")]
+  ["Actions"
+   [("d" "Dwim"          magit-diff-dwim)
+    ("r" "Diff range"    magit-diff-range)
+    ("p" "Diff paths"    magit-diff-paths)]
+   [("u" "Diff unstaged" magit-diff-unstaged)
+    ("s" "Diff staged"   magit-diff-staged)
+    ("w" "Diff worktree" magit-diff-working-tree)]
+   [("c" "Show commit"   magit-show-commit)
+    ("t" "Show stash"    magit-stash-show)]])
 
-(defconst magit-diff-popup-common-options
-  '((?f "Limit to files" "-- " magit-read-files)
-    (?u "Context lines"  "-U")
-    (?m "Detect renames" "-M")
-    (?c "Detect copies"  "-C")
-    (?a "Diff algorithm" "--diff-algorithm=" magit-diff-select-algorithm)
-    (?i "Ignore submodules" "--ignore-submodules="
-        magit-diff-select-ignore-submodules)))
-
-(defconst magit-diff-popup-common-switches
-  '((?f "Show surrounding functions"     "--function-context")
-    (?b "Ignore whitespace changes"      "--ignore-space-change")
-    (?w "Ignore all whitespace"          "--ignore-all-space")
-    (?x "Disallow external diff drivers" "--no-ext-diff")))
-
-(defvar magit-diff-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?d "Dwim"          magit-diff-dwim)
-               (?u "Diff unstaged" magit-diff-unstaged)
-               (?c "Show commit"   magit-show-commit)
-               (?r "Diff range"    magit-diff-range)
-               (?s "Diff staged"   magit-diff-staged)
-               (?t "Show stash"    magit-stash-show)
-               (?p "Diff paths"    magit-diff-paths)
-               (?w "Diff worktree" magit-diff-working-tree))
-    :default-action magit-diff-dwim
-    :max-action-columns 3))
-
-(defvar magit-diff-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches ,magit-diff-popup-common-switches
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
-               (?w "Save defaults"          magit-diff-save-default-arguments))
-    :max-action-columns 2))
-
-(defvar magit-diff-mode-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?r "Switch range type"      magit-diff-switch-range-type)
-               (?w "Save defaults"          magit-diff-save-default-arguments)
-               (?f "Flip revisions"         magit-diff-flip-revs) nil
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter))
-    :max-action-columns 2))
-
-(defvar magit-revision-mode-refresh-popup
-  `(,@magit-diff-popup-common-keywords
-    :options  ,magit-diff-popup-common-options
-    :switches (,@magit-diff-popup-common-switches
-               (?s "Show stats" "--stat"))
-    :actions  ((?g "Refresh"                magit-diff-refresh)
-               (?t "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
-               (?s "Set defaults"           magit-diff-set-default-arguments)
-               (?F "Toggle file filter"     magit-diff-toggle-file-filter)
-               (?w "Save defaults"          magit-diff-save-default-arguments))
-    :max-action-columns 2))
-
-(magit-define-popup-keys-deferred 'magit-diff-popup)
-(magit-define-popup-keys-deferred 'magit-diff-refresh-popup)
-(magit-define-popup-keys-deferred 'magit-diff-mode-refresh-popup)
-(magit-define-popup-keys-deferred 'magit-revision-mode-refresh-popup)
+(define-transient-command magit-diff-refresh ()
+  "Change the arguments used for the diff(s) in the current buffer."
+  :man-page "git-diff"
+  :value 'magit-diff-refresh--initial-value
+  ["Limit arguments"
+   (magit:--)
+   (magit-diff:--ignore-submodules)
+   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))]
+  ["Context arguments"
+   (magit-diff:-U)
+   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+  ["Tune arguments"
+   (magit-diff:--diff-algorithm)
+   (magit-diff:-M)
+   (magit-diff:-C)
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat"
+    :if-derived magit-diff-mode)]
+  ["Actions"
+   [("g" "Refresh"                magit-diff-do-refresh)
+    ("s" "Set defaults"           magit-diff-set-default-arguments)
+    ("w" "Save defaults"          magit-diff-save-default-arguments)]
+   [("t" "Toggle hunk refinement" magit-diff-toggle-refine-hunk)
+    ("F" "Toggle file filter"     magit-diff-toggle-file-filter)]
+   [:if-mode magit-diff-mode
+    ("r" "Switch range type"      magit-diff-switch-range-type)
+    ("f" "Flip revisions"         magit-diff-flip-revs)]])
 
 (defvar magit-diff-section-file-args nil)
 (put 'magit-diff-section-file-args 'permanent-local t)
@@ -709,75 +725,95 @@ and `:slant'."
        (and (listp val)
             (-all-p #'stringp val))))
 
+(defun magit-diff--initial-value ()
+  (if-let ((file (magit-file-relative-name)))
+      (magit-diff--merge-args
+       (if-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
+           (nth 3 (buffer-local-value 'magit-refresh-args buffer))
+         (default-value 'magit-diff-arguments))
+       (list file))
+    ;; We cannot possibly know what suffix command the user is
+    ;; about to invoke, so we also don't know from which buffer
+    ;; we should get the current values.  However it is much
+    ;; more likely that we will end up updating the diff buffer,
+    ;; and we therefore use the value from that buffer.
+    (apply #'magit-diff--merge-args (magit-diff-get-buffer-args))))
+
+(defun magit-diff-refresh--initial-value ()
+  (if (derived-mode-p 'magit-diff-mode)
+      (magit-diff--merge-args (nth 2 magit-refresh-args)
+                              (nth 3 magit-refresh-args))
+    (magit-diff--merge-args magit-diff-section-arguments
+                            magit-diff-section-file-args)))
+
+(defun magit-diff--merge-args (args files)
+  (if files
+      (cons (cons "--" files) args)
+    args))
+
 (defun magit-diff-get-buffer-args ()
   (cond ((and magit-use-sticky-arguments
               (derived-mode-p 'magit-diff-mode))
          (list (nth 2 magit-refresh-args)
                (nth 3 magit-refresh-args)))
         ((and (eq magit-use-sticky-arguments t)
-              (--when-let (magit-mode-get-buffer 'magit-diff-mode)
-                (with-current-buffer it
-                  (list (nth 2 magit-refresh-args)
-                        (nth 3 magit-refresh-args))))))
+              (when-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
+                (let ((args (buffer-local-value 'magit-refresh-args buffer)))
+                  (list (nth 2 args)
+                        (nth 3 args))))))
         (t
          (list (default-value 'magit-diff-arguments) nil))))
 
 (defun magit-diff-arguments (&optional refresh)
-  (cond ((memq magit-current-popup '(magit-diff-popup magit-diff-refresh-popup))
-         (magit-popup-export-file-args magit-current-popup-args))
-        ((and refresh (not (derived-mode-p 'magit-diff-mode)))
-         (list magit-diff-section-arguments
-               magit-diff-section-file-args))
-        (t
-         (magit-diff-get-buffer-args))))
+  (if-let ((args (or (transient-args 'magit-diff)
+                     (transient-args 'magit-diff-refresh))))
+      (list (-filter #'stringp args)
+            (cdr (assoc "--" args)))
+    (if (and refresh (not (derived-mode-p 'magit-diff-mode)))
+        (list magit-diff-section-arguments
+              magit-diff-section-file-args)
+      (magit-diff-get-buffer-args))))
 
-;;;###autoload
-(defun magit-diff-popup (arg)
-  "Popup console for diff commands."
-  (interactive "P")
-  (let ((magit-diff-arguments
-         ;; We cannot possibly know what suffix command the user is
-         ;; about to invoke, so we also don't know from which buffer
-         ;; we should get the current values.  However it is much
-         ;; more likely that we will end up updating the diff buffer,
-         ;; and we therefore use the value from that buffer.
-         (apply #'magit-popup-import-file-args (magit-diff-get-buffer-args))))
-    (magit-invoke-popup 'magit-diff-popup nil arg)))
+;;;; Infix Arguments
 
-;;;###autoload
-(defun magit-diff-buffer-file-popup ()
-  "Popup console for diff commands.
+(define-infix-argument magit:-- ()
+  :description "Limit to files"
+  :class 'transient-files
+  :key "--"
+  :argument "--"
+  :prompt "Limit to file(s): "
+  :reader 'magit-read-files
+  :multi-value t)
 
-This is a variant of `magit-diff-popup' which shows the same popup
-but which limits the diff to the file being visited in the current
-buffer."
-  (interactive)
-  (if-let ((file (magit-file-relative-name)))
-      (let ((magit-diff-arguments
-             (magit-popup-import-file-args
-              (if-let ((buffer (magit-mode-get-buffer 'magit-diff-mode)))
-                  (with-current-buffer buffer
-                    (nth 3 magit-refresh-args))
-                (default-value 'magit-diff-arguments))
-              (list file))))
-        (magit-invoke-popup 'magit-diff-popup nil nil))
-    (user-error "Buffer isn't visiting a file")))
+(defun magit-read-files (prompt initial-input history)
+  (magit-completing-read-multiple* prompt
+                                   (magit-list-files)
+                                   nil nil initial-input history))
 
-(defun magit-diff-refresh-popup (arg)
-  "Popup console for changing diff arguments in the current buffer."
-  (interactive "P")
-  (let ((magit-diff-refresh-popup
-         (pcase major-mode
-           (`magit-revision-mode magit-revision-mode-refresh-popup)
-           (`magit-diff-mode     magit-diff-mode-refresh-popup)
-           (_                    magit-diff-refresh-popup)))
-        (magit-diff-arguments
-         (if (derived-mode-p 'magit-diff-mode)
-             (magit-popup-import-file-args (nth 2 magit-refresh-args)
-                                           (nth 3 magit-refresh-args))
-           (magit-popup-import-file-args magit-diff-section-arguments
-                                         magit-diff-section-file-args))))
-    (magit-invoke-popup 'magit-diff-refresh-popup nil arg)))
+(define-infix-argument magit-diff:-U ()
+  :description "Context lines"
+  :class 'transient-option
+  :argument "-U"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:-M ()
+  :description "Detect renames"
+  :class 'transient-option
+  :argument "-M"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:-C ()
+  :description "Detect copies"
+  :class 'transient-option
+  :argument "-C"
+  :reader 'transient-read-number-N+)
+
+(define-infix-argument magit-diff:--diff-algorithm ()
+  :description "Diff algorithm"
+  :class 'transient-option
+  :key "-A"
+  :argument "--diff-algorithm="
+  :reader 'magit-diff-select-algorithm)
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
@@ -785,6 +821,13 @@ buffer."
     (?m "[m]inimal"   "minimal")
     (?p "[p]atience"  "patience")
     (?h "[h]istogram" "histogram")))
+
+(define-infix-argument magit-diff:--ignore-submodules ()
+  :description "Ignore submodules"
+  :class 'transient-option
+  :key "-i"
+  :argument "--ignore-submodules="
+  :reader 'magit-diff-select-ignore-submodules)
 
 (defun magit-diff-select-ignore-submodules (&rest _ignored)
   (magit-read-char-case "Ignore submodules " t
@@ -871,7 +914,11 @@ If no DWIM context is found, nil is returned."
                           (or current "HEAD")
                           atpoint))))
       (commit (cons 'commit (oref it value)))
-      (stash (cons 'stash (oref it value)))))))
+      (stash (cons 'stash (oref it value)))
+      (pullreq (let ((pullreq (oref it value)))
+                 (format "%s...%s"
+                         (oref pullreq base-ref)
+                         (forge--pullreq-ref pullreq))))))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
@@ -1058,13 +1105,13 @@ for a revision."
     (when module
       (setq default-directory
             (expand-file-name (file-name-as-directory module))))
-    (unless (magit-rev-verify-commit rev)
+    (unless (magit-commit-p rev)
       (user-error "%s is not a commit" rev))
     (magit-mode-setup #'magit-revision-mode rev nil args files)))
 
 ;;;; Setting commands
 
-(defun magit-diff-refresh (args files)
+(defun magit-diff-do-refresh (args files)
   "Set the local diff arguments for the current buffer."
   (interactive (magit-diff-arguments t))
   (cond ((derived-mode-p 'magit-diff-mode)
@@ -1354,7 +1401,7 @@ whether `magit-diff-visit-file' uses this function."
 With a prefix argument display it in the current window.
 Option `magit-display-file-buffer-function' controls
 whether `magit-diff-visit-file' uses this function."
-  (if (or current-prefix-arg (get-buffer-window buffer))
+  (if current-prefix-arg
       (switch-to-buffer buffer)
     (pop-to-buffer buffer)))
 
@@ -2090,12 +2137,12 @@ or a ref which is not a branch, then it inserts nothing."
                             (`quicker  ; false negatives (number-less hashes)
                              (and (>= (length text) 7)
                                   (string-match-p "[0-9]" text)
-                                  (magit-rev-verify-commit text)))
+                                  (magit-commit-p text)))
                             (`quick    ; false negatives (short hashes)
                              (and (>= (length text) 7)
-                                  (magit-rev-verify-commit text)))
+                                  (magit-commit-p text)))
                             (`slow
-                             (magit-rev-verify-commit text)))
+                             (magit-commit-p text)))
                       (put-text-property beg (point) 'face 'magit-hash)
                       (let ((end (point)))
                         (goto-char beg)
@@ -2546,6 +2593,7 @@ are highlighted."
         (goto-char (oref section start))
         (let ((end (oref section end))
               (merging (looking-at "@@@"))
+              (diff-type (magit-diff-type))
               (stage nil)
               (tab-width (magit-diff-tab-width
                           (magit-section-parent-value section))))
@@ -2570,14 +2618,16 @@ are highlighted."
                'magit-diff-conflict-heading)
               ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
                (magit-diff-paint-tab merging tab-width)
-               (magit-diff-paint-whitespace merging)
+               (magit-diff-paint-whitespace merging 'added diff-type)
                (or stage
                    (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
               ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
                (magit-diff-paint-tab merging tab-width)
+               (magit-diff-paint-whitespace merging 'removed diff-type)
                (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
               (t
                (magit-diff-paint-tab merging tab-width)
+               (magit-diff-paint-whitespace merging 'context diff-type)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))))
   (magit-diff-update-hunk-refinement section))
@@ -2619,11 +2669,15 @@ are highlighted."
                          'display (list (list 'space :width width)))
       (forward-char))))
 
-(defun magit-diff-paint-whitespace (merging)
+(defun magit-diff-paint-whitespace (merging line-type diff-type)
   (when (and magit-diff-paint-whitespace
-             (or (derived-mode-p 'magit-status-mode)
-                 (not (eq magit-diff-paint-whitespace 'status))))
-    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+]"))
+             (or (not (memq magit-diff-paint-whitespace '(uncommitted status)))
+                 (memq diff-type '(staged unstaged)))
+             (cl-case line-type
+               (added   t)
+               (removed (memq magit-diff-paint-whitespace-lines '(all both)))
+               (context (memq magit-diff-paint-whitespace-lines '(all)))))
+    (let ((prefix (if merging "^[-\\+\s]\\{2\\}" "^[-\\+\s]"))
           (indent
            (if (local-variable-p 'magit-diff-highlight-indentation)
                magit-diff-highlight-indentation
@@ -2637,6 +2691,7 @@ are highlighted."
                  (looking-at (concat prefix ".*?\\([ \t]+\\)$")))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
           (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t)))
       (when (or (and (eq indent 'tabs)
                      (looking-at (concat prefix "\\( *\t[ \t]*\\)")))
@@ -2645,6 +2700,7 @@ are highlighted."
                                          prefix indent))))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))
           (overlay-put ov 'face 'magit-diff-whitespace-warning)
+          (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t))))))
 
 (defun magit-diff-update-hunk-refinement (&optional section)
@@ -2659,8 +2715,10 @@ are highlighted."
              (goto-char (oref section start))
              ;; `diff-refine-hunk' does not handle combined diffs.
              (unless (looking-at "@@@")
-               ;; Avoid fsyncing many small temp files
-               (let ((write-region-inhibit-fsync t))
+               (let ((smerge-refine-ignore-whitespace
+                      magit-diff-refine-ignore-whitespace)
+                     ;; Avoid fsyncing many small temp files
+                     (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
           ((or `(nil t ,_) `(t t nil))
            (oset section refined nil)
@@ -2786,8 +2844,8 @@ last (visual) lines of the region."
 (defun magit-diff-inside-hunk-body-p ()
   "Return non-nil if point is inside the body of a hunk."
   (and (magit-section-match 'hunk)
-       (> (point)
-          (oref (magit-current-section) content))))
+       (when-let ((content (oref (magit-current-section) content)))
+         (> (point) content))))
 
 ;;; Diff Extract
 

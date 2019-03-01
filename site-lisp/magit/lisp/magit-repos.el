@@ -1,6 +1,6 @@
 ;;; magit-repos.el --- listing repositories  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -40,16 +40,18 @@
 
 ;;; Options
 
-(defcustom magit-repository-directories
-  '(("~/.emacs.d/"     . 0)  ; this should always be a repository
-    ("~/.emacs.d/lib/" . 1)) ; useful for `borg' users
+(defcustom magit-repository-directories nil
   "List of directories that are or contain Git repositories.
 
 Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has
 to be a directory or a directory file-name, a string.  DEPTH,
 an integer, specifies the maximum depth to look for Git
-repositories.  If it is 0, then only add DIRECTORY itself."
-  :package-version '(magit . "2.90.0")
+repositories.  If it is 0, then only add DIRECTORY itself.
+
+This option controls which repositories are being listed by
+`magit-list-repositories'.  It also affects `magit-status'
+\(which see) in potentially surprising ways."
+  :package-version '(magit . "2.91.0")
   :group 'magit-essentials
   :type '(repeat (cons directory (integer :tag "Depth"))))
 
@@ -139,7 +141,7 @@ repositories are displayed."
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
   "Major mode for browsing a list of Git repositories."
-  (setq x-stretch-cursor        nil)
+  (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Path" nil))
   (setq tabulated-list-format
@@ -179,10 +181,10 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-version (_id)
   "Insert a description of the repository's `HEAD' revision."
-  (let ((v (or (magit-git-string "describe" "--tags" "--dirty")
-               ;; If there are no tags, use the date in MELPA format.
-               (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
-                                 "--date=format:%Y%m%d.%H%M"))))
+  (when-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
+                    ;; If there are no tags, use the date in MELPA format.
+                    (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
+                                      "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
       (when (string-match "-dirty\\'" v)
         (put-text-property (1+ (match-beginning 0)) (length v) 'face 'error v))
@@ -255,8 +257,10 @@ the basenames are prefixed with the name of the respective
 parent directories.  The returned value is the actual path
 to the selected repository.
 
-With prefix argument simply read a directory name using
-`read-directory-name'."
+If READ-DIRECTORY-NAME is non-nil or no repositories can be
+found based on the value of `magit-repository-directories',
+then read an arbitrary directory using `read-directory-name'
+instead."
   (if-let ((repos (and (not read-directory-name)
                        magit-repository-directories
                        (magit-list-repos-uniquify
