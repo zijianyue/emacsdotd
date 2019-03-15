@@ -5,7 +5,7 @@
 ;; (package-initialize)
 ;; 目录复杂的移到.emacs.d目录下并专门指定load-path，防止load-path过多
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/all-the-icons.el"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/expand-region"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/expand-region.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/evil"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
@@ -19,7 +19,8 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/doom-modeline"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/helm"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/phi-search-master"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-box"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell-master"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -306,7 +307,7 @@
  '(dired-recursive-deletes (quote always))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(electric-indent-mode t)
- '(electric-pair-inhibit-predicate (quote electric-pair-default-inhibit))
+ '(electric-pair-inhibit-predicate (quote electric-pair-conservative-inhibit))
  '(electric-pair-mode t)
  '(enable-local-variables :all)
  '(enable-recursive-minibuffers t)
@@ -536,6 +537,8 @@
 
 (eval-after-load "company"
   '(progn
+     (require 'company-box)
+     (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -1492,7 +1495,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
-
+  ;; (require 'lsp-treemacs)               ;lsp-treemacs-errors-list
+  ;; (lsp-treemacs-errors-list)
 
   (add-hook 'java-mode-hook #'lsp)
   (add-hook 'c-mode-hook #'lsp)
@@ -1560,13 +1564,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (global-flycheck-mode t)
     (setq lsp-ui-imenu-enable t)
     (require 'lsp-java-treemacs)
-    (global-set-key (kbd "<f12>") 'xref-find-references)
+    (add-hook 'java-mode-hook
+                (lambda()
+                  (global-set-key (kbd "<f12>") 'xref-find-references)))
+                                  
     ;; use STS4
-    (require 'lsp-java-boot)
+    ;; (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1619,8 +1626,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
-
-  (global-set-key (kbd "<f12>") 'cquery-call-hierarchy)
+  (dolist (hook '(c-mode-hook c++-mode-hook))
+    (add-hook hook
+              (lambda()
+                (global-set-key (kbd "<f12>") 'cquery-call-hierarchy))))
 
   ;;进程异常时，记录有残留，执行这句复原
   (global-set-key (kbd "<C-S-f12>") (lambda () "" (interactive)
@@ -1684,8 +1693,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; clipmon-autoinsert-toggle 自动插入当前buffer，只能监视其他程序，当前程序不行
 
 ;; treemacs
-(global-set-key (kbd "<M-f6>") 'treemacs)
+(global-set-key (kbd "<M-f6>") 'treemacs-select-window)
 (autoload 'treemacs "treemacs" nil t)
+(autoload 'treemacs-select-window "treemacs" nil t)
+
 (with-eval-after-load 'treemacs
   (if (eq system-type 'windows-nt)
       (setq treemacs-python-executable "g:/Python3/python.exe"))
@@ -1696,6 +1707,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
               ;; (treemacs-tag-follow-mode)
               (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode)
               (define-key treemacs-mode-map (kbd "e") 'treemacs-toggle-node)
+              (define-key treemacs-mode-map (kbd "f") 'treemacs-visit-node-no-split)
               (setq truncate-lines t))))
 
 ;; dap-mode 调试
@@ -1732,8 +1744,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; swiper
 ;; 替代helm-gtags
 ;; (autoload 'counsel-gtags-mode "counsel-gtags" nil t)
-;; (autoload 'counsel-gtags-find-file "counsel-gtags" nil t)
-;; (autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-file "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-find-definition "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-find-reference "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-dwim "counsel-gtags" nil t)
@@ -1757,6 +1769,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (setq ivy-re-builders-alist
   ;;       '((t . ivy--regex-fuzzy)))
   ;; (ivy-toggle-fuzzy)
+  (require 'ivy-posframe)
+  (setq ivy-display-function #'ivy-posframe-display)
+  (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
+  (setq ivy-display-function #'ivy-posframe-display-at-window-center)
+  (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
+  (setq ivy-display-function #'ivy-posframe-display-at-window-bottom-left)
+  (setq ivy-display-function #'ivy-posframe-display-at-point)
+  (ivy-posframe-enable)
   )
 
 ;; (ivy-mode)
@@ -1765,7 +1785,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; counsel-faces可以显示face list
 ;; (global-set-key (kbd "<C-f10>") 'counsel-locate)
 ;; (autoload 'counsel-locate "counsel" nil t) 
-;; (autoload 'counsel-mode "counsel" nil t) 
+(autoload 'counsel-mode "counsel" nil t) 
 ;; (with-eval-after-load 'counsel
 ;;   (when (eq system-type 'darwin)
 ;;     (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind))
@@ -2662,7 +2682,8 @@ If less than or equal to zero, there is no limit."
 ;; shell
 (global-set-key (kbd "<S-f10>") 'shell)
 (global-set-key (kbd "<f10>") 'eshell)
-
+;; (global-set-key (kbd "<M-f10>") 'aweshell-toggle)
+(autoload 'aweshell-toggle "aweshell" nil t)
 
 ;; 行号栏选择行
 (global-set-key (kbd "<left-margin> <down-mouse-1>") 'mouse-drag-region)
