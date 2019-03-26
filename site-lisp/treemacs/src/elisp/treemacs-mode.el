@@ -39,7 +39,7 @@
 
 (declare-function treemacs--helpful-hydra/body "treemacs-mode")
 
-(defun treemacs--find-keybind (func)
+(cl-defun treemacs--find-keybind (func &optional (pad 8))
   "Find the keybind for FUNC in treemacs.
 Return of cons of the key formatted for inclusion in the hydra string, including
 a minimum width for alignment, and the key itself for the hydra heads.
@@ -58,8 +58,8 @@ Prefer evil keybinds, otherwise pick the first result."
               ("<up>"      "UP")
               ("<down>"    "DOWN")
               (_ key)))
-      (cons (s-pad-right 8 " " (format "_%s_:" key)) key))
-    (cons (s-pad-right 8 " " (format "_%s_:" " ")) " ")))
+      (cons (s-pad-right pad " " (format "_%s_:" key)) key))
+    (cons (s-pad-right pad " " (format "_%s_:" " ")) " ")))
 
 (defun treemacs-helpful-hydra ()
   "Summon the helpful hydra to show you the treemacs keymap.
@@ -104,30 +104,32 @@ to it will instead show a blank."
              (key-set-width      (treemacs--find-keybind #'treemacs-set-width))
              (key-copy-path      (treemacs--find-keybind #'treemacs-copy-path-at-point))
              (key-copy-root      (treemacs--find-keybind #'treemacs-copy-project-root))
+             (key-copy-file      (treemacs--find-keybind #'treemacs-copy-file))
+             (key-move-file      (treemacs--find-keybind #'treemacs-move-file))
              (key-resort         (treemacs--find-keybind #'treemacs-resort))
              (key-bookmark       (treemacs--find-keybind #'treemacs-add-bookmark))
              (key-down-next-w    (treemacs--find-keybind #'treemacs-next-line-other-window))
              (key-up-next-w      (treemacs--find-keybind #'treemacs-previous-line-other-window))
-             (key-add-project    (treemacs--find-keybind #'treemacs-add-project-to-workspace))
-             (key-remove-project (treemacs--find-keybind #'treemacs-remove-project-from-workspace))
-             (key-rename-project (treemacs--find-keybind #'treemacs-rename-project))
+             (key-add-project    (treemacs--find-keybind #'treemacs-add-project-to-workspace 12))
+             (key-remove-project (treemacs--find-keybind #'treemacs-remove-project-from-workspace 12))
+             (key-rename-project (treemacs--find-keybind #'treemacs-rename-project 12))
              (key-close-above    (treemacs--find-keybind #'treemacs-collapse-parent-node))
              (hydra-str
               (format
                "
 %s
-%s              │ %s              │ %s    │ %s                │ %s              │ %s
+%s              │ %s              │ %s    │ %s                │ %s                  │ %s
 ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 %s next Line        │ %s dwim TAB            │ %s create file │ %s follow mode      │ %s add project    │ %s refresh
 %s prev line        │ %s dwim RET            │ %s create dir  │ %s filewatch mode   │ %s remove project │ %s (re)set width
 %s next neighbour   │ %s open no split       │ %s rename      │ %s git mode         │ %s rename project │ %s copy path
-%s prev neighbour   │ %s open horizontal     │ %s delete      │ %s show dotfiles    │                       │ %s copy root
-%s goto parent      │ %s open vertical       │                    │ %s resizability     │                       │ %s re-sort
-%s down next window │ %s open ace            │                    │ %s fringe indicator │                       │ %s bookmark
-%s up next window   │ %s open ace horizontal │                    │                         │                       │
-                        │ %s open ace vertical   │                    │                         │                       │
-                        │ %s open externally     │                    │                         │                       │
-                        │ %s close parent        │                    │                         │                       │
+%s prev neighbour   │ %s open horizontal     │ %s delete      │ %s show dotfiles    │                           │ %s copy root
+%s goto parent      │ %s open vertical       │ %s copy        │ %s resizability     │                           │ %s re-sort
+%s down next window │ %s open ace            │ %s move        │ %s fringe indicator │                           │ %s bookmark
+%s up next window   │ %s open ace horizontal │                    │                         │                           │
+                        │ %s open ace vertical   │                    │                         │                           │
+                        │ %s open externally     │                    │                         │                           │
+                        │ %s close parent        │                    │                         │                           │
 "
                title
                column-nav               column-nodes          column-files           column-toggles          column-projects          column-misc
@@ -135,8 +137,8 @@ to it will instead show a blank."
                (car key-prev-line)      (car key-ret)         (car key-create-dir)   (car key-fwatch-mode)   (car key-remove-project) (car key-set-width)
                (car key-next-neighbour) (car key-open)        (car key-rename)       (car key-git-mode)      (car key-rename-project) (car key-copy-path)
                (car key-prev-neighbour) (car key-open-horiz)  (car key-delete)       (car key-show-dotfiles)                          (car key-copy-root)
-               (car key-goto-parent)    (car key-open-vert)                          (car key-toggle-width)                           (car key-resort)
-               (car key-down-next-w)    (car key-open-ace)                           (car key-fringe-mode)                            (car key-bookmark)
+               (car key-goto-parent)    (car key-open-vert)   (car key-copy-file)    (car key-toggle-width)                           (car key-resort)
+               (car key-down-next-w)    (car key-open-ace)    (car key-move-file)    (car key-fringe-mode)                            (car key-bookmark)
                (car key-up-next-w)      (car key-open-ace-h)
                                         (car key-open-ace-v)
                                         (car key-open-ext)
@@ -173,6 +175,8 @@ to it will instead show a blank."
               (,(cdr key-set-width)      #'treemacs-set-width)
               (,(cdr key-copy-path)      #'treemacs-copy-path-at-point)
               (,(cdr key-copy-root)      #'treemacs-copy-project-root)
+              (,(cdr key-copy-file)      #'treemacs-copy-file)
+              (,(cdr key-move-file)      #'treemacs-move-file)
               (,(cdr key-git-mode)       #'treemacs-git-mode)
               (,(cdr key-fwatch-mode)    #'treemacs-filewatch-mode)
               (,(cdr key-resort)         #'treemacs-resort)
@@ -189,6 +193,44 @@ to it will instead show a blank."
 ;; are defined or we get a recursive require, so it's either this or an equally
 ;; large block of `declare-function'
 (with-no-warnings
+  (defvar treemacs-project-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "r")     #'treemacs-rename-project)
+      (define-key map (kbd "a")     #'treemacs-add-project-to-workspace)
+      (define-key map (kbd "d")     #'treemacs-remove-project-from-workspace)
+      (define-key map (kbd "c c")   #'treemacs-collapse-project)
+      (define-key map (kbd "c o")   #'treemacs-collapse-other-projects)
+      (define-key map (kbd "c a")   #'treemacs-collapse-all-projects)
+      map)
+    "Keymap for project-related commands in `treemacs-mode'.")
+  (defvar treemacs-node-visit-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "v")        #'treemacs-visit-node-vertical-split)
+      (define-key map (kbd "h")        #'treemacs-visit-node-horizontal-split)
+      (define-key map (kbd "o")        #'treemacs-visit-node-no-split)
+      (define-key map (kbd "aa")       #'treemacs-visit-node-ace)
+      (define-key map (kbd "ah")       #'treemacs-visit-node-ace-horizontal-split)
+      (define-key map (kbd "av")       #'treemacs-visit-node-ace-vertical-split)
+      (define-key map (kbd "x")        #'treemacs-visit-node-in-external-application)
+      map)
+    "Keymap for node-visiting commands in `treemacs-mode'.")
+  (defvar treemacs-toggle-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "h")        #'treemacs-toggle-show-dotfiles)
+      (define-key map (kbd "w")        #'treemacs-toggle-fixed-width)
+      (define-key map (kbd "v")        #'treemacs-fringe-indicator-mode)
+      (define-key map (kbd "g")        #'treemacs-git-mode)
+      (define-key map (kbd "f")        #'treemacs-follow-mode)
+      (define-key map (kbd "a")        #'treemacs-filewatch-mode)
+      map)
+    "Keymap for commands that toggle state in `treemacs-mode'.")
+  (defvar treemacs-copy-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "y")        #'treemacs-copy-path-at-point)
+      (define-key map (kbd "r")        #'treemacs-copy-project-root)
+      (define-key map (kbd "f")        #'treemacs-copy-file)
+      map)
+    "Keymap for copy commands in `treemacs-mode'.")
   (defvar treemacs-mode-map
     (let ((map (make-sparse-keymap)))
       (define-key map (kbd "?")         #'treemacs-helpful-hydra)
@@ -207,13 +249,7 @@ to it will instead show a blank."
       (define-key map (kbd "u")         #'treemacs-goto-parent-node)
       (define-key map (kbd "q")         #'treemacs-quit)
       (define-key map (kbd "Q")         #'treemacs-kill-buffer)
-      (define-key map (kbd "ov")        #'treemacs-visit-node-vertical-split)
-      (define-key map (kbd "oh")        #'treemacs-visit-node-horizontal-split)
-      (define-key map (kbd "oo")        #'treemacs-visit-node-no-split)
-      (define-key map (kbd "oaa")       #'treemacs-visit-node-ace)
-      (define-key map (kbd "oah")       #'treemacs-visit-node-ace-horizontal-split)
-      (define-key map (kbd "oav")       #'treemacs-visit-node-ace-vertical-split)
-      (define-key map (kbd "ox")        #'treemacs-visit-node-in-external-application)
+      (define-key map (kbd "o")         treemacs-node-visit-map)
       (define-key map (kbd "P")         #'treemacs-peek)
       (define-key map (kbd "n")         #'treemacs-next-line)
       (define-key map (kbd "p")         #'treemacs-previous-line)
@@ -223,24 +259,14 @@ to it will instead show a blank."
       (define-key map (kbd "<next>")    #'treemacs-next-page-other-window)
       (define-key map (kbd "M-n")       #'treemacs-next-neighbour)
       (define-key map (kbd "M-p")       #'treemacs-previous-neighbour)
-      (define-key map (kbd "th")        #'treemacs-toggle-show-dotfiles)
-      (define-key map (kbd "tw")        #'treemacs-toggle-fixed-width)
-      (define-key map (kbd "tv")        #'treemacs-fringe-indicator-mode)
-      (define-key map (kbd "tg")        #'treemacs-git-mode)
-      (define-key map (kbd "tf")        #'treemacs-follow-mode)
-      (define-key map (kbd "ta")        #'treemacs-filewatch-mode)
+      (define-key map (kbd "t")         treemacs-toggle-map)
       (define-key map (kbd "w")         #'treemacs-set-width)
-      (define-key map (kbd "yy")        #'treemacs-copy-path-at-point)
-      (define-key map (kbd "yr")        #'treemacs-copy-project-root)
+      (define-key map (kbd "y")         treemacs-copy-map)
+      (define-key map (kbd "m")         #'treemacs-move-file)
       (define-key map (kbd "g")         #'treemacs-refresh)
       (define-key map (kbd "s")         #'treemacs-resort)
       (define-key map (kbd "b")         #'treemacs-add-bookmark)
-      (define-key map (kbd "C-p r")     #'treemacs-rename-project)
-      (define-key map (kbd "C-p a")     #'treemacs-add-project-to-workspace)
-      (define-key map (kbd "C-p d")     #'treemacs-remove-project-from-workspace)
-      (define-key map (kbd "C-p c c")   #'treemacs-collapse-project)
-      (define-key map (kbd "C-p c o")   #'treemacs-collapse-other-projects)
-      (define-key map (kbd "C-p c a")   #'treemacs-collapse-all-projects)
+      (define-key map (kbd "C-c C-p")   treemacs-project-map)
       (define-key map (kbd "<M-up>")    #'treemacs-move-project-up)
       (define-key map (kbd "<M-down>")  #'treemacs-move-project-down)
       (define-key map (kbd "<backtab>") #'treemacs-collapse-all-projects)
@@ -282,7 +308,10 @@ Used as a post command hook."
                        (treemacs--nearest-path btn))))
       (when (and (stringp path)
                  (file-readable-p path))
-        (setq default-directory (f-slash (if (file-directory-p path) path (file-name-directory path)))))
+        (setq default-directory (f-slash (if (file-directory-p path) path (file-name-directory path))))
+        (when treemacs-eldoc-display
+          (put-text-property 0 (length path) 'face 'font-lock-string-face path)
+          (message path)))
     "/"))
 
 ;;;###autoload
@@ -335,6 +364,49 @@ Used as a post command hook."
   (treemacs--setup-mode-line)
   (treemacs--reset-dom)
   (treemacs--reset-project-positions))
+
+(defun treemacs--mode-check-advice (mode-activation &rest args)
+  "Verify that `treemacs-mode' is called in the right place.
+Must be run as advice to prevent changing of the major mode.
+Will run original MODE-ACTIVATION and its ARGS only when
+`treemacs--in-this-buffer' is non-nil."
+  (if treemacs--in-this-buffer
+      (apply mode-activation args)
+    (switch-to-buffer (get-buffer-create "*Clippy*"))
+    (erase-buffer)
+    (insert
+     (format
+      "
+ --------------------------------------------------------------------------------------
+ | It looks like you are trying to run treemacs. Would you like some help with that?  |
+ | You have called %s, but this only the major mode for treemacs' buffers, |
+ | it is not meant to be used manually. Instead you should call a function like       |
+ |  * %s,                                                                       |
+ |  * %s, or                                                      |
+ |  * %s                                        |
+ |                                                                                    |
+ | You can safely delete this buffer.                                                 |
+ --------------------------------------------------------------------------------------
+%s
+"
+      (propertize "treemacs-mode" 'face 'font-lock-function-name-face)
+      (propertize "treemacs" 'face 'font-lock-function-name-face)
+      (propertize "treemacs-select-window" 'face 'font-lock-function-name-face)
+      (propertize "treemacs-add-and-display-current-project" 'face 'font-lock-function-name-face)
+      (propertize
+       "     \\
+     \\
+   ____
+   /  \\
+   |  |
+   @  @
+   |  |
+   || |/
+   || ||
+   |\\_/|
+   \\___/" 'face 'font-lock-keyword-face)))))
+
+(advice-add #'treemacs-mode :around #'treemacs--mode-check-advice)
 
 (provide 'treemacs-mode)
 

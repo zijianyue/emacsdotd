@@ -49,4 +49,36 @@
   (let ((lsp--uri-file-prefix "file://"))
     (should (equal (lsp--uri-to-path "/root/%E4%BD%A0%E5%A5%BD/%E8%B0%A2%E8%B0%A2") "/root/你好/谢谢"))))
 
+(ert-deftest lsp-byte-compilation-test ()
+  (let ((byte-compile-error-on-warn t))
+    (cl-assert (byte-compile-file (save-excursion
+                                    (find-library "lsp-mode")
+                                    (buffer-file-name)))
+               t
+               "Failed to byte-compile")
+    (cl-assert (byte-compile-file (save-excursion
+                                    (find-library "lsp-clients")
+                                    (buffer-file-name)))
+               t
+               "Failed to byte-compile")))
+
+(ert-deftest lsp--find-session-folder ()
+  (cl-assert (string= "/folder/"
+                      (lsp-find-session-folder
+                       (make-lsp-session :folders '("/folder/"))
+                       "/folder/file"))
+             t
+             "failed to find the proper root")
+  (cl-assert (string= "/folder/nested-project"
+                      (lsp-find-session-folder
+                       (make-lsp-session :folders '("/folder/"
+                                                    "/folder/nested-project"))
+                       "/folder/nested-project/file-in-nested-project"))
+             t
+             "failed to find nested project")
+  (cl-assert (null (lsp-find-session-folder
+                    (make-lsp-session :folders '("/folder/"))
+                    "/foo"))
+             t
+             "Should not find any root."))
 ;;; lsp-common-test.el ends here

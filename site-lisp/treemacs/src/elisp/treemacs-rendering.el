@@ -77,6 +77,21 @@ is a marker pointing to POS."
   (inline-letevals (pos)
     (inline-quote (copy-marker ,pos t))))
 
+(define-inline treemacs--current-screen-line ()
+  "Get the current screen line in the selected window."
+  (declare (side-effect-free t))
+  (inline-quote
+   (max 1 (count-screen-lines (window-start) (point-at-eol)))))
+
+(define-inline treemacs--lines-in-window ()
+  "Determine the number of lines visible in the current (treemacs) window.
+A simple call to something like `window-screen-lines' is insufficient becase
+the height of treemacs' icons must be taken into account."
+  (declare (side-effect-free t))
+  (inline-quote
+   (/ (- (window-pixel-height) (window-mode-line-height))
+      (max treemacs--icon-size (frame-char-height)))))
+
 (define-inline treemacs--sort-alphabetic-asc (f1 f2)
   "Sort F1 and F2 alphabetically asc."
   (declare (pure t) (side-effect-free t))
@@ -140,12 +155,12 @@ DEFAULT: Face"
   (inline-letevals (path git-info default)
     (inline-quote
      (pcase (ht-get ,git-info ,path)
-       (?M 'treemacs-git-modified-face)
-       (?U 'treemacs-git-conflict-face)
-       (?? 'treemacs-git-untracked-face)
-       (?! 'treemacs-git-ignored-face)
-       (?A 'treemacs-git-added-face)
-       (?R 'treemacs-git-renamed-face)
+       ("M" 'treemacs-git-modified-face)
+       ("U" 'treemacs-git-conflict-face)
+       ("?" 'treemacs-git-untracked-face)
+       ("!" 'treemacs-git-ignored-face)
+       ("A" 'treemacs-git-added-face)
+       ("R" 'treemacs-git-renamed-face)
        (_  ,default)))))
 
 (define-inline treemacs--get-dir-content (dir)
@@ -154,7 +169,8 @@ DEFAULT: Face"
     (inline-quote
      ;; `directory-files' is much faster in a temp buffer for whatever reason
      (with-temp-buffer
-       (let* ((sort-func
+       (let* ((file-name-handler-alist '(("\\`/[^/|:]+:" . tramp-autoload-file-name-handler)))
+              (sort-func
                (pcase treemacs-sorting
                  ('alphabetic-asc #'treemacs--sort-alphabetic-asc)
                  ('alphabetic-desc #'treemacs--sort-alphabetic-desc)
@@ -164,7 +180,7 @@ DEFAULT: Face"
                  ('size-desc #'treemacs--sort-size-desc)
                  ('mod-time-asc #'treemacs--sort-mod-time-asc)
                  ('mod-time-desc #'treemacs--sort-mod-time-desc)
-                 (_ (error "[Treemacs] Unknown treemacs-sorting value '%s'" treemacs-sorting))))
+                 (other other)))
               (entries (-> ,dir (directory-files :absolute-names nil :no-sort) (treemacs--filter-files-to-be-shown)))
               (dirs-files (-separate #'file-directory-p entries)))
          (list (sort (cl-first dirs-files) sort-func)
@@ -222,17 +238,19 @@ and, optionally, POST-OPEN-ACTION. If IMMEDIATE-INSERT is non-nil it will concat
 and apply `insert' on the items returned from OPEN-ACTION. If it is nil either
 OPEN-ACTION or POST-OPEN-ACTION are expected to take over insertion."
   `(save-excursion
-     (treemacs-with-writable-buffer
-      (treemacs-button-put ,button :state ,new-state)
-      (beginning-of-line)
-      ,@(when new-icon
-          `((treemacs--button-symbol-switch ,new-icon)))
-      (end-of-line)
-      ,@(if immediate-insert
-            `((progn
-                (insert (apply #'concat ,open-action))))
-          `(,open-action))
-      ,post-open-action)))
+     (-let [p (point)]
+       (treemacs-with-writable-buffer
+        (treemacs-button-put ,button :state ,new-state)
+        (beginning-of-line)
+        ,@(when new-icon
+            `((treemacs--button-symbol-switch ,new-icon)))
+        (end-of-line)
+        ,@(if immediate-insert
+              `((progn
+                  (insert (apply #'concat ,open-action))))
+            `(,open-action))
+        ,post-open-action)
+       (count-lines p (point)))))
 
 (cl-defmacro treemacs--create-buttons (&key nodes depth extra-vars node-action node-name)
   "Building block macro for creating buttons from a list of items.
@@ -322,6 +340,22 @@ Specialized towards applying MAPPER to ITEMS on a given INTERVAL."
        (cl-incf --loop--))
      (nreverse (nconc --items-- ret))))
 
+(defmacro treemacs--inplace-map-when-unrolled (items interval &rest map-body)
+  "Unrolled in-place mappig operation.
+Applies MAP-BODY to every element in ITEMS at the given INTERVAL."
+  (declare (indent 2))
+  (let ((l (make-symbol "list"))
+        (tail-op (cl-case interval
+                   (2 'cdr)
+                   (3 'cddr)
+                   (4 'cdddr)
+                   (_ (error "Interval %s is not handled yet" interval)))))
+    `(let ((,l ,items))
+       (while ,l
+         (setq ,l (,tail-op ,l))
+         (let ((it (pop ,l)))
+           ,@map-body)))))
+
 (define-inline treemacs--create-branch (root depth git-future collapse-process &optional parent)
   "Create a new treemacs branch under ROOT.
 The branch is indented at DEPTH and uses the eventual outputs of
@@ -398,22 +432,24 @@ set to PARENT."
                (setq dir-strings (cddr dir-strings)))
              (setq dir-strings (nreverse result))))
 
-         (insert
-          (apply #'concat
-                 (treemacs--map-when-unrolled dir-strings 2
-                   (propertize
-                    it 'face
-                    (treemacs--get-button-face
-                     (concat ,root "/" it) git-info 'treemacs-directory-face)))))
+         (treemacs--inplace-map-when-unrolled dir-strings 2
+           (put-text-property
+            0
+            (length it)
+            'face
+            (treemacs--get-button-face (concat ,root "/" it) git-info 'treemacs-directory-face)
+            it))
+         (insert (apply #'concat dir-strings))
 
          (end-of-line)
-
-         (insert
-          (apply #'concat
-                 (treemacs--map-when-unrolled file-strings 3
-                   (propertize it 'face
-                               (treemacs--get-button-face
-                                (concat ,root "/" it) git-info 'treemacs-git-unmodified-face)))))
+         (treemacs--inplace-map-when-unrolled file-strings 3
+           (put-text-property
+            0
+            (length it)
+            'face
+            (treemacs--get-button-face (concat ,root "/" it) git-info 'treemacs-git-unmodified-face)
+            it))
+         (insert (apply #'concat file-strings))
 
          (save-excursion
            (treemacs--collapse-dirs (treemacs--parse-collapsed-dirs ,collapse-process))
@@ -457,13 +493,13 @@ BUFFER: Buffer"
 (defun treemacs--resize-git-cache ()
   "Cuts `treemacs--git-cache' back down to size.
 Specifically its size will be reduced to half of `treemacs--git-cache-max-size'."
-  (cl-block body
-    (let* ((size (ht-size treemacs--git-cache))
-           (count (- size (/ treemacs--git-cache-max-size 2))))
-      (treemacs--maphash treemacs--git-cache (key _)
-        (ht-remove! treemacs--git-cache key)
-        (when (>= 0 (cl-decf count))
-          (cl-return-from body))))))
+  (treemacs-block
+   (let* ((size (ht-size treemacs--git-cache))
+          (count (- size (/ treemacs--git-cache-max-size 2))))
+     (treemacs--maphash treemacs--git-cache (key _)
+       (ht-remove! treemacs--git-cache key)
+       (when (>= 0 (cl-decf count))
+         (treemacs-return :done))))))
 
 (cl-defmacro treemacs--button-close (&key button new-state new-icon post-close-action)
   "Close node given by BTN, use NEW-ICON and set state of BTN to NEW-STATE."
@@ -492,19 +528,20 @@ Specifically its size will be reduced to half of `treemacs--git-cache-max-size'.
          (git-path (if (treemacs-button-get btn :symlink) (file-truename path) path))
          (git-future (treemacs--git-status-process-function git-path))
          (collapse-future (treemacs--collapsed-dirs-process path)))
-    (treemacs--button-open
-     :immediate-insert nil
-     :button btn
-     :new-state 'root-node-open
-     :open-action
-     (progn
-       (treemacs--apply-project-top-extensions btn project)
-       (goto-char (treemacs--create-branch path (1+ (treemacs-button-get btn :depth)) git-future collapse-future btn))
-       (treemacs--apply-project-bottom-extensions btn project))
-     :post-open-action
-     (progn
-       (treemacs-on-expand path btn nil)
-       (treemacs--start-watching path)))))
+    (treemacs--maybe-recenter treemacs-recenter-after-project-expand
+      (treemacs--button-open
+       :immediate-insert nil
+       :button btn
+       :new-state 'root-node-open
+       :open-action
+       (progn
+         (treemacs--apply-project-top-extensions btn project)
+         (goto-char (treemacs--create-branch path (1+ (treemacs-button-get btn :depth)) git-future collapse-future btn))
+         (treemacs--apply-project-bottom-extensions btn project))
+       :post-open-action
+       (progn
+         (treemacs-on-expand path btn nil)
+         (treemacs--start-watching path))))))
 
 (defun treemacs--collapse-root-node (btn &optional recursive)
   "Collapse the given root BTN.
@@ -594,16 +631,34 @@ PROJECT: Project Struct"
            (insert separator))))
      (treemacs--apply-root-bottom-extensions current-workspace))))
 
+(define-inline treemacs-do-update-node (path)
+  "Update the node identified by its PATH.
+Throws an error when the node cannot be found. Does nothing if the node is
+not expanded.
+Same as `treemacs-update-node', but does not take care to either save
+position or assure hl-line highlighting, so it should be used when making
+multiple updates.
+
+PATH: Node Path"
+  (inline-letevals (path)
+    (inline-quote
+     (treemacs-unless-let (btn (treemacs-goto-node ,path))
+         (error "Node at path %s cannot be found" ,path)
+       (when (treemacs-is-node-expanded? btn)
+         (-let [close-func (alist-get (treemacs-button-get btn :state) treemacs-TAB-actions-config)]
+           (funcall close-func)
+           ;; close node again if no new lines were rendered
+           (when (= 1 (funcall (alist-get (treemacs-button-get btn :state) treemacs-TAB-actions-config)))
+             (funcall close-func))))))))
+
 (defun treemacs-update-node (path)
   "Update the node identified by its PATH.
-Throws an error when the node cannot be found. Does nothing if the node is not
-expanded."
-  (treemacs-unless-let (btn (treemacs-goto-node path))
-      (error "Node at path %s cannot be found" path)
-    (when (treemacs-is-node-expanded? btn)
-      (funcall (alist-get (treemacs-button-get btn :state) treemacs-TAB-actions-config))
-      (funcall (alist-get (treemacs-button-get btn :state) treemacs-TAB-actions-config))
-      (hl-line-highlight))))
+Same as `treemacs-do-update-node', but wraps the call in
+`treemacs-save-position'.
+
+PATH: Node Path"
+  (treemacs-save-position
+   (treemacs-do-update-node path)))
 
 (defun treemacs-delete-single-node (path &optional project)
   "Delete single node at given PATH and PROJECT.
@@ -642,6 +697,35 @@ Project: Project Struct"
          (treemacs-with-writable-buffer
           (treemacs--delete-line)))
        (hl-line-highlight)))))
+
+(defun treemacs--maybe-recenter (when &optional new-lines)
+  "Potentially recenter based on value of WHEN.
+
+WHEN can take the following values:
+
+ * always: Recenter indiscriminately,
+ * on-distance: Recentering depends on the distance between `point' and the
+   window top/bottom being smaller than `treemacs-recenter-distance'.
+ * on-visibility: Special case for projects: recentering depends on whether the
+   newly rendered number of NEW-LINES fits the view."
+  (declare (indent 1))
+  (when (treemacs-is-treemacs-window? (selected-window))
+    (let* ((current-line (float (treemacs--current-screen-line)))
+           (all-lines (float (treemacs--lines-in-window))))
+      (pcase when
+        ('always (recenter))
+        ('on-visibility
+         (-let [lines-left (- all-lines current-line)]
+           (when (> new-lines lines-left)
+             ;; if possible recenter only as much as is needed to bring all new lines
+             ;; into view
+             (recenter (max 0 (round (- current-line (- new-lines lines-left))))))))
+        ((guard (memq when '(t on-distance))) ;; TODO(2019/02/20): t for backward compatibility, remove eventually
+         (let* ((distance-from-top (/ current-line all-lines))
+                (distance-from-bottom (- 1.0 distance-from-top)))
+           (when (or (> treemacs-recenter-distance distance-from-top)
+                     (> treemacs-recenter-distance distance-from-bottom))
+             (recenter))))))))
 
 (provide 'treemacs-rendering)
 

@@ -20,9 +20,11 @@ before_install:
   - make -f emacs-travis.mk install_cask
 install:
   - cask install
+  - sudo pip install python-language-server
 script:
   - cask build
   - cask exec ert-runner -t "!no-win"
+  - cask exec ecukes
 
 notifications:
   webhooks:

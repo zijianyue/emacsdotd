@@ -79,8 +79,7 @@ Necessary since root icons are not rectangular."
          (treemacs--size-adjust width height))
        (if (and (integerp treemacs--icon-size) (image-type-available-p 'imagemagick))
            (create-image ,file-path 'imagemagick nil :ascent 'center :width width :height height)
-         ;; interning the extension lets up pass both png and xpm icons
-         (create-image ,file-path (intern (f-ext ,file-path)) nil :ascent 'center))))))
+         (create-image ,file-path 'png nil :ascent 'center))))))
 
 (defmacro treemacs--setup-icon (var file-name &rest extensions)
   "Define VAR with its display property being the image created from FILE-NAME.
@@ -123,6 +122,10 @@ Remember the value in `treemacs--default-icons-alist'."
 (defvar treemacs-icon-tag-leaf        "")
 (defvar treemacs-icon-tag-node-closed "")
 (defvar treemacs-icon-tag-node-open   "")
+(defvar treemacs-icon-error           "")
+(defvar treemacs-icon-warning         "")
+(defvar treemacs-icon-info            "")
+
 
 ;; each of these icons takes one of 2 possible values - a 'png' variant for Emacsen
 ;; capable of displaying images and a 'txt' variant as fallback for TUI frames
@@ -134,6 +137,9 @@ Remember the value in `treemacs--default-icons-alist'."
 (defvar treemacs-icon-tag-leaf-text        (eval-when-compile (propertize "• " 'face 'font-lock-constant-face)))
 (defvar treemacs-icon-tag-node-closed-text (eval-when-compile (propertize "▸ " 'face 'font-lock-string-face)))
 (defvar treemacs-icon-tag-node-open-text   (eval-when-compile (propertize "▾ " 'face 'font-lock-string-face)))
+(defvar treemacs-icon-error-text           (eval-when-compile (propertize "• " 'face 'font-lock-string-face)))
+(defvar treemacs-icon-warning-text         (eval-when-compile (propertize "• " 'face 'font-lock-string-face)))
+(defvar treemacs-icon-info-text            (eval-when-compile (propertize "• " 'face 'font-lock-string-face)))
 
 (defvar treemacs-icon-root-png            "")
 (defvar treemacs-icon-closed-png          "")
@@ -142,6 +148,9 @@ Remember the value in `treemacs--default-icons-alist'."
 (defvar treemacs-icon-tag-node-closed-png "")
 (defvar treemacs-icon-tag-node-open-png   "")
 (defvar treemacs-icon-text                "")
+(defvar treemacs-icon-error-png           "")
+(defvar treemacs-icon-warning-png         "")
+(defvar treemacs-icon-info-png            "")
 
 (define-inline treemacs-icon-for-file (path)
   "Retrieve an icon for PATH from `treemacs-icons-hash'.
@@ -175,10 +184,13 @@ Will also fill `treemacs-icons-hash' with graphical file icons."
   (treemacs--setup-icon treemacs-icon-closed-png          "dir_closed.png")
   (treemacs--setup-icon treemacs-icon-open-png            "dir_open.png")
   (treemacs--setup-icon treemacs-icon-root-png            "root.png")
-  (treemacs--setup-icon treemacs-icon-tag-leaf-png        "tags-leaf.xpm")
-  (treemacs--setup-icon treemacs-icon-tag-node-closed-png "tags-closed.xpm")
-  (treemacs--setup-icon treemacs-icon-tag-node-open-png   "tags-open.xpm")
+  (treemacs--setup-icon treemacs-icon-tag-leaf-png        "tags-leaf.png")
+  (treemacs--setup-icon treemacs-icon-tag-node-closed-png "tags-closed.png")
+  (treemacs--setup-icon treemacs-icon-tag-node-open-png   "tags-open.png")
   (treemacs--setup-icon treemacs-icon-text                "txt.png")
+  (treemacs--setup-icon treemacs-icon-error-png           "error.png")
+  (treemacs--setup-icon treemacs-icon-warning-png         "warning.png")
+  (treemacs--setup-icon treemacs-icon-info-png            "info.png")
 
   ;; then assign them and save the default value
   (treemacs--set-icon-save-default
@@ -246,7 +258,8 @@ Will also fill `treemacs-icons-hash' with graphical file icons."
   (treemacs--setup-icon treemacs-icon-perl         "vsc/perl.png"         "pl" "pm" "perl")
   (treemacs--setup-icon treemacs-icon-vim          "vsc/vim.png"          "vimrc" "tridactylrc" "vimperatorrc" "ideavimrc" "vrapperrc")
   (treemacs--setup-icon treemacs-icon-depend       "vsc/dependencies.png" "cask")
-  (treemacs--setup-icon treemacs-icon-r            "vsc/r.png"            "r"))
+  (treemacs--setup-icon treemacs-icon-r            "vsc/r.png"            "r")
+  (treemacs--setup-icon treemacs-icon-reason       "vsc/reason.png"       "re" "rei"))
 
 (defun treemacs--setup-icons ()
   "Create and define all icons-related caches, hashes and stashes."
@@ -337,14 +350,20 @@ TUI icons will be used if
         (setq-local treemacs-icon-fallback        treemacs-icon-fallback-text)
         (setq-local treemacs-icon-tag-node-open   treemacs-icon-tag-node-open-text)
         (setq-local treemacs-icon-tag-node-closed treemacs-icon-tag-node-closed-text)
-        (setq-local treemacs-icon-tag-leaf        treemacs-icon-tag-leaf-text))
+        (setq-local treemacs-icon-tag-leaf        treemacs-icon-tag-leaf-text)
+        (setq-local treemacs-icon-warning         treemacs-icon-warning-text)
+        (setq-local treemacs-icon-error           treemacs-icon-error-text)
+        (setq-local treemacs-icon-info            treemacs-icon-info-text))
     (setq-local treemacs-icon-root            treemacs-icon-root-png)
     (setq-local treemacs-icon-open            treemacs-icon-open-png)
     (setq-local treemacs-icon-closed          treemacs-icon-closed-png)
     (setq-local treemacs-icon-fallback        treemacs-icon-text)
     (setq-local treemacs-icon-tag-node-open   treemacs-icon-tag-node-open-png)
     (setq-local treemacs-icon-tag-node-closed treemacs-icon-tag-node-closed-png)
-    (setq-local treemacs-icon-tag-leaf        treemacs-icon-tag-leaf-png)))
+    (setq-local treemacs-icon-tag-leaf        treemacs-icon-tag-leaf-png)
+    (setq-local treemacs-icon-warning         treemacs-icon-warning-png)
+    (setq-local treemacs-icon-error           treemacs-icon-error-png)
+    (setq-local treemacs-icon-info            treemacs-icon-info-png)))
 
 ;;;###autoload
 (defun treemacs-define-custom-icon (icon &rest file-extensions)

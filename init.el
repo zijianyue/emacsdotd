@@ -21,6 +21,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-box"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell-master"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -537,8 +538,8 @@
 
 (eval-after-load "company"
   '(progn
-     (require 'company-box)
-     (add-hook 'company-mode-hook 'company-box-mode)
+     ;; (require 'company-box)
+     ;; (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -1861,6 +1862,23 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c p") 'symbol-overlay-switch-backward)
 ;; (symbol-overlay-mode t)                   ;自动高亮，不是全局的
 
+;; meghanada
+;; (require 'meghanada)
+;; (add-hook 'java-mode-hook
+;;           (lambda ()
+;;             ;; meghanada-mode on
+;;             (meghanada-mode t)
+;;             (flycheck-mode +1)
+;;             (setq c-basic-offset 2)
+;;             ;; use code format
+;;             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+;; (cond
+;;  ((eq system-type 'windows-nt)
+;;   (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+;;   (setq meghanada-maven-path "mvn.cmd"))
+;;  (t
+;;   (setq meghanada-java-path "java")
+;;   (setq meghanada-maven-path "mvn")))
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;

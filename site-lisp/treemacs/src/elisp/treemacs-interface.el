@@ -356,42 +356,52 @@ itself, using $HOME when there is no path at or near point to grab."
   (interactive)
   (treemacs--create-file/dir t))
 
+(defun treemacs-move-file ()
+  "Move file (or directory) at point."
+  (interactive)
+  (treemacs--copy-or-move :move))
+
+(defun treemacs-copy-file ()
+  "Copy file (or directory) at point."
+  (interactive)
+  (treemacs--copy-or-move :copy))
+
 (cl-defun treemacs-rename ()
   "Rename the currently selected node.
 Buffers visiting the renamed file or visiting a file inside a renamed directory
 and windows showing them will be reloaded. The list of recent files will
 likewise be updated."
   (interactive)
-  (cl-block body
-    (-let [btn (treemacs-current-button)]
-      (unless btn
-        (treemacs-error-return "Found nothing to rename here."))
-      (let* ((old-path (treemacs-button-get btn :path))
-             (project (treemacs--find-project-for-path old-path))
-             (new-path nil)
-             (new-name nil)
-             (dir nil))
-        (treemacs-error-return-if (null old-path)
-          "Found nothing to rename here.")
-        (treemacs-error-return-if (not (file-exists-p old-path))
-          "The file to be renamed does not exist.")
-        (setq new-name (read-string "New name: " (file-name-nondirectory old-path))
-              dir      (f-dirname old-path)
-              new-path (f-join dir new-name))
-        (treemacs-error-return-if (file-exists-p new-path)
-          "A file named %s already exists."
-          (propertize new-name 'face font-lock-string-face))
-        (treemacs--without-filewatch (rename-file old-path new-path))
-        (treemacs--replace-recentf-entry old-path new-path)
-        (-let [treemacs-silent-refresh t]
-          (treemacs-run-in-every-buffer
-           (treemacs--on-rename old-path new-path)
-           (treemacs--do-refresh (current-buffer) project)))
-        (treemacs--reload-buffers-after-rename old-path new-path)
-        (treemacs-goto-file-node new-path project)
-        (treemacs-pulse-on-success "Renamed %s to %s."
-          (propertize (treemacs--filename old-path) 'face font-lock-string-face)
-          (propertize new-name 'face font-lock-string-face))))))
+  (treemacs-block
+   (-let [btn (treemacs-current-button)]
+     (treemacs-error-return-if (null btn)
+       "Nothing to rename here.")
+     (let* ((old-path (treemacs-button-get btn :path))
+            (project (treemacs--find-project-for-path old-path))
+            (new-path nil)
+            (new-name nil)
+            (dir nil))
+       (treemacs-error-return-if (null old-path)
+         "Found nothing to rename here.")
+       (treemacs-error-return-if (not (file-exists-p old-path))
+         "The file to be renamed does not exist.")
+       (setq new-name (read-string "New name: " (file-name-nondirectory old-path))
+             dir      (f-dirname old-path)
+             new-path (f-join dir new-name))
+       (treemacs-error-return-if (file-exists-p new-path)
+         "A file named %s already exists."
+         (propertize new-name 'face font-lock-string-face))
+       (treemacs--without-filewatch (rename-file old-path new-path))
+       (treemacs--replace-recentf-entry old-path new-path)
+       (-let [treemacs-silent-refresh t]
+         (treemacs-run-in-every-buffer
+          (treemacs--on-rename old-path new-path)
+          (treemacs--do-refresh (current-buffer) project)))
+       (treemacs--reload-buffers-after-rename old-path new-path)
+       (treemacs-goto-file-node new-path project)
+       (treemacs-pulse-on-success "Renamed %s to %s."
+         (propertize (treemacs--filename old-path) 'face font-lock-string-face)
+         (propertize new-name 'face font-lock-string-face))))))
 
 (defun treemacs-create-dir ()
   "Create a new directory.
@@ -638,35 +648,51 @@ For slower scrolling see `treemacs-previous-line-other-window'"
   "Give the project at point a new name."
   (interactive)
   (treemacs-with-writable-buffer
-   (treemacs-unless-let (project (treemacs-project-at-point))
-       (treemacs-pulse-on-failure "There is no project here.")
-     (let* ((old-name (treemacs-project->name project))
-            (project-btn (treemacs-project->position project))
-            (state (treemacs-button-get project-btn :state))
-            (new-name (read-string "New name: " (treemacs-project->name project))))
-       (treemacs-save-position
-        (progn
-          (setf (treemacs-project->name project) new-name)
-          (treemacs--forget-last-highlight)
-          ;; after renaming, delete and redisplay the project
-          (goto-char (button-end project-btn))
-          (delete-region (point-at-bol) (point-at-eol))
-          (treemacs--add-root-element project)
-          (when (eq state 'root-node-open)
-            (treemacs--collapse-root-node (treemacs-project->position project))
-            (treemacs--expand-root-node (treemacs-project->position project))))
-        (treemacs-pulse-on-success "Renamed project %s to %s."
-          (propertize old-name 'face 'font-lock-type-face)
-          (propertize new-name 'face 'font-lock-type-face))))))
+   (treemacs-block
+    (treemacs-unless-let (project (treemacs-project-at-point))
+        (treemacs-pulse-on-failure "There is no project here.")
+      (let* ((old-name (treemacs-project->name project))
+             (project-btn (treemacs-project->position project))
+             (state (treemacs-button-get project-btn :state))
+             (new-name (read-string "New name: " (treemacs-project->name project))))
+        (treemacs-save-position
+         (progn
+           (treemacs-return-if (string-equal old-name new-name)
+             (treemacs-pulse-on-failure "The new name is the same as the old name."))
+           (setf (treemacs-project->name project) new-name)
+           (treemacs--forget-last-highlight)
+           ;; after renaming, delete and redisplay the project
+           (goto-char (button-end project-btn))
+           (delete-region (point-at-bol) (point-at-eol))
+           (treemacs--add-root-element project)
+           (when (eq state 'root-node-open)
+             (treemacs--collapse-root-node (treemacs-project->position project))
+             (treemacs--expand-root-node (treemacs-project->position project))))
+         (treemacs-pulse-on-success "Renamed project %s to %s."
+           (propertize old-name 'face 'font-lock-type-face)
+           (propertize new-name 'face 'font-lock-type-face)))))))
   (treemacs--evade-image))
 
-(defun treemacs-add-project-to-workspace (path)
-  "Add a projec at given PATH to the current workspace."
+(defun treemacs-add-project-to-workspace (path &optional name)
+  "Add a project at given PATH to the current workspace.
+The PATH's directory name will be used as a NAME for a project. The NAME can
+\(or must) be entered manully with either a prefix arg or if a project with the
+auto-selected name already exists."
   (interactive "DProject root: ")
-  (pcase (treemacs-do-add-project-to-workspace path)
+  (let* ((default-name (treemacs--filename path))
+         (double-name (--first (string= default-name (treemacs-project->name it))
+                               (treemacs-workspace->projects (treemacs-current-workspace)))))
+    (if (or current-prefix-arg double-name)
+        (setf name (read-string "Project Name: " (unless double-name (treemacs--filename path))))
+      (setf name default-name)))
+  (pcase (treemacs-do-add-project-to-workspace path name)
     (`(success ,project)
      (treemacs-pulse-on-success "Added project %s to the workspace."
        (propertize (treemacs-project->name project) 'face 'font-lock-type-face)))
+    (`(invalid-path ,reason)
+     (treemacs-pulse-on-failure (concat "Path '%s' is invalid: %s")
+       (propertize path 'face 'font-lock-string-face)
+       reason))
     (`(invalid-name ,name)
      (treemacs-pulse-on-failure "Name '%s' is invalid."
        (propertize name 'face 'font-lock-string-face)))
@@ -677,17 +703,25 @@ For slower scrolling see `treemacs-previous-line-other-window'"
     (`(duplicate-name ,duplicate)
      (goto-char (treemacs-project->position duplicate))
      (treemacs-pulse-on-failure "A project with the name %s already exists."
-       (propertize (treemacs-project->name duplicate) 'face 'font-lock-type-face)))))
+       (propertize (treemacs-project->name duplicate) 'face 'font-lock-type-face))))
+  nil)
 (defalias 'treemacs-add-project #'treemacs-add-project-to-workspace)
 (with-no-warnings
   (make-obsolete #'treemacs-add-project #'treemacs-add-project-to-workspace "v2.2.1"))
 
-(defun treemacs-remove-project-from-workspace ()
-  "Remove the project at point from the current workspace."
-  (interactive)
-  (treemacs-unless-let (project (treemacs-project-at-point))
-      (treemacs-pulse-on-failure "There is no project here.")
-    (treemacs-do-remove-project-from-workspace project)
+(defun treemacs-remove-project-from-workspace (&optional arg)
+  "Remove the project at point from the current workspace.
+With a prefix ARG select project to remove by name."
+  (interactive "P")
+  (let ((project (treemacs-project-at-point))
+        (save-pos))
+    (when (or arg (null project))
+      (setf project (treemacs--select-project-by-name)
+            save-pos (not (equal project (treemacs-project-at-point)))))
+    (if save-pos
+        (treemacs-save-position
+         (treemacs-do-remove-project-from-workspace project))
+      (treemacs-do-remove-project-from-workspace project))
     (whitespace-cleanup)
     (treemacs-pulse-on-success "Removed project %s from the workspace."
       (propertize (treemacs-project->name project) 'face 'font-lock-type-face))))
@@ -819,48 +853,48 @@ open before eing used for peeking."
   "Move treemacs' root one level upward.
 Only works with a single project in the workspace."
   (interactive)
-  (cl-block body
-    (unless (= 1 (length (treemacs-workspace->projects (treemacs-current-workspace))))
-      (treemacs-error-return
-          "Ad-hoc navigation is only possible when there is but a single project in the workspace."))
-    (-let [btn (treemacs-current-button)]
-      (unless btn
-        (setq btn (previous-button (point))))
-      (let* ((project (-> btn (treemacs--nearest-path) (treemacs--find-project-for-path)))
-             (old-root (treemacs-project->path project))
-             (new-root (treemacs--parent old-root))
-             (new-name (if (f-root? new-root)
-                           "/"
-                         (file-name-nondirectory new-root)))
-             (treemacs--no-messages t)
-             (treemacs-pulse-on-success nil))
-        (unless (treemacs-is-path old-root :same-as new-root)
-          (treemacs-do-remove-project-from-workspace project)
-          (treemacs-do-add-project-to-workspace new-root new-name)
-          (treemacs-goto-file-node new-root)
-          (treemacs-goto-file-node old-root))))))
+  (treemacs-block
+   (unless (= 1 (length (treemacs-workspace->projects (treemacs-current-workspace))))
+     (treemacs-error-return
+         "Ad-hoc navigation is only possible when there is but a single project in the workspace."))
+   (-let [btn (treemacs-current-button)]
+     (unless btn
+       (setq btn (previous-button (point))))
+     (let* ((project (-> btn (treemacs--nearest-path) (treemacs--find-project-for-path)))
+            (old-root (treemacs-project->path project))
+            (new-root (treemacs--parent old-root))
+            (new-name (if (f-root? new-root)
+                          "/"
+                        (file-name-nondirectory new-root)))
+            (treemacs--no-messages t)
+            (treemacs-pulse-on-success nil))
+       (unless (treemacs-is-path old-root :same-as new-root)
+         (treemacs-do-remove-project-from-workspace project)
+         (treemacs-do-add-project-to-workspace new-root new-name)
+         (treemacs-goto-file-node new-root)
+         (treemacs-goto-file-node old-root))))))
 
 (defun treemacs-root-down ()
   "Move treemacs' root into the directory at point.
 Only works with a single project in the workspace."
   (interactive)
-  (cl-block body
-    (treemacs-error-return-if (/= 1 (length (treemacs-workspace->projects (treemacs-current-workspace))))
-      "Free navigation is only possible when there is but a single project in the workspace.")
-    (treemacs-unless-let (btn (treemacs-current-button))
-        (treemacs-pulse-on-failure
-            "There is no directory to move into here.")
-      (pcase (treemacs-button-get btn :state)
-        ((or 'dir-node-open 'dir-node-closed)
-         (let ((new-root (treemacs-button-get btn :path))
-               (treemacs--no-messages t)
-               (treemacs-pulse-on-success nil))
-           (treemacs-do-remove-project-from-workspace (treemacs-project-at-point))
-           (treemacs-do-add-project-to-workspace new-root (file-name-nondirectory new-root))
-           (treemacs-goto-file-node new-root)
-           (treemacs-toggle-node)))
-        (_
-         (treemacs-pulse-on-failure "Button at point is not a directory."))))))
+  (treemacs-block
+   (treemacs-error-return-if (/= 1 (length (treemacs-workspace->projects (treemacs-current-workspace))))
+     "Free navigation is only possible when there is but a single project in the workspace.")
+   (treemacs-unless-let (btn (treemacs-current-button))
+       (treemacs-pulse-on-failure
+           "There is no directory to move into here.")
+     (pcase (treemacs-button-get btn :state)
+       ((or 'dir-node-open 'dir-node-closed)
+        (let ((new-root (treemacs-button-get btn :path))
+              (treemacs--no-messages t)
+              (treemacs-pulse-on-success nil))
+          (treemacs-do-remove-project-from-workspace (treemacs-project-at-point))
+          (treemacs-do-add-project-to-workspace new-root (file-name-nondirectory new-root))
+          (treemacs-goto-file-node new-root)
+          (treemacs-toggle-node)))
+       (_
+        (treemacs-pulse-on-failure "Button at point is not a directory."))))))
 
 (defun treemacs-show-extensions ()
   "Display a list of all active extensions."
@@ -900,69 +934,73 @@ Only works with a single project in the workspace."
 (defun treemacs-move-project-up ()
   "Switch position of the project at point and the one above it."
   (interactive)
-  (cl-block body
-    (let* ((workspace (treemacs-current-workspace))
-           (projects  (treemacs-workspace->projects workspace))
-           (project1  (treemacs-project-at-point))
-           (index1    (or (treemacs-error-return-if (null project1) "There is nothing to move here.")
-                          (-elem-index project1 projects)))
-           (index2    (1- index1))
-           (project2  (or (treemacs-error-return-if (> 0 index2) "There is no project to transpose above.")
-                          (nth index2 projects)))
-           (bounds1  (treemacs--get-bounds-of-project project1))
-           (bounds2  (treemacs--get-bounds-of-project project2)))
-      (treemacs-with-writable-buffer
-       (transpose-regions
-        (car bounds1) (cdr bounds1)
-        (car bounds2) (cdr bounds2)))
-      (setf (nth index1 projects) project2
-            (nth index2 projects) project1)
-      (treemacs--persist)
-      (recenter))))
+  (treemacs-block
+   (let* ((workspace (treemacs-current-workspace))
+          (projects  (treemacs-workspace->projects workspace))
+          (project1  (treemacs-project-at-point))
+          (index1    (or (treemacs-error-return-if (null project1)
+                           "There is nothing to move here.")
+                         (-elem-index project1 projects)))
+          (index2    (1- index1))
+          (project2  (or (treemacs-error-return-if (> 0 index2)
+                           "There is no project to switch places with above.")
+                         (nth index2 projects)))
+          (bounds1  (treemacs--get-bounds-of-project project1))
+          (bounds2  (treemacs--get-bounds-of-project project2)))
+     (treemacs-with-writable-buffer
+      (transpose-regions
+       (car bounds1) (cdr bounds1)
+       (car bounds2) (cdr bounds2)))
+     (setf (nth index1 projects) project2
+           (nth index2 projects) project1)
+     (treemacs--persist)
+     (recenter))))
 
 (defun treemacs-move-project-down ()
   "Switch position of the project at point and the one below it."
   (interactive)
-  (cl-block body
-    (let* ((workspace (treemacs-current-workspace))
-           (projects  (treemacs-workspace->projects workspace))
-           (project1  (treemacs-project-at-point))
-           (index1    (or (treemacs-error-return (null project1) "There is nothing to move here.")
-                          (-elem-index project1 projects)))
-           (index2    (1+ index1))
-           (project2  (or (treemacs-error-return (>= index2 (length projects)) "There is no project to transpose below.")
-                          (nth index2 projects)))
-           (bounds1  (treemacs--get-bounds-of-project project1))
-           (bounds2  (treemacs--get-bounds-of-project project2)))
-      (treemacs-with-writable-buffer
-       (transpose-regions
-        (car bounds1) (cdr bounds1)
-        (car bounds2) (cdr bounds2)))
-      (setf (nth index1 projects) project2
-            (nth index2 projects) project1)
-      (treemacs--persist)
-      (recenter))))
+  (treemacs-block
+   (let* ((workspace (treemacs-current-workspace))
+          (projects  (treemacs-workspace->projects workspace))
+          (project1  (treemacs-project-at-point))
+          (index1    (or (treemacs-error-return-if (null project1)
+                           "There is nothing to move here.")
+                         (-elem-index project1 projects)))
+          (index2    (1+ index1))
+          (project2  (or (treemacs-error-return-if (>= index2 (length projects))
+                           "There is no project to switch places with below.")
+                         (nth index2 projects)))
+          (bounds1  (treemacs--get-bounds-of-project project1))
+          (bounds2  (treemacs--get-bounds-of-project project2)))
+     (treemacs-with-writable-buffer
+      (transpose-regions
+       (car bounds1) (cdr bounds1)
+       (car bounds2) (cdr bounds2)))
+     (setf (nth index1 projects) project2
+           (nth index2 projects) project1)
+     (treemacs--persist)
+     (recenter))))
 
 (defun treemacs-finish-edit ()
   "Finish editing your workspaces and apply the change."
   (interactive)
-  (cl-block body
-    (treemacs--org-edit-remove-validation-msg)
-    (widen)
-    (whitespace-cleanup)
-    (-let [lines (treemacs--read-persist-lines (buffer-string))]
-      (treemacs-error-return-if (null (buffer-string))
-        "The buffer is empty, there is nothing here to save.")
-      (pcase (treemacs--validate-persist-lines lines)
-        (`(error ,err-line ,err-msg)
-         (treemacs--org-edit-display-validation-msg err-msg err-line))
-        ('success
-         (f-write (apply #'concat (--map (concat it "\n") lines)) 'utf-8 treemacs-persist-file)
-         (kill-buffer)
-         (treemacs--restore)
-         (treemacs--consolidate-projects)
-         (-some-> (get-buffer treemacs--org-edit-buffer-name) (kill-buffer))
-         (treemacs-log "Edit completed successfully."))))))
+  (treemacs-block
+   (treemacs--org-edit-remove-validation-msg)
+   (widen)
+   (whitespace-cleanup)
+   (-let [lines (treemacs--read-persist-lines (buffer-string))]
+     (treemacs-error-return-if (null (buffer-string))
+       "The buffer is empty, there is nothing here to save.")
+     (pcase (treemacs--validate-persist-lines lines)
+       (`(error ,err-line ,err-msg)
+        (treemacs--org-edit-display-validation-msg err-msg err-line))
+       ('success
+        (f-write (apply #'concat (--map (concat it "\n") lines)) 'utf-8 treemacs-persist-file)
+        (kill-buffer)
+        (treemacs--restore)
+        (treemacs--consolidate-projects)
+        (-some-> (get-buffer treemacs--org-edit-buffer-name) (kill-buffer))
+        (treemacs-log "Edit completed successfully."))))))
 
 (defun treemacs-collapse-parent-node (arg)
   "Close the parent of the node at point.
