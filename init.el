@@ -19,8 +19,12 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/doom-modeline"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/helm"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-box"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell-master"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-purpose"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/awesome-tab"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -44,17 +48,17 @@
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
  ;; 'default nil :font "inconsolata 14")
- 'default nil :font "Consolas 11")
+ 'default nil :font "Consolas 10")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Consolas 11"))
+(add-to-list 'default-frame-alist '(font . "Consolas 10"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
-                    (font-spec :family "Heiti SC" :size 12)));mac中Heiti SC能中英文等高
-;; (font-spec :family "新宋体" :size 16)))
+                    ;; (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
+                    (font-spec :family "新宋体" :size 14)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -87,13 +91,13 @@
 
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "HOME" (expand-file-name "~"))
-  (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin")
+  (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;需要装wget命令，wget访问github需要加--no-check-certificate参数
   (setenv "MINGW" "C:\\MinGW\\bin")
   (setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
   (setenv "LLVM" "G:\\llvm-release\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
-  (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
+  ;; (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
   (setenv "PYTHON3" "g:\\Python3")		;用27的话ycmd可以使用semantic补全
   (setenv "CYGWIN" "C:\\cygwin\\bin")
   (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
@@ -163,7 +167,7 @@
   )
 
 (add-to-list 'exec-path (getenv "GITCMD"))
-(add-to-list 'exec-path (getenv "PYTHON") t)
+(add-to-list 'exec-path (getenv "PYTHON3") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
 (add-to-list 'exec-path (getenv "MSYS") t)
 (add-to-list 'exec-path (getenv "LLVM") t)
@@ -178,7 +182,7 @@
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
 (setq grep-program "grep -nH -F")		;-F按普通字符串搜索
 ;; 默认目录
-;; (setq default-directory "d:/")
+(setq default-directory "d:/")
 
 ;; 启动mode
 (setq initial-major-mode 'text-mode)
@@ -263,6 +267,13 @@
                                 ;; "ivy-minibuffer-match-face-4" "ivy-minibuffer-match-face-3" "ivy-minibuffer-match-face-2" "ivy-minibuffer-match-face-1"
                                 "hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b")))
 
+;; 长行性能提升
+(setq-default bidi-display-reordering nil)
+;; (global-visual-line-mode)        ;系统自带 word wrap 右侧没有换行的标记
+
+;; org inline picture size
+;; (setq org-image-actual-width nil)
+;; 在org文件中图片上方加上#+ATTR_ORG: :width 800，执行org-redisplay-inline-images生效
 
 ;; 自动添加的设置
 (custom-set-variables
@@ -271,6 +282,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ad-redefinition-action (quote accept))
+ '(ag-arguments (quote ("--smart-case" "--stats" "-u")))
  '(ag-highlight-search t)
  '(auto-save-default nil)
  '(autopair-blink nil)
@@ -294,10 +306,10 @@
  '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cursor-type t)
- '(custom-enabled-themes (quote (doom-one)))
+ '(custom-enabled-themes (quote (doom-one-light)))
  '(custom-safe-themes
    (quote
-    ("6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "e2cb7af647319c52b9ae376227d7e030f5266c754f52c274232d79fd0897c7a5" "2a94d296d281444656de6a0b0bd3a1779a1003f9bec66391d40100e01befc199" "e808202286c793bb4e8e4dcc4206514498e4b574d7f02391cc9acc4f6503d8a1" "14464db12e3a2efcf4b31c853fcc998daefe1a3a7089d3e5f7db108652f7fe57" "86d59bd0ba1574288b4a99cbe22459ff1b1b508163060829666b4ee52ffc828f" "876daa5c5f2284c90cba63f23ac3eab7d3518ed70c0e06b5647a8eef15dc58da" "34429cba5ed98ae761fd97dbd48aa6b7f3332f847d8114c2cee963d839c5a609" "55ff1b187304abeb43eb61ff3151deee8d64e749c5b622981ad0f6399defce06" "7fbe60a417014422753256d98eaed04b1912f1d6b022d8653b1076f02fa8af6c" "0057790eb50d79ddfb009d5285f8db6771f4b6ef32b1adc3cb928cd373beacbb" "213243810fa279745c2c373b7dfd4f5a8b96bef34d40609c6841f05ed2b35b45" "f19c42e831da5ded403575bdfb94ea7ebcfe04fdab08a9842912a1528acb5c68" "9f00e2c7aaa792dd441ca0eb3e466311ef3b8eaeb1c46f21be79a55693318b29" "a49acdbb9b08ce6470d263f14c4fdd4a91db3a718f9cc2e2c7d795dc76cfdd1a" "341ac05b01bd993019da315a1471884e0023530c1c29fdc3d7b4e0a6f6e759aa" "8aca557e9a17174d8f847fb02870cb2bb67f3b6e808e46c0e54a44e3e18e1020" "6d589ac0e52375d311afaa745205abb6ccb3b21f6ba037104d71111e7e76a3fc" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+    ("b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
@@ -305,6 +317,7 @@
  '(dired-listing-switches "-alh")
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
+ '(display-line-numbers-width-start t)
  '(ediff-split-window-function (quote split-window-horizontally))
  '(electric-indent-mode t)
  '(electric-pair-inhibit-predicate (quote electric-pair-conservative-inhibit))
@@ -373,7 +386,6 @@
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 104857600)
  '(helm-gtags-cache-select-result t)
- '(helm-gtags-display-style (quote detail))
  '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-update-interval-second 3)
@@ -385,7 +397,7 @@
      (c++-mode . semantic-format-tag-uml-prototype)
      (emacs-lisp-mode . semantic-format-tag-abbreviate-emacs-lisp-mode))))
  '(helm-split-window-inside-p t)
- '(helm-truncate-lines t t)
+ '(helm-truncate-lines t)
  '(hide-ifdef-shadow t)
  '(icomplete-show-matches-on-no-input t)
  '(ido-everywhere t)
@@ -405,9 +417,11 @@
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook (quote (lsp-hover)))
  '(lsp-enable-indentation nil)
+ '(lsp-enable-on-type-formatting nil)
+ '(lsp-enable-symbol-highlighting nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
- '(lsp-java-enable-file-watch t)
  '(lsp-java-format-enabled nil)
+ '(lsp-java-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-save-action-organize-imports nil)
  '(lsp-java-update-build-configuration (quote interactive))
  '(lsp-response-timeout 20)
@@ -415,11 +429,13 @@
  '(lsp-ui-peek-always-show t)
  '(lsp-ui-peek-peek-height 30)
  '(mac-right-option-modifier (quote control))
+ '(magit-blame-goto-chunk-hook nil)
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
  '(magit-log-section-commit-count 0)
  '(magit-refresh-status-buffer nil)
  '(make-backup-files nil)
+ '(max-specpdl-size 13000)
  '(menu-bar-mode nil)
  '(mode-require-final-newline nil)
  '(moo-select-method (quote helm))
@@ -436,9 +452,12 @@
  '(nxml-child-indent 4)
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
+ '(org-image-actual-width (quote (500)))
+ '(org-imenu-depth 4)
  '(org-log-done (quote time))
  '(org-src-fontify-natively t)
  '(org-support-shift-select t)
+ '(package-selected-packages (quote (json-mode)))
  '(password-cache-expiry nil)
  '(pcmpl-gnu-tarfile-regexp "")
  '(powerline-default-separator (quote box))
@@ -466,7 +485,7 @@
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
- '(treemacs-follow-after-init t)
+ '(treemacs-deferred-git-apply-delay 2)
  '(treemacs-show-cursor t)
  '(treemacs-tag-follow-cleanup nil)
  '(treemacs-width 50)
@@ -537,8 +556,6 @@
 
 (eval-after-load "company"
   '(progn
-     (require 'company-box)
-     (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -768,6 +785,8 @@
 
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
+(autoload 'helm-ag-project-root "helm-ag" nil t)
+(global-set-key (kbd "<C-f5>") 'helm-ag-project-root)
 
 (autoload 'helm-gtags-mode "helm-gtags" nil t)
 (autoload 'helm-gtags-select "helm-gtags" nil t)
@@ -849,15 +868,20 @@
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
+
 (autoload 'helm-swoop "helm-swoop" nil t)
 (autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
+(autoload 'helm-multi-swoop-all "helm-swoop" nil t) ;搜索所有buffer，或者用helm-multi-swoop然后mark要搜索的buffer ，或者helm-multi-swoop-projectile搜索所有当前工程打开的buffer
 (global-set-key (kbd "M-]") 'helm-swoop)
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
 (define-key isearch-mode-map (kbd "M-]") 'helm-swoop-from-isearch)
 (setq helm-swoop-split-with-multiple-windows t)
+
 (global-set-key (kbd "C-c j") 'helm-ag-this-file)
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
+
+(autoload 'helm-rg "helm-rg" nil t)
 
 (global-set-key (kbd "C-c b") 'helm-gtags-find-files)
 (global-set-key (kbd "C-c d") 'helm-gtags-find-tag);要在空白处使用才能输入，否则是查找光标下的符号
@@ -902,7 +926,10 @@
 (autoload 'flycheck-mode "flycheck" nil t)
 (autoload 'global-flycheck-mode "flycheck" nil t)
 (with-eval-after-load 'flycheck
-  (setq flycheck-global-modes (quote (not nxml-mode))))
+  (setq flycheck-global-modes (quote (not nxml-mode)))
+  ;; (add-hook 'sh-mode-hook (lambda ()
+  ;;                              (setq flycheck-checker 'sh-posix-bash)))
+  )
 
 (global-set-key (kbd "M-g l") 'flycheck-list-errors)
 (global-set-key (kbd "<M-f5>") (lambda () "" (interactive)
@@ -962,7 +989,8 @@
   (anzu-mode 1))
 
 ;; ace
-;; (define-key cua--cua-keys-keymap [(meta v)] nil)
+(with-eval-after-load 'cua-base
+  (define-key cua--cua-keys-keymap [(meta v)] nil))
 (autoload 'ace-window "ace-window" nil t)
 ;; (autoload 'ace-jump-char-mode "ace-jump-mode" nil t)
 (autoload 'avy-goto-line "avy" nil t)
@@ -987,7 +1015,7 @@
 
 (global-set-key (kbd "M-g M-g") 'avy-goto-line)
 (global-set-key (kbd "M-j") 'avy-goto-char)
-(global-set-key (kbd "M-g i") 'avy-goto-char-timer)
+(global-set-key (kbd "M-g j") 'avy-goto-char-timer)
 
 (global-set-key (kbd "M-v") 'ace-window) ;翻页用page up代替
 ;; (global-set-key (kbd "M-g j") 'ace-jump-char-mode)
@@ -1075,6 +1103,24 @@
 ;; pt
 (autoload 'pt-regexp "pt" nil t)
 
+;; rg
+(autoload 'rg "rg" nil t)
+(autoload 'rg-project "rg" nil t)       ;代替ag-project
+(autoload 'rg-dwim "rg" nil t)       ;直接在project搜索光标下的symbol，并且不用指定类型
+;; 搜索模式如下
+(defun rg-rerun-toggle-word ()
+  ""
+  (interactive)
+  (rg-rerun-toggle-flag "-w"))
+(with-eval-after-load 'rg
+  (define-key rg-mode-map "o" 'rg-rerun-toggle-word))
+;;     (define-key map "c" 'rg-rerun-toggle-case)
+;;     (define-key map "i" 'rg-rerun-toggle-ignore)
+;;     (define-key map "r" 'rg-rerun-change-regexp)
+;;     (define-key map "t" 'rg-rerun-change-literal)
+(global-set-key (kbd "C-S-f") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
+
+
 ;; fast silver searcher
 (autoload 'my-ag "ag" nil t)
 (autoload 'ag-this-file "ag" nil t)
@@ -1082,9 +1128,9 @@
 (autoload 'ag-dired-regexp "ag" nil t)
 (autoload 'ag-project "ag" nil t)
 
-(global-set-key (kbd "<M-S-f9>") 'ag-this-file)
+(global-set-key (kbd "<M-f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
-(global-set-key (kbd "<M-f9>") 'ag-project)
+;; (global-set-key (kbd "C-S-f") 'ag-project) ;counsel-git-grep 也好用，projectile-ag完全等价， helm-ag-project-root
 ;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
 (global-set-key (kbd "<S-f9>") 'ag-dired)
 ;; C-c C-k 停止ag-dired
@@ -1401,15 +1447,6 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
 (global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
 
-;; 用diminish控制minor mode的显示 ,delight也是类似功能
-;; (require 'diminish)
-;; (eval-after-load "auto-complete" '(diminish 'auto-complete-mode))
-;; (eval-after-load "anzu" '(diminish 'anzu-mode))
-;; (eval-after-load "hideif" '(diminish 'hide-ifdef-mode))
-;; (eval-after-load "hideshow" '(diminish 'hs-minor-mode))
-;; (eval-after-load "helm-gtags" '(diminish 'helm-gtags-mode))
-;; (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
-
 ;; modeline和主题定制
 ;; doom theme with its mode line
 (require 'doom-themes)
@@ -1422,6 +1459,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (setq doom-modeline-github nil)
 (setq inhibit-compacting-font-caches t) ; laggy issue on Windows
 (setq doom-modeline-buffer-file-name-style 'buffer-name)
+(setq doom-modeline-vcs-max-length 30)
 ;; add which-func in inactive window
 (doom-modeline-def-segment misc-info-for-all
   "Mode line construct for miscellaneous information.
@@ -1473,16 +1511,23 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'taglist-list-tags "taglist" nil t)
 (global-set-key (kbd "M-Q") 'taglist-list-tags)
 
-;; lsp IDE级插件
+;; lsp IDE级插件，有些server比如bash,javascript需要用npm命令安装，npm命令要装https://nodejs.org/en/才有
+;; from source编译，要装yarn
+;; # install dependencies
+;; npm install
+;; # compile
+;; npm run build
 (when (memq system-type '(windows-nt ms-dos))
   (setq lsp-java-server-install-dir "D:/jdt-language-server-latest/")
-  (setq lsp-java-java-path "G:\\Program Files\\Java\\jdk1.8.0_191\\bin\\java.exe")
+  (setq lsp-java-java-path "G:\\Program Files\\Java\\jdk1.8.0_202\\bin\\java.exe")
   (setq lsp-java-workspace-cache-dir "g:/lsp-java-workspace/.cache/")
   (setq lsp-java-workspace-dir "g:/lsp-java-workspace/"))  
 
 (autoload 'projectile-mode "projectile" nil t)
 (autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
 (autoload 'helm-lsp-workspace-symbol "helm-lsp" nil t)
+
+;; lsp默认支持js-mode不支持json-mode,flycheck默认支持json-mode
 (with-eval-after-load 'lsp-mode
   (require 'projectile)                 ;目录下面放.projectile文件才行
   (require 'flycheck)
@@ -1495,13 +1540,17 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
-  ;; (require 'lsp-treemacs)               ;lsp-treemacs-errors-list
-  ;; (lsp-treemacs-errors-list)
+  (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix
+  (require 'lsp-origami)
+  
+  (add-hook 'java-mode-hook 'lsp)
+  (add-hook 'c-mode-hook 'lsp)
+  (add-hook 'c++-mode-hook 'lsp)
+  (add-hook 'python-mode-hook 'lsp)
+  ;; (add-hook 'js-mode-hook 'lsp)
+  (add-hook 'sh-mode-hook 'lsp)
 
-  (add-hook 'java-mode-hook #'lsp)
-  (add-hook 'c-mode-hook #'lsp)
-  (add-hook 'c++-mode-hook #'lsp)
-  (add-hook 'python-mode-hook #'lsp)
+  (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
 
   ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
   ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
@@ -1516,11 +1565,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq lsp-ui-imenu-enable nil)        ;打开大文件太卡
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-ui-doc-enable nil)          ;用手动lsp-describe-thing-at-point替代
+  (setq lsp-ui-flycheck-enable t)
   ;; (setq lsp-auto-configure nil)
   (global-company-mode t)
   (setq company-lsp-enable-recompletion nil)
 
-  ;; (global-flycheck-mode t)
+  (global-flycheck-mode t)
   ;; (setq xref-show-xrefs-function 'helm-xref-show-xrefs)
   ;; (global-set-key (kbd "C-M-.") 'lsp-ui-find-workspace-symbol)
   (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
@@ -1545,7 +1595,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
               )
             start-point)))
 
-  (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
+  ;; (fset 'lsp--symbol-to-imenu-elem 'lsp--symbol-to-imenu-elem-fset)
 
   (defun lsp--symbol-to-hierarchical-imenu-elem-fset (sym)
     (let* ((start-point (lsp--symbol-get-start-point sym))
@@ -1557,11 +1607,21 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                       (lsp--imenu-create-hierarchical-index (gethash "children" sym))))
         (cons (format "%s (%s)" name-trim (lsp--get-symbol-type sym)) start-point))))
 
-  (fset 'lsp--symbol-to-hierarchical-imenu-elem 'lsp--symbol-to-hierarchical-imenu-elem-fset)
+  ;; (fset 'lsp--symbol-to-hierarchical-imenu-elem 'lsp--symbol-to-hierarchical-imenu-elem-fset)
 
+  ;; java-script 追加json-mode
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "javascript-typescript-stdio")
+                    :major-modes '(json-mode)
+                    :priority -3
+                    :server-id 'jsts-ls))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "typescript-language-server")
+                    :major-modes '(json-mode)
+                    :priority -2
+                    :server-id 'ts-ls))
   ;; java settings
   (with-eval-after-load 'lsp-java
-    (global-flycheck-mode t)
     (setq lsp-ui-imenu-enable t)
     (require 'lsp-java-treemacs)
     (add-hook 'java-mode-hook
@@ -1621,7 +1681,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*" ".*/netconf/.*" ".*/ftpc/.*" ".*/xsm/.*" ".*/sshc/.*"))))
+  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/DIRA/.*" ".*/DIRB/DIRC/.*"))))
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
@@ -1630,6 +1690,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (add-hook hook
               (lambda()
                 (global-set-key (kbd "<f12>") 'cquery-call-hierarchy))))
+  ;;提示cquery is not enabled in buffer就把调cquery--cquery-buffer-check的地方都注掉
 
   ;;进程异常时，记录有残留，执行这句复原
   (global-set-key (kbd "<C-S-f12>") (lambda () "" (interactive)
@@ -1698,14 +1759,21 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'treemacs-select-window "treemacs" nil t)
 
 (with-eval-after-load 'treemacs
-  (if (eq system-type 'windows-nt)
-      (setq treemacs-python-executable "g:/Python3/python.exe"))
+  (if (memq system-type '(windows-nt ms-dos))
+      (progn
+        (setq treemacs-max-git-entries 100)
+        (setq treemacs-python-executable "g:/Python3/python.exe")))
+  (global-set-key (kbd "<S-f6>") 'treemacs-find-file)
+  (global-set-key (kbd "<C-S-f6>") 'treemacs-find-tag)
+
   (add-hook 'treemacs-mode-hook
             (lambda ()
-              ;; (treemacs-git-mode 'deferred) ;太卡
-              (setq treemacs-collapse-dirs 4)
+              (treemacs-git-mode 'deferred) ;太卡
+              (setq treemacs-collapse-dirs 3)
               ;; (treemacs-tag-follow-mode)
-              (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode)
+              (treemacs-follow-mode -1) ;treemacs-find-file 手动focus
+              (treemacs-filewatch-mode -1)
+              (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode) ;treemacs-find-tag 手动focus
               (define-key treemacs-mode-map (kbd "e") 'treemacs-toggle-node)
               (define-key treemacs-mode-map (kbd "f") 'treemacs-visit-node-no-split)
               (setq truncate-lines t))))
@@ -1738,7 +1806,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
 (add-hook 'yaml-mode-hook
           '(lambda ()
-             (set-c-word-mode)
              (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 ;; swiper
@@ -1769,14 +1836,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (setq ivy-re-builders-alist
   ;;       '((t . ivy--regex-fuzzy)))
   ;; (ivy-toggle-fuzzy)
-  (require 'ivy-posframe)
-  (setq ivy-display-function #'ivy-posframe-display)
-  (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
-  (setq ivy-display-function #'ivy-posframe-display-at-window-center)
-  (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
-  (setq ivy-display-function #'ivy-posframe-display-at-window-bottom-left)
-  (setq ivy-display-function #'ivy-posframe-display-at-point)
-  (ivy-posframe-enable)
+  ;; (require 'ivy-posframe)
+  ;; (setq ivy-display-function #'ivy-posframe-display)
+  ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
+  ;; (setq ivy-display-function #'ivy-posframe-display-at-window-center)
+  ;; (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
+  ;; (setq ivy-display-function #'ivy-posframe-display-at-window-bottom-left)
+  ;; (setq ivy-display-function #'ivy-posframe-display-at-point)
+  ;; (ivy-posframe-enable)
   )
 
 ;; (ivy-mode)
@@ -1792,7 +1859,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 ;; (counsel-mode)
 ;; 接管搜索
-;; (autoload 'swiper "swiper" nil t)
+(autoload 'swiper "swiper" nil t)
 
 ;; (global-set-key (kbd "<f9>") 'swiper)
 ;; (with-eval-after-load 'swiper
@@ -1807,32 +1874,21 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; 多光标操作 
 (autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
 (autoload 'mc/edit-lines "multiple-cursors" nil t)
-(global-set-key (kbd "C-c C-f") 'mc/mark-all-like-this) ;选中后C-y粘贴替换
-(global-set-key (kbd "C-c C-e") 'mc/edit-lines)
+(global-set-key (kbd "C-c C-e") 'mc/mark-all-like-this) ;选中后C-y粘贴替换
+(global-set-key (kbd "C-c C-s") 'mc/edit-lines)
 (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
-;; (with-eval-after-load 'multiple-cursors
-;;   (require 'phi-search))
 
-
-;; 动态搜索、替换
-(with-eval-after-load 'phi-search-core
-  (defadvice phi-search--initialize(after phi-search--initialize-af activate)
-    (setq mode-line-format phi-search--saved-mode-line-format))) ;别动mode-line
-(autoload 'phi-search "phi-search" nil t)
-(autoload 'phi-replace-query "phi-replace" nil t)
-;; (define-key global-map [remap query-replace] 'phi-replace-query)
-;; (define-key global-map [remap anzu-query-replace] 'phi-replace-query)
 
 ;; nedtree explorer
 (autoload 'neotree-toggle "neotree" nil t)
 (global-set-key (kbd "<M-f7>") 'neotree-toggle)
 
 ;; 折叠
-;; (autoload 'origami-mode "origami" nil t)
+(autoload 'origami-mode "origami" nil t)
 ;; (add-hook 'prog-mode-hook
 ;;           (lambda () (origami-mode)))
 
-(autoload 'yafolding-mode "yafolding" nil t) ;侧栏有标记
+(autoload 'yafolding-mode "yafolding" nil t) ;侧栏有标记，基于缩进
 (autoload 'yafolding-toggle-element "yafolding" nil t)
 (define-key global-map (kbd "M-[") 'yafolding-toggle-element)
 (with-eval-after-load 'yafolding
@@ -1848,6 +1904,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;   (unless origami-mode
 ;;     (origami-mode t)))
 
+;; fold region, 创建fold后用c-` toggle
+(autoload 'vimish-fold "vimish-fold" nil t)
+(global-set-key (kbd "C-c C-h") 'vimish-fold)
+(global-set-key (kbd "C-c M-h") 'vimish-fold-delete)
+
 ;; 符号高亮
 (autoload 'symbol-overlay-put "symbol-overlay" nil t)
 (autoload 'symbol-overlay-jump-next "symbol-overlay" nil t)
@@ -1861,6 +1922,19 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c p") 'symbol-overlay-switch-backward)
 ;; (symbol-overlay-mode t)                   ;自动高亮，不是全局的
 
+;; purpose
+(autoload 'purpose-mode "window-purpose" nil t)
+(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;该窗口不会被占
+;; (global-set-key (kbd "<C-f10>") 'purpose-mode)
+(global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
+
+;; nyan
+(autoload 'nyan-mode "nyan-mode" nil t)
+
+;; find-file
+(autoload 'find-file-in-project "find-file-in-project" nil t)
+(global-set-key (kbd "<M-S-f6>") 'find-file-in-project)
+(setq ffip-use-rust-fd t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -1917,6 +1991,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
                      java-mode
                      yaml-mode
                      nxml-mode
+                     javascript-mode
+                     kotlin-mode
                      ))
            (let ((mark-even-if-inactive transient-mark-mode))
              (indent-region (region-beginning) (region-end) nil)
@@ -1941,10 +2017,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   (his-match-paren 1))
 
 (global-set-key (kbd "C-'") 'his-match-paren)
-(global-set-key (kbd "%") 'his-match-paren)
 (global-set-key (kbd "C-\"") 'select-match)
-(global-set-key (kbd "C-%") 'select-match)
-
 
 ;; 复制文件路径(支持buffer中和dired中)
 (defun copy-file-name (&optional full)
@@ -1999,7 +2072,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
+(dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -2013,8 +2086,8 @@ If FULL is t, copy full file name."
 (defun set-c-word-mode ()
   ""
   (interactive)
-  ;; (require 'cc-mode)
-  ;; (set-syntax-table c++-mode-syntax-table)
+  (require 'cc-mode)
+  (set-syntax-table c++-mode-syntax-table)
   ;; (modify-syntax-entry ?- ".")			;-作为标点符号，起到分隔单词作用
   (modify-syntax-entry ?& ".")
   (modify-syntax-entry ?$ ".")
@@ -2024,7 +2097,8 @@ If FULL is t, copy full file name."
   (modify-syntax-entry ?/ ".")
   (modify-syntax-entry ?_ "w")
   (modify-syntax-entry ?- "w")
-  (setq-local bm-cycle-all-buffers nil))
+  ;; (setq-local bm-cycle-all-buffers nil)
+  )
 
 (global-set-key (kbd "C-?") 'set-c-word-mode)
 
@@ -2491,6 +2565,7 @@ If less than or equal to zero, there is no limit."
 (add-hook 'java-mode-hook
           (lambda ()
             (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
+            (modify-syntax-entry ?- "w")    ;_ 当成单词的一部分
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
                                        1  font-lock-function-name-face keep))
@@ -2505,7 +2580,6 @@ If less than or equal to zero, there is no limit."
             ;; (hs-minor-mode 1)
             (company-mode 1)
             (eldoc-mode 1)
-            (setq-local indent-tabs-mode nil)
             (setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
@@ -2548,12 +2622,6 @@ If less than or equal to zero, there is no limit."
             (company-mode -1)
             ))
 
-;; xml
-(add-hook 'nxml-mode-hook
-          (lambda () "DOCSTRING" (interactive)
-            (setq-local indent-tabs-mode nil) ;tab用空格填充
-            (set-c-word-mode)))
-
 ;; python
 (add-hook 'python-mode-hook
           (lambda () "" (interactive)
@@ -2575,6 +2643,11 @@ If less than or equal to zero, there is no limit."
               (set-syntax-table c++-mode-syntax-table)
               (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
               )))
+;; 设置单词边界
+(dolist (hook '(nxml-mode-hook yaml-mode-hook org-mode-hook cquery-tree-mode-hook ag-mode-hook eshell-mode-hook))
+  (add-hook hook
+            (lambda()
+              (set-c-word-mode))))
 
 (add-hook 'font-lock-mode-hook
           (lambda () "DOCSTRING" (interactive)
@@ -2594,11 +2667,11 @@ If less than or equal to zero, there is no limit."
 (add-hook 'org-mode-hook
           (lambda () "DOCSTRING" (interactive)
             ;; (iimage-mode t)
+            (require 'htmlize)
             (org-redisplay-inline-images)
             ;; (require 'org-download)
             (define-key org-mode-map [(control tab)] nil)
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
-            (set-c-word-mode)
             (setq truncate-lines nil)
             ))
 (setq org-export-with-sub-superscripts '{}) ;设置让 Org Mode 在默认情况下，不转义 _ 字符,这样就会用 {} 来转义了
@@ -2666,7 +2739,7 @@ If less than or equal to zero, there is no limit."
 
 ;; 文件跳转
 (global-set-key (kbd "<C-f6>") 'find-file-at-point) ;ffap
-(global-set-key (kbd "<M-o>") 'ff-find-other-file) ;声明和实现之间跳转
+(global-set-key (kbd "M-o") 'ff-find-other-file) ;声明和实现之间跳转
 
 ;; rename buffer可用于给shell改名，起多个shell用
 ;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;或者c-u M-x shell
@@ -2682,8 +2755,8 @@ If less than or equal to zero, there is no limit."
 ;; shell
 (global-set-key (kbd "<S-f10>") 'shell)
 (global-set-key (kbd "<f10>") 'eshell)
-;; (global-set-key (kbd "<M-f10>") 'aweshell-toggle)
-(autoload 'aweshell-toggle "aweshell" nil t)
+(autoload 'aweshell-toggle "aweshell" nil  t)
+
 
 ;; 行号栏选择行
 (global-set-key (kbd "<left-margin> <down-mouse-1>") 'mouse-drag-region)
@@ -2718,7 +2791,7 @@ If less than or equal to zero, there is no limit."
 ;;       ad-do-it)))
 
 ;; rgrep
-(global-set-key (kbd "<C-f5>") 'rgrep)
+;; (global-set-key (kbd "<C-f5>") 'rgrep)
 (global-set-key (kbd "<C-S-f5>") 'lgrep)
 ;; diff
 (global-set-key (kbd "C-;") 'ediff-buffers)
@@ -2776,11 +2849,13 @@ If less than or equal to zero, there is no limit."
   (copy-face 'tabbar-modified 'tabbar-unselected-modified)
   )
 ;; 浅色主题就只用下面一句就行
-(set-face-attribute 'tabbar-default nil
-                    :height 100
-                    :family "Consolas"
-                    )
-;; (change-face)
+(with-eval-after-load 'tabbar
+  (set-face-attribute 'tabbar-default nil
+                      :height 100
+                      :family "Consolas"
+                      )
+  ;; (change-face)
+  )
 ;; 新窗口利用face
 ;; (add-hook 'after-make-frame-functions
 ;;           (lambda (_)                   ;这里如果不用(_)会报参数错误
@@ -2793,6 +2868,7 @@ If less than or equal to zero, there is no limit."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(epe-pipeline-time-face ((t (:foreground "dodger blue"))))
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
