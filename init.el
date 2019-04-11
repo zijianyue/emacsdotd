@@ -306,10 +306,10 @@
  '(cquery-sem-macro-faces [font-lock-warning-face])
  '(cquery-tree-initial-levels 1)
  '(cursor-type t)
- '(custom-enabled-themes (quote (doom-one-light)))
+ '(custom-enabled-themes (quote (doom-one)))
  '(custom-safe-themes
    (quote
-    ("b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
+    ("6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
