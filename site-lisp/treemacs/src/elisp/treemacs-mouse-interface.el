@@ -34,9 +34,7 @@
 Must be bound to a mouse click, or EVENT will not be supplied."
   (interactive "e")
   (when (eq 'mouse-1 (elt event 0))
-    (unless (eq major-mode 'treemacs-mode)
-      ;; no when-let - the window must exist or this function would not be called
-      (select-window (treemacs-get-local-window)))
+    (select-window (->> event (cadr) (nth 0)))
     (goto-char (posn-point (cadr event)))
     (when (region-active-p)
       (keyboard-quit))
@@ -81,9 +79,7 @@ Clicking on icons will expand a file's tags, just like
 `treemacs-leftclick-action'."
   (interactive "e")
   (when (eq 'mouse-1 (elt event 0))
-    (unless (eq major-mode 'treemacs-mode)
-      ;; no when-let - the window must exist or this function would not be called
-      (select-window (treemacs-get-local-window)))
+    (select-window (->> event (cadr) (nth 0)))
     (goto-char (posn-point (cadr event)))
     (when (region-active-p)
       (keyboard-quit))
@@ -219,9 +215,11 @@ ignore any prefix argument."
                    ["Open Tags"  treemacs-toggle-node :visible ,(check (memq state '(file-node-closed tag-node-closed)))]
                    ["Close Tags" treemacs-toggle-node :visible ,(check (memq state '(file-node-open tag-node-open)))]
 
-                   ["--" #'ignore                      :visible ,(check node)]
-                   ["Rename"           treemacs-rename :visible ,(check node)]
-                   ["Delete"           treemacs-delete :visible ,(check node)]
+                   ["--" #'ignore                         :visible ,(check node)]
+                   ["Rename"           treemacs-rename    :visible ,(check node)]
+                   ["Delete"           treemacs-delete    :visible ,(check node)]
+                   ["Copy"             treemacs-copy-file :visible ,(check node)]
+                   ["Move"             treemacs-move-file :visible ,(check node)]
 
                    ["--" #'ignore t]
                    ("Projects"

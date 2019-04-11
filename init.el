@@ -556,6 +556,8 @@
 
 (eval-after-load "company"
   '(progn
+     ;; (require 'company-box)
+     ;; (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -1922,6 +1924,23 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c p") 'symbol-overlay-switch-backward)
 ;; (symbol-overlay-mode t)                   ;自动高亮，不是全局的
 
+;; meghanada
+;; (require 'meghanada)
+;; (add-hook 'java-mode-hook
+;;           (lambda ()
+;;             ;; meghanada-mode on
+;;             (meghanada-mode t)
+;;             (flycheck-mode +1)
+;;             (setq c-basic-offset 2)
+;;             ;; use code format
+;;             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+;; (cond
+;;  ((eq system-type 'windows-nt)
+;;   (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+;;   (setq meghanada-maven-path "mvn.cmd"))
+;;  (t
+;;   (setq meghanada-java-path "java")
+;;   (setq meghanada-maven-path "mvn")))
 ;; purpose
 (autoload 'purpose-mode "window-purpose" nil t)
 (autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;该窗口不会被占

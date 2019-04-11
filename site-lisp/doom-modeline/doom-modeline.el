@@ -4,7 +4,7 @@
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; Homepage: https://github.com/seagle0128/doom-modeline
-;; Version: 1.8.0
+;; Version: 1.9.5
 ;; Package-Requires: ((emacs "25.1") (all-the-icons "1.0.0") (shrink-path "0.2.0") (eldoc-eval "0.1") (dash "2.11.0"))
 ;; Keywords: faces mode-line
 
@@ -29,12 +29,12 @@
 
 ;;; Commentary:
 ;;
-;; This package offers a fancy and fast mode-line which was from DOOM Emacs
-;; (https://github.com/hlissner/doom-emacs/tree/master/modules/ui/doom-modeline),
-;; but it's more powerful and much faster.
-;; It's also integrated into Centaur Emacs (https://github.com/seagle0128/.emacs.d).
+;; This package offers a fancy and fast mode-line inspired by minimalism design.
 ;;
-;; The doom-modeline was designed for minimalism, and offers:
+;; It's integrated into Doom Emacs (https://github.com/hlissner/doom-emacs) and
+;; Centaur Emacs (https://github.com/seagle0128/.emacs.d).
+;;
+;; The doom-modeline offers:
 ;; - A match count panel (for anzu, iedit, multiple-cursors, symbol-overlay,
 ;;   evil-search and evil-substitute)
 ;; - An indicator for recording a macro
@@ -52,9 +52,10 @@
 ;; - An indicator for remote host
 ;; - An indicator for current input method
 ;; - An indicator for debug state
-;; - An indicator for LSP state
+;; - An indicator for LSP state with lsp-mode or eglot
 ;; - An indicator for github notifications
 ;; - An indicator for unread emails with mu4e-alert
+;; - An indicator for irc notifications with circe
 ;; - An indicator for buffer position which is compatible with nyan-mode
 ;; - An indicator for party parrot
 ;; - An indicator for PDF page number

@@ -32,8 +32,6 @@
 (require 'eldoc-eval)
 (require 'shrink-path)
 (require 'subr-x)
-(when (>= emacs-major-version 26)
-  (require 'project))
 
 
 ;;
@@ -86,14 +84,11 @@ Given ~/Projects/FOSS/emacs/lisp/comint.el
   file-name => comint.el
   buffer-name => comint.el<2> (uniquify buffer name)")
 
-(defvar doom-modeline-python-executable "python"
-  "What executable of Python will be used (if nil nothing will be showed).")
-
 (defvar doom-modeline-icon (display-graphic-p)
   "Whether show `all-the-icons' or not.
 
 Non-nil to show the icons in mode-line.
-The icons may not be showed correctly in terminal and on Windows.")
+The icons may not be showed correctly in terminal.")
 
 (defvar doom-modeline-major-mode-icon t
   "Whether show the icon for major mode. It respects `doom-modeline-icon'.")
@@ -203,7 +198,7 @@ The icons may not be showed correctly in terminal and on Windows.")
 (defface doom-modeline-bar '((t (:inherit highlight)))
   "The face used for the left-most bar on the mode-line of an active window.")
 
-(defface doom-modeline-eldoc-bar `((t (:background ,(face-foreground 'success))))
+(defface doom-modeline-eldoc-bar `((t (:background ,(face-foreground 'default))))
   "The face used for the left-most bar on the mode-line when eldoc-eval is active.")
 
 (defface doom-modeline-inactive-bar `((t (:background ,(face-foreground 'mode-line-inactive))))
@@ -230,10 +225,10 @@ The icons may not be showed correctly in terminal and on Windows.")
 (defface doom-modeline-evil-replace-state '((t (:inherit doom-modeline-buffer-modified)))
   "Face for the replace state tag in evil state indicator.")
 
-(defface doom-modeline-persp-name '((t (:inherit font-lock-comment-face :italic t)))
+(defface doom-modeline-persp-name '((t (:inherit (font-lock-comment-face italic))))
   "Face for the replace state tag in evil state indicator.")
 
-(defface doom-modeline-persp-buffer-not-in-persp '((t (:inherit font-lock-doc-face :bold t)))
+(defface doom-modeline-persp-buffer-not-in-persp '((t (:inherit (font-lock-doc-face bold italic))))
   "Face for the replace state tag in evil state indicator.")
 
 ;;
@@ -241,7 +236,6 @@ The icons may not be showed correctly in terminal and on Windows.")
 ;;
 
 (declare-function face-remap-remove-relative 'face-remap)
-(declare-function project-current 'project)
 (declare-function project-roots 'project)
 (declare-function projectile-project-root 'projectile)
 
@@ -305,14 +299,15 @@ Example:
         (rhs-forms (doom-modeline--prepare-segments rhs)))
     (defalias sym
       (lambda ()
-        (let ((rhs-str (format-mode-line (cons "" rhs-forms))))
-          (list lhs-forms
-                (propertize
-                 " "
-                 'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
-                 'display `((space :align-to (- (+ right right-fringe right-margin)
-                                                ,(+ 1 (string-width rhs-str))))))
-                rhs-str)))
+        (list lhs-forms
+              (propertize
+               " "
+               'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
+               'display `((space :align-to (- (+ right right-fringe right-margin)
+                                              ,(+ 1 (string-width
+                                                     (format-mode-line
+                                                      (cons "" rhs-forms))))))))
+              rhs-forms))
       (concat "Modeline:\n"
               (format "  %s\n  %s"
                       (prin1-to-string lhs)
@@ -358,9 +353,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
            mode-line-in-non-selected-windows)
       (force-mode-line-update)
       (sit-for eldoc-show-in-mode-line-delay))))
-(setq eldoc-in-minibuffer-show-fn #'doom-modeline--show-eldoc)
 
-(eldoc-in-minibuffer-mode 1)
+(add-hook 'doom-modeline-mode-hook
+          (lambda ()
+            (if (bound-and-true-p doom-modeline-mode)
+                (progn
+                  (eldoc-in-minibuffer-mode 1)
+                  (setq eldoc-in-minibuffer-show-fn #'doom-modeline--show-eldoc))
+              (progn
+                (eldoc-in-minibuffer-mode -1)
+                (setq eldoc-in-minibuffer-show-fn #'eldoc-show-in-mode-line)))))
 
 ;; Keep `doom-modeline-current-window' up-to-date
 (defun doom-modeline--get-current-window ()
@@ -383,13 +385,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   (force-mode-line-update))
 
 (add-hook 'window-configuration-change-hook #'doom-modeline-set-selected-window)
+(add-hook 'buffer-list-update-hook #'doom-modeline-set-selected-window)
 (advice-add #'handle-switch-frame :after #'doom-modeline-set-selected-window)
-(advice-add #'select-window :after #'doom-modeline-set-selected-window)
 (advice-add #'make-frame :after #'doom-modeline-set-selected-window)
 (advice-add #'delete-frame :after #'doom-modeline-set-selected-window)
 (with-no-warnings
   (cond ((not (boundp 'after-focus-change-function))
-         (add-hook 'focus-in-hook  #'doom-modeline-set-selected-window)
+         (add-hook 'focus-in-hook #'doom-modeline-set-selected-window)
          (add-hook 'focus-out-hook #'doom-modeline-unset-selected-window))
         ((defun doom-modeline-refresh-frame ()
            (setq doom-modeline-current-window nil)
@@ -522,9 +524,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   "Return fish-style truncated string based on FULL-PATH.
 Optional parameter TRUNCATE-ALL will cause the function to truncate the last
 directory too."
-  (let* ((home (getenv "HOME"))
+  (let* ((home (expand-file-name "~"))
          (path (replace-regexp-in-string
-                (s-concat "^" home "$") "~" full-path))
+                (s-concat "^" home) "~" full-path))
          (split (s-split "/" path 'omit-nulls))
          (split-len (length split))
          shrunk)
@@ -560,7 +562,7 @@ directory too."
        (`relative-to-project
         (doom-modeline--buffer-file-name-relative buffer-file-name buffer-file-truename))
        (`relative-from-project
-        (doom-modeline--buffer-file-name-relative buffer-file-name buffer-file-truename 'include-project))
+        (doom-modeline--buffer-file-name buffer-file-name buffer-file-truename nil nil 'hide))
        (style
         (propertize
          (pcase style

@@ -26,6 +26,7 @@
 (require 'pfuture)
 (require 'treemacs-impl)
 (require 'treemacs-customization)
+(require 'treemacs-dom)
 (eval-and-compile
   (require 'inline)
   (require 'treemacs-macros))
@@ -58,14 +59,19 @@ Real implementation will be `fset' based on `treemacs-git-mode' value."
     (let* ((file-name-handler-alist nil)
            (git-root (expand-file-name git-root))
            (default-directory path)
-           (future (pfuture-new
-                    treemacs-python-executable
-                    "-O"
-                    "-S"
-                    treemacs--git-status.py
-                    git-root
-                    (number-to-string treemacs-max-git-entries)
-                    treemacs-git-command-pipe)))
+           (open-dirs (-some->>
+                       path
+                       (treemacs-find-in-dom)
+                       (treemacs-dom-node->children)
+                       (-map #'treemacs-dom-node->key)))
+           (command `(,treemacs-python-executable
+                      "-O" "-S"
+                      ,treemacs--git-status.py
+                      ,git-root
+                      ,(number-to-string treemacs-max-git-entries)
+                      ,treemacs-git-command-pipe
+                      ,@open-dirs))
+           (future (apply #'pfuture-new command)))
       future)))
 
 (defun treemacs--parse-git-status-extended (git-future)
@@ -74,22 +80,13 @@ The real parsing and formatting is done by the python process. All that's really
 left to do is pick up the cons list and put it in a hash table.
 
 GIT-FUTURE: Pfuture"
-  (-let [git-info-hash (make-hash-table :test #'equal :size 1000)]
+  (-let [ret (ht)]
     (when git-future
       (pfuture-await-to-finish git-future)
       (when (= 0 (process-exit-status git-future))
         (-let [git-output (pfuture-result git-future)]
-          (treemacs--read-git-status-into-hash git-output git-info-hash))))
-    git-info-hash))
-
-(define-inline treemacs--read-git-status-into-hash (output ht)
-  "Read given OUTPUT into given hash table HT."
-  (inline-letevals (output ht)
-    (inline-quote
-     (unless (s-blank? ,output)
-       (--each (read ,output)
-         ;; key = path, value = git state char
-         (ht-set! ,ht (cdr it) (aref (car it) 0)))))))
+          (setf ret (read git-output)))))
+    ret))
 
 (defun treemacs--git-status-process-simple (path)
   "Start a simple git status process for files under PATH."
@@ -128,7 +125,7 @@ GIT-FUTURE: Pfuture"
                           (setq i (1+ i))
                         (ht-set! git-info-hash
                                  (f-join git-root (s-trim-left path))
-                                 (aref (s-trim-left status) 0)))))
+                                 (substring (s-trim-left status) 0 1)))))
                   (setq i (1+ i)))))))))
     git-info-hash))
 

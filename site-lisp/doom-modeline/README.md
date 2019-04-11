@@ -5,12 +5,10 @@
 [![MELPA Stable](https://stable.melpa.org/packages/doom-modeline-badge.svg)](https://stable.melpa.org/#/doom-modeline)
 [![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
 
-A fancy and fast mode-line which was from [DOOM
-Emacs](https://github.com/hlissner/doom-emacs/tree/master/modules/ui/doom-modeline),
-but it's more powerful and much faster.
+A fancy and fast mode-line inspired by minimalism design.
 
-It's integrated into [Centaur Emacs](https://github.com/seagle0128/.emacs.d) by
-default.
+It's integrated into [Doom Emacs](https://github.com/hlissner/doom-emacs) and
+[Centaur Emacs](https://github.com/seagle0128/.emacs.d).
 
 ## Feature
 
@@ -33,9 +31,10 @@ The `doom-modeline` was designed for minimalism, and offers:
 - An indicator for remote host
 - An indicator for debug state
 - An indicator for current input method
-- An indicator for `LSP` state
+- An indicator for LSP state with `lsp-mode` or `eglot`
 - An indicator for github notifications
 - An indicator for unread emails with `mu4e-alert`
+- An indicator for irc notifications with `circe`
 - An indicator for buffer position which is compatible with `nyan-mode`
 - An indicator for party parrot
 - An indicator for PDF page number
@@ -149,9 +148,6 @@ Strongly recommend to use
 ;; Please refer to https://github.com/bbatsov/projectile/issues/657.
 (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
 
-;; What executable of Python will be used (if nil nothing will be showed).
-(setq doom-modeline-python-executable "python")
-
 ;; Whether show `all-the-icons' or not (if nil nothing will be showed).
 (setq doom-modeline-icon t)
 
@@ -182,11 +178,32 @@ Strongly recommend to use
 ;; The interval of checking github.
 (setq doom-modeline-github-interval (* 30 60))
 
-;; Whether display environment version or not.
+;; Whether display environment version or not
 (setq doom-modeline-env-version t)
+;; Or for individual languages
+(setq doom-modeline-env-enable-python t)
+(setq doom-modeline-env-enable-ruby t)
+(setq doom-modeline-env-enable-perl t)
+(setq doom-modeline-env-enable-go t)
+(setq doom-modeline-env-enable-elixir t)
+(setq doom-modeline-env-enable-rust t)
+
+;; Change the executables to use for the language version string
+(setq doom-modeline-env-python-executable "python")
+(setq doom-modeline-env-ruby-executable "ruby")
+(setq doom-modeline-env-perl-executable "perl")
+(setq doom-modeline-env-go-executable "go")
+(setq doom-modeline-env-elixir-executable "iex")
+(setq doom-modeline-env-rust-executable "rustc")
 
 ;; Whether display mu4e notifications or not. Requires `mu4e-alert' package.
 (setq doom-modeline-mu4e t)
+
+;; Whether display irc notifications or not. Requires `circe' package.
+(setq doom-modeline-irc t)
+
+;; Function to stylize the irc buffer names.
+(setq doom-modeline-irc-stylize 'identity)
 ```
 
 ## FAQ

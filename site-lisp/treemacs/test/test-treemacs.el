@@ -985,6 +985,27 @@
             :to-equal
             '("* Workspace" "** Project" " - path :: /x"))))
 
+(describe "treemacs--parse-collapsed-dirs"
+  (it "Finds dirs to flatten in test directory"
+    (-let [treemacs-collapse-dirs 3]
+      (expect (-> treemacs-dir
+                  (f-join "test")
+                  (treemacs--collapsed-dirs-process)
+                  (treemacs--parse-collapsed-dirs))
+              :to-equal
+              `((,(f-join treemacs-dir "test/testdir1")
+                 "/testdir2/testdir3"
+                 ,(f-join treemacs-dir "test/testdir1/testdir2")
+                 ,(f-join treemacs-dir "test/testdir1/testdir2/testdir3"))))))
+
+  (it "Returns nil when there is nothing to flatten"
+    (-let [treemacs-collapse-dirs 3]
+      (expect (-> treemacs-dir
+                  (f-join "test/testdir1/testdir2")
+                  (treemacs--collapsed-dirs-process)
+                  (treemacs--parse-collapsed-dirs))
+              :to-be nil))))
+
 (provide 'test-treemacs)
 
 ;;; test-treemacs.el ends here
