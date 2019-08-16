@@ -39,18 +39,39 @@ git config --global credential.helper store
 ** git push 前要先打开pageant并加载指定ppk文件，对于SSH下载下来的文件这样才能push成功
 
 ** git修改已经push过的commit message <2019-02-14 周四 12:22>
-1、git rebase -i 
-2、在弹出的编辑页面，将 *要修改的错误* 的commit message前面的“pick”改为“reword”，然后保存 
+1、git rebase -i HEAD~20 编辑最近20个commit 
+2、在弹出的编辑页面，将 *要修改的错误* 的commit message前面的“pick”改为“reword”，然后保存 C-x #
    注意：如果启用了magit，会弹出magit的rebase，这个buffer不能编辑，reword要执行"r"命令
 3、保存后会再弹出一个编辑页面，将里面错误的commit message改为想要的，然后保存 
 4、git push --force
+以下方法才好用
+通过git rebase修改commit message
+今天发现一个项目的git commit message中的单词拼错了，需要修改一下。但这样简单的修改，需要通过git rebase才能完成。
 
+首先要git rebase到需要修改message的那个commit的前1个commit。假设commit id是32e0a87f，运行下面的git rebase命令：
+
+git rebase -i 32e0a87f
+在git bash中运行上面的命令后，会弹出编辑框，在编辑框中会分行依次显示以pick开头的这个commit之后的所有commit message。
+
+将需要修改的commit message之前的"pick"改为"reword"，点击保存按钮，并关闭编辑框，这时会执行rebase操作。
+
+Rebasing (1/3)
+接着会再次弹出编辑框，这次编辑框中只有之前改为"reword"的那个commit message，此时修改commit message的内容，点击保存按钮并关闭编辑框，会继续执行rebase操作。
+
+如果操作成功，会出现如下的提示：
+
+[detached HEAD aa3b52c] Add return url
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+Successfully rebased and updated refs/heads/oss.
+这样就完成了git commit message的修改，然后强制push一下就搞定了。
+
+git push --force
 ** magit里解决完文件冲突后要stage一下，才能resolve <2019-02-14 周四 16:28>
 
-** 设置fork url <2019-03-07 周四 13:25>
-git remote set-url fork URL
+** 添加remote fork url <2019-03-07 周四 13:25>
+git remote add fork ssh://git@source.huawei.com:2222/NCE-IP/IPTunnelService.git
 
-** git proxy密码特殊字符转义 <2019-03-19 周二 19:10>
+** git proxy密码特殊字符转义，比如.gitconfig里就要用 <2019-03-19 周二 19:10>
  ! --> %21    # --> %23    $ --> %24    & --> %26    ' --> %27
  ( --> %28    ) --> %29    * --> %2A    + --> %2B    , --> %2C
  / --> %2F    : --> %3A    ; --> %3B    = --> %3D    ? --> %3F
@@ -79,6 +100,20 @@ Looking up host "myHost")
 shell:sendto
 #+END_EXAMPLE
 即可
+
+** True (False) Positives (Negatives) 相关概念 <2019-05-23 周四 19:37>
+https://blog.csdn.net/OpenSourceSDR/article/details/73334302
+TP —— True Positive （真正, TP）是指某（些）个正样本被预测判定为正；此种情况可以称作判断为真的正确情况【correctly identified】
+
+TN —— True Negative（真负 , TN）是指某（些）个负样本被预测判定为负；此种情况可以称作判断为假的正确情况【correctly rejected】
+
+FP ——False Positive （假正, FP）是指某（些）个负样本被模型预测为正；此种情况可以称作判断为真的错误情况，或称为误报【incorrectly identified】
+
+FN——False Negative（假负 , FN）是指某（些）个正样本被模型预测为负；此种情况可以称作判断为假的错误情况，或称为漏报【incorrectly rejected】
+
+** 访问远程主机的D盘 <2019-07-17 周三 20:31>
+\\100.95.225.233\d$\gzj
+
 * emacs
 ** srecode编辑模式C-c c-c是确认修改生效
 ** dired中S即dired-do-symlink可以给exe创建快捷方式（symlink or soft link），并放到指定位置。
@@ -195,7 +230,7 @@ Pygments version 2.1, (c) 2006-2015 by Georg Brandl.
 ** cscope处理不了文件中有extern c
 ** 编译rtags要在cygwin中装cmake openssl-dev libclang-static ncurse make.
 ** cygwin中装libglib是给sdcv用的
-libglib-2.0.dll.a
+libglib-2.0.dll.a 要装32位版本的cygwin
 ** m-q 自动换行的用法
 先设置(setq-default fill-column 80)，或者用快捷键c-x f，然后选中一段文字m-q
 ** ycmd编译
@@ -298,6 +333,15 @@ I	#+INCLUDE: line
 
 *** helm列出所有标题命令 <2019-03-29 周五 15:39>
 helm-org-in-buffer-headings
+
+*** 加粗，斜体，下划线，行内代码，删除线 <2019-05-31 周五 14:23>
+*加粗* /斜体/ _下划线_ =code= ~code~
+
++删除线+
+
+分别对应 
+(* / _ = ~ +)
+
 ** 指定某目录下的.h文件都按c++ mode显示
 目录下创建.dir-locals.el，内容：
 ((c-mode . ((mode . c++))))
@@ -323,6 +367,7 @@ cd build
 cmake .. -G Ninja  -DSYSTEM_CLANG=ON -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 cmake --build  .
 
+PS. msys64的代理设置g:\msys64\home\g00280886\.bashrc中添加
 *** 使用VS2017编译
 安装步骤
 第一步：安装VS2017最新版，安装时勾选上CMake
@@ -400,13 +445,97 @@ systemProp.https.proxyPort=your_proxy_https_port
 *** TODO pdf-tools <2019-02-14 周四 19:42>
 
 *** TODO emax及msys2环境的使用 <2019-02-14 周四 19:42>
-
+1. msys2的GIT有问题，Git用Windows版的，在/etc/pacman.conf加入如下内容安装这个版本的Git------经验证不好用
+[git-for-windows]
+# SigLevel = Optional TrustedOnly
+SigLevel = Never
+Server = https://dl.bintray.com/git-for-windows/pacman/$arch
+2. 可以用清华的源加速MSYS2的使用。具体改两个地方就行：
+# /etc/pacman.d/mirrorlist.mingw64
+Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/x86_64
+# /etc/pacman.d/mirrorlist.msys
+Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/msys/$arch
 *** TODO 长行性能<2019-02-25 周一 14:38>
 ** magit <2019-01-28 周一 10:15>
 *** magit部分提交修改
 用tab展开修改，假如有多个hunk，在要提交的hunk上stage（s键），如果失败可能是无法单独提交该hunk
 *** magit pull or push 卡住，按$发现Store key in cache? (y/n) <2019-01-28 周一 10:16>
 可以打开Putty工具，输入git@source.huawei.com 端口号2222 SSH协议，然后按yes cache the key
+*** from mybase <2019-07-06 周六 15:48>
+1.Reset head 选 origin/master可以撤消COMMIT恢复到unstage状态
+
+2.How to Undo the Unpushed Commits in Magit?
+Oct 15th, 2014 | Comments
+
+In Magit buffer *magit: ..*,
+
+Hit x
+Select origin/master
+Above action will undo all the commits that haven’t been pushed to github.com. It will still preserve the modified states of the yet-to-be staged/committed files.
+
+3.git revert和git reset的区别
+标签： gitstring
+2012-06-14 20:56 55375人阅读 评论(4) 收藏 举报
+ 分类：  版本控制（44）  
+原文：http://blog.csdn.net/koffuxu/article/details/6731876
+git revert 是撤销某次操作，此次操作之前的commit都会被保留
+git reset 是撤销某次提交，但是此次之后的修改都会被退回到暂存区
+具体一个例子，假设有三个commit， git st:
+commit3: add test3.c
+commit2: add test2.c
+commit1: add test1.c
+当执行git revert HEAD~1时， commit2被撤销了
+git log可以看到：
+commit1：add test1.c
+commit3：add test3.c
+git status 没有任何变化
+如果换做执行git reset --soft(默认) HEAD~1后，运行git log
+commit2: add test2.c
+commit1: add test1.c
+运行git status， 则test3.c处于暂存区，准备提交。
+如果换做执行git reset --hard HEAD~1后，
+显示：HEAD is now at commit2，运行git log
+commit2: add test2.c
+commit1: add test1.c
+运行git st， 没有任何变化
+另外：
+git revert <commit log string>是撤消该commit，作为一个新的commit。
+
+
+magit 里执行magit-reset-soft输入HEAD~1，即撤消commit并恢复到stage状态
+
+
+4.命令行clone指定分支
+git clone -b <branch> remote url 
+
+
+5 切换分支
+b b     (magit-checkout)
+
+6 stage多个可用鼠标划过
+
+7. submodule如何下载
+git submodule init
+git submodule update
+
+8.查看指定目录下的 status
+
+git status [path]
+比如当前目录下的 status:
+
+git status .
+
+9。有时PULL下来某个目录冲突解决不了，可以用以下命令
+mergetool
+然后选r表示remotea或者l表示local
+
+10 同步forkfrom的新分支 ，用fetch all remotes，前提是添加了forkfrom路径，如果要同步远端的分支删除就勾上-p prune deleted branch
+这样forkfrom中的分支就更新了，再用checkout new branch(b c)切换到新分支，push到origin即完成了同步
+
+push的时候如果遇到 binary hook报错就上isource去工程设置里把Enable binary file gate去掉
+
+
+
 ** markdown语法 <2019-01-31 周四 19:52>
 插入代码 
 ``` python
@@ -508,6 +637,8 @@ debug
 
 ** gtags 过滤 <2019-02-03 Sun 11:38>
 ~/.globalrc编写skip时不要写在最前，也不要写在最后
+
+** c-x c-t上下两行互换 <2019-04-13 周六 15:39>
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
@@ -753,21 +884,6 @@ $ pip --version
  
 # upgrade pip
 $ sudo pip install --upgrade pip
-* java
-** maven 的setting.xml
-建立maven项目会需要去仓库下载一些相关的依赖包。maven默认的中央仓库是英国，所以我们把中央仓库改为maven阿里云中央仓库。
-
-修改maven根目录下的conf文件夹中的setting.xml文件，内容如下：
-  <localRepository>/Users/shangri-la/.m2/repository</localRepository>
- <mirrors>
-    <mirror>
-      <id>alimaven</id>
-      <name>aliyun maven</name>
-      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-      <mirrorOf>central</mirrorOf>        
-    </mirror>
-  </mirrors>
-
 * MAC使用
 ** 截屏
 如果是截取全屏，用 shift+command+3 就可以快速截取整个屏幕，截图自动保存在桌面，文件名为截取时间，格式为png
