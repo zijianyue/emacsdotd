@@ -10,21 +10,24 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-java"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/magit/lisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs/src/elisp"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/treemacs/src/extra"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-doom-themes"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-ui"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/swiper"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/doom-modeline"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/helm"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell-master"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-purpose"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/awesome-tab"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -40,7 +43,7 @@
 
 ;; 窗口位置 大小
 (setq initial-frame-alist
-      '((top . 1) (left . 350) (width . 80) (height . 38)))
+      '((top . 20) (left . 350) (width . 200 ) (height . 70)))
 
 ;; Start maximised (cross-platf)
 ;; (add-hook 'window-setup-hook 'toggle-frame-maximized t)
@@ -93,7 +96,7 @@
   (setenv "HOME" (expand-file-name "~"))
   (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;需要装wget命令，wget访问github需要加--no-check-certificate参数
   (setenv "MINGW" "C:\\MinGW\\bin")
-  (setenv "PUTTY" "C:\\Program Files (x86)\\PuTTY")
+  ;; (setenv "PUTTY" "C:\\Program Files\\PuTTY")
   (setenv "LLVM" "G:\\llvm-release\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
@@ -105,6 +108,8 @@
   (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
   (setenv "MAVEN_HOME" "G:\\apache-maven-3.6.0\\bin")
+  (setenv "IMAGE_MAGICk" "G:\\ImageMagick-7.0.8-58-portable-Q16-x64")
+  (setenv "JAVABIN" "G:\\Program Files\\Java\\jdk1.8.0_202\\bin")
   )
 
 (when (eq system-type 'darwin)
@@ -140,6 +145,10 @@
          ;; path-separator
          ;; (getenv "PYTHON")
          path-separator
+         (getenv "JAVABIN")
+         path-separator
+         (getenv "IMAGE_MAGICk")
+         path-separator
          (getenv "MSYS")
          path-separator
          (getenv "MINGW")
@@ -166,7 +175,9 @@
   (add-to-list 'exec-path (getenv "PYTHONMAC"))
   )
 
+(add-to-list 'exec-path (getenv "JAVABIN"))
 (add-to-list 'exec-path (getenv "GITCMD"))
+(add-to-list 'exec-path (getenv "IMAGE_MAGICk") t)
 (add-to-list 'exec-path (getenv "PYTHON3") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
 (add-to-list 'exec-path (getenv "MSYS") t)
@@ -272,7 +283,7 @@
 ;; (global-visual-line-mode)        ;系统自带 word wrap 右侧没有换行的标记
 
 ;; org inline picture size
-;; (setq org-image-actual-width nil)
+;; (setq org-image-actual-width nil) ; org-image-actual-width的设置需要build with imagemagick support.用emax64
 ;; 在org文件中图片上方加上#+ATTR_ORG: :width 800，执行org-redisplay-inline-images生效
 
 ;; 自动添加的设置
@@ -285,6 +296,8 @@
  '(ag-arguments (quote ("--smart-case" "--stats" "-u")))
  '(ag-highlight-search t)
  '(auto-save-default nil)
+ '(auto-save-visited-interval 2)
+ '(auto-save-visited-mode t)
  '(autopair-blink nil)
  '(avy-background t)
  '(aw-scope (quote frame))
@@ -334,6 +347,7 @@
  '(flycheck-indication-mode (quote right-fringe))
  '(flycheck-navigation-minimum-level (quote error))
  '(frame-resize-pixelwise t)
+ '(gc-cons-threshold 8000000)
  '(git-commit-fill-column 200)
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
@@ -346,8 +360,8 @@
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
  '(gud-pdb-command-name "python -i -m pdb")
  '(helm-M-x-fuzzy-match t)
- '(helm-ag-base-command "ag --nocolor --nogroup -S -Q ")
- '(helm-ag-fuzzy-match t)
+ '(helm-ag-base-command "ag --nocolor --nogroup -S -Q -u")
+ '(helm-ag-insert-at-point (quote symbol))
  '(helm-allow-mouse t)
  '(helm-autoresize-mode t)
  '(helm-buffer-max-length 40)
@@ -419,13 +433,18 @@
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-symbol-highlighting nil)
+ '(lsp-file-watch-ignored
+   (quote
+    ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "/model/" "/client/")))
  '(lsp-imenu-sort-methods (quote (kind position)))
+ '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
- '(lsp-java-import-order ["com" "org" "javax" "java" "static"])
+ '(lsp-java-max-concurrent-builds 4)
  '(lsp-java-save-action-organize-imports nil)
  '(lsp-java-update-build-configuration (quote interactive))
  '(lsp-response-timeout 20)
  '(lsp-ui-doc-include-signature t)
+ '(lsp-ui-doc-use-webkit t)
  '(lsp-ui-peek-always-show t)
  '(lsp-ui-peek-peek-height 30)
  '(mac-right-option-modifier (quote control))
@@ -433,8 +452,11 @@
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
  '(magit-log-section-commit-count 0)
- '(magit-refresh-status-buffer nil)
+ '(magit-refresh-verbose t)
  '(make-backup-files nil)
+ '(maple-imenu-auto-update t)
+ '(maple-imenu-display-alist (quote ((side . left) (slot . 2))))
+ '(maple-imenu-width 30)
  '(max-specpdl-size 13000)
  '(menu-bar-mode nil)
  '(mode-require-final-newline nil)
@@ -450,6 +472,8 @@
  '(neo-window-width 50)
  '(ns-right-alternate-modifier (quote control))
  '(nxml-child-indent 4)
+ '(org-default-notes-file "~/.emacs.d/.notes")
+ '(org-directory "~/.emacs.d/org")
  '(org-download-screenshot-file "f:/org/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-image-actual-width (quote (500)))
@@ -466,6 +490,7 @@
  '(proced-format (quote medium))
  '(proced-tree-flag t)
  '(recentf-auto-cleanup 600)
+ '(regexp-search-ring-max 50)
  '(rg-custom-type-aliases nil)
  '(rg-show-header nil)
  '(save-place t nil (saveplace))
@@ -481,11 +506,12 @@
  '(show-paren-when-point-in-periphery t)
  '(show-paren-when-point-inside-paren t)
  '(size-indication-mode t)
+ '(sp-base-key-bindings (quote sp))
  '(switch-window-shortcut-style (quote (quote qwerty)))
  '(tab-width 4)
  '(tabbar-show-key-bindings nil)
  '(tool-bar-mode nil)
- '(treemacs-deferred-git-apply-delay 2)
+ '(treemacs-collapse-dirs 3)
  '(treemacs-show-cursor t)
  '(treemacs-tag-follow-cleanup nil)
  '(treemacs-width 50)
@@ -630,6 +656,7 @@
         (string-match-p "log-edit-files" (buffer-name buffer))
         (string-match-p "\*Helm" (buffer-name buffer))
         (string-match-p "\*Bookmark List\*" (buffer-name buffer))
+        (string-match-p "screenshot*" (buffer-name buffer))
         )))
 
 (defun rjs-pre-command-fset ()
@@ -788,7 +815,9 @@
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 (autoload 'helm-ag-project-root "helm-ag" nil t)
-(global-set-key (kbd "<C-f5>") 'helm-ag-project-root)
+(global-set-key (kbd "C-S-f") 'helm-ag-project-root)
+
+(autoload 'helm-org-in-buffer-headings "helm-config" nil t) ;在org-mode中找标题很方便
 
 (autoload 'helm-gtags-mode "helm-gtags" nil t)
 (autoload 'helm-gtags-select "helm-gtags" nil t)
@@ -928,7 +957,7 @@
 (autoload 'flycheck-mode "flycheck" nil t)
 (autoload 'global-flycheck-mode "flycheck" nil t)
 (with-eval-after-load 'flycheck
-  (setq flycheck-global-modes (quote (not nxml-mode)))
+  ;; (setq flycheck-global-modes (quote (not nxml-mode)))
   ;; (add-hook 'sh-mode-hook (lambda ()
   ;;                              (setq flycheck-checker 'sh-posix-bash)))
   )
@@ -1024,7 +1053,7 @@
 
 
 ;; 查看diff
-
+;; smartrep，会跟doom-modeline冲突，但是有smartrep，按键会方便
 ;; (require 'diff-hl-margin )
 ;; (global-diff-hl-mode)
 (autoload 'diff-hl-dired-mode "diff-hl-dired" nil t)
@@ -1092,8 +1121,8 @@
                        )
                   (reopen-file))))))
 (global-set-key (kbd "M-g h") 'toggle-git-backend)
-(when (memq system-type '(windows-nt ms-dos))
-  (toggle-git-backend))
+;; (when (memq system-type '(windows-nt ms-dos))
+;;  (toggle-git-backend))
 ;; wgrep
 (autoload 'wgrep-setup "wgrep")
 (add-hook 'grep-setup-hook 'wgrep-setup)
@@ -1120,7 +1149,7 @@
 ;;     (define-key map "i" 'rg-rerun-toggle-ignore)
 ;;     (define-key map "r" 'rg-rerun-change-regexp)
 ;;     (define-key map "t" 'rg-rerun-change-literal)
-(global-set-key (kbd "C-S-f") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
+(global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
 
 
 ;; fast silver searcher
@@ -1234,13 +1263,12 @@
      (fset 'ag/buffer-name 'ag/buffer-name-fset)
      ))
 
-;; magit
-;; 环境变量PATH里面一定要有C:\Program Files\Git\cmd, 不能有C:\Program Files\TortoiseGit\bin，否则git命令在shell里不好使
+;; magit 确保ssh的ppk正确，换电脑的话要重新生成密钥
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
   (setenv "SSH_ASKPASS" "git-gui--askpass")
-  (setenv "GIT_SSH" "c:/Program Files (x86)/PuTTY/plink.exe")
-  ;; (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定
+  ;; (setenv "GIT_SSH" "c:/Program Files/PuTTY/plink.exe") ;遇到弹出POTENTIAL SECURITY BREACH!告警就没法用了
+  (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定，用这个有什么需要点的提示能弹出来，不像plink没法点
   )
 
 ;; 要想保存密码不用每次输入得修改.git-credentials和.gitconfig
@@ -1278,8 +1306,8 @@
        (setq tz 0))
 
      ;; 提高性能
-     (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
-     (remove-hook 'server-switch-hook 'magit-commit-diff) ;提交时不显示差异，如需显示敲c-c c-d
+     ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
+     ;; (remove-hook 'server-switch-hook 'magit-commit-diff) ;提交时不显示差异，如需显示敲c-c c-d
      ))
 
 
@@ -1341,6 +1369,23 @@
 
 (require 'aquamacs-tabbar)
 (tabbar-mode)
+
+;; centaur-tabs
+;; (require 'centaur-tabs)
+;; (centaur-tabs-mode t)
+;; (global-set-key (kbd "C-<prior>")  'centaur-tabs-backward)
+;; (global-set-key (kbd "C-<next>") 'centaur-tabs-forward)
+;; (global-set-key (kbd "<C-tab>") 'centaur-tabs-forward)
+;; (global-set-key (kbd "<C-S-tab>") 'centaur-tabs-backward)
+;; (centaur-tabs-headline-match)
+;; (setq centaur-tabs-style "bar")
+;; (setq centaur-tabs-set-icons t)
+;; (setq centaur-tabs-set-bar t)           ;To display a colored bar at the left of the selected tab
+;; (setq centaur-tabs-set-modified-marker t)
+;; (setq centaur-tabs-modified-marker "*")
+;; (setq centaur-tabs-close-button " x ")
+;; (setq centaur-tabs-height 18)
+;; (centaur-tabs-inherit-tabbar-faces)
 
 ;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
 ;; (defun tabbar-gzj-inhgibit-function ()
@@ -1449,13 +1494,18 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
 (global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;不要直接用imenu-list命令，因为不起timer，无法自动刷新
 
+;; maple-imenu
+(autoload 'maple-imenu "maple-imenu" nil t)
+;; (global-set-key (kbd "M-q") 'maple-imenu)
+
 ;; modeline和主题定制
 ;; doom theme with its mode line
 (require 'doom-themes)
 ;; (doom-themes-visual-bell-config)
-(doom-themes-neotree-config)
+;; (doom-themes-neotree-config)
+(autoload 'doom-themes-org-config "doom-themes-ext-org.el" nil t)
 (doom-themes-org-config)
-(doom-themes-treemacs-config)           ;这句会导致treemacs无法点击打开文件的tags，但是可以在文件名上右键选择打开
+;; (doom-themes-treemacs-config)           ;这句会导致treemacs无法点击打开文件的tags，但是可以在文件名上右键选择打开
 ;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
@@ -1469,8 +1519,8 @@ By default, this shows the information specified by `global-mode-string'."
   '(" " mode-line-misc-info))
 
 (doom-modeline-def-modeline 'main-misc-for-all
-  '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
-  '(misc-info-for-all persp-name lsp github debug minor-modes input-method buffer-encoding major-mode process vcs checker))
+  '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position parrot selection-info)
+  '(misc-info-for-all persp-name lsp irc mu4e github debug fancy-battery minor-modes input-method buffer-encoding major-mode process vcs checker))
 
 (defun doom-modeline-set-main-misc-for-all-modeline (&optional default)
   "Set main mode-line.
@@ -1480,7 +1530,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (fset 'doom-modeline-set-main-modeline 'doom-modeline-set-main-misc-for-all-modeline)
 (doom-modeline-mode 1)
 
-;; org screenshort
+;; org screenshort，得装image magick
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
 
@@ -1526,6 +1576,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq lsp-java-workspace-dir "g:/lsp-java-workspace/"))  
 
 (autoload 'projectile-mode "projectile" nil t)
+(global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);切换src和test文件，得先projectile-mode
 (autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
 (autoload 'helm-lsp-workspace-symbol "helm-lsp" nil t)
 
@@ -1544,13 +1595,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (require 'helm-xref)
   (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix
   (require 'lsp-origami)
-  
+  (projectile-mode)
   (add-hook 'java-mode-hook 'lsp)
   (add-hook 'c-mode-hook 'lsp)
   (add-hook 'c++-mode-hook 'lsp)
   (add-hook 'python-mode-hook 'lsp)
   ;; (add-hook 'js-mode-hook 'lsp)
   (add-hook 'sh-mode-hook 'lsp)
+  ;; (add-hook 'kotlin-mode-hook 'lsp)
+  (add-hook 'nxml-mode-hook 'lsp)
+  (add-hook 'js-mode-hook 'lsp)
 
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
 
@@ -1581,6 +1635,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
   (global-set-key (kbd "<C-f12>") 'lsp-execute-code-action)
   (global-set-key (kbd "<M-f12>") 'lsp-find-implementation)
+  (global-set-key (kbd "<f12>") 'xref-find-references)
+  (global-set-key (kbd "M-.") 'lsp-find-definition)
 
   (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
 
@@ -1622,14 +1678,20 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :major-modes '(json-mode)
                     :priority -2
                     :server-id 'ts-ls))
+
+  ;; kotlin
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("G:\\KotlinLanguageServer\\server\\build\\install\\server\\bin\\kotlin-language-server.bat"))
+                    :major-modes '(kotlin-mode)
+                    :priority 1
+                    :server-id 'kt-ls))
+  
   ;; java settings
+  ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
+  ;; lsp-java-jdt-download-url - JDT JS download url. Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server-latest.tar.gz if you want to use Eclipse Che JDT LS.
   (with-eval-after-load 'lsp-java
     (setq lsp-ui-imenu-enable t)
-    (require 'lsp-java-treemacs)
-    (add-hook 'java-mode-hook
-                (lambda()
-                  (global-set-key (kbd "<f12>") 'xref-find-references)))
-                                  
+    ;; (require 'lsp-java-treemacs)
     ;; use STS4
     ;; (require 'lsp-java-boot)
 
@@ -1639,28 +1701,28 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
-    (defun lsp-java-treemacs--is-root-fset (dir-or-project)
-      "Return whether DIR-OR-PROJECT is root of a project."
-      (let ((dir (if (stringp dir-or-project)
-                     dir-or-project
-                   (treemacs-project->path dir-or-project))))
+    ;; (defun lsp-java-treemacs--is-root-fset (dir-or-project)
+    ;;   "Return whether DIR-OR-PROJECT is root of a project."
+    ;;   (let ((dir (if (stringp dir-or-project)
+    ;;                  dir-or-project
+    ;;                (treemacs-project->path dir-or-project))))
 
-        (when-lsp-workspace (lsp-java--find-workspace (lsp--path-to-uri dir)) ;diff here
-                            (-contains? (lsp-java--get-project-uris lsp--cur-workspace)
-                                        (lsp--path-to-uri dir)))))
+    ;;     (when-lsp-workspace (lsp-java--find-workspace (lsp--path-to-uri dir)) ;diff here
+    ;;                         (-contains? (lsp-java--get-project-uris lsp--cur-workspace)
+    ;;                                     (lsp--path-to-uri dir)))))
 
-    (fset 'lsp-java-treemacs--is-root 'lsp-java-treemacs--is-root-fset)
+    ;; (fset 'lsp-java-treemacs--is-root 'lsp-java-treemacs--is-root-fset)
 
-    (defun lsp-java-treemacs-unregister-fset ()
-      "Unregister extension."
-      (interactive)
-      (remove-hook 'lsp-workspace-folders-change 'lsp-java-treemacs--folders-change)
-      (treemacs-remove-project-extension 'treemacs-EXTERNAL-LIBRARY-extension
-                                         'top) ;diff here
-      (treemacs-remove-directory-extension 'treemacs-EXTERNAL-LIBRARY-extension
-                                           'top)) ;diff here
+    ;; (defun lsp-java-treemacs-unregister-fset ()
+    ;;   "Unregister extension."
+    ;;   (interactive)
+    ;;   (remove-hook 'lsp-workspace-folders-change 'lsp-java-treemacs--folders-change)
+    ;;   (treemacs-remove-project-extension 'treemacs-EXTERNAL-LIBRARY-extension
+    ;;                                      'top) ;diff here
+    ;;   (treemacs-remove-directory-extension 'treemacs-EXTERNAL-LIBRARY-extension
+    ;;                                        'top)) ;diff here
 
-    (fset 'lsp-java-treemacs-unregister 'lsp-java-treemacs-unregister-fset)
+    ;; (fset 'lsp-java-treemacs-unregister 'lsp-java-treemacs-unregister-fset)
     )
   ;; xref按键重定义
   (define-key xref--button-map [mouse-1] 'ignore)
@@ -1683,15 +1745,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/DIRA/.*" ".*/DIRB/DIRC/.*"))))
+  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*" ".*/netconf/.*" ".*/ftpc/.*" ".*/xsm/.*" ".*/sshc/.*" ".*/sshs/.*"))))
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
   ;; (setq cquery-sem-highlight-method 'font-lock)
-  (dolist (hook '(c-mode-hook c++-mode-hook))
-    (add-hook hook
-              (lambda()
-                (global-set-key (kbd "<f12>") 'cquery-call-hierarchy))))
+  (define-key c-mode-map (kbd "<S-f12>") 'cquery-call-hierarchy)
+  (define-key c++-mode-map (kbd "<S-f12>") 'cquery-call-hierarchy)
+
   ;;提示cquery is not enabled in buffer就把调cquery--cquery-buffer-check的地方都注掉
 
   ;;进程异常时，记录有残留，执行这句复原
@@ -1759,8 +1820,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<M-f6>") 'treemacs-select-window)
 (autoload 'treemacs "treemacs" nil t)
 (autoload 'treemacs-select-window "treemacs" nil t)
+(setq treemacs--icon-size 14)
 
 (with-eval-after-load 'treemacs
+  ;; (require 'treemacs-icons-dired)
+  (treemacs-git-mode 'deferred) 
   (if (memq system-type '(windows-nt ms-dos))
       (progn
         (setq treemacs-max-git-entries 100)
@@ -1770,14 +1834,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   (add-hook 'treemacs-mode-hook
             (lambda ()
-              (treemacs-git-mode 'deferred) ;太卡
-              (setq treemacs-collapse-dirs 3)
+              ;; (setq treemacs-collapse-dirs 3) ;太卡，而且有时会导致同步文件位置出错
+              ;; (treemacs-icons-dired-mode)
               ;; (treemacs-tag-follow-mode)
               (treemacs-follow-mode -1) ;treemacs-find-file 手动focus
-              (treemacs-filewatch-mode -1)
+              ;; (treemacs-filewatch-mode -1)                                        ;太卡
               (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode) ;treemacs-find-tag 手动focus
               (define-key treemacs-mode-map (kbd "e") 'treemacs-toggle-node)
               (define-key treemacs-mode-map (kbd "f") 'treemacs-visit-node-no-split)
+              (define-key treemacs-mode-map (kbd "/") 'isearch-forward)
+              (define-key treemacs-mode-map (kbd "?") 'isearch-backward)
               (setq truncate-lines t))))
 
 ;; dap-mode 调试
@@ -1814,15 +1880,15 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; 替代helm-gtags
 ;; (autoload 'counsel-gtags-mode "counsel-gtags" nil t)
 (autoload 'counsel-gtags-find-file "counsel-gtags" nil t)
-(autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
-;; (autoload 'counsel-gtags-find-definition "counsel-gtags" nil t)
+;; (autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
+(autoload 'counsel-gtags-find-definition "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-find-reference "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-dwim "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-create-tags "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-update-tags "counsel-gtags" nil t)
 
-;; (global-set-key (kbd "<f6>") 'counsel-gtags-find-file)
-;; (global-set-key (kbd "<f7>") 'counsel-gtags-find-definition)
+(global-set-key (kbd "<C-S-f5>") 'counsel-gtags-find-file)
+(global-set-key (kbd "<C-S-f7>") 'counsel-gtags-find-definition)
 ;; (global-set-key (kbd "C-\\") 'counsel-gtags-dwim)
 ;; (global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;可以指定路径和label
 ;; (global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
@@ -1830,9 +1896,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; (global-set-key (kbd "C-c r") 'counsel-gtags-find-reference)
 
 ;; 接管输入
-;; (autoload 'ivy-mode "ivy" nil t)
-;; (global-set-key (kbd "<M-apps>") 'ivy-resume)
-;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
+(autoload 'ivy-mode "ivy" nil t)
+(global-set-key (kbd "<M-apps>") 'ivy-resume)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
 
 (with-eval-after-load 'ivy
   ;; (setq ivy-re-builders-alist
@@ -1882,8 +1948,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 
 ;; nedtree explorer
-(autoload 'neotree-toggle "neotree" nil t)
-(global-set-key (kbd "<M-f7>") 'neotree-toggle)
+;; (autoload 'neotree-toggle "neotree" nil t)
+;; (global-set-key (kbd "<M-f7>") 'neotree-toggle)
 
 ;; 折叠
 (autoload 'origami-mode "origami" nil t)
@@ -1908,8 +1974,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; fold region, 创建fold后用c-` toggle
 (autoload 'vimish-fold "vimish-fold" nil t)
-(global-set-key (kbd "C-c C-h") 'vimish-fold)
-(global-set-key (kbd "C-c M-h") 'vimish-fold-delete)
+(global-set-key (kbd "C-.") 'vimish-fold)
+(global-set-key (kbd "C->") 'vimish-fold-delete)
 
 ;; 符号高亮
 (autoload 'symbol-overlay-put "symbol-overlay" nil t)
@@ -1924,8 +1990,30 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c p") 'symbol-overlay-switch-backward)
 ;; (symbol-overlay-mode t)                   ;自动高亮，不是全局的
 
+;; purpose
+(autoload 'purpose-mode "window-purpose" nil t)
+(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;该窗口不会被占
+(global-set-key (kbd "<M-S-f10>") 'purpose-mode)                         ;该窗口用于某一类buffer
+(global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
+
+;; nyan
+;; (autoload 'nyan-mode "nyan-mode" nil t)
+
+;; find-file
+(autoload 'find-file-in-project "find-file-in-project" nil t)
+(global-set-key (kbd "<M-S-f6>") 'find-file-in-project)
+(setq ffip-use-rust-fd t)
+
+;; json reformat
+;; 通过package已经加载的json-mode-beautify命令C-c C-f就是把一段json报文美化成有段落缩进的效果，但是转出来的顺序是乱的
+;; web-beautify转的正确，需要依赖npm -g install js-beautify
+(autoload 'web-beautify-js "web-beautify" nil t)
+(autoload 'web-beautify-css "web-beautify" nil t)
+(autoload 'web-beautify-html "web-beautify" nil t)
+(global-set-key (kbd "C-c C-b") 'web-beautify-js)
+
 ;; meghanada
-;; (require 'meghanada)
+;; (autoload 'meghanada-mode "meghanada" nil t)
 ;; (add-hook 'java-mode-hook
 ;;           (lambda ()
 ;;             ;; meghanada-mode on
@@ -1941,19 +2029,35 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;  (t
 ;;   (setq meghanada-java-path "java")
 ;;   (setq meghanada-maven-path "mvn")))
-;; purpose
-(autoload 'purpose-mode "window-purpose" nil t)
-(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;该窗口不会被占
-;; (global-set-key (kbd "<C-f10>") 'purpose-mode)
-(global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
 
-;; nyan
-(autoload 'nyan-mode "nyan-mode" nil t)
+;; smartparens
+(autoload 'smartparens-mode "smartparens-config" nil  t)
+;; (add-hook 'prog-mode-hook #'smartparens-mode)
+;; 移动的按键 sp-smartparens-bindings
 
-;; find-file
-(autoload 'find-file-in-project "find-file-in-project" nil t)
-(global-set-key (kbd "<M-S-f6>") 'find-file-in-project)
-(setq ffip-use-rust-fd t)
+;; dired-hacks
+;; dired-rainbow太旧，已经不管用了
+(autoload 'dired-collapse-mode "dired-collapse" nil t)
+(autoload 'dired-filter-group-mode "dired-filter" nil t)
+(setq dired-filter-group-saved-groups '(("default"
+                                         ("PDF"
+                                          (extension . "pdf"))
+                                         ("LaTeX"
+                                          (extension "tex" "bib"))
+                                         ("Org"
+                                          (extension . "org"))
+                                         ("Document"
+                                          (extension "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
+                                         ("Picture"
+                                          (extension "png" "jpg" "jpeg" "gif" "ttf"))
+                                         ("Execute"
+                                          (extension "exe" "jar"))
+                                         ("Media"
+                                          (extension "ogg" "flv" "mpg" "avi" "mp4" "mp3"))
+                                         ("Archives"
+                                          (extension "zip" "rar" "gz" "bz2" "tar")))))
+(autoload 'dired-narrow-fuzzy "dired-narrow" nil t) ;动态过滤，按g恢复
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2091,7 +2195,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition))
+(dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition symbol-overlay-jump-next symbol-overlay-jump-prev))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -2151,7 +2255,7 @@ If FULL is t, copy full file name."
 ;; 大文件处理
 (defun check-large-file-hook ()
   ""
-  (when (< (* 150 1024) (buffer-size))
+  (when (< (* 200 1024) (buffer-size))
     ;; (setq-local jit-lock-context-time 1.5)
     ;; (setq-local jit-lock-defer-time 0.5)
     (setq-local font-lock-maximum-decoration 2)
@@ -2403,6 +2507,26 @@ If less than or equal to zero, there is no limit."
         (dolist (f-path my-file-list)
           (let (process-connection-type)
             (start-process "" nil "xdg-open" f-path))))))))
+
+(defun kill-ring-save-keep-highlight (beg end)
+  "Keep the region active after the kill"
+  (interactive "r")
+  (prog1 (kill-ring-save beg end)
+    (setq deactivate-mark nil)))
+
+(global-set-key (kbd "<C-insert>") 'kill-ring-save-keep-highlight)
+;; 垃圾回收调整，避免卡顿
+(defmacro k-time (&rest body)
+  "Measure and return the time it takes evaluating BODY."
+  `(let ((time (current-time)))
+     ,@body
+     (float-time (time-since time))))
+
+(defvar k-gc-timer
+  (run-with-idle-timer 15 t
+                       (lambda ()
+                         (k-time (garbage-collect))
+                         )))
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
@@ -2583,8 +2707,10 @@ If less than or equal to zero, there is no limit."
               )))
 (add-hook 'java-mode-hook
           (lambda ()
+            ;; (prefer-coding-system 'utf-8) ;这个会改变shell的编码
             (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
             (modify-syntax-entry ?- "w")    ;_ 当成单词的一部分
+            ;; (setq-local company-idle-delay 0)
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
                                        1  font-lock-function-name-face keep))
@@ -2605,11 +2731,14 @@ If less than or equal to zero, there is no limit."
 
 (add-hook 'dired-mode-hook
           (lambda ()
+            (require 'dired-ranger);; 复制粘贴 dired-ranger-copy dired-ranger-paste dired-ranger-move ，剪贴板查看dired-ranger-copy-ring
+            (define-key dired-mode-map (kbd ";") 'dired-narrow-fuzzy) ;默认的&也行
+            ;; paste时按c-u不清空剪贴板，这样可以重复粘贴
             (define-key dired-mode-map "b" 'dired-up-directory)
             ;; (define-key dired-mode-map "e" (lambda () "" (interactive)
             ;;                                  (ergoemacs-open-in-desktop t)))
             (define-key dired-mode-map (kbd "e") 'ergoemacs-open-in-desktop)
-            (define-key dired-mode-map (kbd ";") 'ergoemacs-open-in-external-app) ;默认的&也行
+            (define-key dired-mode-map (kbd ",") 'ergoemacs-open-in-external-app) ;默认的&也行
             (define-key dired-mode-map "/" 'isearch-forward)
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
@@ -2622,6 +2751,20 @@ If less than or equal to zero, there is no limit."
                                                            (w32-shell-execute "open" (car (dired-get-marked-files)))))
                                                      (dired-do-async-shell-command))))
             ;; (diff-hl-dired-mode 1)
+            ;; (unless (or (equal (buffer-name) "c:/")
+            ;;             (equal (buffer-name) "d:/")
+            ;;             (equal (buffer-name) "e:/")
+            ;;             (equal (buffer-name) "f:/")
+            ;;             (equal (buffer-name) "g:/"))
+            ;;   (dired-collapse-mode 1))
+                                        ;在盘符根目录下使用会报权限错误导致根目录打不开
+            (dired-filter-group-mode 1)
+            ;; (require 'all-the-icons-dired)
+            ;; (all-the-icons-dired-mode)
+            (require 'treemacs-icons-dired)
+            (treemacs-icons-dired-mode 1)
+            (define-key dired-mode-map (kbd "`") 'dired-filter-group-toggle-header)
+            (define-key dired-mode-map (kbd "<S-tab>") 'dired-filter-group-backward-drawer)
             (dired-async-mode 1)
             ;; (setq-local jit-lock-context-time 0.5)
             ;; (setq-local jit-lock-defer-time nil)
@@ -2654,7 +2797,7 @@ If less than or equal to zero, there is no limit."
 ;; telnet登录主机后，export LANG=zh_CN.GBK 或 export LC_ALL=en_US.ISO-8859-1 这个管用 ,export LC_CTYPE=zh_CN.GB2312
 
 ;; gtags symref 的结果都设置为C语法，主要为了highlight-symbol能正确
-(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook imenu-list-major-mode-hook eshell-mode-hook))
+(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook))
   (add-hook hook
             (lambda()
               (require 'cc-mode)
@@ -2811,7 +2954,7 @@ If less than or equal to zero, there is no limit."
 
 ;; rgrep
 ;; (global-set-key (kbd "<C-f5>") 'rgrep)
-(global-set-key (kbd "<C-S-f5>") 'lgrep)
+;; (global-set-key (kbd "<C-S-f5>") 'lgrep)
 ;; diff
 (global-set-key (kbd "C-;") 'ediff-buffers)
 ;; vc-dir
@@ -2888,6 +3031,7 @@ If less than or equal to zero, there is no limit."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(epe-pipeline-time-face ((t (:foreground "dodger blue"))))
+ '(helm-moccur-buffer ((t (:foreground "dark green" :underline t))))
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
