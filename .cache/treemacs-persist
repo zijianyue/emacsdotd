@@ -1,0 +1,9 @@
+* Default
+** kotlin
+ - path :: d:/kotlin
+** .emacs.d
+ - path :: ~/.emacs.d
+** site-lisp
+ - path :: c:/emacs/share/emacs/26.2/site-lisp
+** jdee-server
+ - path :: d:/jdee-server

@@ -1,0 +1,37 @@
+make
+gradlew :server:installDist
+git clone https://github.com/emacs-helm/helm.git
+cd helm
+make
+cd ..
+git clone https://github.com/abo-abo/swiper.git
+git clone https://github.com/emacs-lsp/lsp-ui.git
+python --version
+python --version
+python --version
+python
+python --version
+make
+make
+make
+..
+cd magit
+make
+git submodule init
+git submodule update
+git submodule update
+..
+git clone https://github.com/magit/libegit2.git
+cd libegit2/
+git submodule init
+git submodule update
+cd ..
+rm -rf libegit2/
+git clone https://github.com/magit/libegit2.git
+cd libegit2/
+git submodule init
+git submodule update
+make
+make
+make
+make

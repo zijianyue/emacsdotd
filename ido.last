@@ -1,0 +1,66 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("c:/Users/gezijian/AppData/Roaming/" . ".emacs.d/")
+ ("d:/" . "jdee-server/")
+ ("c:/emacs/share/emacs/26.2/" . "site-lisp/")
+ ("c:/emacs/share/emacs/" . "26.2/")
+ ("c:/emacs/share/" . "emacs/")
+ ("c:/emacs/" . "share/")
+ ("c:/" . "emacs/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libgit/"
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/"
+ "d:/jdee-server/"
+ "d:/"
+ "c:/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ 
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libgit/" (23902 48922 0 0) "test.el" "test/" "symbols.cfg" "src/" "README.md" "Makefile" "LICENSE" "libgit2/" "libgit.el" "gensyms.py" "CMakeLists.txt" "build/" ".travis.yml" ".gitmodules" ".gitignore" ".git/" ".appveyor.yml" ".appveyor.mk" ".appveyor-script.ps1" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" (23902 48035 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "magit-version.el" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
+
+ ("d:/jdee-server/src/main/java/jde/juci/" (23902 38731 0 0) "WrappedRuntimeException.java" "Symbol.java" "Quoted.java" "package.html" "NoMoreResultsException.java" "Logger.java" "LispWriter.java" "ElispError.java" "Cons.java" "ConnectionUnavailableException.java" "ConnectionImpl.java" "ConnectionFactory.java" "Connection.java" "../" "./")
+
+ ("d:/jdee-server/" (23902 38762 0 0) "src/" "pom.xml" "GTAGS" "GRTAGS" "GPATH" ".gitignore" ".git/" "../" "./")
+
+ ("c:/emacs/share/emacs/26.2/site-lisp/" (23902 39043 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "mew/" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
+
+ ("d:/kotlin/server/src/test/resources/j2k/" (23902 38749 0 0) "JavaJSONConverter.kt" "JavaJSONConverter.java" "../" "./")
+
+ ("d:/kotlin/" (23902 38305 0 0) "TROUBLESHOOTING.md" "TODO.md" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "LICENSE.txt" "images/" "Icon128.png" "grammars/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "EDITORS.md" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (23894 51044 0 0) "README.md" "Makefile" "images/" "helm.el" "helm-x-files.el" "helm-utils.el" "helm-types.el" "helm-tags.el" "helm-sys.el" "helm-source.el" "helm-shell.el" "helm-semantic.el" "helm-ring.el" "helm-regexp.el" "helm-pkg.el" "helm-occur.el" "helm-net.el" "helm-multi-match.el" "helm-mode.el" "helm-misc.el" "helm-man.el" "helm-locate.el" "helm-lib.el" "helm-info.el" "helm-imenu.el" "helm-id-utils.el" "helm-help.el" "helm-grep.el" "helm-for-files.el" "helm-font.el" "helm-find.el" "helm-files.el" "helm-external.el" "helm-eval.el" "helm-eshell.el" "helm-elisp.el" "helm-elisp-package.el" "helm-easymenu.el" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.el" "helm-command.el" "helm-comint.el" "helm-color.el" "helm-buffers.el" "helm-bookmark.el" "helm-adaptive.el" "emacs-helm.sh" "COPYING" ".gitignore" ".github/" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23894 58100 0 0) "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "mynote.org" "init.el" "ido.last" "eshell/" "bookmarks" "auto-save-list/" ".stardict/" ".git/" ".cache/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/" (23888 20353 0 0) "迅雷X/" "迅雷/" "WinRAR/" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "SSTap Beta/" "Scooter Software/" "Psiphon3/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".gitconfig" ".emacs.d/" "../" "./")
+
+ ("d:/KotlinLanguageServer-/" (23780 8470 0 0) "vscode-extension-src/" "tsconfig.json" "TROUBLESHOOTING.md" "TODO.md" "syntaxes/" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "package.json" "package-lock.json" "LICENSE.txt" "images/" "Icon128.png" "grammar/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscodeignore" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23727 26966 0 0) "treemacs/" "swiper/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "company-mode/" "aweshell-master/" "all-the-icons.el/" "../" "./")
+
+ ("c:/emacs/share/emacs/26.2/" (23734 64157 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
+
+ ("c:/emacs/share/emacs/" (23734 64150 0 0) "site-lisp/" "26.2/" "../" "./")
+
+ ("c:/emacs/share/emacs/site-lisp/" (23734 64150 0 0) "subdirs.el" "../" "./")
+
+ ("c:/emacs/share/" (23734 64264 0 0) "metainfo/" "man/" "licenses/" "info/" "ImageMagick-7/" "icons/" "emacs/" "doc/" "applications/" "../" "./")
+
+ ("c:/emacs/" (23734 64265 0 0) "share/" "libexec/" "lib/" "include/" "etc/" "bin/" "../" "./")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
