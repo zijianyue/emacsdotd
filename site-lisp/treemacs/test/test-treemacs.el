@@ -1,6 +1,6 @@
 ;;; treemacs-test.el --- Tests for treemacs -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 (require 'dash)
 (require 'pfuture)
 (require 'treemacs)
+(require 'treemacs-bookmarks)
+(require 'treemacs-core-utils)
 (require 'buttercup)
 
 (defconst treemacs-should-run-file-notify-tests (not (null file-notify--library)))
@@ -38,6 +40,13 @@
            ,@body)
        (progn
          (setf (treemacs-current-workspace) --original--)))))
+
+(defmacro treemacs--save-workspace (&rest body)
+  "Execute BODY saving the current workspace."
+  `(-let [ws (treemacs-current-workspace)]
+     (unwind-protect
+         ,@body
+       (setf (treemacs-current-workspace) ws))))
 
 (describe "treemacs-is-path"
 
@@ -67,28 +76,29 @@
 
     (it "Identifies that a path is in a project"
       (let ((path "~/P/A/B/C/D/E/F/file")
-            (project (make-treemacs-project :name "P" :path "~/P/A/B/C")))
+            (project (make-treemacs-project :name "P" :path "~/P/A/B/C" :path-status 'local-readable)))
         (expect (treemacs-is-path path :in-project project) :to-be-truthy)))
 
        (it "Identifies that a path is not in a project"
          (let ((path "~/X/abc")
-               (project (make-treemacs-project :name "P" :path "~/P")))
+               (project (make-treemacs-project :name "P" :path "~/P" :path-status 'local-readable)))
            (expect (treemacs-is-path path :in-project project) :not :to-be-truthy))))
 
   (describe ":in-workspace matcher"
+
     (it "Finds project of path in the workspace"
       (let* ((path "~/C/abc")
-             (p1 (make-treemacs-project :name "P1" :path "~/A"))
-             (p2 (make-treemacs-project :name "P2" :path "~/B"))
-             (p3 (make-treemacs-project :name "P3" :path "~/C"))
+             (p1 (make-treemacs-project :name "P1" :path "~/A" :path-status 'local-readable))
+             (p2 (make-treemacs-project :name "P2" :path "~/B" :path-status 'local-readable))
+             (p3 (make-treemacs-project :name "P3" :path "~/C" :path-status 'local-readable))
              (ws (make-treemacs-workspace :name "WS" :projects (list p1 p2 p3))))
         (expect (treemacs-is-path path :in-workspace ws) :to-be p3)))
 
     (it "Identifies path not in the workspace" ()
         (let* ((path "~/D/abc")
-               (p1 (make-treemacs-project :name "P1" :path "~/A"))
-               (p2 (make-treemacs-project :name "P2" :path "~/B"))
-               (p3 (make-treemacs-project :name "P3" :path "~/C"))
+               (p1 (make-treemacs-project :name "P1" :path "~/A" :path-status 'local-readable))
+               (p2 (make-treemacs-project :name "P2" :path "~/B" :path-status 'local-readable))
+               (p3 (make-treemacs-project :name "P3" :path "~/C" :path-status 'local-readable))
                (ws (make-treemacs-workspace :name "WS" :projects (list p1 p2 p3))))
           (expect (treemacs-is-path path :in-workspace ws) :to-be nil)))))
 
@@ -191,6 +201,7 @@
   (-let [treemacs-ignored-file-predicates (default-value 'treemacs-ignored-file-predicates)]
 
     (describe "accept"
+
       (it "accepts change event when git-mode is enabled"
         (let ((treemacs-git-mode t)
               (event '(nil changed "~/A/a")))
@@ -205,6 +216,7 @@
           (expect (treemacs--is-event-relevant? event) :to-be-truthy))))
 
     (describe "reject"
+
       (it "rejects stop-watch event"
         (-let [event '(nil stopped "~/A/a")]
           (expect (treemacs--is-event-relevant? event) :not :to-be-truthy)))
@@ -276,34 +288,34 @@
   (it "Does nothing when dotfiles are shown"
     (let ((treemacs-show-hidden-files t)
           (input '("/home/.A" "/home/B/C" "/home/.A/B" "/home/.A/.B/.C")))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home" :path-status 'local-readable)
                 (treemacs--maybe-filter-dotfiles input))
               :to-equal input)))
 
   (it "Fails on nil input"
     (let ((treemacs-show-hidden-files nil))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home" :path-status 'local-readable)
                 (treemacs--maybe-filter-dotfiles nil))
               :to-throw)))
 
   (it "Filters single dotfile"
     (let ((treemacs-show-hidden-files nil)
           (input '("/home/A/B/C/D/.d")))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home" :path-status 'local-readable)
                 (treemacs--maybe-filter-dotfiles input))
               :to-be nil)))
 
   (it "Filters dotfile based on part"
     (let ((treemacs-show-hidden-files nil)
           (input '("/home/A/B/C/.D/d")))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home" :path-status 'local-readable)
                 (treemacs--maybe-filter-dotfiles input))
               :to-be nil)))
 
   (it "Does not filter dotfile above root"
     (let ((treemacs-show-hidden-files nil)
           (input '("/home/.A/B/C/d")))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home/.A/B")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home/.A/B" :path-status 'local-readable)
                 (make-treemacs-workspace :projects (list ))
                 (treemacs--maybe-filter-dotfiles input))
               :to-equal input)))
@@ -311,7 +323,7 @@
   (it "Filters long input"
     (let ((treemacs-show-hidden-files nil)
           (input '("/home/.A/B/C/d" "/home/.A/B/.C/D/E" "/home/.A/B/C/.d" "/home/.A/B/C/D/E")))
-      (expect (treemacs--with-project (make-treemacs-project :path "/home/.A/B")
+      (expect (treemacs--with-project (make-treemacs-project :path "/home/.A/B" :path-status 'local-readable)
                 (treemacs--maybe-filter-dotfiles input))
               :to-equal '("/home/.A/B/C/d" "/home/.A/B/C/D/E")))))
 
@@ -330,9 +342,27 @@
     (expect (treemacs--parent "/home/A/B") :to-equal "/home/A"))
 
   (it "Returns the system root when it's the input"
-    (expect (treemacs--parent "/") :to-equal "/")))
+    (expect (treemacs--parent "/") :to-equal "/"))
+
+  (it "Returns parent of root-level extension node."
+    (expect (treemacs--parent '(:custom "a" "b")) :to-equal '(:custom "a")))
+
+  (it "Returns directory extension of extension sub-item node."
+    (expect (treemacs--parent '("/test1" "a" "b")) :to-equal '("/test1" "a")))
+
+  (it "Returns directory of a directory extension node."
+    (expect (treemacs--parent '("/test1" "a")) :to-equal "/test1"))
+
+  (it "Returns project extension of a project sub-item node."
+    (let ((p (make-treemacs-project :path "/A" :path-status 'local-readable)))
+      (expect (treemacs--parent (list p "a" "b")) :to-equal (list p "a"))))
+
+  (it "Returns project of a project extension node."
+    (let ((p (make-treemacs-project :path "/A" :path-status 'local-readable)))
+      (expect (treemacs--parent (list p "a")) :to-equal "/A"))))
 
 (describe "treemacs--get-or-parse-git-result"
+
   (it "Returns an empty table when input is nil"
     (-let [result (treemacs--get-or-parse-git-result nil)]
       (expect result :to-be-truthy)
@@ -418,6 +448,7 @@
         (expect (ht-size treemacs-dom) :to-equal 9)))))
 
 (describe "treemacs-on-collapse"
+
   (it "Does nothing when key is nil"
     (with-temp-buffer
       (setq treemacs-dom (ht))
@@ -767,7 +798,7 @@
 (describe "treemacs--find-project-for-path"
 
   (it "Returns nil when input is nil"
-    (treemacs--with-project (make-treemacs-project :path "/A")
+    (treemacs--with-project (make-treemacs-project :path "/A" :path-status 'local-readable)
       (expect (treemacs--find-project-for-path nil) :to-be nil)))
 
   (it "Returns nil when the workspace is empty"
@@ -775,11 +806,11 @@
       (expect (treemacs--find-project-for-path "/A") :to-be nil)))
 
   (it "Returns nil when path does not fit any project"
-    (treemacs--with-project (make-treemacs-project :path "/A/B")
+    (treemacs--with-project (make-treemacs-project :path "/A/B" :path-status 'local-readable)
       (expect (treemacs--find-project-for-path "/A/C") :to-be nil)))
 
   (it "Returns project when path fits"
-    (-let [project (make-treemacs-project :path "/A/B")]
+    (-let [project (make-treemacs-project :path "/A/B" :path-status 'local-readable)]
       (treemacs--with-project project
         (expect (treemacs--find-project-for-path "/A/B/C")
                 :to-equal project)))))
@@ -933,6 +964,15 @@
 
     (it "Succeeds on correctly formed input"
       (-let [lines '("* W1" "** P1" " - path :: a" "** P2" "- path :: b" "* W2" "** P3" " - path :: c")]
+        (expect (treemacs--validate-persist-lines lines) :to-be 'success)))
+
+    (it "Succeeds with the same path in multiple workspaces"
+      (-let [lines '("* W1" "** P1" " - path :: /A/B" "* W2" "** P2" " - path :: /A/B")]
+        (expect (treemacs--validate-persist-lines lines) :to-be 'success)))
+
+    (it "Succeeds with non-connectable remotes"
+      (let* ((treemacs--org-edit-buffer-name (buffer-name))
+             (lines '("* W1" "** P1" " - path :: /ftp:anonymous@ftp.invalid:/test-path")))
         (expect (treemacs--validate-persist-lines lines) :to-be 'success))))
 
   (describe "Errors"
@@ -969,7 +1009,17 @@
 
     (it "Fails when input is empty"
       (expect (treemacs--validate-persist-lines nil)
-              :to-equal '(error :start "Input is empty")))))
+              :to-equal '(error :start "Input is empty")))
+
+    (it "Fails when path appears more than once"
+      (-let [lines '("* W1"
+                     "** P1"
+                     " - path :: /A/B/C"
+                     "** P2"
+                     "- path :: /A/B/C/D")]
+        (expect (treemacs--validate-persist-lines lines)
+                :to-equal
+                '(error "- path :: /A/B/C/D" "Path '/A/B/C/D' appears in the workspace more than once."))))))
 
 (describe "treemacs--read-persist-lines"
 
@@ -985,12 +1035,42 @@
             :to-equal
             '("* Workspace" "** Project" " - path :: /x"))))
 
+(describe "treemacs--git-status-process"
+
+  (it "Does not call treemacs--git-status-process-function with non-local or unreadable paths"
+    (dolist (status '(local-unreadable remote-readable remote-unreadable remote-disconnected extension))
+      (spy-on 'treemacs--git-status-process-function)
+      (-> treemacs-dir
+          (f-join "test")
+          (treemacs--git-status-process (make-treemacs-project :name "P" :path treemacs-dir :path-status status)))
+      (expect 'treemacs--git-status-process-function
+              :not :to-have-been-called)))
+
+  (it "Calls treemacs--git-status-process-function with local readable path"
+    (spy-on 'treemacs--git-status-process-function)
+    (let ((path (f-join treemacs-dir "test")))
+      (treemacs--git-status-process path (make-treemacs-project :name "P" :path treemacs-dir :path-status 'local-readable))
+      (expect 'treemacs--git-status-process-function
+              :to-have-been-called-with path))))
+
+(describe "treemacs--process-collapsed-dirs"
+
+  (it "Does nothing with non-local or unreadable paths"
+    (-let [treemacs-collapse-dirs 3]
+      (dolist (status '(local-unreadable remote-readable remote-unreadable remote-disconnected extension))
+        (expect (-> treemacs-dir
+                    (f-join "test")
+                    (treemacs--collapsed-dirs-process (make-treemacs-project :name "P" :path treemacs-dir :path-status status)))
+                :to-equal
+                nil)))))
+
 (describe "treemacs--parse-collapsed-dirs"
+
   (it "Finds dirs to flatten in test directory"
     (-let [treemacs-collapse-dirs 3]
       (expect (-> treemacs-dir
                   (f-join "test")
-                  (treemacs--collapsed-dirs-process)
+                  (treemacs--collapsed-dirs-process (make-treemacs-project :name "P" :path treemacs-dir :path-status 'local-readable))
                   (treemacs--parse-collapsed-dirs))
               :to-equal
               `((,(f-join treemacs-dir "test/testdir1")
@@ -1002,9 +1082,240 @@
     (-let [treemacs-collapse-dirs 3]
       (expect (-> treemacs-dir
                   (f-join "test/testdir1/testdir2")
-                  (treemacs--collapsed-dirs-process)
+                  (treemacs--collapsed-dirs-process (make-treemacs-project :name "P" :path treemacs-dir :path-status 'local-readable))
                   (treemacs--parse-collapsed-dirs))
               :to-be nil))))
+
+(describe "treemacs--remove-trailing-newline"
+
+  (it "Fails on nil input"
+    (expect (treemacs--remove-trailing-newline nil)
+            :to-throw))
+
+  (it "Fails on empty string"
+    (expect (treemacs--remove-trailing-newline "")
+            :to-throw))
+
+  (it "Does nothing when input does not need trimming"
+    (-let [input "abc"]
+      (expect (treemacs--remove-trailing-newline input) :to-equal input)))
+
+  (it "Removes the last newline"
+    (expect (treemacs--remove-trailing-newline "abc\n") :to-equal "abc"))
+
+  (it "Removes only the last newline"
+    (expect (treemacs--remove-trailing-newline "abc\n\n\n") :to-equal "abc\n\n")))
+
+(describe "treemacs-is-path-visible?"
+
+  (describe "Successes"
+
+    (it "Finds node in the dom"
+      (let* ((pos (point-marker))
+             (root-node (make-treemacs-dom-node :closed nil :parent nil))
+             (node (make-treemacs-dom-node :position pos :closed nil :parent root-node))
+             (path "/path")
+             (treemacs-dom (ht (path node) ("/" root-node))))
+        (expect (treemacs-is-path-visible? path) :to-be t)))
+
+    (it "Finds project root"
+      (let ((treemacs-dom (ht)))
+        (treemacs--with-project (make-treemacs-project :path "/test-project")
+          (expect (treemacs-is-path-visible? "/test-project") :to-be t))))
+
+    (it "Finds top-level custom root node"
+      (let ((treemacs-dom (ht))
+            (treemacs--project-positions (ht ('Some-Extension (point-marker)))))
+        (expect (treemacs-is-path-visible? '(:custom Some-Extension)) :to-be t)))
+
+    (it "Finds node in parent's children"
+      (with-temp-buffer
+        (let* ((parent-pos (point-marker))
+               (root (make-treemacs-dom-node :parent nil))
+               (parent (make-treemacs-dom-node :position parent-pos :parent root))
+               (path "/A/B")
+               (parent-path (treemacs--parent path))
+               (treemacs-dom (ht ("/" root) (parent-path parent))))
+          (insert-text-button "B1" :path parent-path :depth 1)
+          (insert "\n")
+          (insert-text-button "B2" :path "/other/path/1" :depth 2 :parent parent-pos)
+          (insert "\n")
+          (insert-text-button "B3" :path path :depth 2 :parent parent-pos)
+          (insert "\n")
+          (insert-text-button "B4" :path "/other/path/2" :depth 2 :parent parent-pos)
+          (expect (treemacs-is-path-visible? path) :to-be t)))))
+
+  (describe "Failures"
+
+    (it "Fails on nil input"
+      (expect (treemacs-is-path-visible? nil)
+              :to-throw))
+
+    (it "Won't find a child of a closed node"
+      (let* ((node (make-treemacs-dom-node :position (point-marker) :closed t))
+             (path "/path")
+             (treemacs-dom (ht (path node))))
+        (expect (treemacs-is-path-visible? "/path/child")
+                :to-be nil)))
+
+    (it "Won't find a grandchild of a closed node"
+      (let* ((parent-node (make-treemacs-dom-node :position (point-marker) :closed t))
+             (node (make-treemacs-dom-node :position (point-marker) :closed nil :parent parent-node))
+             (treemacs-dom (ht ("/root" parent-node) ("/root/child" node))))
+        (expect (treemacs-is-path-visible? "/root/child/grandchild")
+                :to-be nil)))))
+
+(describe "treemacs--add-trailing-slash"
+
+  (it "Fails on nil input"
+    (expect (treemacs--add-trailing-slash nil) :to-throw))
+
+  (it "Fails on blank input"
+    (expect (treemacs--add-trailing-slash "") :to-throw))
+
+  (it "Does not add slash if one is already present"
+    (expect (treemacs--add-trailing-slash "/ABC/") :to-equal "/ABC/"))
+
+  (it "Adds a slash when there isn't one"
+    (expect (treemacs--add-trailing-slash "/ABC") :to-equal "/ABC/")))
+
+(describe "treemacs--is-name-invalid?"
+  (it "detects nil"
+    (expect (treemacs--is-name-invalid? nil) :to-be t))
+
+  (it "detects an empty string"
+    (expect (treemacs--is-name-invalid? "") :to-be t))
+
+  (it "detects a blank string"
+    (expect (treemacs--is-name-invalid? "      ") :to-be t))
+
+  (it "detects a string with newlines"
+    (expect (treemacs--is-name-invalid? "a\nb") :to-be t)))
+
+(describe "treemacs--find-workspace"
+
+  (it "Finds nothing when there are no workspaces"
+    (treemacs--save-workspace
+     (-let [treemacs--workspaces nil]
+       (treemacs--find-workspace)
+       (expect (treemacs-current-workspace) :to-be nil)))
+
+    (treemacs--save-workspace
+     (-let [treemacs--workspaces nil]
+       (treemacs--find-workspace "X")
+       (expect (treemacs-current-workspace) :to-be nil))))
+
+  (it "Finds the first workspace when there is no current file"
+    (treemacs--save-workspace
+     (let* ((ws1 (make-treemacs-workspace :name "A"))
+            (ws2 (make-treemacs-workspace :name "B"))
+            (treemacs--workspaces (list ws1 ws2)))
+       (treemacs--find-workspace)
+       (expect (treemacs-current-workspace) :to-be ws1))))
+
+  (it "Finds the first workspace when nothing fits the current file"
+    (treemacs--save-workspace
+     (let* ((p1  (make-treemacs-project :name "P1" :path "P1"))
+            (p2  (make-treemacs-project :name "P2" :path "P2"))
+            (ws1 (make-treemacs-workspace :name "A" :projects (list p1)))
+            (ws2 (make-treemacs-workspace :name "B" :projects (list p2)))
+            (treemacs--workspaces (list ws1 ws2)))
+       (treemacs--find-workspace "X")
+       (expect (treemacs-current-workspace) :to-be ws1))))
+
+  (it "Finds workspace which contains current file"
+    (treemacs--save-workspace
+     (let* ((p1  (make-treemacs-project :name "P1" :path "P1"))
+            (p2  (make-treemacs-project :name "P2" :path "/A"))
+            (ws1 (make-treemacs-workspace :name "A" :projects (list p1)))
+            (ws2 (make-treemacs-workspace :name "B" :projects (list p2)))
+            (treemacs--workspaces (list ws1 ws2)))
+       (treemacs--find-workspace "/A/B/C")
+       (expect (treemacs-current-workspace) :to-be ws2)))))
+
+(defmacro test-treemacs--with-sample-buffer (&rest body)
+  "Evaluate BODY with some buttons defined.
+
+In BODY, variable PROJECT is defined."
+  (declare (indent 0))
+  (let ((parent-marker (make-symbol "parent-marker")))
+    `(with-temp-buffer
+       (let ((project (make-treemacs-project :name "Project" :path "/project"))
+             (,parent-marker nil))
+         (insert-text-button "Project"
+                             :path "/project"
+                             :state 'root-node-open
+                             :depth 0
+                             :project project)
+         (setq ,parent-marker (copy-marker (line-beginning-position)))
+         (insert "\n")
+         (insert-text-button "directory"
+                             :path "/project/directory"
+                             :key "/project/directory"
+                             :state 'dir-node-open
+                             :parent ,parent-marker
+                             :depth 1)
+         (setq ,parent-marker (copy-marker (line-beginning-position)))
+         (insert "\n")
+         (insert-text-button "file.txt"
+                             :path "/project/directory/file.txt"
+                             :key "/project/directory/file.txt"
+                             :state 'file-node-closed
+                             :parent ,parent-marker
+                             :depth 2)
+         (setq ,parent-marker (copy-marker (line-beginning-position)))
+         (insert "\n")
+         (goto-char 0)
+         ,@body))))
+
+(defun test-treemacs--format-pattern (template expected-1 expected-2 expected-3)
+  "Test that `treemacs--format-bookmark-title' expands TEMPLATE correctly.
+
+EXPECTED-1 is the expected expansion of the \"Project\" button.
+EXPECTED-2 is the expected expansion of the \"directory\" button.
+EXPECTED-3 is the expected expansion of the \"file.txt\" button."
+  (test-treemacs--with-sample-buffer
+   (let ((treemacs-bookmark-title-template template))
+     (expect (treemacs--format-bookmark-title (treemacs-current-button)) :to-equal expected-1)
+     (forward-line 1)
+     (expect (treemacs--format-bookmark-title (treemacs-current-button)) :to-equal expected-2)
+     (forward-line 1)
+     (expect (treemacs--format-bookmark-title (treemacs-current-button)) :to-equal expected-3))))
+
+
+(describe "treemacs--format-bookmark-title"
+  (it "Uses the configured pattern"
+    (test-treemacs--format-pattern "No replacements" "No replacements" "No replacements" "No replacements"))
+
+  (it "Formats the project name"
+    (test-treemacs--format-pattern "${project}" "Project" "Project" "Project"))
+
+  (it "Formats the label"
+    (test-treemacs--format-pattern "${label}" "Project" "directory" "file.txt"))
+
+  (it "Formats the parent label"
+    (test-treemacs--format-pattern "${label:1}" "" "Project" "directory"))
+
+  (it "Formats the grandparent label"
+    (test-treemacs--format-pattern "${label:2}" "" "" "Project"))
+
+  (it "Formats the label path"
+    (test-treemacs--format-pattern "${label-path}" "Project" "Project/directory" "Project/directory/file.txt"))
+
+  (it "Formats the limited label path"
+    (test-treemacs--format-pattern "${label-path:2}" "Project" "Project/directory" "directory/file.txt"))
+
+  (it "Does not hang with negatie label path limit"
+    (test-treemacs--format-pattern "${label-path:-2}" "Project" "Project/directory" "Project/directory/file.txt"))
+
+  (it "Formats the file path"
+    (test-treemacs--format-pattern "${file-path}" "/project" "/project/directory" "/project/directory/file.txt"))
+
+  (it "Formats the limited file path"
+    (test-treemacs--format-pattern "${file-path:2}" "/project" "/project/directory" "directory/file.txt"))
+
+  (it "Does not hang with negative file path"
+    (test-treemacs--format-pattern "${file-path:-1}" "" "" "")))
 
 (provide 'test-treemacs)
 

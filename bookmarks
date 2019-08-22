@@ -18,7 +18,7 @@
  (rear-context-string . "12K  1 20 21:50 ")
  (position . 245))
 ("site-lisp"
- (filename . "/usr/local/share/emacs/site-lisp/")
+ (filename . "c:/emacs/share/emacs/26.2/site-lisp/")
  (front-context-string . ".git\n  drwxr-xr-")
  (rear-context-string . "16B  1 27 22:34 ")
  (position . 243))

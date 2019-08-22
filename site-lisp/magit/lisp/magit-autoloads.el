@@ -83,7 +83,7 @@ provide such a commit message.
 
 \(fn &optional ARG)" t nil)
 
-(defconst git-commit-filename-regexp "/\\(\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
+(defconst git-commit-filename-regexp "/\\(\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'")
 
 (autoload 'git-commit-setup-check-buffer "git-commit" "\
 
@@ -101,6 +101,13 @@ provide such a commit message.
 
 ;;;### (autoloads nil "git-rebase" "git-rebase.el" (0 0 0 0))
 ;;; Generated autoloads from git-rebase.el
+
+(autoload 'git-rebase-current-line "git-rebase" "\
+Parse current line into a `git-rebase-action' instance.
+If the current line isn't recognized as a rebase line, an
+instance with all nil values is returned.
+
+\(fn)" nil nil)
 
 (autoload 'git-rebase-mode "git-rebase" "\
 Major mode for editing of a Git rebase file.
@@ -232,7 +239,7 @@ Remove all changes from the staging area.
 ;;;;;;  0 0 0))
 ;;; Generated autoloads from magit-autorevert.el
 
-(defvar magit-auto-revert-mode (and (not global-auto-revert-mode) (not noninteractive)) "\
+(defvar magit-auto-revert-mode (not (or global-auto-revert-mode noninteractive)) "\
 Non-nil if Magit-Auto-Revert mode is enabled.
 See the `magit-auto-revert-mode' command
 for a description of this minor mode.
@@ -327,107 +334,15 @@ bisect run'.
 ;;;;;;  0))
 ;;; Generated autoloads from magit-bookmark.el
 
-(autoload 'magit-bookmark--status-jump "magit-bookmark" "\
-Handle a Magit status BOOKMARK.
+(autoload 'magit--handle-bookmark "magit-bookmark" "\
+Open a bookmark created by `magit--make-bookmark'.
+Call the `magit-*-setup-buffer' function of the the major-mode
+with the variables' values as arguments, which were recorded by
+`magit--make-bookmark'.  Ignore `magit-display-buffer-function'.
 
 \(fn BOOKMARK)" nil nil)
 
-(autoload 'magit-bookmark--status-make-record "magit-bookmark" "\
-Create a Magit status bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--refs-jump "magit-bookmark" "\
-Handle a Magit refs BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--refs-make-record "magit-bookmark" "\
-Create a Magit refs bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--log-jump "magit-bookmark" "\
-Handle a Magit log BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--log-make-record "magit-bookmark" "\
-Create a Magit log bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--reflog-jump "magit-bookmark" "\
-Handle a Magit reflog BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--reflog-make-record "magit-bookmark" "\
-Create a Magit reflog bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--stashes-jump "magit-bookmark" "\
-Handle a Magit stash list BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--stashes-make-record "magit-bookmark" "\
-Create a Magit stash list bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--cherry-jump "magit-bookmark" "\
-Handle a Magit cherry BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--cherry-make-record "magit-bookmark" "\
-Create a Magit cherry bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--diff-jump "magit-bookmark" "\
-Handle a Magit diff BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--diff-make-record "magit-bookmark" "\
-Create a Magit diff bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--revision-jump "magit-bookmark" "\
-Handle a Magit revision BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--revision-make-record "magit-bookmark" "\
-Create a Magit revision bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--stash-jump "magit-bookmark" "\
-Handle a Magit stash BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--stash-make-record "magit-bookmark" "\
-Create a Magit stash bookmark.
-
-\(fn)" nil nil)
-
-(autoload 'magit-bookmark--submodules-jump "magit-bookmark" "\
-Handle a Magit submodule list BOOKMARK.
-
-\(fn BOOKMARK)" nil nil)
-
-(autoload 'magit-bookmark--submodules-make-record "magit-bookmark" "\
-Create a Magit submodule list bookmark.
-
-\(fn)" nil nil)
-
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-bookmark" '("magit-bookmark--")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-bookmark" '("magit--make-bookmark")))
 
 ;;;***
 
@@ -449,16 +364,12 @@ changes.
 (autoload 'magit-branch-create "magit-branch" "\
 Create BRANCH at branch or revision START-POINT.
 
-\(git branch [ARGS] BRANCH START-POINT).
-
-\(fn BRANCH START-POINT &optional ARGS)" t nil)
+\(fn BRANCH START-POINT)" t nil)
 
 (autoload 'magit-branch-and-checkout "magit-branch" "\
 Create and checkout BRANCH at branch or revision START-POINT.
 
-\(git checkout [ARGS] -b BRANCH START-POINT).
-
-\(fn BRANCH START-POINT &optional ARGS)" t nil)
+\(fn BRANCH START-POINT)" t nil)
 
 (autoload 'magit-branch-or-checkout "magit-branch" "\
 Hybrid between `magit-checkout' and `magit-branch-and-checkout'.
@@ -503,9 +414,15 @@ when using `magit-branch-and-checkout'.
 (autoload 'magit-branch-orphan "magit-branch" "\
 Create and checkout an orphan BRANCH with contents from revision START-POINT.
 
-\(git checkout --orphan [ARGS] BRANCH START-POINT).
+\(fn BRANCH START-POINT)" t nil)
 
-\(fn BRANCH START-POINT &optional ARGS)" t nil)
+(autoload 'magit-branch-spinout "magit-branch" "\
+Create new branch from the unpushed commits.
+Like `magit-branch-spinoff' but remain on the current branch.
+If there are any uncommitted changes, then behave exactly like
+`magit-branch-spinoff'.
+
+\(fn BRANCH &optional FROM)" t nil)
 
 (autoload 'magit-branch-spinoff "magit-branch" "\
 Create new branch from the unpushed commits.
@@ -537,7 +454,7 @@ matter, all commits between FROM and `HEAD' are moved to the new
 branch.  If FROM is not reachable from `HEAD' or is reachable
 from the source branch's upstream, then an error is raised.
 
-\(fn BRANCH &optional FROM &rest ARGS)" t nil)
+\(fn BRANCH &optional FROM)" t nil)
 
 (autoload 'magit-branch-reset "magit-branch" "\
 Reset a branch to the tip of another branch or any other commit.
@@ -553,7 +470,7 @@ When resetting to another branch and a prefix argument is used,
 then also set the target branch as the upstream of the branch
 that is being reset.
 
-\(fn BRANCH TO &optional ARGS SET-UPSTREAM)" t nil)
+\(fn BRANCH TO &optional SET-UPSTREAM)" t nil)
 
 (autoload 'magit-branch-delete "magit-branch" "\
 Delete one or multiple branches.
@@ -597,14 +514,51 @@ and also rename the respective reflog file.
 
 ;;;### (autoloads nil "magit-clone" "magit-clone.el" (0 0 0 0))
 ;;; Generated autoloads from magit-clone.el
+ (autoload 'magit-clone "magit-clone" nil t)
 
-(autoload 'magit-clone "magit-clone" "\
-Clone the REPOSITORY to DIRECTORY.
+(autoload 'magit-clone-regular "magit-clone" "\
+Create a clone of REPOSITORY in DIRECTORY.
 Then show the status buffer for the new repository.
 
-\(fn REPOSITORY DIRECTORY)" t nil)
+\(fn REPOSITORY DIRECTORY ARGS)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-clone" '("magit-clone-")))
+(autoload 'magit-clone-shallow "magit-clone" "\
+Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+With a prefix argument read the DEPTH of the clone;
+otherwise use 1.
+
+\(fn REPOSITORY DIRECTORY ARGS DEPTH)" t nil)
+
+(autoload 'magit-clone-shallow-since "magit-clone" "\
+Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+Exclude commits before DATE, which is read from the
+user.
+
+\(fn REPOSITORY DIRECTORY ARGS DATE)" t nil)
+
+(autoload 'magit-clone-shallow-exclude "magit-clone" "\
+Create a shallow clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+Exclude commits reachable from EXCLUDE, which is a
+branch or tag read from the user.
+
+\(fn REPOSITORY DIRECTORY ARGS EXCLUDE)" t nil)
+
+(autoload 'magit-clone-bare "magit-clone" "\
+Create a bare clone of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+
+\(fn REPOSITORY DIRECTORY ARGS)" t nil)
+
+(autoload 'magit-clone-mirror "magit-clone" "\
+Create a mirror of REPOSITORY in DIRECTORY.
+Then show the status buffer for the new repository.
+
+\(fn REPOSITORY DIRECTORY ARGS)" t nil)
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-clone" '("magit-clone")))
 
 ;;;***
 
@@ -707,6 +661,8 @@ history element.
 
 ;;;### (autoloads nil "magit-diff" "magit-diff.el" (0 0 0 0))
 ;;; Generated autoloads from magit-diff.el
+ (autoload 'magit-diff "magit-diff" nil t)
+ (autoload 'magit-diff-refresh "magit-diff" nil t)
 
 (autoload 'magit-diff-dwim "magit-diff" "\
 Show changes for the thing at point.
@@ -763,6 +719,11 @@ be committed.
 
 (autoload 'magit-diff-buffer-file "magit-diff" "\
 Show diff for the blob or file visited in the current buffer.
+
+When the buffer visits a blob, then show the respective commit.
+When the buffer visits a file, then show the differenced between
+`HEAD' and the working tree.  In both cases limit the diff to
+the file or blob.
 
 \(fn)" t nil)
 
@@ -907,9 +868,9 @@ Run `gitk --all' in the current repository.
 (autoload 'ido-enter-magit-status "magit-extras" "\
 Drop into `magit-status' from file switching.
 
-This command does not work in Emacs 26.  It does work in Emacs 25
-and Emacs 27.  See https://github.com/magit/magit/issues/3634 and
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
+This command does not work in Emacs 26.1.
+See https://github.com/magit/magit/issues/3634
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
 
 To make this command available use something like:
 
@@ -1029,7 +990,7 @@ Neither the blob nor the file buffer are killed when finishing
 the rebase.  If that is undesirable, then it might be better to
 use `magit-rebase-edit-command' instead of this command.
 
-\(fn)" t nil)
+\(fn FILE)" t nil)
 
 (autoload 'magit-reshelve-since "magit-extras" "\
 Change the author and committer dates of the commits since REV.
@@ -1182,15 +1143,28 @@ prefix argument fetch all remotes.
 
 (autoload 'magit-find-file "magit-files" "\
 View FILE from REV.
-Switch to a buffer visiting blob REV:FILE,
-creating one if none already exists.
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go
+to the line and column corresponding to that location.
 
 \(fn REV FILE)" t nil)
 
 (autoload 'magit-find-file-other-window "magit-files" "\
 View FILE from REV, in another window.
-Like `magit-find-file', but create a new window or reuse an
-existing one.
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location.
+
+\(fn REV FILE)" t nil)
+
+(autoload 'magit-find-file-other-frame "magit-files" "\
+View FILE from REV, in another frame.
+Switch to a buffer visiting blob REV:FILE, creating one if none
+already exists.  If prior to calling this command the current
+buffer and/or cursor position is about the same file, then go to
+the line and column corresponding to that location.
 
 \(fn REV FILE)" t nil)
  (autoload 'magit-file-dispatch "magit" nil t)
@@ -1216,6 +1190,13 @@ Magit-File mode is enabled in all buffers where
 See `magit-file-mode' for more information on Magit-File mode.
 
 \(fn &optional ARG)" t nil)
+
+(autoload 'magit-blob-visit-file "magit-files" "\
+View the file from the worktree corresponding to the current blob.
+When visiting a blob or the version from the index, then go to
+the same location in the respective file in the working tree.
+
+\(fn)" t nil)
 
 (autoload 'magit-file-checkout "magit-files" "\
 Checkout FILE from REV.
@@ -1265,6 +1246,26 @@ Add the Git ignore RULE to the file specified by `core.excludesFile'.
 Rules that are defined in that file affect all local repositories.
 
 \(fn RULE)" t nil)
+
+(autoload 'magit-skip-worktree "magit-gitignore" "\
+Call \"git update-index --skip-worktree -- FILE\".
+
+\(fn FILE)" t nil)
+
+(autoload 'magit-no-skip-worktree "magit-gitignore" "\
+Call \"git update-index --no-skip-worktree -- FILE\".
+
+\(fn FILE)" t nil)
+
+(autoload 'magit-assume-unchanged "magit-gitignore" "\
+Call \"git update-index --assume-unchanged -- FILE\".
+
+\(fn FILE)" t nil)
+
+(autoload 'magit-no-assume-unchanged "magit-gitignore" "\
+Call \"git update-index --no-assume-unchanged -- FILE\".
+
+\(fn FILE)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-gitignore" '("magit-")))
 
@@ -1388,8 +1389,17 @@ beginning of the line.
 
 ;;;***
 
+;;;### (autoloads nil "magit-libgit" "magit-libgit.el" (0 0 0 0))
+;;; Generated autoloads from magit-libgit.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-libgit" '("magit-libgit-repo")))
+
+;;;***
+
 ;;;### (autoloads nil "magit-log" "magit-log.el" (0 0 0 0))
 ;;; Generated autoloads from magit-log.el
+ (autoload 'magit-log "magit-log" nil t)
+ (autoload 'magit-log-refresh "magit-log" nil t)
 
 (autoload 'magit-log-current "magit-log" "\
 Show log for the current branch.
@@ -1429,9 +1439,9 @@ Show log for all references and `HEAD'.
 
 (autoload 'magit-log-buffer-file "magit-log" "\
 Show log for the blob or file visited in the current buffer.
-With a prefix argument or when `--follow' is part of
-`magit-log-arguments', then follow renames.  When the region is
-active, restrict the log to the lines that the region touches.
+With a prefix argument or when `--follow' is an active log
+argument, then follow renames.  When the region is active,
+restrict the log to the lines that the region touches.
 
 \(fn &optional FOLLOW BEG END)" t nil)
 
@@ -1442,27 +1452,16 @@ Show log for the definition at point.
 
 (autoload 'magit-log-merged "magit-log" "\
 Show log for the merge of COMMIT into BRANCH.
+
 More precisely, find merge commit M that brought COMMIT into
-BRANCH, and show the log of the range \"M^..M\".  This command
-requires git-when-merged, which is available from
+BRANCH, and show the log of the range \"M^1..M\".  If COMMIT is
+directly on BRANCH, then show approximately twenty surrounding
+commits instead.
+
+This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged.
 
 \(fn COMMIT BRANCH &optional ARGS FILES)" t nil)
-
-(autoload 'magit-reflog-current "magit-log" "\
-Display the reflog of the current branch.
-
-\(fn ARGS)" t nil)
-
-(autoload 'magit-reflog-other "magit-log" "\
-Display the reflog of a branch or another ref.
-
-\(fn REF ARGS)" t nil)
-
-(autoload 'magit-reflog-head "magit-log" "\
-Display the `HEAD' reflog.
-
-\(fn ARGS)" t nil)
 
 (autoload 'magit-log-move-to-parent "magit-log" "\
 Move to the Nth parent of the current commit.
@@ -1660,7 +1659,7 @@ Pull from a branch read in the minibuffer.
 
 \(fn SOURCE ARGS)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-pull" '("magit-")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-pull" '("magit-pull")))
 
 ;;;***
 
@@ -1740,6 +1739,29 @@ these Git variables: `push.default', `remote.pushDefault',
 \(fn REMOTE ARGS)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-push" '("magit-")))
+
+;;;***
+
+;;;### (autoloads nil "magit-reflog" "magit-reflog.el" (0 0 0 0))
+;;; Generated autoloads from magit-reflog.el
+
+(autoload 'magit-reflog-current "magit-reflog" "\
+Display the reflog of the current branch.
+If `HEAD' is detached, then show the reflog for that instead.
+
+\(fn)" t nil)
+
+(autoload 'magit-reflog-other "magit-reflog" "\
+Display the reflog of a branch or another ref.
+
+\(fn REF)" t nil)
+
+(autoload 'magit-reflog-head "magit-reflog" "\
+Display the `HEAD' reflog.
+
+\(fn)" t nil)
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-reflog" '("magit-reflog-")))
 
 ;;;***
 
@@ -2168,8 +2190,8 @@ Create and checkout a new BRANCH from STASH.
 
 (autoload 'magit-stash-branch-here "magit-stash" "\
 Create and checkout a new BRANCH and apply STASH.
-The branch is created using `magit-branch', using the current
-branch or `HEAD' as the string-point.
+The branch is created using `magit-branch-and-checkout', using the
+current branch or `HEAD' as the start-point.
 
 \(fn STASH BRANCH)" t nil)
 
@@ -2242,10 +2264,10 @@ prefix arguments:
 
 \(fn &optional DIRECTORY CACHE)" t nil)
 
-(autoload 'magit-status-internal "magit-status" "\
+(autoload 'magit-status-setup-buffer "magit-status" "\
 
 
-\(fn DIRECTORY)" nil nil)
+\(fn &optional DIRECTORY)" nil nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-status" '("magit")))
 
@@ -2456,7 +2478,7 @@ See info node `(magit)Debugging Tools' for more information.
 
 (advice-add 'org-man-export :around 'org-man-export--magit-gitman)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-utils" '("magit-" "whitespace-dont-turn-on-in-magit-mode")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-utils" '("magit-")))
 
 ;;;***
 
@@ -2661,8 +2683,8 @@ else like the former.
 
 ;;;***
 
-;;;### (autoloads nil nil ("magit-core.el" "magit-pkg.el" "magit-version.el")
-;;;;;;  (0 0 0 0))
+;;;### (autoloads nil nil ("magit-core.el" "magit-pkg.el") (0 0 0
+;;;;;;  0))
 
 ;;;***
 

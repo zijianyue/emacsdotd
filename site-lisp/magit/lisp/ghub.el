@@ -51,6 +51,7 @@
 
 (require 'auth-source)
 (require 'cl-lib)
+(require 'gnutls)
 (require 'json)
 (require 'let-alist)
 (require 'url)
@@ -337,7 +338,12 @@ Both callbacks are called with four arguments.
    (ghub--encode-payload payload)
    (ghub--make-req
     :url (url-generic-parse-url
-          (concat "https://" host resource
+          (concat "https://"
+                  (if (and (equal resource "/graphql")
+                           (string-suffix-p "/v3" host))
+                      (substring host 0 -3)
+                    host)
+                  resource
                   (and query (concat "?" (ghub--url-encode-params query)))))
     :forge forge
     :silent silent
@@ -443,6 +449,26 @@ Signal an error if the id cannot be determined."
 
 ;;;; Internal
 
+(defvar ghub-use-workaround-for-emacs-bug
+  (and
+   ;; Note: For build sans gnutls, `libgnutls-version' is -1.
+   (>= libgnutls-version 30603)
+   (version<= emacs-version "26.2")
+   'force)
+  "Whether to use a kludge that hopefully works around an Emacs bug.
+
+In Emacs versions before 26.3 there is a bug that causes network
+connections to fail when using TLS1.3.  If this variable is
+non-nil, then Ghub works around that by binding
+`gnutls-algorithm-priority' to \"NORMAL:-VERS-TLS1.3\", unless we
+think it is unnecessary.  If `force' then always use the
+workaround.  Currently the latter is the default except when
+using Emacs 26.3+, or the libgnutls is earlier than 3.6.3 (when
+it introduced TLS1.3).
+
+For more information see https://github.com/magit/ghub/issues/81
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=34341.")
+
 (cl-defun ghub--retrieve (payload req)
   (let ((url-request-extra-headers
          (let ((headers (ghub--req-headers req)))
@@ -452,7 +478,16 @@ Signal an error if the id cannot be determined."
         (url-show-status nil)
         (url     (ghub--req-url req))
         (handler (ghub--req-handler req))
-        (silent  (ghub--req-silent req)))
+        (silent  (ghub--req-silent req))
+        (gnutls-algorithm-priority
+         (if (and ghub-use-workaround-for-emacs-bug
+                  (or (eq ghub-use-workaround-for-emacs-bug 'force)
+                      (and (not gnutls-algorithm-priority)
+                           (>= libgnutls-version 30603)
+                           (version<= emacs-version "26.2")
+                           (memq (ghub--req-forge req) '(github nil)))))
+             "NORMAL:-VERS-TLS1.3"
+           gnutls-algorithm-priority)))
     (if (or (ghub--req-callback  req)
             (ghub--req-errorback req))
         (url-retrieve url handler (list req) silent)
@@ -518,15 +553,10 @@ Signal an error if the id cannot be determined."
   See https://github.com/magit/ghub/issues/81.
   headers: %S
   status: %S
-  buffer: %S
-  buffer-string:
-  %S
-  --- end of buffer-string ---"
+  buffer: %S"
                url-http-end-of-headers
                status
-               (current-buffer)
-               (buffer-substring-no-properties
-                (point-min) (point-max)))))
+               (current-buffer))))
     (while (re-search-forward "^\\([^:]*\\): \\(.+\\)"
                               url-http-end-of-headers t)
       (push (cons (match-string 1)

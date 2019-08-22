@@ -15,14 +15,14 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-ui"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/swiper"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/doom-modeline"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/helm"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-purpose"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
@@ -101,7 +101,7 @@
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
   ;; (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
-  (setenv "PYTHON3" "g:\\Python3")		;用27的话ycmd可以使用semantic补全
+  (setenv "PYTHON3" "c:\\Python37")		;用27的话ycmd可以使用semantic补全
   (setenv "CYGWIN" "C:\\cygwin\\bin")
   (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
@@ -109,7 +109,7 @@
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
   (setenv "MAVEN_HOME" "G:\\apache-maven-3.6.0\\bin")
   (setenv "IMAGE_MAGICk" "G:\\ImageMagick-7.0.8-58-portable-Q16-x64")
-  (setenv "JAVABIN" "G:\\Program Files\\Java\\jdk1.8.0_202\\bin")
+  (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
   )
 
 (when (eq system-type 'darwin)
@@ -306,6 +306,7 @@
  '(bookmark-sort-flag nil)
  '(c-electric-pound-behavior (quote (alignleft)))
  '(cc-search-directories (quote ("." "/usr/include" "/usr/local/include/*" "../*")))
+ '(centaur-tabs-close-button " Ⅹ")
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
@@ -322,7 +323,7 @@
  '(custom-enabled-themes (quote (doom-one)))
  '(custom-safe-themes
    (quote
-    ("6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
+    ("b753c0d7872e154cd395c3d311456c71749dd3f1395e96f34a329cedd9209307" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
@@ -1367,25 +1368,23 @@
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-(require 'aquamacs-tabbar)
-(tabbar-mode)
+;; (require 'aquamacs-tabbar)
+;; (tabbar-mode)
 
 ;; centaur-tabs
-;; (require 'centaur-tabs)
-;; (centaur-tabs-mode t)
-;; (global-set-key (kbd "C-<prior>")  'centaur-tabs-backward)
-;; (global-set-key (kbd "C-<next>") 'centaur-tabs-forward)
-;; (global-set-key (kbd "<C-tab>") 'centaur-tabs-forward)
-;; (global-set-key (kbd "<C-S-tab>") 'centaur-tabs-backward)
-;; (centaur-tabs-headline-match)
-;; (setq centaur-tabs-style "bar")
-;; (setq centaur-tabs-set-icons t)
-;; (setq centaur-tabs-set-bar t)           ;To display a colored bar at the left of the selected tab
-;; (setq centaur-tabs-set-modified-marker t)
-;; (setq centaur-tabs-modified-marker "*")
-;; (setq centaur-tabs-close-button " x ")
+(require 'centaur-tabs)
+(centaur-tabs-mode t)
+(global-set-key (kbd "C-<prior>")  'centaur-tabs-backward)
+(global-set-key (kbd "C-<next>") 'centaur-tabs-forward)
+(global-set-key (kbd "<C-tab>") 'centaur-tabs-forward)
+(global-set-key (kbd "<C-S-tab>") 'centaur-tabs-backward)
+(centaur-tabs-headline-match)
+(setq centaur-tabs-style "bar")
+(setq centaur-tabs-set-icons t)
+(setq centaur-tabs-set-bar t)           ;To display a colored bar at the left of the selected tab
+(setq centaur-tabs-set-modified-marker t)
+(setq centaur-tabs-modified-marker "*")
 ;; (setq centaur-tabs-height 18)
-;; (centaur-tabs-inherit-tabbar-faces)
 
 ;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
 ;; (defun tabbar-gzj-inhgibit-function ()
@@ -1443,7 +1442,7 @@ Call `tabbar-tab-label-function' to obtain a label for TAB."
                           'tabbar-selected
                         'tabbar-unselected))
            (close-button
-            (propertize "[x]"
+            (propertize "[Ⅹ]"
                         'tabbar-tab tab
                         'local-map (tabbar-make-tab-keymap tab)
                         'tabbar-action 'close-tab
@@ -1571,9 +1570,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; npm run build
 (when (memq system-type '(windows-nt ms-dos))
   (setq lsp-java-server-install-dir "D:/jdt-language-server-latest/")
-  (setq lsp-java-java-path "G:\\Program Files\\Java\\jdk1.8.0_202\\bin\\java.exe")
-  (setq lsp-java-workspace-cache-dir "g:/lsp-java-workspace/.cache/")
-  (setq lsp-java-workspace-dir "g:/lsp-java-workspace/"))  
+  (setq lsp-java-java-path "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\java.exe")
+  (setq lsp-java-workspace-cache-dir "d:/lsp-java-workspace/.cache/")
+  (setq lsp-java-workspace-dir "d:/lsp-java-workspace/"))  
 
 (autoload 'projectile-mode "projectile" nil t)
 (global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);切换src和test文件，得先projectile-mode
@@ -1681,7 +1680,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   ;; kotlin
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("G:\\KotlinLanguageServer\\server\\build\\install\\server\\bin\\kotlin-language-server.bat"))
+   (make-lsp-client :new-connection (lsp-stdio-connection '("D:\\kotlin\\server\\build\\install\\server\\bin\\kotlin-language-server.bat"))
                     :major-modes '(kotlin-mode)
                     :priority 1
                     :server-id 'kt-ls))
@@ -1693,11 +1692,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    ;; (require 'lsp-java-boot)
+    (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1820,22 +1819,22 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<M-f6>") 'treemacs-select-window)
 (autoload 'treemacs "treemacs" nil t)
 (autoload 'treemacs-select-window "treemacs" nil t)
-(setq treemacs--icon-size 14)
+(setq treemacs--icon-size 16)
 
 (with-eval-after-load 'treemacs
-  ;; (require 'treemacs-icons-dired)
+  (require 'treemacs-icons-dired)
   (treemacs-git-mode 'deferred) 
   (if (memq system-type '(windows-nt ms-dos))
       (progn
         (setq treemacs-max-git-entries 100)
-        (setq treemacs-python-executable "g:/Python3/python.exe")))
+        (setq treemacs-python-executable "c:/Python37/python.exe")))
   (global-set-key (kbd "<S-f6>") 'treemacs-find-file)
   (global-set-key (kbd "<C-S-f6>") 'treemacs-find-tag)
 
   (add-hook 'treemacs-mode-hook
             (lambda ()
               ;; (setq treemacs-collapse-dirs 3) ;太卡，而且有时会导致同步文件位置出错
-              ;; (treemacs-icons-dired-mode)
+              (treemacs-icons-dired-mode)
               ;; (treemacs-tag-follow-mode)
               (treemacs-follow-mode -1) ;treemacs-find-file 手动focus
               ;; (treemacs-filewatch-mode -1)                                        ;太卡
@@ -1948,8 +1947,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 
 ;; nedtree explorer
-;; (autoload 'neotree-toggle "neotree" nil t)
-;; (global-set-key (kbd "<M-f7>") 'neotree-toggle)
+(autoload 'neotree-toggle "neotree" nil t)
+(global-set-key (kbd "<M-f7>") 'neotree-toggle)
 
 ;; 折叠
 (autoload 'origami-mode "origami" nil t)
@@ -2750,7 +2749,7 @@ If less than or equal to zero, there is no limit."
                                                          (with-no-warnings
                                                            (w32-shell-execute "open" (car (dired-get-marked-files)))))
                                                      (dired-do-async-shell-command))))
-            ;; (diff-hl-dired-mode 1)
+            (diff-hl-dired-mode 1)
             ;; (unless (or (equal (buffer-name) "c:/")
             ;;             (equal (buffer-name) "d:/")
             ;;             (equal (buffer-name) "e:/")

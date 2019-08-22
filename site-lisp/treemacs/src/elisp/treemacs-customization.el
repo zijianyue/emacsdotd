@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,6 +21,48 @@
 ;;; Code:
 
 (require 'f)
+
+(defun treemacs--find-python3 ()
+  "Determine the location of python 3."
+  (--if-let (executable-find "python3") it
+    (when (eq system-type 'windows-nt)
+      (->> "where python"
+           (shell-command-to-string)
+           (s-trim)
+           (s-lines)
+           (--first
+            (when (file-exists-p it)
+              (->> (concat (shell-quote-argument it) " --version")
+                   (shell-command-to-string)
+                   (s-trim)
+                   (s-replace "Python " "")
+                   (s-left 1)
+                   (version<= "3"))))))))
+
+(cl-macrolet
+    ((define-action-widget (name include-default include-tab include-ret)
+       `(define-widget ',name 'lazy
+          "Treemacs button action"
+          :format "%v"
+          :type '(choice
+                  :tag "Action"
+                  ,@(when include-default `((const :tag "Default visit action" treemacs-visit-node-default)))
+                  ,@(when include-tab `((const :tag "Same as TAB" treemacs-TAB-action)))
+                  ,@(when include-ret `((const :tag "Same as RET" treemacs-RET-action)))
+                  (const :tag "Visit node without splitting" treemacs-visit-node-no-split)
+                  (const :tag "Visit node in a vertical split" treemacs-visit-node-vertical-split)
+                  (const :tag "Visit node in a horizontal split" treemacs-visit-node-horizontal-split)
+                  (const :tag "Visit node with Ace" treemacs-visit-node-ace)
+                  (const :tag "Visit node with Ace in a horizontal split" treemacs-visit-node-ace-horizontal-split)
+                  (const :tag "Visit node with Ace in a vertical split" treemacs-visit-node-ace-vertical-split)
+                  (const :tag "Visit node in the most recently used window" treemacs-visit-node-in-most-recently-used-window)
+                  (const :tag "Toggle node" treemacs-toggle-node)
+                  (const :tag "Toggle node (prefer tag visit)" treemacs-toggle-node-prefer-tag-visit)
+                  (function :tag "Custom function")))))
+  (define-action-widget treemacs-default-action nil nil nil)
+  (define-action-widget treemacs-ret-action t t nil)
+  (define-action-widget treemacs-tab-action t nil t)
+  (define-action-widget treemacs-mouse-action t t t))
 
 (defgroup treemacs nil
   "Treemacs configuration options."
@@ -53,20 +95,27 @@
   :link '(url-link :tag "Repository" "https://github.com/Alexander-Miller/treemacs"))
 
 (defcustom treemacs-indentation 2
-  "The number of spaces each level is indented in the file tree.
-Indentation is created by repeating `treemacs-indentation-string'."
-  :type 'integer
+  "The number of spaces or pixels each level is indented in the file tree.
+If the value is integer, indentation is created by repeating
+`treemacs-indentation-string'. If the value is a list of form '(INTEGER px),
+indentation will be a space INTEGER pixels wide."
+  :type '(choice (integer :tag "Spaces" :value 2)
+                 (list :tag "Pixels"
+                       (integer :tag "Pixels" :value 16)
+                       (const :tag "" px)))
   :group 'treemacs)
 
 (defcustom treemacs-eldoc-display t
-  "Enables eldoc-like display of the file path at point."
+  "Enables eldoc display of the file path at point.
+Requires eldoc mode to be enabled."
   :type 'boolean
   :group 'treemacs)
 
 (defcustom treemacs-indentation-string " "
   "The string that is for indentation in the file tree.
 Indentation is created by repeating this string `treemacs-indentation' many
-times."
+times. If `treemacs-indentation' is specified in pixels, this value is only used
+when there is no windowing system available."
   :type 'string
   :group 'treemacs)
 
@@ -90,12 +139,12 @@ See also `treemacs-edit-workspaces'."
     (file-node-closed . treemacs-toggle-node)
     (tag-node-open    . treemacs-toggle-node)
     (tag-node-closed  . treemacs-toggle-node)
-    (tag-node         . treemacs-visit-node-no-split))
+    (tag-node         . treemacs-visit-node-default))
   "Defines the behaviour of `treemacs-TAB-action'.
 
 See the doc string of `treemacs-RET-actions-config' for a detailed description
 of how this config works and how to modify it."
-  :type 'alist
+  :type '(alist :key-type symbol :value-type treemacs-tab-action)
   :group 'treemacs)
 
 (defcustom treemacs-doubleclick-actions-config
@@ -103,16 +152,22 @@ of how this config works and how to modify it."
     (root-node-closed . treemacs-toggle-node)
     (dir-node-open    . treemacs-toggle-node)
     (dir-node-closed  . treemacs-toggle-node)
-    (file-node-open   . treemacs-visit-node-no-split)
-    (file-node-closed . treemacs-visit-node-no-split)
+    (file-node-open   . treemacs-visit-node-default)
+    (file-node-closed . treemacs-visit-node-default)
     (tag-node-open    . treemacs-toggle-node)
     (tag-node-closed  . treemacs-toggle-node)
-    (tag-node         . treemacs-visit-node-no-split))
+    (tag-node         . treemacs-visit-node-default))
   "Defines the behaviour of `treemacs-doubleclick-action'.
 
 See the doc string of `treemacs-RET-actions-config' for a detailed description
 of how this config works and how to modify it."
-  :type 'alist
+  :type '(alist :key-type symbol :value-type treemacs-mouse-action)
+  :group 'treemacs)
+
+(defcustom treemacs-default-visit-action
+  'treemacs-visit-node-no-split
+  "Defines the behavior of `treemacs-visit-node-default'."
+  :type 'treemacs-default-action
   :group 'treemacs)
 
 (defcustom treemacs-RET-actions-config
@@ -120,11 +175,11 @@ of how this config works and how to modify it."
     (root-node-closed . treemacs-toggle-node)
     (dir-node-open    . treemacs-toggle-node)
     (dir-node-closed  . treemacs-toggle-node)
-    (file-node-open   . treemacs-visit-node-no-split)
-    (file-node-closed . treemacs-visit-node-no-split)
+    (file-node-open   . treemacs-visit-node-default)
+    (file-node-closed . treemacs-visit-node-default)
     (tag-node-open    . treemacs-toggle-node-prefer-tag-visit)
     (tag-node-closed  . treemacs-toggle-node-prefer-tag-visit)
-    (tag-node         . treemacs-visit-node-no-split))
+    (tag-node         . treemacs-visit-node-default))
   "Defines the behaviour of `treemacs-RET-action'.
 
 Each alist element maps from a button state to the function that should be used
@@ -137,7 +192,7 @@ single argument.
 To keep the alist clean changes should not be made directly, but with
 `treemacs-define-RET-action', for example like this:
 \(treemacs-define-RET-action 'file-node-closed #'treemacs-visit-node-ace\)"
-  :type 'alist
+  :type '(alist :key-type symbol :value-type treemacs-ret-action)
   :group 'treemacs)
 
 (defcustom treemacs-follow-after-init nil
@@ -438,42 +493,42 @@ Note that this does *not* take `scroll-margin' into account."
   (let ((name (rx (1+ whitespace) (? "'") (group-n 2 symbol-start (1+ (or (syntax word) (syntax symbol))) symbol-end)))
         (prefix (rx bol (0+ (syntax whitespace)) "(")))
     `(("Functions"
-      ,(concat prefix (rx (? "cl-") (or "defgeneric" "defmethod" "defun" "defadvice")) name)
-      2)
+       ,(concat prefix (rx (? "cl-") (or "defgeneric" "defmethod" "defun" "defadvice")) name)
+       2)
       ("Dependencies"
        ,(concat prefix "require" name)
        2)
-     ("Inline Functions"
-      ,(concat prefix (rx (? "cl-") (or "defsubst" "define-inline")) name)
-      2)
-     ("Customizations"
-      ,(concat prefix "defcustom" name)
-      2)
-     ;; struct whose name maybe be wrapped in parens
-     ("Types" ,(rx (group-n 1 (? "cl-") "defstruct" (1+ whitespace) (? "(" (0+ whitespace)))
-                   (group-n 2 symbol-start (1+ (or (syntax word) (syntax symbol))) symbol-end))
-      2)
-     ("Types"
-      ,(concat
-        prefix
-        (rx (group-n
-             1 (or (seq (? "cl-") "defstruct" (? " ("))
-                   "defclass"
-                   "deftype"
-                   "defgroup"
-                   "define-widget"
-                   "deferror")))
-        name)
-      2)
-     ("Variables"
-      ,(concat prefix (rx (or "defvar" "defvar-local" "defconst" "defconst-mode-local")) name)
-      2)
-     ("Macros"
-      ,(concat prefix (rx (? "cl-") (or "define-compiler-macro" "defmacro")) name)
-      2)
-     ("Faces"
-      ,(concat prefix (rx "defface") name)
-      2)))
+      ("Inline Functions"
+       ,(concat prefix (rx (? "cl-") (or "defsubst" "define-inline")) name)
+       2)
+      ("Customizations"
+       ,(concat prefix "defcustom" name)
+       2)
+      ;; struct whose name maybe be wrapped in parens
+      ("Types" ,(rx (group-n 1 (? "cl-") "defstruct" (1+ whitespace) (? "(" (0+ whitespace)))
+		    (group-n 2 symbol-start (1+ (or (syntax word) (syntax symbol))) symbol-end))
+       2)
+      ("Types"
+       ,(concat
+	 prefix
+	 (rx (group-n
+	      1 (or (seq (? "cl-") "defstruct" (? " ("))
+		    "defclass"
+		    "deftype"
+		    "defgroup"
+		    "define-widget"
+		    "deferror")))
+	 name)
+       2)
+      ("Variables"
+       ,(concat prefix (rx (or "defvar" "defvar-local" "defconst" "defconst-mode-local")) name)
+       2)
+      ("Macros"
+       ,(concat prefix (rx (? "cl-") (or "define-compiler-macro" "defmacro")) name)
+       2)
+      ("Faces"
+       ,(concat prefix (rx "defface") name)
+       2)))
   "The value for `imenu-generic-expression' treemacs uses in elisp buffers.
 More discriminating than the default as it distinguishes between functions,
 inline functions, macros, faces, variables, customizations and types."
@@ -496,8 +551,29 @@ is enabled, since constantly expanding an entire project is fairly expensive."
   :group 'treemacs
   :type 'string)
 
+(defcustom treemacs-last-error-persist-file
+  (f-join user-emacs-directory ".cache" "treemacs-persist-at-last-error")
+  "File that stores the treemacs state as it was during the last load error."
+  :group 'treemacs
+  :type 'string)
+
+(defcustom treemacs-missing-project-action 'ask
+  "Action to perform when a persisted project is not found on the disk.
+If the project is not found, the project can either be kept in the project list,
+or removed from it.  If the project is removed, when projects are persisted, the
+missing project will not appear in the project list next time Emacs is started."
+  :type '(choice (const :tag "Ask whether to remove" ask)
+                 (const :tag "Remove without asking" remove)
+                 (const :tag "Keep without asking" keep))
+  :group 'treemacs)
+
 (defcustom treemacs-space-between-root-nodes t
   "When non-nil treemacs will separate root nodes with an empty line."
+  :type 'boolean
+  :group 'treemacs)
+
+(defcustom treemacs-wrap-around t
+  "When non-nil treemacs will wrap around buffer edges when moving between lines."
   :type 'boolean
   :group 'treemacs)
 
@@ -557,7 +633,7 @@ not apply to the simple `treemacs-git-mode.'"
   :type 'number
   :group 'treemacs-git)
 
-(defcustom treemacs-python-executable (executable-find "python")
+(defcustom treemacs-python-executable (treemacs--find-python3)
   "The python executable used by treemacs.
 An asynchronous python process is used in two optional feaures:
 `treemacs-collapse-dirs' and the extended variant of `treemacs-git-mode'.
@@ -625,6 +701,76 @@ Valid values are
                  (const right))
   :group 'treemacs)
 
+(defcustom treemacs-create-project-functions nil
+  "Hooks to run whenever a project is created.
+Will be called with the new project as the sole argument."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-delete-project-functions nil
+  "Hooks to run whenever a project is deleted.
+Will be called with the deleted project as the sole argument *after* it has been
+deleted."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-rename-project-functions nil
+  "Hooks to run whenever a project is renamed.
+Will be called with the renamed project and the old name as its argumens."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-create-workspace-functions nil
+  "Hooks to run whenever a workspace is created.
+Will be called with the new workspace as the sole argument."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-delete-workspace-functions nil
+  "Hooks to run whenever a workspace is deleted.
+Will be called with the deleted workspace as the sole argument *after* it has
+been deleted."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-rename-workspace-functions nil
+  "Hooks to run whenever a workspace is renamed.
+Will be called with the renamed workspace and the old name as its argumens."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-switch-workspace-hook nil
+  "Hooks to run whenever the workspace is changed.
+The current workspace will be available as `treemacs-current-workspace'."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-workspace-edit-hook nil
+  "Hooks to run whenever the entire workspace layout has been rebuilt.
+This hook runs after `treemacs-finish-edit' has been called. After such an edit
+any number (including zero) of workspaces and projects may have been changed or
+created or deleted."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-bookmark-title-template "Treemacs - ${project}: ${label}"
+  "Template for default bookmark titles.
+
+The following replacements are available:
+ * ${project}: The label of the project.
+ * ${label}: Label of the current button.
+ * ${label:N} Label of the Nth parent.
+   If the parent does not exist, an empty string.
+ * ${label-path}: Label path of the button.
+   For example, \"Project/directory/file.txt\"
+ * ${label-path:N}: Last N components of the label path.
+ * ${file-path}: Absolute file-system path of the node.
+   If the node is a top-level extension node, this expands to an empty string.
+   If the node is a directory or or project extension, the path of its parent.
+ * ${file-path:N}: Last N components of the filesystem path."
+  :type 'string
+  :group 'treemacs)
+
 (defcustom treemacs-pre-refresh-hook nil
   "Hooks to run right before the refresh process for a project kicks off.
 During the refresh the project is effectively collapsed and then expanded again.
@@ -660,6 +806,25 @@ button's position will be wrong, even if it wasn't deleted outright):
    point was on the header.
  * The current button's tag path, as collected by `treemacs--tags-path-of'. Is
    nil if the current button is nil."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-quit-hook nil
+  "Hooks to run when `treemacs-quit' is called.
+The hooks will be run *after* the treemacs buffer was buried."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-kill-hook nil
+  "Hooks to run when `treemacs-kill-buffer' is called.
+The hooks will be run *after* the treemacs buffer was destroyed."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-select-hook nil
+  "Hooks to run when the treemacs window is selected.
+This only applies to commands like `treemacs' or `treemacs-select-window', not
+general window selection commands like `other-window'."
   :type 'hook
   :group 'treemacs-hooks)
 

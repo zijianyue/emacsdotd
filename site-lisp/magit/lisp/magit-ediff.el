@@ -160,13 +160,13 @@ conflicts, including those already resolved by Git, use
   "Stage and unstage changes to FILE using Ediff.
 FILE has to be relative to the top directory of the repository."
   (interactive
-   (list (magit-completing-read "Selectively stage file"
-                                (magit-tracked-files) nil nil nil nil
-                                (magit-current-file))))
+   (let ((files (magit-tracked-files)))
+     (list (magit-completing-read "Selectively stage file" files nil t nil nil
+                                  (car (member (magit-current-file) files))))))
   (magit-with-toplevel
     (let* ((conf (current-window-configuration))
            (bufA (magit-get-revision-buffer "HEAD" file))
-           (bufB (get-buffer (concat file ".~{index}~")))
+           (bufB (magit-get-revision-buffer "{index}" file))
            (bufBrw (and bufB (with-current-buffer bufB (not buffer-read-only))))
            (bufC (get-file-buffer file))
            (fileBufC (or bufC (find-file-noselect file)))
@@ -317,7 +317,7 @@ mind at all, then it asks the user for a command to run."
             (pcase (magit-diff-type)
               (`committed (pcase-let ((`(,a ,b)
                                        (magit-ediff-compare--read-revisions
-                                        (car magit-refresh-args))))
+                                        magit-buffer-range)))
                             (setq revA a)
                             (setq revB b)))
               ((guard (not magit-ediff-dwim-show-on-hunks))

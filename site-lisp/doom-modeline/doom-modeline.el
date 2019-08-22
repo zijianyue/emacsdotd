@@ -4,8 +4,8 @@
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; Homepage: https://github.com/seagle0128/doom-modeline
-;; Version: 1.9.5
-;; Package-Requires: ((emacs "25.1") (all-the-icons "1.0.0") (shrink-path "0.2.0") (eldoc-eval "0.1") (dash "2.11.0"))
+;; Version: 2.5.1
+;; Package-Requires: ((emacs "25.1") (all-the-icons "1.0.0") (shrink-path "0.2.0") (dash "2.11.0"))
 ;; Keywords: faces mode-line
 
 ;; This file is not part of GNU Emacs.
@@ -45,10 +45,8 @@
 ;; - A workspace number segment for eyebrowse
 ;; - A perspective name segment for persp-mode
 ;; - A window number segment for winum and window-numbering
-;; - An indicator for evil state
-;; - An indicator for god state
-;; - An indicator for ryo-modal state
-;; - An indicator for xah-fly-keys state
+;; - An indicator for modal editing state, including evil, overwrite, god, ryo and
+;;   xah-fly-keys, etc.
 ;; - An indicator for remote host
 ;; - An indicator for current input method
 ;; - An indicator for debug state
@@ -58,10 +56,14 @@
 ;; - An indicator for irc notifications with circe
 ;; - An indicator for buffer position which is compatible with nyan-mode
 ;; - An indicator for party parrot
-;; - An indicator for PDF page number
+;; - An indicator for PDF page number with pdf-tools
 ;; - An indicator for battery status with fancy-battery
 ;; - Truncated file name, file icon, buffer state and project name in buffer
 ;;   information segment, which is compatible with projectile and project
+;; - New mode-line for Info-mode buffers
+;; - New package mode-line for paradox
+;; - New mode-line for helm buffers
+;; - New mode-line for git-timemachine buffers
 ;;
 ;; Installation:
 ;; From melpa, `M-x package-install RET doom-modeline RET`.
@@ -85,29 +87,44 @@
 ;;
 
 (doom-modeline-def-modeline 'main
-  '(bar workspace-number window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info remote-host buffer-position parrot selection-info)
-  '(misc-info persp-name lsp irc mu4e github debug fancy-battery minor-modes input-method buffer-encoding major-mode process vcs checker))
+  '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position parrot selection-info)
+  '(objed-state misc-info persp-name fancy-battery irc mu4e github debug lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
 
 (doom-modeline-def-modeline 'minimal
-  '(bar matches " " buffer-info)
-  '(media-info major-mode " "))
+  '(bar matches buffer-info-simple)
+  '(media-info major-mode))
 
 (doom-modeline-def-modeline 'special
-  '(bar window-number evil-state god-state ryo-modal xah-fly-keys matches buffer-info-simple buffer-position parrot selection-info)
-  '(misc-info lsp irc-buffers debug fancy-battery minor-modes input-method buffer-encoding major-mode process checker))
+  '(bar window-number modals matches buffer-info buffer-position parrot selection-info)
+  '(objed-state misc-info fancy-battery irc-buffers debug lsp minor-modes input-method indent-info buffer-encoding major-mode process checker))
 
 (doom-modeline-def-modeline 'project
-  '(bar " " buffer-default-directory)
-  '(misc-info mu4e github debug fancy-battery " " major-mode " "))
+  '(bar window-number buffer-default-directory)
+  '(misc-info fancy-battery mu4e github debug major-mode process))
+
+(doom-modeline-def-modeline 'package
+  '(bar window-number package)
+  '(misc-info major-mode process))
+
+(doom-modeline-def-modeline 'info
+  '(bar window-number buffer-info info-nodes buffer-position parrot selection-info)
+  '(misc-info buffer-encoding major-mode))
 
 (doom-modeline-def-modeline 'media
   '(bar window-number buffer-size buffer-info)
-  '(misc-info media-info major-mode vcs " "))
+  '(misc-info media-info major-mode process vcs))
 
 (doom-modeline-def-modeline 'pdf
   '(bar window-number buffer-size buffer-info pdf-pages)
-  '(misc-info " " major-mode vcs " "))
+  '(misc-info major-mode process vcs))
 
+(doom-modeline-def-modeline 'helm
+  '(bar helm-buffer-id helm-number helm-follow helm-prefix-argument)
+  '(helm-help))
+
+(doom-modeline-def-modeline 'timemachine
+  '(bar window-number matches git-timemachine buffer-position parrot selection-info)
+  '(misc-info fancy-battery mu4e github debug minor-modes indent-info buffer-encoding major-mode))
 
 ;;
 ;; Interfaces
@@ -136,26 +153,50 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   (doom-modeline-set-modeline 'special))
 
 ;;;###autoload
-(defun doom-modeline-set-media-modeline ()
-  "Set media mode-line."
-  (doom-modeline-set-modeline 'media))
-
-;;;###autoload
 (defun doom-modeline-set-project-modeline ()
   "Set project mode-line."
   (doom-modeline-set-modeline 'project))
+
+;;;###autoload
+(defun doom-modeline-set-info-modeline ()
+  "Set Info mode-line."
+  (doom-modeline-set-modeline 'info))
+
+;;;###autoload
+(defun doom-modeline-set-package-modeline ()
+  "Set package mode-line."
+  (doom-modeline-set-modeline 'package))
+
+;;;###autoload
+(defun doom-modeline-set-media-modeline ()
+  "Set media mode-line."
+  (doom-modeline-set-modeline 'media))
 
 ;;;###autoload
 (defun doom-modeline-set-pdf-modeline ()
   "Set pdf mode-line."
   (doom-modeline-set-modeline 'pdf))
 
+;;;###autoload
+(defun doom-modeline-set-helm-modeline (&rest _)
+  "Set helm mode-line."
+  (doom-modeline-set-modeline 'helm))
+
+;;;###autoload
+(defun doom-modeline-set-timemachine-modeline (&rest _)
+  "Set timemachine mode-line."
+  (doom-modeline-set-modeline 'timemachine))
+
 
 ;;
 ;; Mode
 ;;
 
-(defvar doom-modeline--default-mode-line mode-line-format)
+(defvar doom-modeline--old-format mode-line-format
+  "Storage for the old `mode-line-format', so it can be restored when
+`doom-modeline-mode' is disabled.")
+
+(declare-function helm-display-mode-line 'helm) ; suppress warnings
 
 ;;;###autoload
 (define-minor-mode doom-modeline-mode
@@ -165,7 +206,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   :lighter nil
   (if doom-modeline-mode
       (progn
-        (doom-modeline-refresh-bars)    ; create bars
+        (doom-modeline-refresh-bars)        ; create bars
         (doom-modeline-set-main-modeline t) ; set default mode-line
         (unless after-init-time
           ;; These buffers are already created and don't get modelines. For the love
@@ -174,18 +215,32 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
             (with-current-buffer bname
               (doom-modeline-set-main-modeline))))
         ;; Add hooks
+        (add-hook 'Info-mode-hook #'doom-modeline-set-info-modeline)
+        (add-hook 'dired-mode-hook #'doom-modeline-set-project-modeline)
+        (add-hook 'magit-mode-hook #'doom-modeline-set-project-modeline)
         (add-hook 'dashboard-mode-hook #'doom-modeline-set-project-modeline)
         (add-hook 'image-mode-hook #'doom-modeline-set-media-modeline)
         (add-hook 'circe-mode-hook #'doom-modeline-set-special-modeline)
-        (add-hook 'pdf-tools-enabled-hook #'doom-modeline-set-pdf-modeline))
+        (add-hook 'pdf-view-mode-hook #'doom-modeline-set-pdf-modeline)
+        (add-hook 'git-timemachine-mode-hook #'doom-modeline-set-timemachine-modeline)
+        (add-hook 'paradox-menu-mode-hook #'doom-modeline-set-package-modeline)
+        ;; Add advice
+        (advice-add #'helm-display-mode-line :override #'doom-modeline-set-helm-modeline))
     (progn
       ;; Restore mode-line
-      (setq-default mode-line-format doom-modeline--default-mode-line)
+      (setq-default mode-line-format doom-modeline--old-format)
       ;; Remove hooks
+      (remove-hook 'Info-mode-hook #'doom-modeline-set-info-modeline)
+      (remove-hook 'dired-mode-hook #'doom-modeline-set-project-modeline)
+      (remove-hook 'magit-mode-hook #'doom-modeline-set-project-modeline)
       (remove-hook 'dashboard-mode-hook #'doom-modeline-set-project-modeline)
       (remove-hook 'image-mode-hook #'doom-modeline-set-media-modeline)
       (remove-hook 'circe-mode-hook #'doom-modeline-set-special-modeline)
-      (remove-hook 'pdf-tools-enabled-hook #'doom-modeline-set-pdf-modeline))))
+      (remove-hook 'pdf-view-mode-hook #'doom-modeline-set-pdf-modeline)
+      (remove-hook 'git-timemachine-mode-hook #'doom-modeline-set-timemachine-modeline)
+      (remove-hook 'paradox-menu-mode-hook #'doom-modeline-set-package-modeline)
+      ;; Remove advices
+      (advice-remove #'helm-display-mode-line #'doom-modeline-set-helm-modeline))))
 
 (provide 'doom-modeline)
 

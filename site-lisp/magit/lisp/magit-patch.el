@@ -34,9 +34,14 @@
 
 ;;; Options
 
-;; ???
 (defcustom magit-patch-save-arguments '(exclude "--stat")
-  "Arguments used by `magit-patch-save-arguments' (which see)"
+  "Control arguments used by the command `magit-patch-save'.
+
+`magit-patch-save' (which see) saves a diff for the changes
+shown in the current buffer in a patch file.  It may use the
+same arguments as used in the buffer or a subset thereof, or
+a constant list of arguments, depending on this option and
+the prefix argument."
   :package-version '(magit . "2.12.0")
   :group 'magit-diff
   :type '(choice (const :tag "use buffer arguments" buffer)
@@ -103,14 +108,18 @@ which creates patches for all commits that are reachable from
       (transient-setup 'magit-patch-create)
     (magit-run-git "format-patch" range args "--" files)
     (when (member "--cover-letter" args)
-      (find-file
-       (expand-file-name
-        "0000-cover-letter.patch"
-        (let ((topdir (magit-toplevel)))
-          (or (--some (and (string-match "--output-directory=\\(.+\\)" it)
-                           (expand-file-name (match-string 1 it) topdir))
-                      args)
-              topdir)))))))
+      (save-match-data
+        (find-file
+         (expand-file-name
+          (concat (--some (and (string-match "\\`--reroll-count=\\(.+\\)" it)
+                               (format "v%s-" (match-string 1 it)))
+                          args)
+                  "0000-cover-letter.patch")
+          (let ((topdir (magit-toplevel)))
+            (or (--some (and (string-match "\\`--output-directory=\\(.+\\)" it)
+                             (expand-file-name (match-string 1 it) topdir))
+                        args)
+                topdir))))))))
 
 (define-infix-argument magit-format-patch:--in-reply-to ()
   :description "In reply to"
@@ -178,7 +187,7 @@ which creates patches for all commits that are reachable from
   ["Actions"
    ("a"  "Apply patch" magit-patch-apply)]
   (interactive
-   (if (not (eq transient--prefix 'magit-patch-apply))
+   (if (not (eq current-transient-command 'magit-patch-apply))
        (list nil)
      (list (expand-file-name
             (read-file-name "Apply patch: "
@@ -217,9 +226,10 @@ same differences as those shown in the buffer are always used."
                      current-prefix-arg))
   (unless (derived-mode-p 'magit-diff-mode)
     (user-error "Only diff buffers can be saved as patches"))
-  (pcase-let ((`(,rev ,const ,args ,files) magit-refresh-args))
-    (when (derived-mode-p 'magit-revision-mode)
-      (setq rev (format "%s~..%s" rev rev)))
+  (let ((rev     magit-buffer-range)
+        (typearg magit-buffer-typearg)
+        (args    magit-buffer-diff-args)
+        (files   magit-buffer-diff-files))
     (cond ((eq magit-patch-save-arguments 'buffer)
            (when arg
              (setq args nil)))
@@ -229,7 +239,7 @@ same differences as those shown in the buffer are always used."
           ((not arg)
            (setq args magit-patch-save-arguments)))
     (with-temp-file file
-      (magit-git-insert "diff" rev "-p" const args "--" files)))
+      (magit-git-insert "diff" rev "-p" typearg args "--" files)))
   (magit-refresh))
 
 ;;;###autoload

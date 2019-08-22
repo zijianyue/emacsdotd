@@ -1,6 +1,6 @@
 ;;; helm-buffers.el --- helm support for buffers. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2018 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2019 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 (require 'helm-grep)
 (require 'helm-regexp)
 (require 'helm-help)
+(require 'helm-occur)
 
 (declare-function ido-make-buffer-list "ido" (default))
 (declare-function ido-add-virtual-buffers-to-list "ido")
@@ -87,6 +88,11 @@ Only buffer names are fuzzy matched when this is enabled,
   "Truncate lines in `helm-buffers-list' when non--nil."
   :group 'helm-buffers
   :type 'boolean)
+
+(defcustom helm-buffers-left-margin-width helm-left-margin-width
+  "`left-margin-width' value for `helm-mini' and `helm-buffers-list'."
+  :group 'helm-buffers
+  :type 'integer)
 
 (defcustom helm-mini-default-sources '(helm-source-buffers-list
                                        helm-source-recentf
@@ -197,7 +203,7 @@ Note that this variable is buffer-local.")
     ;; as we don't use recursivity for buffers.
     ;; So use zgrep for both as it is capable to handle non--compressed files.
     (define-key map (kbd "M-g s")     'helm-buffer-run-zgrep)
-    (define-key map (kbd "C-s")       'helm-buffers-run-multi-occur)
+    (define-key map (kbd "C-s")       'helm-buffers-run-occur)
     (define-key map (kbd "C-x C-d")   'helm-buffers-run-browse-project)
     (define-key map (kbd "C-c o")     'helm-buffer-switch-other-window)
     (define-key map (kbd "C-c C-o")   'helm-buffer-switch-other-frame)
@@ -208,6 +214,7 @@ Note that this variable is buffer-local.")
     (define-key map (kbd "C-c d")     'helm-buffer-run-kill-persistent)
     (define-key map (kbd "M-D")       'helm-buffer-run-kill-buffers)
     (define-key map (kbd "C-x C-s")   'helm-buffer-save-persistent)
+    (define-key map (kbd "C-x s")     'helm-buffer-run-save-some-buffers)
     (define-key map (kbd "C-M-%")     'helm-buffer-run-query-replace-regexp)
     (define-key map (kbd "M-%")       'helm-buffer-run-query-replace)
     (define-key map (kbd "M-R")       'helm-buffer-run-rename-buffer)
@@ -576,11 +583,12 @@ Should be called after others transformers i.e (boring buffers)."
                 (lambda (s1 s2)
                   (< (string-width s1) (string-width s2)))))))
 
-(defun helm-buffers-mark-similar-buffers-1 ()
+(defun helm-buffers-mark-similar-buffers-1 (&optional type)
   (with-helm-window
     (let* ((src (helm-get-current-source))
-           (type (get-text-property
-                  0 'type (helm-get-selection nil 'withprop src))))
+           (type (or type
+                     (get-text-property
+                      0 'type (helm-get-selection nil 'withprop src)))))
       (save-excursion
         (goto-char (helm-get-previous-header-pos))
         (helm-next-line)
@@ -600,7 +608,8 @@ Should be called after others transformers i.e (boring buffers)."
             (forward-line 1) (end-of-line))))
       (helm-mark-current-line)
       (helm-display-mode-line src t)
-      (message "%s candidates marked" (length helm-marked-candidates)))))
+      (when helm-marked-candidates
+        (message "%s candidates marked" (length helm-marked-candidates))))))
 
 (defun helm-buffers-mark-similar-buffers ()
     "Mark All buffers that have same property `type' than current.
@@ -790,14 +799,28 @@ If REGEXP-FLAG is given use `query-replace-regexp'."
 
 (defun helm-buffer-save-and-update (_candidate)
   (with-helm-buffer
-    (let ((marked (helm-marked-candidates))
+    (let ((marked (and helm-marked-candidates
+                       (helm-marked-candidates)))
           (preselect (helm-get-selection nil t))
           (enable-recursive-minibuffers t))
+      (cl-assert marked nil "No buffers need to be saved")
       (cl-loop for buf in marked do
                (with-current-buffer (get-buffer buf)
                  (when (buffer-file-name) (save-buffer))))
       (when helm-marked-candidates (helm-unmark-all))
       (helm-update (regexp-quote preselect)))))
+
+(defun helm-buffer-save-some-buffers (_candidate)
+  (helm-buffers-mark-similar-buffers-1 'mod)
+  (helm-buffer-save-and-update nil))
+
+(defun helm-buffer-run-save-some-buffers ()
+  "Save unsaved file buffers without quitting helm."
+  (interactive)
+  (with-helm-alive-p
+    (helm-attrset 'save-some-action '(helm-buffer-save-some-buffers . never-split))
+    (helm-execute-persistent-action 'save-some-action)))
+(put 'helm-buffer-run-save-some-buffers 'helm-only t)
 
 (defun helm-buffer-save-persistent ()
   "Save buffer without quitting helm."
@@ -1000,22 +1023,26 @@ See `helm-ediff-marked-buffers'."
 (defun helm-multi-occur-as-action (_candidate)
   "Multi occur action for `helm-source-buffers-list'.
 Can be used by any source that list buffers."
-  (let ((helm-moccur-always-search-in-current
+  (let ((helm-occur-always-search-in-current
          (if helm-current-prefix-arg
-             (not helm-moccur-always-search-in-current)
-           helm-moccur-always-search-in-current))
+             (not helm-occur-always-search-in-current)
+           helm-occur-always-search-in-current))
         (buffers (helm-marked-candidates))
-        (input (cl-loop for i in (split-string helm-pattern " " t)
-                     thereis (and (string-match "\\`@\\(.*\\)" i)
-                                  (match-string 1 i)))))
+        (input (cl-loop for i in (split-string (or (buffer-local-value
+                                                    'helm-input-local
+                                                    (get-buffer helm-buffer))
+                                                   helm-pattern)
+                                               " " t)
+                        thereis (and (string-match "\\`@\\(.*\\)" i)
+                                     (match-string 1 i)))))
     (helm-multi-occur-1 buffers input)))
 
-(defun helm-buffers-run-multi-occur ()
+(defun helm-buffers-run-occur ()
   "Run `helm-multi-occur-as-action' by key."
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action 'helm-multi-occur-as-action)))
-(put 'helm-buffers-run-multi-occur 'helm-only t)
+(put 'helm-buffers-run-occur 'helm-only t)
 
 (defun helm-buffers-toggle-show-hidden-buffers ()
   (interactive)
@@ -1075,11 +1102,12 @@ displayed with the `file-name-shadow' face if available."
                    helm-source-buffer-not-found)
         :buffer "*helm buffers*"
         :keymap helm-buffer-map
-        :truncate-lines helm-buffers-truncate-lines))
+        :truncate-lines helm-buffers-truncate-lines
+        :left-margin-width helm-buffers-left-margin-width))
 
 ;;;###autoload
 (defun helm-mini ()
-  "Preconfigured `helm' lightweight version \(buffer -> recentf\)."
+  "Preconfigured `helm' displaying `helm-mini-default-sources'."
   (interactive)
   (require 'helm-x-files)
   (unless helm-source-buffers-list
@@ -1088,7 +1116,8 @@ displayed with the `file-name-shadow' face if available."
   (helm :sources helm-mini-default-sources
         :buffer "*helm mini*"
         :ff-transformer-show-only-basename nil
-        :truncate-lines helm-buffers-truncate-lines))
+        :truncate-lines helm-buffers-truncate-lines
+        :left-margin-width helm-buffers-left-margin-width))
 
 (defun helm-quit-and-helm-mini ()
   "Drop into `helm-mini' from `helm'."

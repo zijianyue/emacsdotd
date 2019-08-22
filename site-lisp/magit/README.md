@@ -26,23 +26,48 @@
 <hr>
 
 <div align="center">
-  <a href="https://magit.vc/buy">
-	<img src="https://magit.vc/assets/stickers1x.png">
-  </a>
-  <br>
-  Please support Magit by
-  <a href="https://magit.vc/buy">buying some stickers</a>!
+  Keeping its users <a href= "https://magit.vc/quotes">this excited</a> is
+  <a href="https://magit.vc/stats/authors.html#cumulated_added_lines_of_code_per_author">
+    a lot of work
+  </a>.
+  If Magit makes you <br> more productive too,
+  then <b>please consider making a donation</b>.
+</div>
+<div align="center">
+  <em>Thank you! &mdash; Jonas Bernoulli</em>
+</div>
+<br>
+<div align="center">
+  <a href="https://www.paypal.me/JonasBernoulli/20">
+    <img title="Donate using PayPal"
+         alt="Donate using PayPal"
+		 style="height: 50px; width: auto;"
+         src="https://magit.vc/assets/paypal.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://www.patreon.com/tarsius">
+    <img title="Donate monthly using Patreon"
+         alt="Donate monthly using Patreon"
+		 style="height: 50px; width: auto;"
+         src="https://magit.vc/assets/patreon-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://liberapay.com/magit">
+     <img title="Donate weekly using Liberapay"
+          alt="Donate weekly using Liberapay"
+          src="https://magit.vc/assets/liberapay-50px.png"></a>
+</div>
+<br>
+<div align="center">
+  Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
 </div>
 <hr>
 
-<div align="justify">
+<div align="center">
   <a href="https://github.com/magit/magit/blob/master/Documentation/BACKERS.md">1987 backers</a>
-  made sure the Kickstarter campaign was a huge success!
+  made sure the 2017 Kickstarter campaign was a huge success!<br>
   Thanks for your generosity and enthusiastic support!
 </div>
 <div align="center">
   <em><b>Thank you!</b> &mdash; Jonas Bernoulli</em><br><br>
-  <img src="https://magit.vc/assets/pixel-heart.png">
 </div>
 <br>
 <div align="center">
@@ -99,6 +124,7 @@ features.
 Thanks to all of you, may (the history of) the source be with you!
 
 ***
+[![Paren Xkcb](https://img.shields.io/badge/%28-%20%20%20-red.svg)](https://xkcd.com/859)
 [![GPL v3](https://img.shields.io/badge/license-GPL_v3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/magit/magit.svg?branch=master)](https://travis-ci.org/magit/magit)
 [![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
@@ -107,7 +133,6 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Eierlegende Wollmilchsau](https://img.shields.io/badge/eierlegende-Wollmilchsau-green.svg)](https://magit.vc/manual/magit)
 [![Swiss Made](https://img.shields.io/badge/swiss-made-red.svg?colorA=E11A27&colorB=555555)](https://magit.vc/stats/authors.html#commits_per_author)
 [![Netscape](https://magit.vc/assets/netscape-20px.png)](https://en.wikipedia.org/wiki/Browser_wars)
-[![Paren Xkcb](https://img.shields.io/badge/%28-%20%20%20-red.svg)](https://xkcd.com/859)
 
 
 [contrib]: https://github.com/magit/magit/blob/master/.github/CONTRIBUTING.md

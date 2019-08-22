@@ -35,7 +35,7 @@ determine the exact padding."
   :type 'symbol)
 
 (def-doom-theme doom-opera
-  "A dark opera theme."
+  "A dark Opera theme."
 
   ;; name        default   256       16
   ((bg         '("#323334" nil       nil            ))
@@ -140,6 +140,10 @@ determine the exact padding."
    (solaire-mode-line-inactive-face
     :inherit 'mode-line-inactive
     :background modeline-bg-inactive-l
-    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive-l)))))
+    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive-l))))
+
+
+  ;; --- extra variables ---------------------
+  ())
 
 ;;; doom-opera-theme.el ends here

@@ -19,7 +19,7 @@
 ;; Keywords: git tools vc
 ;; Homepage: https://github.com/magit/magit
 
-;; Magit requires at least GNU Emacs 25.1 and Git 2.0.0.
+;; Magit requires at least GNU Emacs 25.1 and Git 2.2.0.
 
 ;; Magit is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -56,14 +56,15 @@
 (require 'git-commit)
 (require 'magit-core)
 (require 'magit-diff)
-(require 'magit-apply)
 (require 'magit-log)
+(require 'magit-wip)
+(require 'magit-apply)
 (require 'magit-repos)
 
 (require 'format-spec)
 (require 'package nil t) ; used in `magit-version'
 
-(defconst magit--minimal-git "2.0.0")
+(defconst magit--minimal-git "2.2.0")
 (defconst magit--minimal-emacs "25.1")
 
 ;;; Faces
@@ -228,6 +229,7 @@ and/or `magit-branch-remote-head'."
     ("b" "Branch"         magit-branch)
     ("B" "Bisect"         magit-bisect)
     ("c" "Commit"         magit-commit)
+    ("C" "Clone"          magit-clone)
     ("d" "Diff"           magit-diff)
     ("D" "Diff (change)"  magit-diff-refresh)
     ("e" "Ediff (dwim)"   magit-ediff-dwim)
@@ -249,6 +251,7 @@ and/or `magit-branch-remote-head'."
     ("W" "Format patches" magit-patch)
     ("X" "Reset"          magit-reset)]
    [("y" "Show Refs"      magit-show-refs)
+    ("Y" "Cherries"       magit-cherry)
     ("z" "Stash"          magit-stash)
     ("!" "Run"            magit-run)
     ("%" "Worktree"       magit-worktree)]]
@@ -572,13 +575,14 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-obsolete)
   (require 'magit-submodule)
   (unless (load "magit-autoloads" t t)
+    (require 'magit-patch)
     (require 'magit-subtree)
     (require 'magit-ediff)
+    (require 'magit-gitignore)
     (require 'magit-extras)
     (require 'git-rebase)
     (require 'magit-imenu)
-    (require 'magit-bookmark)
-    (require 'magit-gitignore)))
+    (require 'magit-bookmark)))
 
 (eval-after-load 'bookmark
   '(require 'magit-bookmark))

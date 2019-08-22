@@ -40,6 +40,7 @@
 (define-transient-command magit-merge ()
   "Merge branches."
   :man-page "git-merge"
+  :incompatible '(("--ff-only" "--no-ff"))
   ["Arguments"
    :if-not magit-merge-in-progress-p
    ("-f" "Fast-forward only" "--ff-only")
@@ -53,7 +54,7 @@
     ("n" "Merge but don't commit" magit-merge-nocommit)
     ("a" "Absorb"                 magit-merge-absorb)]
    [("p" "Preview merge"          magit-merge-preview)
-    ?\n
+    ""
     ("s" "Squash merge"           magit-merge-squash)
     ("i" "Merge into"             magit-merge-into)]]
   ["Actions"
@@ -103,7 +104,8 @@ edit it.
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
   (apply #'magit-run-git-with-editor "merge" "--edit"
-         (append args (list rev))))
+         (append (delete "--ff-only" args)
+                 (list rev))))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
@@ -131,13 +133,13 @@ branch, then also remove the respective remote branch."
    (list (magit-read-other-local-branch
           (format "Merge `%s' into" (magit-get-current-branch))
           nil
-          (when-let ((upstream (magit-get-upstream-branch)))
-            (when-let ((upstream (cdr (magit-split-branch-name upstream))))
-              (and (magit-branch-p upstream) upstream))))
+          (when-let ((upstream (magit-get-upstream-branch))
+                     (upstream (cdr (magit-split-branch-name upstream))))
+            (and (magit-branch-p upstream) upstream)))
          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch)))
     (when (zerop (magit-call-git "checkout" branch))
-      (magit--merge-absort current args))))
+      (magit--merge-absorb current args))))
 
 ;;;###autoload
 (defun magit-merge-absorb (branch &optional args)
@@ -151,9 +153,9 @@ if `forge-branch-pullreq' was used to create the merged branch,
 then also remove the respective remote branch."
   (interactive (list (magit-read-other-local-branch "Absorb branch")
                      (magit-merge-arguments)))
-  (magit--merge-absort branch args))
+  (magit--merge-absorb branch args))
 
-(defun magit--merge-absort (branch args)
+(defun magit--merge-absorb (branch args)
   (when (equal branch "master")
     (unless (yes-or-no-p
              "Do you really want to merge `master' into another branch? ")
@@ -169,11 +171,20 @@ then also remove the respective remote branch."
                  (magit-process-sentinel process event)
                (process-put process 'inhibit-refresh t)
                (magit-process-sentinel process event)
-               (magit--merge-absort-1 branch args))))))
-    (magit--merge-absort-1 branch args)))
+               (magit--merge-absorb-1 branch args))))))
+    (magit--merge-absorb-1 branch args)))
 
-(defun magit--merge-absort-1 (branch args)
-  (magit-run-git-async "merge" args "--no-edit" branch)
+(defun magit--merge-absorb-1 (branch args)
+  (if-let ((pr (magit-get "branch" branch "pullRequest")))
+      (magit-run-git-async
+       "merge" args "-m"
+       (format "Merge branch '%s'%s [%s]"
+               branch
+               (let ((current (magit-get-current-branch)))
+                 (if (equal current "master") "" (format " into %s" current)))
+               pr)
+       branch)
+    (magit-run-git-async "merge" args "--no-edit" branch))
   (set-process-sentinel
    magit-this-process
    (lambda (process event)
@@ -198,22 +209,7 @@ then also remove the respective remote branch."
 (defun magit-merge-preview (rev)
   "Preview result of merging REV into the current branch."
   (interactive (list (magit-read-other-branch-or-commit "Preview merge")))
-  (magit-mode-setup #'magit-merge-preview-mode rev))
-
-(define-derived-mode magit-merge-preview-mode magit-diff-mode "Magit Merge"
-  "Mode for previewing a merge."
-  :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer))
-
-(defun magit-merge-preview-refresh-buffer (rev)
-  (let* ((branch (magit-get-current-branch))
-         (head (or branch (magit-rev-verify "HEAD"))))
-    (magit-set-header-line-format (format "Preview merge of %s into %s"
-                                          rev
-                                          (or branch "HEAD")))
-    (magit-insert-section (diffbuf)
-      (magit-git-wash #'magit-diff-wash-diffs
-        "merge-tree" (magit-git-string "merge-base" head rev) head rev))))
+  (magit-merge-preview-setup-buffer rev))
 
 ;;;###autoload
 (defun magit-merge-abort ()
@@ -294,8 +290,8 @@ If no merge is in progress, do nothing."
           (format "Merging %s:" (mapconcat #'identity heads ", ")))
         (magit-insert-log
          range
-         (let ((args magit-log-section-arguments))
-           (unless (member "--decorate=full" magit-log-section-arguments)
+         (let ((args magit-buffer-log-args))
+           (unless (member "--decorate=full" magit-buffer-log-args)
              (push "--decorate=full" args))
            args))))))
 

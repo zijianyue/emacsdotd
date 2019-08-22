@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 ;;; Code:
 
 (require 'dash)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
 (require 'treemacs-customization)
 (eval-and-compile
   (require 'inline)
@@ -37,13 +37,14 @@
 
 (defun treemacs--enable-fringe-indicator ()
   "Enabled the fringe indicator in the current buffer."
-  (setq-local treemacs--fringe-indicator-overlay
-              (-let [ov (make-overlay 1 1 (current-buffer))]
-                (overlay-put ov 'before-string
-                             (propertize " " 'display '(left-fringe
-                                                        treemacs--fringe-indicator-bitmap
-                                                        treemacs-fringe-indicator-face)))
-                ov)))
+  (unless treemacs--fringe-indicator-overlay
+    (setq-local treemacs--fringe-indicator-overlay
+                (-let [ov (make-overlay 1 1 (current-buffer))]
+                  (overlay-put ov 'before-string
+                               (propertize " " 'display '(left-fringe
+                                                          treemacs--fringe-indicator-bitmap
+                                                          treemacs-fringe-indicator-face)))
+                  ov))))
 
 (defun treemacs--disable-fringe-indicator ()
   "Enabled the fringe indicator in the current buffer."

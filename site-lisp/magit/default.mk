@@ -33,6 +33,8 @@ INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
 
+BUILD_MAGIT_LIBGIT ?= true
+
 ## Files #############################################################
 
 PKG       = magit
@@ -49,7 +51,9 @@ ELS  = git-commit.el
 ELS += magit-transient.el
 ELS += magit-utils.el
 ELS += magit-section.el
-ELS += magit-git.el
+ifeq "$(BUILD_MAGIT_LIBGIT)" "true"
+ELS += magit-libgit.el
+endif
 ELS += magit-mode.el
 ELS += magit-margin.el
 ELS += magit-process.el
@@ -58,6 +62,7 @@ ELS += magit-core.el
 ELS += magit-diff.el
 ELS += magit-log.el
 ELS += magit-wip.el
+ELS += magit-reflog.el
 ELS += magit-apply.el
 ELS += magit-repos.el
 ELS += magit.el
@@ -101,18 +106,21 @@ VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c
 ASYNC_VERSION       = 1.9.3
 DASH_VERSION        = 2.14.1
 GIT_COMMIT_VERSION  = 2.91.0
-LV_VERSION          = 0
+LIBGIT_VERSION      = 0
 TRANSIENT_VERSION   = 0
 WITH_EDITOR_VERSION = 2.8.0
 
 ASYNC_MELPA_SNAPSHOT       = 20180527
 DASH_MELPA_SNAPSHOT        = 20180910
 GIT_COMMIT_MELPA_SNAPSHOT  = 20181104
-LV_MELPA_SNAPSHOT          = 0
-TRANSIENT_MELPA_SNAPSHOT   = 0
+LIBGIT_MELPA_SNAPSHOT      = 0
+TRANSIENT_MELPA_SNAPSHOT   = 20190528
 WITH_EDITOR_MELPA_SNAPSHOT = 20181103
 
 EMACS_VERSION = 25.1
+
+LIBGIT_EMACS_VERSION = 26.1
+LIBGIT_MAGIT_VERSION = 0
 
 EMACSOLD := $(shell $(BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
@@ -133,11 +141,11 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
-LV_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/lv-[.0-9]*' 2> /dev/null | \
+LIBGIT_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/libgit-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
-ifeq "$(LV_DIR)" ""
-  LV_DIR = $(TOP)../hydra
+ifeq "$(LIBGIT_DIR)" ""
+  LIBGIT_DIR = $(TOP)../libgit
 endif
 
 TRANSIENT_DIR ?= $(shell \
@@ -159,20 +167,21 @@ ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
 endif
 
-LOAD_PATH = -L $(TOP)/lisp
+LOAD_PATH = -L $(TOP)lisp
 
-# When making changes here, then don't forget to adjust Makefile,
-# .travis.yml, magit-emacs-Q-command and the "Installing from the
-# Git Repository" info node accordingly.
+# When making changes here, then don't forget to adjust "Makefile",
+# ".travis.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
+# `magit-emacs-Q-command' and the "Installing from the Git Repository"
+# info node accordingly.  Also don't forget to "rgrep \b<pkg>\b".
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
-  LOAD_PATH += -L $(shell cygpath --mixed $(LV_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(LIBGIT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
 else
   LOAD_PATH += -L $(DASH_DIR)
-  LOAD_PATH += -L $(LV_DIR)
+  LOAD_PATH += -L $(LIBGIT_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
 endif

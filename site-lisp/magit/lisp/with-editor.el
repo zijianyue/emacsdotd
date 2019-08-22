@@ -1,6 +1,6 @@
 ;;; with-editor.el --- Use the Emacsclient as $EDITOR -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014-2018  The Magit Project Contributors
+;; Copyright (C) 2014-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file.  If not,
 ;; see https://github.com/magit/with-editor/blob/master/AUTHORS.md.
@@ -432,18 +432,27 @@ And some tools that do not handle $EDITOR properly also break."
 (put 'with-editor-mode 'permanent-local t)
 
 (defun with-editor-kill-buffer-noop ()
-  (user-error (substitute-command-keys "\
-Don't kill this buffer.  Instead cancel using \\[with-editor-cancel]")))
+  (if (memq this-command '(save-buffers-kill-terminal
+                           save-buffers-kill-emacs))
+      (let ((with-editor-cancel-query-functions nil))
+        (with-editor-cancel nil)
+        t)
+    (user-error (substitute-command-keys "\
+Don't kill this buffer.  Instead cancel using \\[with-editor-cancel]"))))
+
+(defvar-local with-editor-usage-message "\
+Type \\[with-editor-finish] to finish, \
+or \\[with-editor-cancel] to cancel")
 
 (defun with-editor-usage-message ()
   ;; Run after `server-execute', which is run using
   ;; a timer which starts immediately.
-  (run-with-timer
-   0.01 nil `(lambda ()
-               (with-current-buffer ,(current-buffer)
-                 (message (substitute-command-keys "\
-Type \\[with-editor-finish] to finish, \
-or \\[with-editor-cancel] to cancel"))))))
+  (let ((buffer (current-buffer)))
+    (run-with-timer
+     0.05 nil
+     (lambda ()
+       (with-current-buffer buffer
+         (message (substitute-command-keys with-editor-usage-message)))))))
 
 ;;; Wrappers
 

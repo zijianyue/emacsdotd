@@ -32,7 +32,7 @@
 
 (require 'magit)
 
-;;; Commands
+;;; Transient
 
 ;;;###autoload (autoload 'magit-gitignore "magit-gitignore" nil t)
 (define-transient-command magit-gitignore ()
@@ -49,7 +49,15 @@
     :if (lambda () (magit-get "core.excludesfile"))
     :description (lambda ()
                    (format "privately for all repositories (%s)"
-                           (magit-get "core.excludesfile"))))])
+                           (magit-get "core.excludesfile"))))]
+  ["Skip worktree"
+   (7 "w" "do skip worktree"     magit-skip-worktree)
+   (7 "W" "do not skip worktree" magit-no-skip-worktree)]
+  ["Assume unchanged"
+   (7 "u" "do assume unchanged"     magit-assume-unchanged)
+   (7 "U" "do not assume unchanged" magit-no-assume-unchanged)])
+
+;;; Gitignore Commands
 
 ;;;###autoload
 (defun magit-gitignore-in-topdir (rule)
@@ -124,6 +132,54 @@ Rules that are defined in that file affect all local repositories."
           (setq default nil))))
     (magit-completing-read "File or pattern to ignore"
                            choices nil nil nil nil default)))
+
+;;; Skip Worktree Commands
+
+;;;###autoload
+(defun magit-skip-worktree (file)
+  "Call \"git update-index --skip-worktree -- FILE\"."
+  (interactive
+   (list (magit-read-file-choice "Skip worktree for"
+                                 (magit-with-toplevel
+                                   (cl-set-difference
+                                    (magit-list-files)
+                                    (magit-skip-worktree-files))))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--skip-worktree" "--" file)))
+
+;;;###autoload
+(defun magit-no-skip-worktree (file)
+  "Call \"git update-index --no-skip-worktree -- FILE\"."
+  (interactive
+   (list (magit-read-file-choice "Do not skip worktree for"
+                                 (magit-with-toplevel
+                                   (magit-skip-worktree-files)))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--no-skip-worktree" "--" file)))
+
+;;; Assume Unchanged Commands
+
+;;;###autoload
+(defun magit-assume-unchanged (file)
+  "Call \"git update-index --assume-unchanged -- FILE\"."
+  (interactive
+   (list (magit-read-file-choice "Assume file to be unchanged"
+                                 (magit-with-toplevel
+                                   (cl-set-difference
+                                    (magit-list-files)
+                                    (magit-assume-unchanged-files))))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--assume-unchanged" "--" file)))
+
+;;;###autoload
+(defun magit-no-assume-unchanged (file)
+  "Call \"git update-index --no-assume-unchanged -- FILE\"."
+  (interactive
+   (list (magit-read-file-choice "Do not assume file to be unchanged"
+                                 (magit-with-toplevel
+                                   (magit-assume-unchanged-files)))))
+  (magit-with-toplevel
+    (magit-run-git "update-index" "--no-assume-unchanged" "--" file)))
 
 ;;; _
 (provide 'magit-gitignore)

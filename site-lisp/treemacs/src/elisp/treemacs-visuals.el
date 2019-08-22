@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 (require 'image)
 (require 'pulse)
 (require 'hl-line)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
+(require 'treemacs-themes)
 (require 'treemacs-customization)
 (require 'treemacs-fringe-indicator)
 (eval-and-compile
@@ -44,9 +45,6 @@
 ;; `hl-line-highlight'. The last displayed icon is saved as a button marker in `treemacs--last-highlight'.
 ;; Since it is a marker in the treemacs buffer it is important for it to be reset whenever it might
 ;; become invalid.
-
-(treemacs-import-functions-from "treemacs-icons"
-  treemacs--created-icons)
 
 (defvar-local treemacs--last-highlight nil
   "The last button treemacs has highlighted.")
@@ -73,6 +71,12 @@
                      treemacs--not-selected-icon-background)))
       bg))
   "Background for selected icons.")
+
+
+(defvar-local treemacs--indentation-string-cache-key nil
+  "Cache key for `treemacs--indentation-string-cache.")
+(defvar-local treemacs--indentation-string-cache (vector)
+  "Cached propertized indentation.")
 
 (define-inline treemacs--set-img-property (image property value)
   "Set IMAGE's PROPERTY to VALUE."
@@ -113,29 +117,30 @@
     (advice-remove #'disable-theme     #'treemacs--setup-icon-background-colors)))
 
 (defun treemacs--setup-icon-background-colors (&rest _)
-  "Align icon backgrounds with current theme.
-Fetch the current theme's background & hl-line colors and inject them into
-`treemacs--created-icons'. Also called as advice after `load-theme', hence the
-ignored argument."
+  "Align icon backgrounds with current Emacs theme.
+Fetch the current Emacs theme's background & hl-line colors and inject them into
+the gui icons of every theme in `treemacs--themes'.
+Also called as advice after `load-theme', hence the ignored argument."
   (let* ((default-background (face-attribute 'default :background nil t))
          (hl-line-background (face-attribute 'hl-line :background nil t))
-         (icon               (car (treemacs--created-icons)))
-         (icon-background    (treemacs--get-img-property (get-text-property 0 'img-unselected icon) :background))
-         (icon-hl-background (treemacs--get-img-property (get-text-property 0 'img-selected icon) :background)))
-    (when (eq default-background 'unspecified-bg)
+         (test-icon          (treemacs-get-icon-value 'dir-open))
+         (icon-background    (treemacs--get-img-property (get-text-property 0 'img-unselected test-icon) :background))
+         (icon-hl-background (treemacs--get-img-property (get-text-property 0 'img-selected test-icon) :background)))
+    (when (memq default-background '(unspecified-bg unspecified))
+      (treemacs-log "Current theme fails to specify default background color, falling back on #2d2d31")
       (setq default-background "#2d2d31"))
     ;; make sure we only change all the icons' colors when we have to
     (unless (and (string= default-background icon-background)
                  (string= hl-line-background icon-hl-background))
       (setf treemacs--selected-icon-background hl-line-background
             treemacs--not-selected-icon-background default-background)
-      (--each (treemacs--created-icons)
-        (progn
+      (dolist (theme treemacs--themes)
+        (treemacs--maphash (treemacs-theme->gui-icons theme) (_ icon)
           (treemacs--set-img-property
-           (get-text-property 0 'img-selected it)
+           (get-text-property 0 'img-selected icon)
            :background treemacs--selected-icon-background)
           (treemacs--set-img-property
-           (get-text-property 0 'img-unselected it)
+           (get-text-property 0 'img-unselected icon)
            :background treemacs--not-selected-icon-background))))))
 
 (defun treemacs--update-icon-selection ()
@@ -146,12 +151,12 @@ ignored argument."
           (when treemacs-fringe-indicator-mode
             (treemacs--move-fringe-indicator-to-point))
           (-when-let (btn (treemacs-current-button))
-            (let* ((pos (max (point-at-bol) (- (button-start btn) 2)))
+            (let* ((pos (max (point-at-bol) (- (treemacs-button-start btn) 2)))
                    (img-selected (get-text-property pos 'img-selected)))
               (treemacs-with-writable-buffer
                (when (and treemacs--last-highlight
                           (> (point-max) treemacs--last-highlight))
-                 (let* ((last-pos (- (button-start treemacs--last-highlight) 2))
+                 (let* ((last-pos (- (treemacs-button-start treemacs--last-highlight) 2))
                         (img-unselected (get-text-property last-pos 'img-unselected)))
                    (put-text-property last-pos (1+ last-pos) 'display img-unselected)))
                (when img-selected
@@ -165,15 +170,18 @@ ignored argument."
   (when (eq 'treemacs-mode major-mode)
     (treemacs-with-writable-buffer
      (-when-let (btn (treemacs-current-button))
-       (let* ((start (max (point-at-bol) (- (button-start btn) 2)) )
+       (let* ((start (max (point-at-bol) (- (treemacs-button-start btn) 2)))
               (end (1+ start))
               (img (get-text-property start 'display))
               (cp (copy-sequence img)))
-         (treemacs--set-img-property cp :background
-                                     (face-attribute
-                                      (overlay-get pulse-momentary-overlay 'face)
-                                      :background nil t))
-         (put-text-property start end 'display cp))))))
+         ;; Icons may not always be images, as extensions may use text and e.g.
+         ;; all-the-icons font icons as the icon.
+         (when (eq (car cp) 'image)
+           (treemacs--set-img-property cp :background
+                                       (face-attribute
+                                        (overlay-get pulse-momentary-overlay 'face)
+                                        :background nil t))
+           (put-text-property start end 'display cp)))))))
 
 (defun treemacs--do-pulse (face)
   "Visually pulse current line using FACE."
@@ -198,6 +206,34 @@ Optionally issue a log statment with LOG-ARGS."
     (treemacs-log (apply #'format log-args)))
   (when treemacs-pulse-on-failure
     (treemacs--do-pulse 'treemacs-on-failure-pulse-face)))
+
+(defun treemacs--build-indentation-cache (depth)
+  "Rebuild indentation string cache up to DEPTH levels deep."
+  (setq treemacs--indentation-string-cache (make-vector (1+ depth) nil)
+        treemacs--indentation-string-cache-key (cons treemacs-indentation treemacs-indentation-string))
+  (dotimes (i (1+ depth))
+    (aset treemacs--indentation-string-cache i
+          (cond ((integerp treemacs-indentation)
+                 (s-repeat (* i treemacs-indentation) treemacs-indentation-string))
+                ((not window-system)
+                 (s-repeat (* i 2) treemacs-indentation-string))
+                (t (propertize " "
+                               'display
+                               `(space . (:width (,(* (car treemacs-indentation)
+                                                      i))))))))))
+
+(define-inline treemacs--get-indentation (depth)
+  "Gets an indentation string DEPTH levels deep."
+  (inline-letevals (depth)
+    (inline-quote
+     (progn
+       (when (or (>= ,depth (length treemacs--indentation-string-cache))
+                 (not (eq (car treemacs--indentation-string-cache-key) treemacs-indentation))
+                 ;; Eq is faster than string comparison, and accidentally
+                 ;; rebuilding the cache in some corner case is not disastrous.
+                 (not (eq (cdr treemacs--indentation-string-cache-key) treemacs-indentation-string)))
+         (treemacs--build-indentation-cache ,depth))
+       (aref treemacs--indentation-string-cache ,depth)))))
 
 (provide 'treemacs-visuals)
 

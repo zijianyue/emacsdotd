@@ -1,6 +1,6 @@
 ;;; helm-types.el --- Helm types classes and methods. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 ~ 2018  Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2015 ~ 2019  Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; URL: http://github.com/emacs-helm/helm
@@ -177,7 +177,8 @@
    "Rename buffer `M-R'" 'helm-buffers-rename-buffer
    "Grep buffer(s) `M-g s' (C-u grep all buffers)"
    'helm-zgrep-buffers
-   "Multi occur buffer(s) `C-s'" 'helm-multi-occur-as-action
+   "Multi occur buffer(s) `C-s (C-u search also in current)'"
+   'helm-multi-occur-as-action
    "Revert buffer(s) `M-G'" 'helm-revert-marked-buffers
    "Insert buffer" 'insert-buffer
    "Kill buffer(s) `M-D'" 'helm-kill-marked-buffers

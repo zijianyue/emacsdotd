@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 (require 'f)
 (require 'hl-line)
 (require 'treemacs-customization)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
 (require 'treemacs-tags)
 (require 'treemacs-follow-mode)
 (eval-and-compile
@@ -242,7 +242,7 @@ PROJECT: Project Struct"
               ;; also move manually when there is no button at point
               (treemacs-goto-file-node ,buffer-file ,project)
               (setq btn (treemacs-current-button)))
-            (goto-char (button-start btn))
+            (goto-char (treemacs-button-start btn))
             (setq treemacs--previously-followed-tag-position (cons btn (treemacs-button-get btn :path)))
             ;; imenu already rescanned when fetching the tag path
             (let ((imenu-auto-rescan nil))

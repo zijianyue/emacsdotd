@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 ;;; Code:
 
 (require 'hl-line)
-(require 'bookmark)
 (require 'button)
 (require 'f)
 (require 's)
 (require 'dash)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
 (require 'treemacs-filewatch-mode)
 (require 'treemacs-rendering)
 (require 'treemacs-follow-mode)
@@ -59,14 +58,31 @@
   "Goto next line.
 A COUNT argument, moves COUNT lines down."
   (interactive "p")
-  (forward-line count)
+  ;; Move to EOL - if point is in the middle of a button, forward-button
+  ;; just moves to the end of the current button.
+  (goto-char (line-end-position))
+  ;; Don't show the "No more buttons" message.
+  (ignore-errors
+    (forward-button count treemacs-wrap-around))
+  ;; Move to BOL, since the button might not start at BOL, but parts
+  ;; of Treemacs might expect that the point is always at BOL.
+  (forward-line 0)
   (treemacs--evade-image))
 
 (defun treemacs-previous-line (&optional count)
   "Goto previous line.
 A COUNT argument, moves COUNT lines up."
   (interactive "p")
-  (forward-line (- count))
+  ;; Move to the start of line - if point is in the middle of a button,
+  ;; backward-button just moves to the start of the current button.
+  (forward-line 0)
+  ;; Don't show the "No more buttons" message.
+  (ignore-errors
+    (backward-button count treemacs-wrap-around))
+  ;; Move to BOL, since backward-button moves to the end of the button,
+  ;; and the button might not start at BOL, but parts of Treemacs might
+  ;; expect that the point is always at BOL.
+  (forward-line 0)
   (treemacs--evade-image))
 
 (defun treemacs-toggle-node (&optional arg)
@@ -213,6 +229,20 @@ Stay in current window with a prefix argument ARG."
    :ensure-window-split t
    :no-match-explanation "Node is neither a file, a directory or a tag - nothing to do here."))
 
+(defun treemacs-visit-node-in-most-recently-used-window (&optional arg)
+  "Open current file or tag in window selected by `get-mru-window'.
+Stay in current window with a prefix argument ARG."
+  (interactive "P")
+  (treemacs--execute-button-action
+   :window (get-mru-window (selected-frame) nil :not-selected)
+   :file-action (find-file (treemacs-safe-button-get btn :path))
+   :dir-action (dired (treemacs-safe-button-get btn :path))
+   :tag-section-action (treemacs--visit-or-expand/collapse-tag-node btn arg nil)
+   :tag-action (treemacs--goto-tag btn)
+   :save-window arg
+   :ensure-window-split t
+   :no-match-explanation "Node is neither a file, a directory or a tag - nothing to do here."))
+
 (defun treemacs-visit-node-ace-horizontal-split (&optional arg)
   "Open current file by horizontally splitting window selected by `ace-window'.
 Stay in current window with a prefix argument ARG."
@@ -240,6 +270,12 @@ Stay in current window with a prefix argument ARG."
    :tag-action (treemacs--goto-tag btn)
    :save-window arg
    :no-match-explanation "Node is neither a file, a directory or a tag - nothing to do here."))
+
+(defun treemacs-visit-node-default (&optional arg)
+  "Run `treemacs-default-visit-action' for the current button.
+A potential prefix ARG is passed on to the executed action, if possible."
+  (interactive "P")
+  (funcall-interactively treemacs-default-visit-action arg))
 
 (defun treemacs-RET-action (&optional arg)
   "Run the appropriate RET action for the current button.
@@ -301,7 +337,10 @@ Treemacs knows how to open files on linux, windows and macos."
   "Quit treemacs with `bury-buffer'.
 With a prefix ARG call `treemacs-kill-buffer' instead."
   (interactive "P")
-  (if arg (treemacs-kill-buffer) (bury-buffer)))
+  (if arg
+      (treemacs-kill-buffer)
+    (bury-buffer)
+    (run-hooks 'treemacs-quit-hook)))
 
 (defun treemacs-kill-buffer ()
   "Kill the treemacs buffer."
@@ -310,7 +349,8 @@ With a prefix ARG call `treemacs-kill-buffer' instead."
     ;; teardown logic handled in kill hook
     (if (one-window-p)
         (kill-this-buffer)
-      (kill-buffer-and-window))))
+      (kill-buffer-and-window))
+    (run-hooks 'treemacs-kill-hook)))
 
 (defun treemacs-delete (&optional arg)
   "Delete node at point.
@@ -508,7 +548,7 @@ without the need to call `treemacs-resort' with a prefix arg."
                          (propertize sort-name 'face 'font-lock-type-face)))
           ('dir-node-open
            (treemacs--collapse-dir-node btn)
-           (goto-char (button-start btn))
+           (goto-char (treemacs-button-start btn))
            (treemacs--expand-dir-node btn)
            (treemacs-log "Resorted %s with sort method '%s'."
                          (propertize (treemacs--get-label-of btn) 'face 'font-lock-string-face)
@@ -521,9 +561,9 @@ without the need to call `treemacs-resort' with a prefix arg."
              (if parent
                  (let ((line (line-number-at-pos))
                        (window-point (window-point)))
-                   (goto-char (button-start parent))
+                   (goto-char (treemacs-button-start parent))
                    (treemacs--collapse-dir-node parent)
-                   (goto-char (button-start btn))
+                   (goto-char (treemacs-button-start btn))
                    (treemacs--expand-dir-node parent)
                    (set-window-point (selected-window) window-point)
                    (with-no-warnings (goto-line line))
@@ -563,30 +603,6 @@ Instead of calling this with a prefix arg you can also direcrly call
        (treemacs-log "Sorting method changed to '%s'."
                      (propertize sort-name 'face 'font-lock-type-face)))))
   (treemacs--evade-image))
-
-(defun treemacs-add-bookmark ()
-  "Add the current node to Emacs' list of bookmarks.
-For file and directory nodes their absolute path is saved. Tag nodes
-additionally also save the tag's position. A tag can only be bookmarked if the
-treemacs node is pointing to a valid buffer position."
-  (interactive)
-  (treemacs-with-current-button
-   "There is nothing to bookmark here."
-   (pcase (treemacs-button-get current-btn :state)
-     ((or 'file-node-open 'file-node-closed 'dir-node-open 'dir-node-closed)
-      (-let [name (read-string "Bookmark name: ")]
-        (bookmark-store name `((filename . ,(treemacs-button-get current-btn :path))) nil)))
-     ('tag-node
-      (-let [(tag-buffer . tag-pos) (treemacs--extract-position (treemacs-button-get current-btn :marker))]
-        (if (buffer-live-p tag-buffer)
-            (bookmark-store
-             (read-string "Bookmark name: ")
-             `((filename . ,(buffer-file-name tag-buffer))
-               (position . ,tag-pos))
-             nil)
-          (treemacs-log "Tag info can not be saved because it is not pointing to a live buffer."))))
-     ((or 'tag-node-open 'tag-node-closed)
-      (treemacs-pulse-on-failure "There is nothing to bookmark here.")))))
 
 (defun treemacs-next-line-other-window (&optional count)
   "Scroll forward COUNT lines in `next-window'."
@@ -637,7 +653,7 @@ For slower scrolling see `treemacs-previous-line-other-window'"
 (defun treemacs-previous-project ()
   "Move to the next project root node."
   (interactive)
-  (-let [pos (previous-single-char-property-change (point-at-bol) :project)]
+  (-let [pos (treemacs--prev-project-pos)]
     (if (or (= pos (point))
             (= pos (point-min)))
         (treemacs-pulse-on-failure "There is no previous project to move to.")
@@ -657,17 +673,21 @@ For slower scrolling see `treemacs-previous-line-other-window'"
              (new-name (read-string "New name: " (treemacs-project->name project))))
         (treemacs-save-position
          (progn
+           (treemacs-return-if (treemacs--is-name-invalid? new-name)
+             (treemacs-pulse-on-failure "'%s' is an invalid name."
+               (propertize new-name 'face 'font-lock-type-face)))
            (treemacs-return-if (string-equal old-name new-name)
              (treemacs-pulse-on-failure "The new name is the same as the old name."))
            (setf (treemacs-project->name project) new-name)
            (treemacs--forget-last-highlight)
            ;; after renaming, delete and redisplay the project
-           (goto-char (button-end project-btn))
+           (goto-char (treemacs-button-end project-btn))
            (delete-region (point-at-bol) (point-at-eol))
            (treemacs--add-root-element project)
            (when (eq state 'root-node-open)
              (treemacs--collapse-root-node (treemacs-project->position project))
              (treemacs--expand-root-node (treemacs-project->position project))))
+         (run-hook-with-args 'treemacs-rename-project-functions project old-name)
          (treemacs-pulse-on-success "Renamed project %s to %s."
            (propertize old-name 'face 'font-lock-type-face)
            (propertize new-name 'face 'font-lock-type-face)))))))
@@ -759,26 +779,20 @@ With a prefix ARG select project to remove by name."
     ('only-one-workspace
      (treemacs-pulse-on-failure "There are no other workspaces to select."))
     (`(success ,workspace)
-     (let ((window-visible? nil)
-           (buffer-exists? nil))
-       (pcase (treemacs-current-visibility)
-         ('visible
-          (setq window-visible? t
-                buffer-exists? t))
-         ('exists
-          (setq buffer-exists? t)))
-       (when window-visible?
-         (delete-window (treemacs-get-local-window)))
-       (when buffer-exists?
-         (kill-buffer (treemacs-get-local-buffer)))
-       (when buffer-exists?
-         (let ((treemacs-follow-after-init nil)
-               (treemacs-follow-mode nil))
-           (treemacs-select-window)))
-       (when (not window-visible?)
-         (bury-buffer)))
      (treemacs-pulse-on-success "Selected workspace %s."
        (propertize (treemacs-workspace->name workspace))))))
+
+(defun treemacs-rename-workspace ()
+  "Select a workspace to rename."
+  (interactive)
+  (pcase (treemacs-do-rename-workspace)
+    (`(success ,old-name ,workspace)
+     (treemacs-pulse-on-success "Workspace %s successfully renamed to %s."
+       (propertize old-name 'face 'font-lock-type-face)
+       (propertize (treemacs-workspace->name workspace) 'face 'font-lock-type-face)))
+    (`(invalid-name ,name)
+     (treemacs-pulse-on-failure "Name '%s' is invalid."
+       (propertize name 'face 'font-lock-string-face)))))
 
 (defun treemacs-refresh ()
   "Refresh the project at point."
@@ -995,11 +1009,13 @@ Only works with a single project in the workspace."
        (`(error ,err-line ,err-msg)
         (treemacs--org-edit-display-validation-msg err-msg err-line))
        ('success
+        (treemacs--invalidate-buffer-project-cache)
         (f-write (apply #'concat (--map (concat it "\n") lines)) 'utf-8 treemacs-persist-file)
         (kill-buffer)
         (treemacs--restore)
         (treemacs--consolidate-projects)
         (-some-> (get-buffer treemacs--org-edit-buffer-name) (kill-buffer))
+        (run-hooks 'treemacs-workspace-edit-hook)
         (treemacs-log "Edit completed successfully."))))))
 
 (defun treemacs-collapse-parent-node (arg)

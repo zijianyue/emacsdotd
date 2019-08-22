@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 (require 'treemacs-rendering)
 (require 'treemacs-dom)
 (require 'treemacs-async)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
 (eval-and-compile
   (require 'treemacs-macros))
 
@@ -60,10 +60,8 @@ not visible."
                   (f-exists? current-file))
          (-when-let (project-for-file (treemacs--find-project-for-buffer))
            (with-selected-window treemacs-window
-             ;; TODO(2018/10/30): custom file at point?
              (-let [selected-file (--if-let (treemacs-current-button)
-                                      (and (not (treemacs-button-get it :custom))
-                                           (treemacs--nearest-path it))
+                                      (treemacs--nearest-path it)
                                     (treemacs-project->path project-for-file))]
                (unless (treemacs-is-path selected-file :same-as current-file)
                  (when (treemacs-goto-file-node current-file project-for-file)

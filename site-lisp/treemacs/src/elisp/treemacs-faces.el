@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,6 +40,26 @@ if the node is 'foo/bar/baz', the face is used for 'foo/bar/'."
 (defface treemacs-root-face
   '((t :inherit font-lock-constant-face :underline t :bold t :height 1.2))
   "Face used by treemacs for its root nodes."
+  :group 'treemacs-faces)
+
+(defface treemacs-root-unreadable-face
+  '((t :inherit treemacs-root-face :strike-through t))
+  "Face used by treemacs for unreadable root nodes."
+  :group 'treemacs-faces)
+
+(defface treemacs-root-remote-face
+  '((t :inherit (font-lock-function-name-face treemacs-root-face)))
+  "Face used by treemacs for remote (Tramp) root nodes."
+  :group 'treemacs-faces)
+
+(defface treemacs-root-remote-unreadable-face
+  '((t :inherit treemacs-root-unreadable-face))
+  "Face used by treemacs for unreadable remote (Tramp) root nodes."
+  :group 'treemacs-faces)
+
+(defface treemacs-root-remote-disconnected-face
+  '((t :inherit (warning treemacs-root-remote-face)))
+  "Face used by treemacs for disconnected remote (Tramp) root nodes."
   :group 'treemacs-faces)
 
 (defface treemacs-term-node-face

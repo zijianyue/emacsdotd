@@ -436,7 +436,8 @@ is available from https://github.com/torbiak/git-autofixup."
         (progn (magit-run-git-async "autofixup" "-vv" args commit) t)
       (magit-log-select
         (lambda (commit)
-          (magit-commit-absorb 'run commit args))
+          (with-no-warnings ; about non-interactive use
+            (magit-commit-absorb 'run commit args)))
         nil nil nil nil commit))))
 
 (define-infix-argument magit-autofixup:--context ()
@@ -457,7 +458,7 @@ is available from https://github.com/torbiak/git-autofixup."
 
 (defun magit-commit-diff ()
   (when (and git-commit-mode magit-commit-show-diff)
-    (when-let ((diff-buffer (magit-mode-get-buffer 'magit-diff-mode)))
+    (when-let ((diff-buffer (magit-get-mode-buffer 'magit-diff-mode)))
       ;; This window just started displaying the commit message
       ;; buffer.  Without this that buffer would immediately be
       ;; replaced with the diff buffer.  See #2632.
@@ -468,19 +469,18 @@ is available from https://github.com/torbiak/git-autofixup."
               (magit-display-buffer-noselect t)
               (inhibit-quit nil))
           (message "Diffing changes to be committed (C-g to abort diffing)")
-          (if-let ((fn (cl-case last-command
-                         (magit-commit
-                          (apply-partially 'magit-diff-staged nil))
-                         (magit-commit-all
-                          (apply-partially 'magit-diff-working-tree nil))
-                         ((magit-commit-amend
-                           magit-commit-reword
-                           magit-rebase-reword-commit)
-                          'magit-diff-while-amending))))
-              (funcall fn args)
-            (if (magit-anything-staged-p)
-                (magit-diff-staged nil args)
-              (magit-diff-while-amending args))))
+          (cl-case last-command
+            (magit-commit
+             (magit-diff-staged nil args))
+            (magit-commit-all
+             (magit-diff-working-tree nil args))
+            ((magit-commit-amend
+              magit-commit-reword
+              magit-rebase-reword-commit)
+             (magit-diff-while-amending args))
+            (t (if (magit-anything-staged-p)
+                   (magit-diff-staged nil args)
+                 (magit-diff-while-amending args)))))
       (quit))))
 
 ;; Mention `magit-diff-while-committing' because that's
@@ -509,25 +509,20 @@ If no commit is in progress, then initiate it.  Use the function
 specified by variable `magit-commit-add-log-insert-function' to
 actually insert the entry."
   (interactive)
-  (let ((hunk (and (magit-section-match 'hunk)
-                   (magit-current-section)))
-        (log  (magit-commit-message-buffer)) buf pos)
-    (save-window-excursion
-      (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer))
-      (setq pos (point)))
+  (pcase-let* ((hunk (and (magit-section-match 'hunk)
+                          (magit-current-section)))
+               (log  (magit-commit-message-buffer))
+               (`(,buf ,pos) (magit-diff-visit-file--noselect)))
     (unless log
       (unless (magit-commit-assert nil)
         (user-error "Abort"))
       (magit-commit-create)
       (while (not (setq log (magit-commit-message-buffer)))
         (sit-for 0.01)))
-    (save-excursion
-      (with-current-buffer buf
-        (goto-char pos)
-        (funcall magit-commit-add-log-insert-function log
-                 (magit-file-relative-name)
-                 (and hunk (add-log-current-defun)))))))
+    (magit--with-temp-position buf pos
+      (funcall magit-commit-add-log-insert-function log
+               (magit-file-relative-name)
+               (and hunk (add-log-current-defun))))))
 
 (defun magit-commit-add-log-insert (buffer file defun)
   (with-current-buffer buffer

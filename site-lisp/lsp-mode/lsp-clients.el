@@ -27,131 +27,21 @@
 (require 'lsp)
 (require 'dash)
 (require 'dash-functional)
+(require 'lsp-pyls)
+(require 'lsp-rust)
+(require 'lsp-solargraph)
+(require 'lsp-vetur)
+(require 'lsp-intelephense)
+(require 'lsp-css)
+(require 'lsp-xml)
+(require 'lsp-go)
+(require 'lsp-clojure)
+(require 'lsp-dart)
+(require 'lsp-elm)
+(require 'lsp-metals)
+(require 'lsp-fsharp)
+(require 'lsp-erlang)
 
-
-;; Python
-
-(defgroup lsp-python nil
-  "Python."
-  :group 'lsp-mode
-  :tag "Python")
-
-(defcustom lsp-clients-python-library-directories '("/usr/")
-  "List of directories which will be considered to be libraries."
-  :group 'lsp-python
-  :risky t
-  :type '(repeat string))
-
-(defcustom lsp-clients-python-command '("pyls")
-  "PYLS command."
-  :group 'lsp-python
-  :risky t
-  :type 'list)
-
-(defcustom lsp-clients-python-settings
-  '(
-    :plugins.jedi_completion.enabled t
-    :plugins.jedi_definition.follow_imports t
-    ;; List of configuration sources to use. (enum: ["pycodestyle" "pyflakes"])
-    :configurationSources ["pycodestyle"]
-    ;; Enable or disable the plugin.
-    :plugins.jedi_completion.enabled t
-    ;; Enable or disable the plugin.
-    :plugins.jedi_definition.enabled t
-    ;; The goto call will follow imports.
-    :plugins.jedi_definition.follow_imports nil
-    ;; If follow_imports is True will decide if it follow builtin imports.
-    :plugins.jedi_definition.follow_builtin_imports nil
-    ;; Enable or disable the plugin.
-    :plugins.jedi_hover.enabled t
-    ;; Enable or disable the plugin.
-    :plugins.jedi_references.enabled t
-    ;; Enable or disable the plugin.
-    :plugins.jedi_signature_help.enabled nil
-    ;; Enable or disable the plugin.
-    :plugins.jedi_symbols.enabled nil
-    ;; If True lists the names of all scopes instead of only the module namespace.
-    :plugins.jedi_symbols.all_scopes t
-    ;; Enable or disable the plugin.
-    :plugins.mccabe.enabled nil
-    ;; The minimum threshold that triggers warnings about cyclomatic complexity.
-    :plugins.mccabe.threshold 15
-    ;; Enable or disable the plugin.
-    :plugins.preload.enabled t
-    ;; List of modules to import on startup
-    :plugins.preload.modules nil
-    ;; Enable or disable the plugin.
-    :plugins.pycodestyle.enabled t
-    ;; Exclude files or directories which match these patterns(list of strings).
-    :plugins.pycodestyle.exclude nil
-    ;;  When parsing directories, only check filenames matching these patterns.
-    :plugins.pycodestyle.filename nil
-    ;; Select errors and warnings (list of string)
-    :plugins.pycodestyle.select nil
-    ;; Ignore errors and warnings (list of string)
-    :plugins.pycodestyle.ignore nil
-    ;; Hang closing bracket instead of matching indentation of opening bracket's line.
-    :plugins.pycodestyle.hangClosing nil
-    ;; Set maximum allowed line length.
-    :plugins.pycodestyle.maxLineLength nil
-    ;; Enable or disable the plugin.
-    :plugins.pydocstyle.enabled nil
-    ;; Choose the basic list of checked errors by specifying an existing
-    ;; convention. One of ("pep257","numpy")
-    :plugins.pydocstyle.convention nil
-    ;; Ignore errors and warnings in addition to the specified convention.
-    :plugins.pydocstyle.addIgnore nil
-    ;; Select errors and warnings in addition to the specified convention.
-    :plugins.pydocstyle.addSelect nil
-    ;; Ignore errors and warnings
-    :plugins.pydocstyle.ignore nil
-    ;; Select errors and warnings
-    :plugins.pydocstyle.select nil
-    ;; Check only files that exactly match the given regular expression; default
-    ;; is to match files that don't start with 'test_' but end with '.py'.
-    :plugins.pydocstyle.match "(?!test_).*\\.py"
-    ;; Enable or disable the plugin.
-    :plugins.pydocstyle.matchDir nil
-    ;; Enable or disable the plugin.
-    :plugins.pyflakes.enabled t
-    ;; Enable or disable the plugin.
-    :plugins.rope_completion.enabled t
-    ;; Enable or disable the plugin.
-    :plugins.yapf.enabled t
-    ;; Builtin and c-extension modules that are allowed to be imported and inspected by rope.
-    :rope.extensionModules nil
-    ;; The name of the folder in which rope stores project configurations and
-    ;; data. Pass `nil' for not using such a folder at all.
-    :rope.ropeFolder nil)
-  "Lsp clients configuration settings."
-  :group 'lsp-python
-  :risky t
-  :type 'plist)
-
-;;; pyls
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection (lambda () lsp-clients-python-command))
-                  :major-modes '(python-mode)
-                  :priority -1
-                  :server-id 'pyls
-                  :initialized-fn (lambda (workspace)
-                                    (with-lsp-workspace workspace
-                                      (lsp--set-configuration `(:pyls ,lsp-clients-python-settings))))
-                  :library-folders-fn (lambda (_workspace)
-                                        lsp-clients-python-library-directories)))
-
-;;; CSS
-(defun lsp-clients-css--apply-code-action (action)
-  "Apply ACTION as workspace edit command."
-  (lsp--apply-text-edits (cl-caddr (gethash "arguments" action))))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("css-languageserver" "--stdio"))
-                  :major-modes '(css-mode less-mode less-css-mode sass-mode scss-mode)
-                  :priority -1
-                  :action-handlers (lsp-ht ("_css.applyCodeAction" 'lsp-clients-css--apply-code-action))
-                  :server-id 'css-ls))
-
 ;;; Bash
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection '("bash-language-server" "start"))
@@ -161,9 +51,9 @@
 
 ;;; Groovy
 (defgroup lsp-groovy nil
-  "Groovy."
+  "LSP support for Groovy, using groovy-language-server"
   :group 'lsp-mode
-  :tag "Groovy")
+  :link '(url-link "https://github.com/palantir/language-servers"))
 
 (defcustom lsp-groovy-server-install-dir
   (locate-user-emacs-file "groovy-language-server/")
@@ -186,18 +76,11 @@ This directory shoud contain a file matching groovy-language-server-*.jar"
                   :priority -1
                   :server-id 'groovy-ls))
 
-;;; HTML
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("html-languageserver" "--stdio"))
-                  :major-modes '(html-mode sgml-mode mhtml-mode web-mode)
-                  :priority -1
-                  :server-id 'html-ls))
-
 ;;; TypeScript/JavaScript
 (defgroup lsp-typescript-javascript nil
-  "TypeScript/JavaScript."
+  "Support for TypeScript/JavaScript, using Sourcegraph's JavaScript/TypeScript language server."
   :group 'lsp-mode
-  :tag "TypeScript/JavaScript")
+  :link "https://github.com/sourcegraph/javascript-typescript-langserver")
 
 (defcustom lsp-clients-javascript-typescript-server "javascript-typescript-stdio"
   "The javascript-typescript-stdio executable to use.
@@ -213,13 +96,9 @@ finding the executable with variable `exec-path'."
   :risky t
   :type '(repeat string))
 
-(defun lsp-typescript-javascript-tsx-jsx-activate-p (filename mode)
-  "Checks if the javascript-typescript language server should be enabled
-based on FILE-NAME and MAJOR-MODE"
-  (or (member mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
-      (and (eq major-mode 'web-mode)
-           (or (string-suffix-p ".tsx" filename t)
-               (string-suffix-p ".jsx" filename t)))))
+(defun lsp-typescript-javascript-tsx-jsx-activate-p (filename &optional _)
+  "Check if the javascript-typescript language server should be enabled based on FILENAME."
+  (string-match-p (rx (one-or-more char) "." (or "ts" "js") (opt "x") string-end) filename))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection (lambda ()
@@ -233,9 +112,9 @@ based on FILE-NAME and MAJOR-MODE"
 
 ;;; TypeScript
 (defgroup lsp-typescript nil
-  "TypeScript."
+  "LSP support for TypeScript, using Theia/Typefox's TypeScript Language Server."
   :group 'lsp-mode
-  :tag "TypeScript")
+  :link "https://github.com/theia-ide/typescript-language-server")
 
 (defcustom lsp-clients-typescript-server "typescript-language-server"
   "The typescript-language-server executable to use.
@@ -264,9 +143,9 @@ finding the executable with variable `exec-path'."
 
 ;;; JavaScript Flow
 (defgroup lsp-flow nil
-  "JavaScript Flow."
+  "LSP support for the Flow Javascript type checker."
   :group 'lsp-mode
-  :tag "Flow")
+  :link '(url-link "https://flow.org/"))
 
 (defcustom lsp-clients-flow-server "flow"
   "The Flow executable to use.
@@ -283,7 +162,7 @@ finding the executable with variable `exec-path'."
   :type '(repeat string))
 
 (defun lsp-clients-flow-tag-file-present-p (file-name)
-  "Checks if the '// @flow' or `/* @flow */' tag is present in
+  "Check if the '// @flow' or `/* @flow */' tag is present in
 the contents of FILE-NAME."
   (with-temp-buffer
     (insert-file-contents file-name)
@@ -321,12 +200,12 @@ with the file contents."
         found))))
 
 (defun lsp-clients-flow-project-p (file-name)
-  "Checks if FILE-NAME is part of a Flow project, that is, if
+  "Check if FILE-NAME is part of a Flow project, that is, if
 there is a .flowconfig file in the folder hierarchy."
   (locate-dominating-file file-name ".flowconfig"))
 
 (defun lsp-clients-flow-activate-p (file-name _mode)
-  "Checks if the Flow language server should be enabled for a
+  "Check if the Flow language server should be enabled for a
 particular FILE-NAME and MODE."
   (and (derived-mode-p 'js-mode 'web-mode 'js2-mode 'flow-js2-mode 'rjsx-mode)
        (lsp-clients-flow-project-p file-name)
@@ -340,165 +219,12 @@ particular FILE-NAME and MODE."
                   :activation-fn 'lsp-clients-flow-activate-p
                   :server-id 'flow-ls))
 
-;;; Vue
-(defgroup lsp-vue nil
-  "Vue."
-  :group 'lsp-mode
-  :tag "Vue")
-
-(defcustom lsp-clients-vue-server "vls"
-  "The vue-language-server executable to use.
-Leave as just the executable name to use the default behavior of
-finding the executable with `exec-path'."
-  :group 'lsp-vue
-  :risky t
-  :type 'file)
-
-(defcustom lsp-clients-vue-server-args '()
-  "Extra arguments for the vue-language-server language server."
-  :group 'lsp-vue
-  :risky t
-  :type '(repeat string))
-
-(defun lsp-vue--ls-command ()
-  "Generate the language server startup command."
-  `(,lsp-clients-vue-server
-    ,@lsp-clients-vue-server-args))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection 'lsp-vue--ls-command)
-                  :major-modes '(vue-mode)
-                  :priority -1
-                  :ignore-messages '("readFile .*? requested by Vue but content not available")
-                  :server-id 'vls))
-
-
-;;; GO language
-
-(defgroup lsp-clients-go nil
-  "Go language."
-  :group 'lsp-mode
-  :tag "Go language")
-
-(defcustom lsp-clients-go-server "bingo"
-  "The go language server executable to use."
-  :group 'lsp-clients-go
-  :risky t
-  :type 'file)
-
-(defcustom lsp-clients-go-server-args nil
-  "Extra arguments for the go language server."
-  :type '(repeat string)
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-func-snippet-enabled t
-  "Enable the returning of argument snippets on `func' completions, eg.
-`func(foo string, arg2 bar)'.  Requires code completion to be enabled."
-  :type 'boolean
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-gocode-completion-enabled t
-  "Enable code completion feature (using gocode)."
-  :type 'boolean
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-format-tool "goimports"
-  "The tool to be used for formatting documents.  Defaults to `goimports' if nil."
-  :type '(choice (const :tag "goimports" "goimports")
-                 (const :tag "gofmt" "gofmt"))
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-imports-local-prefix ""
-  "The local prefix (comma-separated string) that goimports will use."
-  :type 'string
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-max-parallelism nil
-  "The maximum number of goroutines that should be used to fulfill requests.
-This is useful in editor environments where users do not want results ASAP,
-but rather just semi quickly without eating all of their CPU.  When nil,
-defaults to half of your CPU cores."
-  :type '(choice integer (const nil "Half of CPU cores."))
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-use-binary-pkg-cache t
-  "Whether or not $GOPATH/pkg binary .a files should be used."
-  :type 'boolean
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-diagnostics-enabled t
-  "Whether diagnostics are enabled."
-  :type 'boolean
-  :group 'lsp-clients-go)
-
-(defcustom lsp-clients-go-library-directories '("/usr")
-  "List of directories which will be considered to be libraries."
-  :group 'lsp-clients-go
-  :risky t
-  :type '(repeat string))
-
-(define-inline lsp-clients-go--bool-to-json (val)
-  (inline-quote (if ,val t :json-false)))
-
-(defun lsp-clients-go--make-init-options ()
-  "Init options for golang."
-  `(:funcSnippetEnabled ,(lsp-clients-go--bool-to-json lsp-clients-go-func-snippet-enabled)
-    :disableFuncSnippet ,(lsp-clients-go--bool-to-json (not lsp-clients-go-func-snippet-enabled))
-    :gocodeCompletionEnabled ,(lsp-clients-go--bool-to-json lsp-clients-go-gocode-completion-enabled)
-    :formatTool ,lsp-clients-go-format-tool
-    :goimportsLocalPrefix ,lsp-clients-go-imports-local-prefix
-    :maxParallelism ,lsp-clients-go-max-parallelism
-    :useBinaryPkgCache ,lsp-clients-go-use-binary-pkg-cache
-    :diagnosticsEnabled ,lsp-clients-go-diagnostics-enabled))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   (lambda () (cons lsp-clients-go-server
-                                                    lsp-clients-go-server-args)))
-                  :major-modes '(go-mode)
-                  :priority -1
-                  :initialization-options 'lsp-clients-go--make-init-options
-                  :server-id 'go-bingo
-                  :library-folders-fn (lambda (_workspace)
-                                        lsp-clients-go-library-directories)))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection "go-langserver")
-                  :major-modes '(go-mode)
-                  :priority -2
-                  :initialization-options 'lsp-clients-go--make-init-options
-                  :server-id 'go-ls
-                  :library-folders-fn (lambda (_workspace)
-                                        lsp-clients-go-library-directories)))
-
-
-;; RUST
-(defun lsp-clients--rust-window-progress (_workspace params)
-  "Progress report handling.
-PARAMS progress report notification data."
-  ;; Minimal implementation - we could show the progress as well.
-  (lsp-log (gethash "title" params)))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("rls"))
-                  :major-modes '(rust-mode rustic-mode)
-                  :priority -1
-                  :server-id 'rls
-                  :notification-handlers (lsp-ht ("window/progress" 'lsp-clients--rust-window-progress))))
-
-;; Ruby
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("solargraph" "stdio"))
-                  :major-modes '(ruby-mode enh-ruby-mode)
-                  :priority -1
-                  :multi-root t
-                  :server-id 'ruby-ls))
 
 ;; PHP
 (defgroup lsp-php nil
-  "PHP."
-  :group 'lsp-mode
-  :tag "PHP")
+  "LSP support for PHP, using php-language-server."
+  :link '(url-link "https://github.com/felixfbecker/php-language-server")
+  :group 'lsp-mode)
 
 (defcustom lsp-clients-php-server-command
   `("php" ,(expand-file-name "~/.composer/vendor/felixfbecker/language-server/bin/php-language-server.php"))
@@ -507,7 +233,8 @@ PARAMS progress report notification data."
   :type 'file)
 
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection (lambda () lsp-clients-php-server-command))
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda () lsp-clients-php-server-command))
                   :major-modes '(php-mode)
                   :priority -2
                   :server-id 'php-ls))
@@ -515,13 +242,18 @@ PARAMS progress report notification data."
 
 
 (defgroup lsp-ocaml nil
-  "OCaml."
+  "LSP support for OCaml, using ocaml-language-server."
   :group 'lsp-mode
-  :tag "OCaml")
+  :link '(url-link "https://github.com/freebroccolo/ocaml-language-server"))
 
-(defcustom lsp-ocaml-ocaml-lang-server-command
+(define-obsolete-variable-alias
+  'lsp-ocaml-ocaml-lang-server-command
+  'lsp-ocaml-lang-server-command
+  "lsp-mode 6.1")
+
+(defcustom lsp-ocaml-lang-server-command
   '("ocaml-language-server" "--stdio")
-  "The command that starts the language server."
+  "Command to start ocaml-language-server."
   :group 'lsp-ocaml
   :type '(choice
           (string :tag "Single string value")
@@ -529,7 +261,8 @@ PARAMS progress report notification data."
                   string)))
 
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection (lambda () lsp-ocaml-ocaml-lang-server-command))
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda () lsp-ocaml-lang-server-command))
                   :major-modes '(reason-mode caml-mode tuareg-mode)
                   :priority -1
                   :server-id 'ocaml-ls))
@@ -538,9 +271,9 @@ PARAMS progress report notification data."
 ;; C-family (C, C++, Objective-C, Objective-C++)
 
 (defgroup lsp-clangd nil
-  "C-family (C, C++, Objective-C, Objective-C++)"
+  "LSP support for C-family languages (C, C++, Objective-C, Objective-C++), using clangd."
   :group 'lsp-mode
-  :tag "C-family")
+  :link '(url-link "https://clang.llvm.org/extra/clangd/"))
 
 (defcustom lsp-clients-clangd-executable "clangd"
   "The clangd executable to use.
@@ -570,47 +303,15 @@ finding the executable with `exec-path'."
 (defun lsp-clients-register-clangd ()
   (warn "This call is no longer needed. clangd is now automatically registered. Delete lsp-clients-register-clangd call from your config."))
 
-
-;; Dart
-(defgroup lsp-dart nil
-  "Dart."
-  :group 'lsp-mode
-  :tag "Dart")
+(make-obsolete 'lsp-clients-register-clangd
+               "This function is no longer needed, as clangd is now automatically registered."
+               "lsp-mode 6.1")
 
-(defcustom lsp-clients-dart-server-command
-  (expand-file-name (if (equal system-type 'windows-nt)
-                        "~/Pub/Cache/bin/dart_language_server"
-                      "~/.pub-cache/bin/dart_language_server"))
-  "The dart_language_server executable to use."
-  :group 'lsp-dart
-  :type 'file)
-
-(defun lsp-dart--lsp-command ()
-  "Generate LSP startup command."
-  (let ((dls lsp-clients-dart-server-command)
-        (pub (executable-find "pub")))
-    (if pub
-        (if (executable-find dls)
-            dls
-          (message "Installing dart_language_server...")
-          (shell-command (concat pub " global activate dart_language_server"))
-          (message "Installed dart_language_server")
-          dls)
-      (error "Please ensure /path/to/dart-sdk/bin is on system path"))))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   'lsp-dart--lsp-command)
-                  :major-modes '(dart-mode)
-                  :priority -1
-                  :server-id 'dart_language_server))
-
-
 ;; Elixir
 (defgroup lsp-elixir nil
-  "Elixir."
+  "LSP support for Elixir, using elixir-ls."
   :group 'lsp-mode
-  :tag "Elixir")
+  :link '(url-link "https://github.com/JakeBecker/elixir-ls"))
 
 (defcustom lsp-clients-elixir-server-executable
   (if (equal system-type 'windows-nt)
@@ -627,13 +328,19 @@ finding the executable with `exec-path'."
                                                           `(,lsp-clients-elixir-server-executable)))
                   :major-modes '(elixir-mode)
                   :priority -1
-                  :server-id 'elixir-ls))
+                  :server-id 'elixir-ls
+                  :initialized-fn (lambda (workspace)
+                                    (puthash
+                                     "textDocumentSync"
+                                     (ht ("save" t)
+                                         ("change" 2))
+                                     (lsp--workspace-server-capabilities workspace)))))
 
 ;; Fortran
 (defgroup lsp-fortran nil
-  "Fortran."
+  "LSP support for Fortran, using the Fortran Language Server."
   :group 'lsp-mode
-  :tag "Fortran")
+  :link '(url-link "https://github.com/hansec/fortran-language-server"))
 
 (defcustom lsp-clients-fortls-executable "fortls"
   "The fortls executable to use.
@@ -663,35 +370,145 @@ finding the executable with `exec-path'."
 
 ;; Kotlin
 (defgroup lsp-kotlin nil
-  "Kotlin."
+  "LSP support for Kotlin, using KotlinLanguageServer."
   :group 'lsp-mode
-  :tag "Kotlin")
+  :link '(url-link "https://github.com/fwcd/KotlinLanguageServer"))
+
+(defcustom lsp-kotlin-language-server-path ""
+  "Optionally a custom path to the language server executable."
+  :type 'string
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-trace-server "off"
+  "Traces the communication between VSCode and the Kotlin language server."
+  :type '(choice (:tag "off" "messages" "verbose"))
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-compiler-jvm-target "default"
+  "Specifies the JVM target, e.g. \"1.6\" or \"1.8\""
+  :type 'string
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-linting-debounce-time 250
+  "[DEBUG] Specifies the debounce time limit. Lower to increase
+responsiveness at the cost of possibile stability issues."
+  :type 'number
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-completion-snippets-enabled t
+  "Specifies whether code completion should provide snippets (true) or plain-text items (false)."
+  :type 'boolean
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-debug-adapter-enabled t
+  "[Recommended] Specifies whether the debug adapter should be used. When enabled a debugger for Kotlin will be available."
+  :type 'boolean)
+
+(defcustom lsp-kotlin-debug-adapter-path ""
+  "Optionally a custom path to the debug adapter executable."
+  :type 'string
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-external-sources-use-kls-scheme t
+  "[Recommended] Specifies whether URIs inside JARs should be represented using the 'kls'-scheme."
+  :type 'boolean
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(defcustom lsp-kotlin-external-sources-auto-convert-to-kotlin t
+  "Specifies whether decompiled/external classes should be auto-converted to Kotlin."
+  :type 'boolean
+  :group 'lsp-kotlin
+  :package-version '(lsp-mode . "6.1"))
+
+(lsp-register-custom-settings
+ '(("kotlin.externalSources.autoConvertToKotlin" lsp-kotlin-external-sources-auto-convert-to-kotlin t)
+   ("kotlin.externalSources.useKlsScheme" lsp-kotlin-external-sources-use-kls-scheme t)
+   ("kotlin.debugAdapter.path" lsp-kotlin-debug-adapter-path)
+   ("kotlin.debugAdapter.enabled" lsp-kotlin-debug-adapter-enabled t)
+   ("kotlin.completion.snippets.enabled" lsp-kotlin-completion-snippets-enabled t)
+   ("kotlin.linting.debounceTime" lsp-kotlin-linting-debounce-time)
+   ("kotlin.compiler.jvm.target" lsp-kotlin-compiler-jvm-target)
+   ("kotlin.trace.server" lsp-kotlin-trace-server)
+   ("kotlin.languageServer.path" lsp-kotlin-language-server-path)))
 
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection '("kotlin-language-server"))
-		              :major-modes '(kotlin-mode)
-		              :priority -1
-		              :server-id 'kotlin-ls))
+ (make-lsp-client
+  :new-connection (lsp-stdio-connection '("kotlin-language-server"))
+  :major-modes '(kotlin-mode)
+  :priority -1
+  :server-id 'kotlin-ls
+  :initialized-fn (lambda (workspace)
+                    (with-lsp-workspace workspace
+                      (lsp--set-configuration (lsp-configuration-section "kotlin"))))))
 
 
-;; PHP intelephense
-(defgroup lsp-php-iph nil
-  "PHP."
+;; Hack
+(defgroup lsp-hack nil
+  "LSP support for Hack, using HHVM."
   :group 'lsp-mode
-  :tag "PHP")
+  :link '(url-link "https://docs.hhvm.com/hhvm/"))
 
-(defcustom lsp-clients-php-iph-server-command
-  `("intelephense" "--stdio")
-  "Install directory for php-language-server."
-  :group 'lsp-php-ip
+(defcustom lsp-clients-hack-command '("hh_client" "lsp" "--from" "emacs")
+  "Command to start hh_client."
+  :group 'lsp-hack
+  :risky t
   :type '(repeat string))
 
 (lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection (lambda () lsp-clients-php-iph-server-command))
-                  :major-modes '(php-mode)
+ (make-lsp-client :new-connection (lsp-stdio-connection (lambda () lsp-clients-hack-command))
+                  :major-modes '(hack-mode)
                   :priority -1
-                  :server-id 'iph))
-
+                  :server-id 'hack
+                  ;; ignore some unsupported messages from Nuclide
+                  :notification-handlers (lsp-ht ("telemetry/event" 'ignore)
+                                                 ("$/cancelRequest" 'ignore))
+                  :request-handlers (lsp-ht ("window/showStatus" 'ignore))))
 
+
+;;; Dockerfile
+(defcustom lsp-dockerfile-language-server-command
+  '("docker-langserver" "--stdio")
+  "The command that starts the docker language server."
+  :group 'lsp-dockerfile
+  :type '(choice
+          (string :tag "Single string value")
+          (repeat :tag "List of string values"
+                  string)))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (-const lsp-dockerfile-language-server-command))
+                  :major-modes '(dockerfile-mode)
+                  :priority -1
+                  :server-id 'dockerfile-ls))
+
+
+;;; Angular
+(defcustom lsp-clients-angular-language-server-command
+  `("node"  ,(expand-file-name "~/.angular/extension/server/server.js") "--stdio")
+  "The command that starts the angular language server."
+  :group 'lsp-clients-angular
+  :type '(choice
+          (string :tag "Single string value")
+          (repeat :tag "List of string values"
+                  string)))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   (lambda () lsp-clients-angular-language-server-command))
+                  :activation-fn (lambda (&rest _args)
+                                   (string-match-p ".*\.html$" (buffer-file-name)))
+                  :priority -1
+                  :add-on? t
+                  :server-id 'angular-ls))
+
+
 (provide 'lsp-clients)
 ;;; lsp-clients.el ends here

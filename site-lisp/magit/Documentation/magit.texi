@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit User Manual
-@subtitle for version 2.90.1 (v2.90.1-259-g0d59db318+1)
+@subtitle for version 2.90.1 (v2.90.1-763-gb88c86043+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -53,7 +53,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-259-g0d59db318+1).
+This manual is for Magit version 2.90.1 (v2.90.1-763-gb88c86043+1).
 
 @quotation
 Copyright (C) 2015-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -103,6 +103,7 @@ Interface Concepts
 * Modes and Buffers::
 * Sections::
 * Transient Commands::
+* Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 
@@ -153,7 +154,7 @@ Inspecting
 * Ediffing::
 * References Buffer::
 * Bisecting::
-* Visiting Blobs::
+* Visiting Files and Blobs::
 * Blaming::
 
 Status Buffer
@@ -177,7 +178,7 @@ Logging
 Diffing
 
 * Refreshing Diffs::
-* Diff Buffer::
+* Commands Available in Diffs::
 * Diff Options::
 * Revision Buffer::
 
@@ -187,9 +188,16 @@ References Buffer
 * References Sections::
 
 
+Visiting Files and Blobs
+
+* General-Purpose Visit Commands::
+* Visiting Files and Blobs from a Diff::
+
+
 Manipulating
 
-* Repository Setup::
+* Creating Repository::
+* Cloning Repository::
 * Staging and Unstaging::
 * Applying::
 * Committing::
@@ -481,7 +489,7 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{dash}, @code{lv}, @code{transient} and @code{with-editor} libraries
+Magit depends on the @code{dash}, @code{transient} and @code{with-editor} libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 @code{M-x package-install RET <package> RET}.  Of course you may also install
 them manually from their repository.
@@ -499,7 +507,7 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash}, @code{lv}, @code{transient} and @code{with-editor} from
+If you haven't installed @code{dash}, @code{transient} and @code{with-editor} from
 Melpa or at @code{/path/to/magit/../<package>}, then you have to tell @code{make}
 where to find them.  To do so create the file @code{/path/to/magit/config.mk}
 with the following content before running @code{make}:
@@ -507,12 +515,9 @@ with the following content before running @code{make}:
 @example
 LOAD_PATH  = -L /path/to/magit/lisp
 LOAD_PATH += -L /path/to/dash
-LOAD_PATH += -L /path/to/hydra
 LOAD_PATH += -L /path/to/transient
 LOAD_PATH += -L /path/to/with-editor
 @end example
-
-Note that @code{lv.el} is part of the @code{hydra} repository.
 
 Finally add this to your init file:
 
@@ -620,7 +625,7 @@ origin/master", "Unpushed to origin/master", and many others.
 
 Since we are starting from a safe state, which you can easily return
 to (by doing a @code{git reset --hard PRE-MAGIT-STATE}), there currently are
-not staged or unstaged changes.  Edit some files and save the changes.
+no staged or unstaged changes.  Edit some files and save the changes.
 Then go back to the status buffer, while at the same time refreshing
 it, by typing @code{C-x g}.  (When the status buffer, or any Magit buffer for
 that matter, is the current buffer, then you can also use just @code{g} to
@@ -703,6 +708,7 @@ then it is highly recommended that you read the next section too.
 * Modes and Buffers::
 * Sections::
 * Transient Commands::
+* Transient Arguments and Buffer Variables::
 * Completion, Confirmation and the Selection: Completion Confirmation and the Selection. 
 * Running Git::
 @end menu
@@ -979,8 +985,11 @@ control how buffer names are uniquified.
 @cindex magit-mode-bury-buffer
 @item @kbd{q} @tie{}@tie{}@tie{}@tie{}(@code{magit-mode-bury-buffer})
 
-This command buries the current Magit buffer.  With a prefix
-argument, it instead kills the buffer.
+This command buries the current Magit buffer.
+
+With a prefix argument, it instead kills the buffer.  With a double
+prefix argument, also kills all other Magit buffers associated with
+the current project.
 
 @end table
 
@@ -1022,9 +1031,13 @@ ever displayed in the window, then that is deleted.
 
 After running a command which may change the state of the current
 repository, the current Magit buffer and the corresponding status
-buffer are refreshed.  The status buffer may optionally be
-automatically refreshed whenever a buffer is saved to a file inside
-the respective repository.
+buffer are refreshed. The status buffer can be automatically refreshed
+whenever a buffer is saved to a file inside the respective repository
+by adding a hook, like so:
+
+@lisp
+(add-hook 'after-save-hook 'magit-after-save-refresh-status t)
+@end lisp
 
 Automatically refreshing Magit buffers ensures that the displayed
 information is up-to-date most of the time but can lead to a
@@ -1117,7 +1130,7 @@ intervention.  If it is @code{t} then the user has to confirm each save.
 By default Magit automatically reverts buffers that are visiting files
 that are being tracked in a Git repository, after they have changed on
 disk.  When using Magit one often changes files on disk by running
-git, i.e. "outside Emacs", making this a rather important feature.
+Git, i.e. "outside Emacs", making this a rather important feature.
 
 For example, if you discard a change in the status buffer, then that
 is done by running @code{git apply --reverse ...}, and Emacs considers the
@@ -1127,14 +1140,14 @@ the visiting buffer before you could continue making changes.
 
 @defopt magit-auto-revert-mode
 
-When this mode is enabled, then buffers that visit tracked files,
-are automatically reverted after the visited files changed on disk.
+When this mode is enabled, then buffers that visit tracked files
+are automatically reverted after the visited files change on disk.
 @end defopt
 
 @defopt global-auto-revert-mode
 
 When this mode is enabled, then any file-visiting buffer is
-automatically reverted after the visited file changed on disk.
+automatically reverted after the visited file changes on disk.
 
 If you like buffers that visit tracked files to be automatically
 reverted, then you might also like any buffer to be reverted, not
@@ -1148,7 +1161,7 @@ This option controls whether Magit reverts buffers immediately.
 
 If this is non-nil and either @code{global-auto-revert-mode} or
 @code{magit-auto-revert-mode} is enabled, then Magit immediately reverts
-buffers by explicitly calling @code{auto-revert-buffers} after running git
+buffers by explicitly calling @code{auto-revert-buffers} after running Git
 for side-effects.
 
 If @code{auto-revert-use-notify} is non-nil (and file notifications are
@@ -1175,15 +1188,14 @@ including untracked files and files located inside Git's control
 directory.
 @end defopt
 
-@cindex auto-revert-mode
-@deffn Command auto-revert-mode
+@defopt auto-revert-mode
 
 The global mode @code{magit-auto-revert-mode} works by turning on this
 local mode in the appropriate buffers (but @code{global-auto-revert-mode}
 is implemented differently).  You can also turn it on or off
 manually, which might be necessary if Magit does not notice that a
 previously untracked file now is being tracked or vice-versa.
-@end deffn
+@end defopt
 
 @defopt auto-revert-stop-on-user-input
 
@@ -1193,7 +1205,7 @@ automatic reverts for @code{auto-revert-interval} seconds.
 
 @defopt auto-revert-interval
 
-This option controls for how many seconds Emacs waits before
+This option controls how many seconds Emacs waits for before
 resuming suspended reverts.
 @end defopt
 
@@ -1203,12 +1215,12 @@ This option specifies an additional filter used by
 @code{auto-revert-buffers} to determine whether a buffer should be reverted
 or not.
 
-This option is provided by @code{magit}, which also redefines
+This option is provided by Magit, which also advises
 @code{auto-revert-buffers} to respect it.  Magit users who do not turn on
 the local mode @code{auto-revert-mode} themselves, are best served by
-setting the value to @code{magit-auto-revert-repository-buffers-p}.
+setting the value to @code{magit-auto-revert-repository-buffer-p}.
 
-However the default is nil, to not disturb users who do use the
+However the default is nil, so as not to disturb users who do use the
 local mode directly.  If you experience delays when running Magit
 commands, then you should consider using one of the predicates
 provided by Magit - especially if you also use Tramp.
@@ -1226,7 +1238,7 @@ reverted.
 @end defopt
 
 The options with the @code{auto-revert-} prefix are located in the Custom
-group named @code{auto-revert}.  The other, magit-specific, options are
+group named @code{auto-revert}.  The other, Magit-specific, options are
 located in the @code{magit} group.
 
 @menu
@@ -1236,20 +1248,20 @@ located in the @code{magit} group.
 @node Risk of Reverting Automatically
 @unnumberedsubsubsec Risk of Reverting Automatically
 
-For the vast majority users automatically reverting file-visiting
+For the vast majority of users, automatically reverting file-visiting
 buffers after they have changed on disk is harmless.
 
 If a buffer is modified (i.e. it contains changes that haven't been
-saved yet), then Emacs would refuse to automatically revert it.  If
+saved yet), then Emacs will refuse to automatically revert it.  If
 you save a previously modified buffer, then that results in what is
-seen by Git as an uncommitted change.  Git would then refuse to carry
+seen by Git as an uncommitted change.  Git will then refuse to carry
 out any commands that would cause these changes to be lost.  In other
 words, if there is anything that could be lost, then either Git or
-Emacs would refuse to discard the changes.
+Emacs will refuse to discard the changes.
 
-However if you do use file-visiting buffers as a sort of ad hoc
+However, if you use file-visiting buffers as a sort of ad hoc
 "staging area", then the automatic reverts could potentially cause
-data loss.  So far I have only heard from one user who uses such a
+data loss.  So far I have heard from only one user who uses such a
 workflow.
 
 An example: You visit some file in a buffer, edit it, and save the
@@ -1269,7 +1281,7 @@ If your workflow depends on Emacs preserving the intermediate version
 in the buffer, then you have to disable all Auto-Revert modes.  But
 please consider that such a workflow would be dangerous even without
 using an Auto-Revert mode, and should therefore be avoided.  If Emacs
-crashed or if you quit Emacs by mistake, then you would also lose the
+crashes or if you quit Emacs by mistake, then you would also lose the
 buffer content.  There would be no autosave file still containing the
 intermediate version (because that was deleted when you saved the
 buffer) and you would not be asked whether you want to save the buffer
@@ -1397,11 +1409,25 @@ revision buffer, provided it is already being displayed in another
 window of the same frame.
 @end defun
 
+@defun magit-status-maybe-update-stash-buffer
+
+When moving inside a status buffer, then this function updates the
+stash buffer, provided it is already being displayed in another
+window of the same frame.
+@end defun
+
 @defun magit-status-maybe-update-blob-buffer
 
 When moving inside a status buffer and another window of the same
 frame displays a blob buffer, then this function instead displays
 the blob buffer for the commit at point in that window.
+@end defun
+
+@defun magit-stashes-maybe-update-stash-buffer
+
+When moving inside a buffer listing stashes, then this function
+updates the stash buffer, provided it is already being displayed
+in another window of the same frame.
 @end defun
 
 @defopt magit-update-other-window-delay
@@ -1739,29 +1765,156 @@ you should setup a global binding:
 (global-set-key (kbd "C-x M-g") 'magit-dispatch)
 @end lisp
 
-Transient commands remember the used arguments for subsequent
-invocations.  Two transients, the log and diff transients (see
-@ref{Logging} and @ref{Diffing}), may behave a bit differently, depending on the
-value of @code{magit-use-sticky-arguments}.
+@node Transient Arguments and Buffer Variables
+@section Transient Arguments and Buffer Variables
 
-@defopt magit-use-sticky-arguments
+The infix arguments of many of Magit's transient prefix commands cease
+to have an effect once the @code{git} command that is called with those
+arguments has returned.  Commands that create a commit are a good
+example for this.  If the user changes the arguments, then that only
+affects the next invocation of a suffix command.  If the same
+transient prefix command is later invoked again, then the arguments
+are initially reset to the default value.  This default value can be
+set for the current Emacs session or saved permanently, see
+@ref{Saving Values,,,transient,}.  It is also possible to cycle through
+previously used sets of arguments using @code{M-p} and @code{M-n}, see
+@ref{Using History,,,transient,}.
 
-This option controls how the diff and log transients reuse arguments
-from existing buffers.
+However the infix arguments of many other transient commands continue
+to have an effect even after the @code{git} command that was called with
+those arguments has returned.  The most important commands like this
+are those that display a diff or log in a dedicated buffer.  Their
+arguments obviously continue to have an effect for as long as the
+respective diff or log is being displayed.  Furthermore the used
+arguments are stored in buffer-local variables for future reference.
 
-When @code{t} (the default value), then the log or diff transients reuses
-the arguments from the current repository's log or diff buffer,
-respectively.  When no log or diff buffer exists for the current
-repository, these transients use the default value of
-@code{magit-log-arguments} or @code{magit-diff-arguments}.
+For commands in the second group it isn't always desirable to reset
+their arguments to the global value when the transient prefix command
+is invoked again.
 
-When @code{current}, log and diff transients will only reuse the arguments
-if the current buffer is derived from @code{magit-log-mode} or
-@code{magit-diff-mode}, respectively.
+As mentioned above, it is possible to cycle through previously used
+sets of arguments while a transient popup is visible.  That means that
+we could always reset the infix arguments to the default because the
+set of arguments that is active in the existing buffer is only a few
+@code{M-p} away.  Magit can be configured to behave like that, but because I
+expect that most users would not find that very convenient, it is not
+the default.
 
-When @code{nil}, the default value of @code{magit-log-arguments} or
-@code{magit-diff-arguments} is always used.
+Also note that it is possible to change the diff and log arguments
+used in the current buffer (including the status buffer, which
+contains both diff and log sections) using the respective "refresh"
+transient prefix commands on @code{D} and @code{L}.  (@code{d} and @code{l} on the other hand are
+intended to change @strong{what} diff or log is being displayed.  It is
+possible to also change @strong{how} the diff or log is being displayed at the
+same time, but if you only want to do the latter, then you should use
+the refresh variants.)  Because these secondary diff and log transient
+prefixes are about @strong{changing} the arguments used in the current buffer,
+they @strong{always} start out with the set of arguments that are currently in
+effect in that buffer.
+
+Some commands are usually invoked directly even though they can also
+be invoked as the suffix of a transient prefix command.  Most
+prominently @code{magit-show-commit} is usually invoked by typing @code{RET} while
+point is on a commit in a log, but it can also be invoked from the
+@code{magit-diff} transient prefix.
+
+When such a command is invoked directly, then it is important to reuse
+the arguments as specified by the respective buffer-local values,
+instead of using the default arguments.  Imagine you press @code{RET} in a
+log to display the commit at point in a different buffer and then use
+@code{D} to change how the diff is displayed in that buffer.  And then you
+press @code{RET} on another commit to show that instead and the diff
+arguments are reset to the default.  Not cool; so Magit does not do
+that by default.
+
+@defopt magit-prefix-use-buffer-arguments
+
+This option controls whether the infix arguments initially shown in
+certain transient prefix commands are based on the arguments that
+are currently in effect in the buffer that their suffixes update.
+
+The @code{magit-diff} and @code{magit-log} transient prefix commands are affected
+by this option.
 @end defopt
+
+@defopt magit-direct-use-buffer-arguments
+
+This option controls whether certain commands, when invoked directly
+(i.e. not as the suffix of a transient prefix command), use the
+arguments that are currently active in the buffer that they are
+about to update.  The alternative is to use the default value for
+these arguments, which might change the arguments that are used in
+the buffer.
+@end defopt
+
+@noindent
+Valid values for both of the above options are:
+
+@itemize
+@item
+@code{always}: Always use the set of arguments that is currently active
+in the respective buffer, provided that buffer exists of course.
+
+@item
+@code{selected} or @code{t}: Use the set of arguments from the respective
+buffer, but only if it is displayed in a window of the current
+frame.  This is the default for both variables.
+
+@item
+@code{current}: Use the set of arguments from the respective buffer, but
+only if it is the current buffer.
+
+@item
+@code{never}: Never use the set of arguments from the respective buffer.
+@end itemize
+
+@noindent
+I am afraid it gets more complicated still:
+
+@itemize
+@item
+The global diff and log arguments are set for each support mode
+individually.  The diff arguments for example have different values
+in @code{magit-diff-mode}, @code{magit-revision-mode}, @code{magit-merge-preview-mode}
+and @code{magit-status-mode} buffers.  Setting or saving the value for one
+mode does not change the value for other modes.  The history however
+is shared.
+
+
+@item
+When @code{magit-show-commit} is invoked directly from a log buffer, then
+the file filter is picked up from that buffer, not from the revision
+buffer and or the mode's global diff arguments.
+
+
+@item
+Even though they are suffixes of the diff prefix @code{magit-show-commit}
+and @code{magit-stash-show} do not use the diff buffer used by the diff
+commands, instead they use the dedicated revision and stash buffers.
+
+At the time you invoke the diff prefix it is unknown to Magit which
+of the suffix commands you are going to invoke.  While not certain,
+more often than not users invoke one of the commands that use the
+diff buffer, so the initial infix arguments are those used in that
+buffer.  However if you invoke one of these commands directly, then
+Magit knows that it should use the arguments from the revision resp.
+stash buffer.
+
+
+@item
+The log prefix also features reflog commands, but these commands do
+not use the log arguments.
+
+
+@item
+If @code{magit-show-refs} is invoked from a @code{magit-refs-mode} buffer, then it
+acts as a refresh prefix and therefore unconditionally uses the
+buffer's arguments as initial arguments. If it is invoked elsewhere
+with a prefix argument, then it acts as regular prefix and therefore
+respects @code{magit-prefix-use-buffer-arguments}.  If it is invoked
+elsewhere without a prefix argument, then it acts as a direct
+command and therefore respects @code{magit-direct-use-buffer-arguments}.
+@end itemize
 
 @node Completion Confirmation and the Selection
 @section Completion, Confirmation and the Selection
@@ -1899,8 +2052,8 @@ merged yet, also make sure the user is aware of that.
 
 
 @item
-@code{delete-pr-branch} When deleting a branch that was created from a
-pull request and if no other branches still exist on that
+@code{delete-pr-remote} When deleting a branch that was created from a
+pull-request and if no other branches still exist on that
 remote, then `magit-branch-delete' offers to delete the remote
 as well.  This should be safe because it only happens if no
 other refs exist in the remotes namespace, and you can recreate
@@ -2164,7 +2317,7 @@ the same.
 
 @defun magit-builtin-completing-read prompt choices &optional predicate require-match initial-input hist def
 
-This function performs completion using the built-in @code{completion-read}
+This function performs completion using the built-in @code{completing-read}
 and does some additional magit-specific work.
 @end defun
 
@@ -2197,6 +2350,11 @@ If it does read a value in the minibuffer, then this function acts
 similar to @code{completing-read}, except for the following:
 
 @itemize
+@item
+COLLECTION must be a list of choices.  A function is not
+supported.
+
+
 @item
 If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
 @code{nil} is returned instead of an empty string.
@@ -2370,7 +2528,7 @@ in the top-level directory of the current working tree instead.
 
 @defopt magit-shell-command-verbose-prompt
 
-Whether the prompt, used by the the above commands when reading a
+Whether the prompt, used by the above commands when reading a
 shell command, shows the directory in which it will be run.
 @end defopt
 
@@ -2512,7 +2670,7 @@ described later.
 * Ediffing::
 * References Buffer::
 * Bisecting::
-* Visiting Blobs::
+* Visiting Files and Blobs::
 * Blaming::
 @end menu
 
@@ -2754,10 +2912,29 @@ Insert a tree of tracked files.
 @defun magit-insert-ignored-files
 
 Insert a tree of ignored files.
+Its possible to limit the logs in the current buffer to a certain
+directory using @code{D = f <DIRECTORY> RET g}.  If you do that, then that
+that also affects this command.
 
-If the first element of @code{magit-diff-section-arguments} is a directory,
-then limit the list to files below that.  The value of that variable
-can be set using @code{D = f <DIRECTORY> RET g}.
+The log filter can be used to limit to multiple files.  In that case
+this function only respects the first of the files and only if it is
+a directory.
+@end defun
+
+@defun magit-insert-skip-worktree-files
+
+Insert a tree of skip-worktree files.
+If the first element of @code{magit-buffer-diff-files} is a
+directory, then limit the list to files below that.  The value
+of that variable can be set using @code{D -- DIRECTORY RET g}.
+@end defun
+
+@defun magit-insert-assumed-unchanged-files
+
+Insert a tree of files that are assumed to be unchanged.
+If the first element of @code{magit-buffer-diff-files} is a
+directory, then limit the list to files below that.  The value
+of that variable can be set using @code{D -- DIRECTORY RET g}.
 @end defun
 
 @defun magit-insert-unpulled-or-recent-commits
@@ -3059,6 +3236,48 @@ This function inserts the absolute path of the repository.
 This function inserts a description of the repository's @code{HEAD} revision.
 @end defun
 
+@defun magit-repolist-column-branch
+
+This function inserts the name of the current branch.
+@end defun
+
+@defun magit-repolist-column-upstream
+
+This function inserts the name of the upstream branch of the current
+branch.
+@end defun
+
+@defun magit-repolist-column-branches
+
+This function inserts the number of branches.
+@end defun
+
+@defun magit-repolist-column-stashes
+
+This function inserts the number of stashes.
+@end defun
+
+@defun magit-repolist-column-flag
+
+This function inserts a flag as specified by
+@code{magit-repolist-column-flag-alist}.
+
+By default this indicates whether there are uncommitted changes.
+
+@itemize
+@item
+@code{N} if there is at least one untracked file.
+
+@item
+@code{U} if there is at least one unstaged file.
+
+@item
+@code{S} if there is at least one staged file.
+@end itemize
+
+Only the first one of these that applies is shown.
+@end defun
+
 @defun magit-repolist-column-unpulled-from-upstream
 
 This function inserts the number of upstream commits not in the
@@ -3095,8 +3314,8 @@ Like other transient prefix commands, @code{magit-log} also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the log transient, these arguments
 may be taken from those currently in use in the current repository's
-log buffer, depending on the value of @code{magit-use-sticky-arguments} (see
-@ref{Transient Commands}).
+log buffer, depending on the value of @code{magit-prefix-use-buffer-arguments}
+(see @ref{Transient Arguments and Buffer Variables}).
 
 For information about the various arguments, see 
 @ifinfo
@@ -3658,8 +3877,8 @@ Like other transient prefix commands, @code{magit-diff} also features several
 infix arguments that can be changed before invoking one of the suffix
 commands.  However, in the case of the diff transient, these arguments may
 be taken from those currently in use in the current repository's diff
-buffer, depending on the value of @code{magit-use-sticky-arguments} (see
-@ref{Transient Commands}).
+buffer, depending on the value of @code{magit-prefix-use-buffer-arguments}
+(see @ref{Transient Arguments and Buffer Variables}).
 
 Also see 
 @ifinfo
@@ -3758,7 +3977,7 @@ is being visited in the current buffer exists, see @ref{Minor Mode for Buffers V
 
 @menu
 * Refreshing Diffs::
-* Diff Buffer::
+* Commands Available in Diffs::
 * Diff Options::
 * Revision Buffer::
 @end menu
@@ -3891,97 +4110,31 @@ This command moves backward in current buffer's history.
 This command moves forward in current buffer's history.
 @end table
 
-@node Diff Buffer
-@subsection Diff Buffer
+@node Commands Available in Diffs
+@subsection Commands Available in Diffs
 
-These commands are available in diff buffers.
+Some commands are only available if point is inside a diff.
 
-@table @asis
-@kindex RET
-@cindex magit-diff-visit-file
-@item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file})
-
-From a diff, visit the corresponding file at the appropriate position.
-
-If the diff shows changes in the worktree, the index, or @code{HEAD}, then
-visit the actual file.  Otherwise, when the diff is about an older
-commit or a range, then visit the appropriate blob.
-
-If point is on a removed line, then visit the blob for the first
-parent of the commit which removed that line, i.e. the last
-commit where that line still existed.  Otherwise visit the blob
-for the commit whose changes are being shown.
-
-Interactively, when the file or blob to be displayed is already
-being displayed in another window of the same frame, then just
-select that window and adjust point.  Otherwise, or with a prefix
-argument, display the buffer in another window.  The meaning of
-the prefix argument can be inverted or further modified using the
-option @code{magit-display-file-buffer-function}.
-
-Non-interactively the optional OTHER-WINDOW argument is taken
-literally.  DISPLAY-FN can be used to specify the display
-function explicitly, in which case OTHER-WINDOW is ignored.
-
-The optional FORCE-WORKTREE means to force visiting the worktree
-version of the file.  To do this interactively use the command
-@code{magit-diff-visit-file-worktree} instead.
-
-@end table
-
-@defopt magit-diff-visit-previous-blob
-
-This option controls whether @code{magit-diff-visit-file} may visit the
-previous blob.  When this is @code{t} and point is on a removed line in a
-diff for a committed change, then @code{magit-diff-visit-file} visits the
-blob from the last revision which still had that line.
-
-Currently this is only supported for committed changes, for staged
-and unstaged changes @code{magit-diff-visit-file} always visits the file in
-the working tree.
-@end defopt
-
-@table @asis
-@kindex C-<return>
-@cindex magit-diff-visit-file-worktree
-@item @kbd{C-<return>} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file-worktree})
-
-From a diff, visit the corresponding file at the appropriate position.
-
-When the file is already being displayed in another window of the
-same frame, then just select that window and adjust point.  With
-a prefix argument also display in another window.
-
-The actual file in the worktree is visited. The positions in the
-hunk headers get less useful the "older" the changes are, and as a
-result, jumping to the appropriate position gets less reliable.
-
-Also see @code{magit-diff-visit-file}, which visits the respective blob,
-unless the diff shows changes in the worktree, the index, or @code{HEAD}.
-
-@end table
-
-@cindex magit-diff-visit-file-other-window
-@deffn Command magit-diff-visit-file-other-window
-
-From a diff, visit the corresponding file at the appropriate
-position in another window.
-@end deffn
+@code{magit-diff-visit-file} and related commands visit the appropriate
+version of the file that the diff at point is about.  Likewise
+@code{magit-diff-visit-worktree-file} and related commands visit the worktree
+version of the file that the diff at point is about.  See @ref{Visiting Files and Blobs from a Diff} for more information and the key bindings.
 
 @table @asis
 @kindex C-c C-t
 @cindex magit-diff-trace-definition
 @item @kbd{C-c C-t} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-trace-definition})
 
-From a diff, show log for the definition at point.
+This command shows a log for the definition at point.
 
 @end table
 
 @defopt magit-log-trace-definition-function
 
-The function used by @code{magit-log-trace-definition} to determine the
-function at point.  For major-modes that have special needs, you
-could set that using the mode's hook.
+The function specfied by this option is used by
+@code{magit-log-trace-definition} to determine the function at point.  For
+major-modes that have special needs, you could set the local value
+using the mode's hook.
 @end defopt
 
 @table @asis
@@ -3989,18 +4142,19 @@ could set that using the mode's hook.
 @cindex magit-diff-edit-hunk-commit
 @item @kbd{C-c C-e} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-edit-hunk-commit})
 
-From a hunk, edit the respective commit and visit the file.
+From a hunk, this command edits the respective commit and visits
+the file.
 
-First visit the file being modified by the hunk at the correct
-location using @code{magit-diff-visit-file}.  This actually visits a
-blob.  When point is on a diff header, not within an individual
-hunk, then this visits the blob the first hunk is about.
+First it visits the file being modified by the hunk at the correct
+location using @code{magit-diff-visit-file}.  This actually visits a blob.
+When point is on a diff header, not within an individual hunk, then
+this visits the blob the first hunk is about.
 
-Then invoke @code{magit-edit-line-commit}, which uses an interactive
+Then it invokes @code{magit-edit-line-commit}, which uses an interactive
 rebase to make the commit editable, or if that is not possible
-because the commit is not reachable from @code{HEAD} by checking out
-that commit directly.  This also causes the actual worktree file
-to be visited.
+because the commit is not reachable from @code{HEAD} by checking out that
+commit directly.  This also causes the actual worktree file to be
+visited.
 
 Neither the blob nor the file buffer are killed when finishing
 the rebase.  If that is undesirable, then it might be better to
@@ -4010,21 +4164,28 @@ use @code{magit-rebase-edit-command} instead of this command.
 @cindex magit-jump-to-diffstat-or-diff
 @item @kbd{j} @tie{}@tie{}@tie{}@tie{}(@code{magit-jump-to-diffstat-or-diff})
 
-Jump to the diffstat or diff.  When point is on a file inside the
-diffstat section, then jump to the respective diff section.
-Otherwise, jump to the diffstat section or a child thereof.
+This command jumps to the diffstat or diff.  When point is on a file
+inside the diffstat section, then jump to the respective diff
+section.  Otherwise, jump to the diffstat section or a child
+thereof.
+@end table
 
+The next two commands are not specific to Magit-Diff mode (or and
+Magit buffer for that matter), but it might be worth pointing out
+that they are available here too.
+
+@table @asis
 @kindex SPC
 @cindex scroll-up
 @item @kbd{SPC} @tie{}@tie{}@tie{}@tie{}(@code{scroll-up})
 
-Scroll text upward.
+This command scrolls text upward.
 
 @kindex DEL
 @cindex scroll-down
 @item @kbd{DEL} @tie{}@tie{}@tie{}@tie{}(@code{scroll-down})
 
-Scroll text downward.
+This command scrolls text downward.
 @end table
 
 @node Diff Options
@@ -4131,18 +4292,18 @@ only when @code{magit-diff-paint-whitespace} is non-nil.
 
 @defopt magit-diff-highlight-indentation
 
-Highlight the "wrong" indentation style.  Used only when
-@code{magit-diff-paint-whitespace} is non-nil.
+This option controls whether to highlight the indentaion in case it
+used the "wrong" indentation style.  Indentation is only highlighted
+if @code{magit-diff-paint-whitespace} is also non-nil.
 
-The value is a list of cons cells.  The car is a regular expression,
-and the cdr is the value that applies to repositories whose
-directory matches the regular expression.  If more than one element
-matches, then the @strong{last} element in the list applies.  The default
-value should therefore come first in the list.
+The value is an alist of the form @code{((REGEXP . INDENT)...)}.  The path
+to the current repository is matched against each element in reverse
+order.  Therefore if a REGEXP matches, then earlier elements are not
+tried.
 
-If the value is @code{tabs}, highlight indentation with tabs.  If the value
-is an integer, highlight indentation with at least that many spaces.
-Otherwise, highlight neither.
+If the used INDENT is @code{tabs}, highlight indentation with tabs.  If
+INDENT is an integer, highlight indentation with at least that many
+spaces.  Otherwise, highlight neither.
 @end defopt
 
 @defopt magit-diff-hide-trailing-cr-characters
@@ -4214,7 +4375,7 @@ If @code{nil}, then don't insert any gravatar images.  If @code{t}, then insert
 both images.  If @code{author} or @code{committer}, then insert only the
 respective image.
 
-If you have customized the option @code{magit-revision-header-format}
+If you have customized the option @code{magit-revision-headers-format}
 and want to insert the images then you might also have to specify
 where to do so.  In that case the value has to be a cons-cell of
 two regular expressions.  The car specifies where to insert the
@@ -4256,15 +4417,25 @@ The diffs shown in the revision buffer may be automatically restricted
 to a subset of the changed files.  If the revision buffer is displayed
 from a log buffer, the revision buffer will share the same file
 restriction as that log buffer (also see the command
-@code{magit-diff-toggle-file-filter}).  Note, however, that the log's file
-restriction will be ignored when @code{magit-log-arguments} includes
-@code{--follow}.  In this case, the @code{-u} argument of the log transient can be
-used to show the file-restricted diffs inline.
+@code{magit-diff-toggle-file-filter}).
+
+@defopt magit-revision-filter-files-on-follow
+
+Whether showing a commit from a log buffer honors the log's file
+filter when the log arguments include @code{--follow}.
+
+When this option is nil, displaying a commit from a log ignores the
+log's file filter if the log arguments include @code{--follow}.  Doing so
+avoids showing an empty diff in revision buffers for commits before
+a rename event.  In such cases, the @code{--patch} argument of the log
+transient can be used to show the file-restricted diffs inline.
+
+Set this option to non-nil to keep the log's file restriction even
+if @code{--follow} is present in the log arguments.
+@end defopt
 
 If the revision buffer is not displayed from a log buffer, the file
-restriction is determined by the file restriction in the repository's
-diff buffer, if it exists, and the value of the option
-@code{magit-use-sticky-arguments}.
+restriction is determined as usual (see @ref{Transient Arguments and Buffer Variables}).
 
 @node Ediffing
 @section Ediffing
@@ -4583,6 +4754,11 @@ information.
 
 @defopt magit-refs-filter-alist
 
+The purpose of this option is to forgo displaying certain refs
+based on their name.  If you want to not display any refs of a
+certain type, then you should remove the appropriate function
+from @code{magit-refs-sections-hook} instead.
+
 This alist controls which tags and branches are omitted from being
 displayed in @code{magit-refs-mode} buffers.  If it is @code{nil}, then all refs
 are displayed (subject to @code{magit-refs-sections-hook}).
@@ -4594,9 +4770,9 @@ matches, then the reference is displayed.
 
 A key can either be a regular expression that the refname has to
 match, or a function that takes the refname as only argument and
-returns a boolean.  Contrary to how they are displayed in the
-buffer, for comparison each tag begins with "tags/" and each remote
-branch with "<remote>/".
+returns a boolean.  A remote branch such as "origin/master" is
+displayed as just "master", however for this comparison the
+former is used.
 @end defopt
 
 @table @asis
@@ -4809,24 +4985,148 @@ This option controls whether a graph is displayed for the log of
 commits that still have to be bisected.
 @end defopt
 
-@node Visiting Blobs
-@section Visiting Blobs
+@node Visiting Files and Blobs
+@section Visiting Files and Blobs
+
+Magit provides several commands that visit a file or blob (the version
+of a file that is stored in a certain commit).  Actually it provides
+several @strong{groups} of such commands and the several @strong{variants} within each
+group.
+
+@menu
+* General-Purpose Visit Commands::
+* Visiting Files and Blobs from a Diff::
+@end menu
+
+@node General-Purpose Visit Commands
+@subsection General-Purpose Visit Commands
+
+These commands can be used anywhere to open any blob.  Currently no
+keys are bound to these commands by default, but that is likely to
+change.
+
+@cindex magit-find-file
+@deffn Command magit-find-file
+
+This command reads a filename and revision from the user and visits
+the respective blob in a buffer.  The buffer is displayed in the
+selected window.
+@end deffn
+
+@cindex magit-find-file-other-window
+@deffn Command magit-find-file-other-window
+
+This command reads a filename and revision from the user and visits
+the respective blob in a buffer.  The buffer is displayed in another
+window.
+@end deffn
+
+@cindex magit-find-file-other-frame
+@deffn Command magit-find-file-other-frame
+
+This command reads a filename and revision from the user and visits
+the respective blob in a buffer.  The buffer is displayed in another
+frame.
+@end deffn
+
+@node Visiting Files and Blobs from a Diff
+@subsection Visiting Files and Blobs from a Diff
+
+These commands can only be used when point is inside a diff.
 
 @table @asis
-@kindex M-x magit-find-file
-@cindex magit-find-file
-@item @kbd{M-x magit-find-file} @tie{}@tie{}@tie{}@tie{}(@code{magit-find-file})
+@kindex RET
+@cindex magit-diff-visit-file
+@item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file})
 
-View FILE from REV@.  Switch to a buffer visiting blob REV:FILE,
-creating one if none already exists.
+This command visits the appropriate version of the file that the
+diff at point is about.
 
-@kindex M-x magit-find-file-other-window
-@cindex magit-find-file-other-window
-@item @kbd{M-x magit-find-file-other-window} @tie{}@tie{}@tie{}@tie{}(@code{magit-find-file-other-window})
+This commands visits the worktree version of the appropriate file.
+The location of point inside the diff determines which file is being
+visited.  The visited version depends on what changes the diff is
+about.
 
-View FILE from REV, in another window.  Like @code{magit-find-file}, but
-create a new window or reuse an existing one.
+@itemize
+@item
+If the diff shows uncommitted changes (i.e. staged or unstaged
+changes), then visit the file in the working tree (i.e. the
+same "real" file that @code{find-file} would visit.  In all other
+cases visit a "blob" (i.e. the version of a file as stored
+in some commit).
+
+
+@item
+If point is on a removed line, then visit the blob for the
+first parent of the commit that removed that line, i.e. the
+last commit where that line still exists.
+
+
+@item
+If point is on an added or context line, then visit the blob
+that adds that line, or if the diff shows from more than a
+single commit, then visit the blob from the last of these
+commits.
+@end itemize
+
+In the file-visiting buffer this command goes to the line that
+corresponds to the line that point is on in the diff.
+
+The buffer is displayed in the selected window.  With a prefix
+argument the buffer is displayed in another window instead.
+
 @end table
+
+@defopt magit-diff-visit-previous-blob
+
+This option controls whether @code{magit-diff-visit-file} may visit the
+previous blob.  When this is @code{t} (the default) and point is on a
+removed line in a diff for a committed change, then
+@code{magit-diff-visit-file} visits the blob from the last revision which
+still had that line.
+
+Currently this is only supported for committed changes, for staged
+and unstaged changes @code{magit-diff-visit-file} always visits the file in
+the working tree.
+@end defopt
+
+@table @asis
+@kindex C-<return>
+@cindex magit-diff-visit-file-worktree
+@item @kbd{C-<return>} @tie{}@tie{}@tie{}@tie{}(@code{magit-diff-visit-file-worktree})
+
+This command visits the worktree version of the appropriate file.
+The location of point inside the diff determines which file is being
+visited.  Unlike @code{magit-diff-visit-file} it always visits the "real"
+file in the working tree, i.e the "current version" of the file.
+
+In the file-visiting buffer this command goes to the line that
+corresponds to the line that point is on in the diff.  Lines that
+were added or removed in the working tree, the index and other
+commits in between are automatically accounted for.
+
+The buffer is displayed in the selected window.  With a prefix
+argument the buffer is displayed in another window instead.
+@end table
+
+Variants of the above two commands exist that instead visit the file
+in another window or in another frame.  If you prefer such behavior,
+then you may want to change the above key bindings, but note that the
+above commands also use another window when invoked with a prefix
+argument.
+
+@cindex magit-diff-visit-file-other-window
+@deffn Command magit-diff-visit-file-other-window
+@end deffn
+@cindex magit-diff-visit-file-other-frame
+@deffn Command magit-diff-visit-file-other-frame
+@end deffn
+@cindex magit-diff-visit-worktree-file-other-window
+@deffn Command magit-diff-visit-worktree-file-other-window
+@end deffn
+@cindex magit-diff-visit-worktree-file-other-frame
+@deffn Command magit-diff-visit-worktree-file-other-frame
+@end deffn
 
 @node Blaming
 @section Blaming
@@ -4868,7 +5168,7 @@ temporary buffer until a suffix is invoked.
 
 Note that not all of the following suffixes are available at all
 times.  For example if @code{magit-blame-mode} is not enabled, then the
-command whose purpose is to turn of that mode would not be of any
+command whose purpose is to turn off that mode would not be of any
 use and therefore isn't available.
 
 @table @asis
@@ -5068,7 +5368,8 @@ This hook is run when moving between chunks.
 @chapter Manipulating
 
 @menu
-* Repository Setup::
+* Creating Repository::
+* Cloning Repository::
 * Staging and Unstaging::
 * Applying::
 * Committing::
@@ -5081,8 +5382,8 @@ This hook is run when moving between chunks.
 * Stashing::
 @end menu
 
-@node Repository Setup
-@section Repository Setup
+@node Creating Repository
+@section Creating Repository
 
 @table @asis
 @kindex M-x magit-init
@@ -5096,24 +5397,167 @@ If the directory is below an existing repository, then the user has
 to confirm that a new one should be created inside.  If the
 directory is the root of the existing repository, then the user has
 to confirm that it should be reinitialized.
+@end table
 
-@kindex M-x magit-clone
+@node Cloning Repository
+@section Cloning Repository
+
+To clone a remote or local repository use @code{C}, which is bound to the
+command @code{magit-clone}.  This command either act as a transient prefix
+command, which binds several infix arguments and suffix commands, or
+it can invoke @code{git clone} directly, depending on whether a prefix
+argument is used and on the value of @code{magit-clone-always-transient}.
+
+@defopt magit-clone-always-transient
+
+This option controls whether the command @code{magit-clone} always acts as
+a transient prefix command, regardless of whether a prefix argument
+is used or not.  If @code{t}, then that command always acts as a transient
+prefix.  If @code{nil}, then a prefix argument has to be used for it to act
+as a transient.
+@end defopt
+
+@table @asis
+@kindex C
 @cindex magit-clone
-@item @kbd{M-x magit-clone} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone})
+@item @kbd{C} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone})
 
-This command clones a repository and then shows the status buffer
-for the new repository.
+This command either acts as a transient prefix command as described
+above or does the same thing as @code{transient-clone-regular} as described
+below.
 
-The user is queried for a remote url and a local directory.
+If it acts as a transient prefix, then it binds the following suffix
+commands and several infix arguments.
+
+@kindex C C
+@cindex magit-clone-regular
+@item @kbd{C C} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-regular})
+
+This command creates a regular clone of an existing repository.
+The repository and the target directory are read from the user.
+
+@kindex C s
+@cindex magit-clone-shallow
+@item @kbd{C s} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-shallow})
+
+This command creates a shallow clone of an existing repository.
+The repository and the target directory are read from the user.
+By default the depth of the cloned history is a single commit,
+but with a prefix argument the depth is read from the user.
+
+@kindex C b
+@cindex magit-clone-bare
+@item @kbd{C b} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-bare})
+
+This command creates a bare clone of an existing repository.
+The repository and the target directory are read from the user.
+
+@kindex C m
+@cindex magit-clone-mirror
+@item @kbd{C m} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-mirror})
+
+This command creates a mirror of an existing repository.
+The repository and the target directory are read from the user.
+@end table
+
+The following suffixes are disabled by default. See
+@ref{Enabling and Disabling Suffixes,,,transient,} for how to enable them.
+
+@table @asis
+@kindex C d
+@cindex magit-clone-shallow-since
+@item @kbd{C d} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-shallow-since})
+
+This command creates a shallow clone of an existing repository.
+Only commits that were committed after a date are cloned, which
+is read from the user.  The repository and the target directory
+are also read from the user.
+
+@kindex C e
+@cindex magit-clone-shallow-exclude
+@item @kbd{C e} @tie{}@tie{}@tie{}@tie{}(@code{magit-clone-shallow-exclude})
+
+This command creates a shallow clone of an existing repository.
+This reads a branch or tag from the user.  Commits that are
+reachable from that are not cloned.  The repository and the target
+directory are also read from the user.
 
 @end table
 
+@defopt magit-clone-set-remote-head
+
+This option controls whether cloning causes the reference
+@code{refs/remotes/<remote>/HEAD} to be created in the clone.  The default
+is to do so.
+
+Actually @code{git clone} itself does that and cannot be told to not do it.
+Therefore setting this to @code{nil} causes Magit to remove that reference
+after cloning.
+@end defopt
+
 @defopt magit-clone-set-remote.pushDefault
 
-Whether to set the value of @code{remote.pushDefault} after cloning.
+This option controls whether the value of the Git variable
+@code{remote.pushDefault} is set after cloning.
 
-If @code{t}, then set without asking.  If @code{nil}, then don't set.  If @code{ask},
-then ask the user every time she clones a repository.
+@itemize
+@item
+If @code{t}, then it is always set without asking.
+
+@item
+If @code{ask}, then the users are asked every time they clone a
+repository.
+
+@item
+If @code{nil}, then it is never set.
+@end itemize
+@end defopt
+
+@defopt magit-clone-default-directory
+
+This option control the default directory name used when reading the
+destination for a cloning operation.
+
+@itemize
+@item
+If @code{nil} (the default), then the value of @code{default-directory} is used.
+
+@item
+If a directory, then that is used.
+
+@item
+If a function, then that is called with the remote url as the only
+argument and the returned value is used.
+@end itemize
+@end defopt
+
+@defopt magit-clone-name-alist
+
+This option maps regular expressions, which match repository names,
+to repository urls, making it possible for users to enter short
+names instead of urls when cloning repositories.
+
+Each element has the form @code{(REGEXP HOSTNAME USER)}.  When the user
+enters a name when a cloning command asks for a name or url, then
+that is looked up in this list.  The first element whose REGEXP
+matches is used.
+
+The format specified by option @code{magit-clone-url-format} is used to
+turn the name into an url, using HOSTNAME and the repository name.
+If the provided name contains a slash, then that is used.  Otherwise
+if the name omits the owner of the repository, then the default user
+specified in the matched entry is used.
+
+If USER contains a dot, then it is treated as a Git variable and the
+value of that is used as the username.  Otherwise it is used as the
+username itself.
+@end defopt
+
+@defopt magit-clone-url-format
+
+The format specified by this option is used when turning repository
+names into urls. @code{%h} is the hostname and @code{%n} is the repository name,
+including the name of the owner.
 @end defopt
 
 @node Staging and Unstaging
@@ -5997,6 +6441,14 @@ The commit at the other end of the selection actually does not
 matter, all commits between FROM and @code{HEAD} are moved to the new
 branch.  If FROM is not reachable from @code{HEAD} or is reachable from the
 source branch's upstream, then an error is raised.
+
+@kindex b S
+@cindex magit-branch-spinout
+@item @kbd{b S} @tie{}@tie{}@tie{}@tie{}(@code{magit-branch-spinout})
+
+This command behaves like @code{magit-branch-spinoff}, except that it does
+not change the current branch.  If there are any uncommitted changes,
+then it behaves exactly like @code{magit-branch-spinoff}.
 
 @kindex b x
 @cindex magit-branch-reset
@@ -6935,6 +7387,13 @@ that instead.  With a prefix argument insert a new command even when
 there already is one on the current line.  With empty input remove
 the command on the current line, if any.
 
+@kindex b
+@cindex git-rebase-break
+@item @kbd{b} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-break})
+
+Insert a break action before the current line, instructing Git to
+return control to the user.
+
 @kindex y
 @cindex git-rebase-insert
 @item @kbd{y} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-insert})
@@ -6964,6 +7423,45 @@ Whether to show usage instructions inside the rebase buffer.
 
 Whether confirmation is required to cancel.
 @end defopt
+
+When a rebase is performed with the @code{--rebase-merges} option, the
+sequence will include a few other types of actions and the following
+commands become relevant.
+
+@table @asis
+@kindex l
+@cindex git-rebase-label
+@item @kbd{l} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-label})
+
+This commands inserts a label action or edits the one at point.
+
+@kindex t
+@cindex git-rebase-reset
+@item @kbd{t} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-reset})
+
+This command inserts a reset action or edits the one at point.  The
+prompt will offer the labels that are currently present in the
+buffer.
+
+@kindex MM
+@cindex git-rebase-merge
+@item @kbd{MM} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-merge})
+
+The command inserts a merge action or edits the one at point.  The
+prompt will offer the labels that are currently present in the
+buffer.  Specifying a message to reuse via @code{-c} or @code{-C} is not
+supported; an editor will always be invoked for the merge.
+
+@kindex Mt
+@cindex git-rebase-merge-toggle-editmsg
+@item @kbd{Mt} @tie{}@tie{}@tie{}@tie{}(@code{git-rebase-merge-toggle-editmsg})
+
+This command toggles between the @code{-C} and @code{-c} options of the merge
+action at point.  These options both specify a commit whose message
+should be reused.  The lower-case variant instructs Git to invoke
+the editor when creating the merge, allowing the user to edit the
+message.
+@end table
 
 @node Information About In-Progress Rebase
 @subsection Information About In-Progress Rebase
@@ -7021,7 +7519,8 @@ The following words are used:
 @item
 Commits prefixed with @code{pick}, @code{reword}, @code{edit}, @code{squash}, and @code{fixup} have not
 been applied yet.  These words have the same meaning here as they do
-in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences}.
+in the buffer used to edit the rebase sequence.  See @ref{Editing Rebase Sequences}.  When the @code{--rebase-merges} option was specified,
+@code{reset}, @code{label}, and @code{merge} lines may also be present.
 
 
 @item
@@ -8180,7 +8679,6 @@ Inside @code{magit-diff-mode} or @code{magit-revision-mode} buffers, @code{C-x C
 also bound to this command.
 @end table
 
-FIXME
 It is also possible to save a plain patch file by using @code{C-x C-w} inside
 a @code{magit-diff-mode} or @code{magit-revision-mode} buffer.
 
@@ -9198,8 +9696,8 @@ file(s) is set to the visited file.
 
 This command shows the log for the file of blob that the current
 buffer visits.  Renames are followed when a prefix argument is used
-or when @code{--follow} is part of @code{magit-log-arguments}.  When the
-region is active, the log is restricted to the selected line range.
+or when @code{--follow} is an active log argument.  When the region is
+active, the log is restricted to the selected line range.
 
 @kindex C-c M-g t
 @cindex magit-log-trace-definition
@@ -9512,7 +10010,7 @@ should help.
 
 @lisp
 (setq auto-revert-buffer-list-filter
-      'magit-auto-revert-repository-buffers-p)
+      'magit-auto-revert-repository-buffer-p)
 @end lisp
 
 For alternative approaches see @ref{Automatic Reverting of File-Visiting Buffers}.
@@ -9550,10 +10048,8 @@ We actually work around this issue by limiting the number of commits
 not only by using @code{-<N>} but by also using a range.  But unfortunately
 that's not always possible.
 
-In repositories with more than a few thousand commits @code{--graph} should
-never be a member of @code{magit-log-section-arguments}.  That variable is
-used in the status buffer which is refreshed every time you run any
-Magit command.
+When more than a few thousand commits are shown, then the use of
+@code{--graph} can slow things down.
 
 Using @code{--color --graph} is even slower.  Magit uses code that is part of
 Emacs to turn control characters into faces.  That code is pretty slow

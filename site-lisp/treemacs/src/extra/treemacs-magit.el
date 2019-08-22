@@ -1,6 +1,6 @@
 ;;; treemacs-magit.el --- Magit integration for treemacs -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; Author: Alexander Miller <alexanderm@web.de>
 ;; Package-Requires: ((emacs "25.2") (treemacs "0.0") (pfuture "1.3" )(magit "2.90.0"))
@@ -74,7 +74,7 @@ filewatch-mode's mechanics to update the entire project."
             (dom-node (treemacs-find-in-dom project-root)))
        (when (and dom-node
                   (null (treemacs-dom-node->refresh-flag dom-node)))
-         (treemacs--set-refresh-flags project-root))))))
+         (treemacs--set-refresh-flags project-root 'magit-refresh project-root))))))
 
 (defun treemacs-magit--extended-git-mode-update (magit-root)
   "Update the project at the given MAGIT-ROOT.
@@ -129,8 +129,8 @@ Will update nodes under MAGIT-ROOT with output in PFUTURE-BUFFER."
               (while (and node
                           (file-exists-p path)
                           (>= curr-depth start-depth))
-                (put-text-property (button-start node) (button-end node) 'face
-                                   (treemacs--get-button-face
+                (put-text-property (treemacs-button-start node) (treemacs-button-end node) 'face
+                                   (treemacs--get-node-face
                                     path ht
                                     (if (memq (treemacs-button-get node :state)
                                               '(file-node-open file-node-closed))

@@ -43,9 +43,8 @@
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")
    ("-n" "Dry run"          ("-n" "--dry-run"))
-   ("-u" "Set upstream"     "--set-upstream"
-    :if-nil magit-remote-set-if-missing)
-   (7 "=t" "Follow tags" "--follow-tags")]
+   (5 "-u" "Set upstream"   "--set-upstream")
+   (7 "-t" "Follow tags"    "--follow-tags")]
   [:if magit-get-current-branch
    :description (lambda ()
                   (format (propertize "Push %s to" 'face 'transient-heading)
@@ -68,42 +67,107 @@
 
 (defun magit-git-push (branch target args)
   (run-hooks 'magit-credential-hook)
-  (pcase-let ((`(,remote . ,target)
+  ;; If the remote branch already exists, then we do not have to
+  ;; qualify the target, which we prefer to avoid doing because
+  ;; using the default namespace is wrong in obscure cases.
+  (pcase-let ((namespace (if (magit-get-tracked target) "" "refs/heads/"))
+              (`(,remote . ,target)
                (magit-split-branch-name target)))
     (magit-run-git-async "push" "-v" args remote
-                         (format "%s:refs/heads/%s" branch target))))
+                         (format "%s:%s%s" branch namespace target))))
 
 ;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
-(define-suffix-command magit-push-current-to-pushremote (args &optional set)
+(define-suffix-command magit-push-current-to-pushremote (args)
   "Push the current branch to its push-remote.
 
-When `magit-remote-set-if-missing' is non-nil and
-the push-remote is not configured, then read the push-remote from
-the user, set it, and then push to it.  With a prefix argument
-the push-remote can be changed before pushed to it."
-  :if 'magit--pushbranch-suffix-predicate
-  :description (lambda () (magit--pushbranch-suffix-description t))
-  (interactive (list (magit-push-arguments)
-                     (magit--transfer-maybe-read-pushremote "push")))
-  (magit--transfer-pushremote set
-    (lambda (_ branch remote/branch)
-      (magit-git-push branch remote/branch args))))
+When the push-remote is not configured, then read the push-remote
+from the user, set it, and then push to it.  With a prefix
+argument the push-remote can be changed before pushed to it."
+  :if 'magit-get-current-branch
+  :description 'magit-push--pushbranch-description
+  (interactive (list (magit-push-arguments)))
+  (pcase-let ((`(,branch ,remote)
+               (magit--select-push-remote "push there")))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-async "push" "-v" args remote
+                         (format "refs/heads/%s:refs/heads/%s"
+                                 branch branch)))) ; see #3847 and #3872
+
+(defun magit-push--pushbranch-description ()
+  (let* ((branch (magit-get-current-branch))
+         (target (magit-get-push-branch branch t))
+         (remote (magit-get-push-remote branch))
+         (v (magit--push-remote-variable branch t)))
+    (cond
+     (target)
+     ((member remote (magit-list-remotes))
+      (format "%s, creating it"
+              (magit--propertize-face (concat remote "/" branch)
+                                      'magit-branch-remote)))
+     (remote
+      (format "%s, replacing invalid" v))
+     (t
+      (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
-(define-suffix-command magit-push-current-to-upstream (args &optional set)
+(define-suffix-command magit-push-current-to-upstream (args)
   "Push the current branch to its upstream branch.
 
-When `magit-remote-set-if-missing' is non-nil and
-the upstream is not configured, then read the upstream from the
-user, set it, and then push to it.  With a prefix argument the
-upstream can be changed before pushed to it."
-  :if 'magit--upstream-suffix-predicate
-  :description (lambda () (magit--upstream-suffix-description t))
-  (interactive (list (magit-push-arguments)
-                     (magit--transfer-maybe-read-upstream "push")))
-  (magit--transfer-upstream set
-    (lambda (current upstream)
-      (magit-git-push current upstream args))))
+With a prefix argument or when the upstream is either not
+configured or unusable, then let the user first configure
+the upstream."
+  :if 'magit-get-current-branch
+  :description 'magit-push--upstream-description
+  (interactive (list (magit-push-arguments)))
+  (let* ((branch (or (magit-get-current-branch)
+                     (user-error "No branch is checked out")))
+         (remote (magit-get "branch" branch "remote"))
+         (merge  (magit-get "branch" branch "merge")))
+    (when (or current-prefix-arg
+              (not (or (magit-get-upstream-branch branch)
+                       (magit--unnamed-upstream-p remote merge)
+                       (magit--valid-upstream-p remote merge))))
+      (let* ((branches (-union (--map (concat it "/" branch)
+                                      (magit-list-remotes))
+                               (magit-list-remote-branch-names)))
+             (upstream (magit-completing-read
+                        (format "Set upstream of %s and push there" branch)
+                        branches nil nil nil 'magit-revision-history
+                        (or (car (member (magit-remote-branch-at-point) branches))
+                            (car (member "origin/master" branches)))))
+             (upstream (or (magit-get-tracked upstream)
+                           (magit-split-branch-name upstream))))
+        (setq remote (car upstream))
+        (setq merge  (cdr upstream))
+        (unless (string-prefix-p "refs/" merge)
+          ;; User selected a non-existent remote-tracking branch.
+          ;; It is very likely, but not certain, that this is the
+          ;; correct thing to do.  It is even more likely that it
+          ;; is what the user wants to happen.
+          (setq merge (concat "refs/heads/" merge))))
+      (cl-pushnew "--set-upstream" args :test #'equal))
+    (run-hooks 'magit-credential-hook)
+    (magit-run-git-async "push" "-v" args remote (concat branch ":" merge))))
+
+(defun magit-push--upstream-description ()
+  (when-let ((branch (magit-get-current-branch)))
+    (or (magit-get-upstream-branch branch)
+        (let ((remote (magit-get "branch" branch "remote"))
+              (merge  (magit-get "branch" branch "merge"))
+              (u (magit--propertize-face "@{upstream}" 'bold)))
+          (cond
+           ((magit--unnamed-upstream-p remote merge)
+            (format "%s as %s"
+                    (magit--propertize-face remote 'bold)
+                    (magit--propertize-face merge 'magit-branch-remote)))
+           ((magit--valid-upstream-p remote merge)
+            (format "%s creating %s"
+                    (magit--propertize-face remote 'magit-branch-remote)
+                    (magit--propertize-face merge 'magit-branch-remote)))
+           ((or remote merge)
+            (concat u ", creating it and replacing invalid"))
+           (t
+            (concat u ", creating it")))))))
 
 ;;;###autoload
 (defun magit-push-current (target args)
@@ -211,25 +275,25 @@ the popup buffer."
                                  (magit-remote-p "origin")))
                      (refspec (magit-get "remote" remote "push")))
             (format "%s using %s"
-                    (propertize remote  'face 'magit-branch-remote)
-                    (propertize refspec 'face 'bold)))
+                    (magit--propertize-face remote 'magit-branch-remote)
+                    (magit--propertize-face refspec 'bold)))
           (--when-let (and (not (magit-get-push-branch))
                            (magit-get-upstream-branch))
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{upstream}" 'face 'bold)))
+                    (magit--propertize-face "@{upstream}" 'bold)))
           (--when-let (magit-get-push-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "pushRemote" 'face 'bold)))
+                    (magit--propertize-face "pushRemote" 'bold)))
           (--when-let (magit-get-@{push}-branch)
             (format "%s aka %s\n"
                     (magit-branch-set-face it)
-                    (propertize "@{push}" 'face 'bold)))
+                    (magit--propertize-face "@{push}" 'bold)))
           (format "using %s (%s is %s)\n"
-                  (propertize "git push"     'face 'bold)
-                  (propertize "push.default" 'face 'bold)
-                  (propertize default        'face 'bold))))))
+                  (magit--propertize-face "git push"     'bold)
+                  (magit--propertize-face "push.default" 'bold)
+                  (magit--propertize-face default        'bold))))))
 
 ;;;###autoload
 (defun magit-push-to-remote (remote args)
@@ -248,7 +312,7 @@ these Git variables: `push.default', `remote.pushDefault',
   (magit-run-git-async "push" "-v" args remote))
 
 (defun magit-push-to-remote--desc ()
-  (format "using %s\n" (propertize "git push <remote>" 'face 'bold)))
+  (format "using %s\n" (magit--propertize-face "git push <remote>" 'bold)))
 
 ;;; _
 (provide 'magit-push)

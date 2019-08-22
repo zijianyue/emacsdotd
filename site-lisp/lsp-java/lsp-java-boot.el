@@ -4,6 +4,8 @@
 ;; Keywords: java
 ;; URL: https://github.com/emacs-lsp/lsp-java
 
+;; Package-Requires: ((emacs "25.1") (lsp-mode "6.0") (markdown-mode "2.3") (dash "2.14.1") (f "0.20.0") (ht "2.0") (dash-functional "1.2.0") (request "0.3.0"))
+
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -46,7 +48,7 @@
       (error "Please configure either JAVA_HOME or lsp-java-boot-java-tools-jar"))
     tools-jar))
 
-(defun lsp-java--sts-javadoc-hover-link (_workspace params)
+(defun lsp-java-boot--sts-javadoc-hover-link (_workspace params)
   "Handler for java doc hover."
   (with-lsp-workspace (lsp-find-workspace 'jdtls nil)
     (lsp-request "workspace/executeCommand"
@@ -61,15 +63,6 @@
                   (list :command "sts.java.addClasspathListener"
                         :arguments (gethash "callbackCommandId" params))
                   :no-wait t))))
-
-(defun lsp-java-boot--workspace-execute-client-command (_jdt-ls-workspace params)
-  "PARAMS is the classpath info."
-  (ignore
-   (with-lsp-workspace (lsp-find-workspace 'boot-ls nil)
-     (-let (((&hash "command" "arguments") params))
-       (lsp-request "workspace/executeCommand"
-                    (list :command command :arguments arguments)
-                    :no-wait t)))))
 
 (defun lsp-java-boot--lens-backend (_ callback)
   "Boot backend.
@@ -92,13 +85,13 @@ Store CALLBACK to use it `sts/highlight'."
 
 (cl-defmethod lsp-execute-command
   (server (command (eql sts.open.url)) params)
-  (browse-url (first params)))
+  (browse-url (seq-first params)))
 
 (cl-defmethod lsp-execute-command (server (command (eql sts.showHoverAtPosition)) params)
-  (goto-char (lsp--position-to-point (first params)))
+  (goto-char (lsp--position-to-point (seq-first params)))
   (lsp-describe-thing-at-point))
 
-(defun lsp-java-boot--sts/hightlight (workspace params)
+(defun lsp-java-boot--sts-hightlight (workspace params)
   "WORKSPACE PARAMS."
   (with-lsp-workspace workspace
     (-let (((&hash "doc" (&hash "uri" "version") "codeLenses" code-lenses) params))
@@ -118,15 +111,18 @@ Store CALLBACK to use it `sts/highlight'."
 
 (defun lsp-java-boot--ls-command (port)
   "Create LS command for PORT."
-  (list lsp-java-java-path
-        (format "-Dloader.path=%s" (lsp-java-boot--find-tools-jar))
-        (format "-Dspring.lsp.client-port=%s" port)
-        (format "-Dserver.port=%s" port)
-        "-Dsts.lsp.client=vscode"
-        (concat "-Dsts.log.file=" (make-temp-file "sts-log-file" nil ".log"))
-        (concat "-Dlogging.file=" (make-temp-file "logging-file" nil ".log"))
-        "-jar"
-        (lsp-java-boot--server-jar)))
+  (-filter 'identity
+           (list lsp-java-java-path
+                 (unless (lsp-java--java-9-plus-p)
+                   (format "-Dloader.path=%s" (lsp-java-boot--find-tools-jar)))
+                 (format "-Dspring.lsp.client-port=%s" port)
+                 (format "-Dserver.port=%s" port)
+                 ;; "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044,quiet=y"
+                 "-Dsts.lsp.client=vscode"
+                 (concat "-Dsts.log.file=" (make-temp-file "sts-log-file" nil ".log"))
+                 (concat "-Dlogging.file=" (make-temp-file "logging-file" nil ".log"))
+                 "-jar"
+                 (lsp-java-boot--server-jar))))
 
 (lsp-register-client
  (make-lsp-client :new-connection
@@ -136,8 +132,8 @@ Store CALLBACK to use it `sts/highlight'."
                                         (memq major-mode '(java-mode conf-javaprop-mode yaml-mode))
                                         (lsp-java-boot--server-jar)))
                   :request-handlers  (ht ("sts/addClasspathListener" #'lsp-java-boot--sts-add-classpath-listener)
-                                         ("sts/javadocHoverLink" #'lsp-java--sts-javadoc-hover-link))
-                  :notification-handlers  (ht ("sts/highlight" #'lsp-java-boot--sts/hightlight)
+                                         ("sts/javadocHoverLink" #'lsp-java-boot--sts-javadoc-hover-link))
+                  :notification-handlers  (ht ("sts/highlight" #'lsp-java-boot--sts-hightlight)
                                               ("sts/progress" #'ignore))
                   :initialized-fn (lambda (workspace)
                                     (puthash
@@ -146,7 +142,8 @@ Store CALLBACK to use it `sts/highlight'."
                                      (gethash "completionProvider" (lsp--workspace-server-capabilities workspace))))
                   :multi-root t
                   :add-on? t
-                  :server-id 'boot-ls))
+                  :server-id 'boot-ls
+                  :completion-in-comments? t))
 
 (provide 'lsp-java-boot)
 ;;; lsp-java-boot.el ends here

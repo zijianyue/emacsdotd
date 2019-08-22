@@ -29,8 +29,6 @@
 (require 'magit)
 
 (defvar x-stretch-cursor)
-(defvar bookmark-make-record-function)
-
 ;;; Options
 
 (defcustom magit-module-sections-hook
@@ -147,7 +145,7 @@ and also setting this variable to t will lead to tears."
   ())
 
 (cl-defmethod transient-format-description ((obj magit--git-submodule-suffix))
-  (let ((value (transient-args transient--prefix)))
+  (let ((value (delq nil (mapcar 'transient-infix-value transient--suffixes))))
     (replace-regexp-in-string
      "\\[--[^]]+\\]"
      (lambda (match)
@@ -193,6 +191,9 @@ it is nil, then PATH also becomes the name."
              (directory-file-name path)
              (magit-submodule-read-name-for-path path)
              (magit-submodule-arguments "--force")))))
+  (magit-submodule-add-1 url path name args))
+
+(defun magit-submodule-add-1 (url &optional path name args)
   (magit-with-toplevel
     (magit-submodule--maybe-reuse-gitdir name path)
     (magit-run-git-async "submodule" "add"
@@ -410,7 +411,8 @@ whether they are wrapped in an additional section."
         (magit-insert-section (modules nil t)
           (magit-insert-heading
             (format "%s (%s)"
-                    (propertize "Modules" 'face 'magit-section-heading)
+                    (propertize "Modules"
+                                'font-lock-face 'magit-section-heading)
                     (length modules)))
           (magit-insert-section-body
             (magit--insert-modules)))
@@ -428,7 +430,8 @@ or, failing that, the abbreviated HEAD commit hash."
     (magit-insert-section (modules nil t)
       (magit-insert-heading
         (format "%s (%s)"
-                (propertize "Modules overview" 'face 'magit-section-heading)
+                (propertize "Modules overview"
+                            'font-lock-face 'magit-section-heading)
                 (length modules)))
       (magit-insert-section-body
         (magit--insert-modules-overview)))))
@@ -447,20 +450,21 @@ or, failing that, the abbreviated HEAD commit hash."
                 (expand-file-name (file-name-as-directory module))))
           (magit-insert-section (magit-module-section module t)
             (insert (propertize (format path-format module)
-                                'face 'magit-diff-file-heading))
+                                'font-lock-face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
                 (insert "(unpopulated)")
-              (insert (format branch-format
-                              (--if-let (magit-get-current-branch)
-                                  (propertize it 'face 'magit-branch-local)
-                                (propertize "(detached)" 'face 'warning))))
+              (insert (format
+                       branch-format
+                       (--if-let (magit-get-current-branch)
+                           (propertize it 'font-lock-face 'magit-branch-local)
+                         (propertize "(detached)" 'font-lock-face 'warning))))
               (--if-let (magit-git-string "describe" "--tags")
                   (progn (when (and magit-modules-overview-align-numbers
                                     (string-match-p "\\`[0-9]" it))
                            (insert ?\s))
-                         (insert (propertize it 'face 'magit-tag)))
+                         (insert (propertize it 'font-lock-face 'magit-tag)))
                 (--when-let (magit-rev-format "%h")
-                  (insert (propertize it 'face 'magit-hash)))))
+                  (insert (propertize it 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
 
@@ -547,8 +551,12 @@ These sections can be expanded to show the respective commits."
       (magit-insert-section section ((eval type) nil t)
         (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
         (magit-insert-heading
-          (propertize (match-string 1 heading) 'face 'magit-section-heading) " "
-          (propertize (match-string 2 heading) 'face 'magit-branch-remote) ":")
+          (propertize (match-string 1 heading)
+                      'font-lock-face 'magit-section-heading)
+          " "
+          (propertize (match-string 2 heading)
+                      'font-lock-face 'magit-branch-remote)
+          ":")
         (magit-with-toplevel
           (dolist (module modules)
             (when (magit-module-worktree-p module)
@@ -557,7 +565,9 @@ These sections can be expanded to show the respective commits."
                 (when (magit-file-accessible-directory-p default-directory)
                   (magit-insert-section sec (magit-module-section module t)
                     (magit-insert-heading
-                      (propertize module 'face 'magit-diff-file-heading) ":")
+                      (propertize module
+                                  'font-lock-face 'magit-diff-file-heading)
+                      ":")
                     (magit-git-wash
                         (apply-partially 'magit-log-wash-log 'module)
                       "-c" "push.default=current" "log" "--oneline" range)
@@ -576,7 +586,7 @@ These sections can be expanded to show the respective commits."
   "Display a list of the current repository's submodules."
   (interactive)
   (magit-display-buffer
-   (or (magit-mode-get-buffer 'magit-submodule-list-mode)
+   (or (magit-get-mode-buffer 'magit-submodule-list-mode)
        (magit-with-toplevel
          (magit-generate-new-buffer 'magit-submodule-list-mode))))
   (magit-submodule-list-mode)
@@ -605,9 +615,7 @@ These sections can be expanded to show the respective commits."
   (setq imenu-prev-index-position-function
         #'magit-imenu--submodule-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        #'magit-imenu--submodule-extract-index-name-function)
-  (setq-local bookmark-make-record-function
-              #'magit-bookmark--submodules-make-record))
+        #'magit-imenu--submodule-extract-index-name-function))
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries
@@ -650,7 +658,7 @@ These sections can be expanded to show the respective commits."
   (with-temp-file (expand-file-name ".git" worktree)
     (insert "gitdir: " (file-relative-name gitdir worktree) "\n"))
   (let ((default-directory worktree))
-    (magit-call-git "reset" "--hard" "HEAD")))
+    (magit-call-git "reset" "--hard" "HEAD" "--")))
 
 ;;; _
 (provide 'magit-submodule)

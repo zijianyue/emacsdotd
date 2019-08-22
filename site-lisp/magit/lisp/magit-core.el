@@ -36,7 +36,16 @@
 (require 'magit-mode)
 (require 'magit-margin)
 (require 'magit-process)
+(require 'magit-transient)
 (require 'magit-autorevert)
+
+(when (magit--libgit-available-p)
+  (condition-case err
+      (require 'magit-libgit)
+    (error
+     (setq magit-inhibit-libgit 'error)
+     (message "Error while loading `magit-libgit': %S" err)
+     (message "That is not fatal.  The `libegit2' module just won't be used."))))
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -58,7 +67,7 @@ Each of these options falls into one or more of these categories:
   :group 'magit)
 
 (defgroup magit-miscellaneous nil
-  "Miscellanous Magit options."
+  "Miscellaneous Magit options."
   :group 'magit)
 
 (defgroup magit-commands nil

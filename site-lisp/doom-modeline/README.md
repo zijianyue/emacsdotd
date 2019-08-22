@@ -7,8 +7,9 @@
 
 A fancy and fast mode-line inspired by minimalism design.
 
-It's integrated into [Doom Emacs](https://github.com/hlissner/doom-emacs) and
-[Centaur Emacs](https://github.com/seagle0128/.emacs.d).
+It's integrated into [Centaur Emacs](https://github.com/seagle0128/.emacs.d), [Doom
+Emacs](https://github.com/hlissner/doom-emacs) and
+[Spacemacs](https://github.com/syl20bnr/spacemacs).
 
 ## Feature
 
@@ -24,10 +25,8 @@ The `doom-modeline` was designed for minimalism, and offers:
 - A workspace number segment for `eyebrowse`
 - A perspective name segment for `persp-mode`
 - A window number segment for `ace-window`, `winum` and `window-numbering`
-- An indicator for `evil` state
-- An indicator for `god` state
-- An indicator for `ryo-modal` state
-- An indicator for `xah-fly-keys` state
+- An indicator for modal editing state, including `evil`, `overwrite`, `god`,
+  `ryo` and `xah-fly-keys`, etc.
 - An indicator for remote host
 - An indicator for debug state
 - An indicator for current input method
@@ -37,10 +36,14 @@ The `doom-modeline` was designed for minimalism, and offers:
 - An indicator for irc notifications with `circe`
 - An indicator for buffer position which is compatible with `nyan-mode`
 - An indicator for party parrot
-- An indicator for PDF page number
+- An indicator for PDF page number with `pdf-tools`
 - An indicator for battery status with `fancy-battery`
 - Truncated file name, file icon, buffer state and project name in buffer
   information segment, which is compatible with `projectile` and `project`
+- New mode-line for `Info-mode` buffers
+- New package mode-line for `paradox`
+- New mode-line for `helm` buffers
+- New mode-line for `git-timemachine` buffers
   
 ## Screenshots
 
@@ -92,6 +95,15 @@ The `doom-modeline` was designed for minimalism, and offers:
 ![battery](https://user-images.githubusercontent.com/140797/53593622-ba35d200-3bcb-11e9-85b3-38d64d05c127.png
 "Fancy Battery")
 
+![package](https://user-images.githubusercontent.com/140797/57503916-e769d380-7324-11e9-906d-44c79f7408a3.png
+"Package")
+
+![info](https://user-images.githubusercontent.com/140797/57506248-d96c8080-732d-11e9-8167-644c8fc4e0db.png
+"Info")
+
+![helm](https://user-images.githubusercontent.com/140797/57506112-6531dd00-732d-11e9-8a5e-22166f42dd4c.png
+"Helm")
+
 ## Install
 
 ### Manual
@@ -122,11 +134,14 @@ Strongly recommend to use
 
 ## Customize
 
+Run `M-x customize-group RET doom-modeline RET` or set the variables.
+
 ``` emacs-lisp
-;; How tall the mode-line should be (only respected in GUI Emacs).
+;; How tall the mode-line should be. It's only respected in GUI.
+;; If the actual char height is larger, it respects the actual height.
 (setq doom-modeline-height 25)
 
-;; How wide the mode-line bar should be (only respected in GUI Emacs).
+;; How wide the mode-line bar should be. It's only respected in GUI.
 (setq doom-modeline-bar-width 3)
 
 ;; Determines the style used by `doom-modeline-buffer-file-name'.
@@ -148,26 +163,46 @@ Strongly recommend to use
 ;; Please refer to https://github.com/bbatsov/projectile/issues/657.
 (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
 
-;; Whether show `all-the-icons' or not (if nil nothing will be showed).
-(setq doom-modeline-icon t)
+;; Whether display icons in mode-line or not.
+(setq doom-modeline-icon (display-graphic-p))
 
-;; Whether show the icon for major mode. It respects `doom-modeline-icon'.
+;; Whether display the icon for major mode. It respects `doom-modeline-icon'.
 (setq doom-modeline-major-mode-icon t)
 
-;; Display color icons for `major-mode'. It respects `all-the-icons-color-icons'.
-(setq doom-modeline-major-mode-color-icon nil)
+;; Whether display color icons for `major-mode'. It respects
+;; `doom-modeline-icon' and `all-the-icons-color-icons'.
+(setq doom-modeline-major-mode-color-icon t)
 
-;; Whether display minor modes or not. Non-nil to display in mode-line.
-(setq doom-modeline-minor-modes nil)
+;; Whether display icons for buffer states. It respects `doom-modeline-icon'.
+(setq doom-modeline-buffer-state-icon t)
+
+;; Whether display buffer modification icon. It respects `doom-modeline-icon'
+;; and `doom-modeline-buffer-state-icon'.
+(setq doom-modeline-buffer-modification-icon t)
+
+;; Whether display minor modes in mode-line or not.
+(setq doom-modeline-minor-modes (featurep 'minions))
 
 ;; If non-nil, a word count will be added to the selection-info modeline segment.
 (setq doom-modeline-enable-word-count nil)
 
+;; Whether display buffer encoding.
+(setq doom-modeline-buffer-encoding t)
+
+;; Whether display indentation information.
+(setq doom-modeline-indent-info nil)
+
 ;; If non-nil, only display one number for checker information if applicable.
 (setq doom-modeline-checker-simple-format t)
-  
+
+;; The maximum displayed length of the branch name of version control.
+(setq doom-modeline-vcs-max-length 12)
+
 ;; Whether display perspective name or not. Non-nil to display in mode-line.
 (setq doom-modeline-persp-name t)
+
+;; Whether display icon for persp name. Nil to display a # sign. It respects `doom-modeline-icon'
+(setq doom-modeline-persp-name-icon nil)
 
 ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
 (setq doom-modeline-lsp t)
@@ -177,6 +212,15 @@ Strongly recommend to use
 
 ;; The interval of checking github.
 (setq doom-modeline-github-interval (* 30 60))
+
+;; Whether display mu4e notifications or not. Requires `mu4e-alert' package.
+(setq doom-modeline-mu4e t)
+
+;; Whether display irc notifications or not. Requires `circe' package.
+(setq doom-modeline-irc t)
+
+;; Function to stylize the irc buffer names.
+(setq doom-modeline-irc-stylize 'identity)
 
 ;; Whether display environment version or not
 (setq doom-modeline-env-version t)
@@ -189,28 +233,26 @@ Strongly recommend to use
 (setq doom-modeline-env-enable-rust t)
 
 ;; Change the executables to use for the language version string
-(setq doom-modeline-env-python-executable "python")
+(setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
 (setq doom-modeline-env-ruby-executable "ruby")
 (setq doom-modeline-env-perl-executable "perl")
 (setq doom-modeline-env-go-executable "go")
 (setq doom-modeline-env-elixir-executable "iex")
 (setq doom-modeline-env-rust-executable "rustc")
 
-;; Whether display mu4e notifications or not. Requires `mu4e-alert' package.
-(setq doom-modeline-mu4e t)
+;; What to dispaly as the version while a new one is being loaded
+(setq doom-modeline-env-load-string "...")
 
-;; Whether display irc notifications or not. Requires `circe' package.
-(setq doom-modeline-irc t)
-
-;; Function to stylize the irc buffer names.
-(setq doom-modeline-irc-stylize 'identity)
+;; Hooks that run before/after the modeline version string is updated
+(setq doom-modeline-before-update-env-hook nil)
+(setq doom-modeline-after-update-env-hook nil)
 ```
 
 ## FAQ
 
-1. I am experiencing the laggy issue on Windows, how to resolve it?
+1. I am experiencing the laggy issue, how to resolve it?
 
-   You need to add this configuration into your init file.
+   Add this configuration into your init file:
 
    ``` emacs-lisp
    ;; Don’t compact font caches during GC.
@@ -267,3 +309,20 @@ Strongly recommend to use
 
    (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
    ```
+
+1. How to specify font size in modeline?
+
+    For example:
+
+    ``` emacs-lisp
+    (setq doom-modeline-height 1)
+    (set-face-attribute 'mode-line nil :height 100)
+    (set-face-attribute 'mode-line-inactive nil :height 100)
+    ```
+    or
+    ```emacs-lisp
+    (custom-set-faces
+      '(mode-line ((t (:height 0.9))))
+      '(mode-line-inactive ((t (:height 0.9)))))
+    ```
+    Please refer to [#189](https://github.com/seagle0128/doom-modeline/issues/189).

@@ -1,6 +1,6 @@
 ;;; treemacs-test.el --- Tests for treemacs
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
             (let* ((imenu-auto-rescan t)
                    (org-imenu-depth 10)
                    (treemacs-collapse-dirs 3)
-                   (project (make-treemacs-project :name "Test Project" :path (concat treemacs-dir "/test")))
+                   (project (make-treemacs-project :name "Test Project" :path (concat treemacs-dir "/test") :path-status 'local-readable))
                    (workspace (make-treemacs-workspace :name "Test Workspace" :projects (list project)))
                    (workspaces treemacs--workspaces))
               (treemacs--with-workspace workspace

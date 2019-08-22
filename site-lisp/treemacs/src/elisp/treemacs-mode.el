@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,24 +20,56 @@
 
 ;;; Code:
 
+(require 'eldoc)
 (require 's)
 (require 'f)
 (require 'hydra)
 (require 'treemacs-interface)
 (require 'treemacs-customization)
 (require 'treemacs-faces)
-(require 'treemacs-impl)
+(require 'treemacs-core-utils)
 (require 'treemacs-icons)
 (require 'treemacs-persistence)
 (require 'treemacs-dom)
 (require 'treemacs-workspaces)
+(require 'treemacs-visuals)
 (eval-and-compile (require 'treemacs-macros))
+(with-eval-after-load 'bookmark
+  (require 'treemacs-bookmarks))
 
 (treemacs-import-functions-from  "treemacs"
   treemacs-refresh
   treemacs-version)
+(treemacs-import-functions-from "treemacs-bookmarks"
+  treemacs-add-bookmark
+  treemacs--make-bookmark-record)
 
 (declare-function treemacs--helpful-hydra/body "treemacs-mode")
+
+(defvar bookmark-make-record-function)
+
+(defvar-local treemacs--eldoc-msg nil
+  "Message to be output by `treemacs--eldoc-function'.
+Will be set by `treemacs--post-command'.")
+
+(defconst treemacs--eldoc-obarray
+  (-let [ob (make-vector 59 0)]
+    (mapatoms
+     (lambda (cmd) (set (intern (symbol-name cmd) ob) t))
+     eldoc-message-commands)
+    (dolist (cmd '(treemacs-next-line
+                   treemacs-previous-line
+                   treemacs-next-neighbour
+                   treemacs-previous-neighbour
+                   treemacs-next-project
+                   treemacs-previous-project
+                   treemacs-goto-parent-node
+                   treemacs-TAB-action
+                   treemacs-select-window
+                   treemacs-leftclick-action))
+      (set (intern (symbol-name cmd) ob) t))
+    ob)
+  "Treemacs' own eldoc obarray.")
 
 (cl-defun treemacs--find-keybind (func &optional (pad 8))
   "Find the keybind for FUNC in treemacs.
@@ -90,6 +122,7 @@ to it will instead show a blank."
              (key-open-ace-h     (treemacs--find-keybind #'treemacs-visit-node-ace-horizontal-split))
              (key-open-ace-v     (treemacs--find-keybind #'treemacs-visit-node-ace-vertical-split))
              (key-open-ext       (treemacs--find-keybind #'treemacs-visit-node-in-external-application))
+             (key-open-mru       (treemacs--find-keybind #'treemacs-visit-node-in-most-recently-used-window))
              (key-create-file    (treemacs--find-keybind #'treemacs-create-file))
              (key-create-dir     (treemacs--find-keybind #'treemacs-create-dir))
              (key-rename         (treemacs--find-keybind #'treemacs-rename))
@@ -128,6 +161,7 @@ to it will instead show a blank."
 %s down next window │ %s open ace            │ %s move        │ %s fringe indicator │                           │ %s bookmark
 %s up next window   │ %s open ace horizontal │                    │                         │                           │
                         │ %s open ace vertical   │                    │                         │                           │
+                        │ %s open mru window     │                    │                         │                           │
                         │ %s open externally     │                    │                         │                           │
                         │ %s close parent        │                    │                         │                           │
 "
@@ -141,6 +175,7 @@ to it will instead show a blank."
                (car key-down-next-w)    (car key-open-ace)    (car key-move-file)    (car key-fringe-mode)                            (car key-bookmark)
                (car key-up-next-w)      (car key-open-ace-h)
                                         (car key-open-ace-v)
+                                        (car key-open-mru)
                                         (car key-open-ext)
                                         (car key-close-above)
                )))
@@ -162,6 +197,7 @@ to it will instead show a blank."
               (,(cdr key-open-ace)       #'treemacs-visit-node-ace)
               (,(cdr key-open-ace-h)     #'treemacs-visit-node-ace-horizontal-split)
               (,(cdr key-open-ace-v)     #'treemacs-visit-node-ace-vertical-split)
+              (,(cdr key-open-mru)       #'treemacs-visit-node-in-most-recently-used-window)
               (,(cdr key-open-ext)       #'treemacs-visit-node-in-external-application)
               (,(cdr key-create-file)    #'treemacs-create-file)
               (,(cdr key-create-dir)     #'treemacs-create-dir)
@@ -203,6 +239,15 @@ to it will instead show a blank."
       (define-key map (kbd "c a")   #'treemacs-collapse-all-projects)
       map)
     "Keymap for project-related commands in `treemacs-mode'.")
+  (defvar treemacs-workspace-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "r")     #'treemacs-rename-workspace)
+      (define-key map (kbd "a")     #'treemacs-create-workspace)
+      (define-key map (kbd "d")     #'treemacs-remove-workspace)
+      (define-key map (kbd "s")     #'treemacs-switch-workspace)
+      (define-key map (kbd "e")     #'treemacs-edit-workspaces)
+      map)
+    "Keymap for workspace-related commands in `treemacs-mode'.")
   (defvar treemacs-node-visit-map
     (let ((map (make-sparse-keymap)))
       (define-key map (kbd "v")        #'treemacs-visit-node-vertical-split)
@@ -211,6 +256,7 @@ to it will instead show a blank."
       (define-key map (kbd "aa")       #'treemacs-visit-node-ace)
       (define-key map (kbd "ah")       #'treemacs-visit-node-ace-horizontal-split)
       (define-key map (kbd "av")       #'treemacs-visit-node-ace-vertical-split)
+      (define-key map (kbd "r")        #'treemacs-visit-node-in-most-recently-used-window)
       (define-key map (kbd "x")        #'treemacs-visit-node-in-external-application)
       map)
     "Keymap for node-visiting commands in `treemacs-mode'.")
@@ -234,7 +280,8 @@ to it will instead show a blank."
   (defvar treemacs-mode-map
     (let ((map (make-sparse-keymap)))
       (define-key map (kbd "?")         #'treemacs-helpful-hydra)
-      (define-key map [mouse-1]         #'treemacs-leftclick-action)
+      (define-key map [down-mouse-1]    #'treemacs-leftclick-action)
+      (define-key map [drag-mouse-1]    #'treemacs-dragleftclick-action)
       (define-key map [double-mouse-1]  #'treemacs-doubleclick-action)
       (define-key map [mouse-3]         #'treemacs-rightclick-menu)
       (define-key map [tab]             #'treemacs-TAB-action)
@@ -267,6 +314,7 @@ to it will instead show a blank."
       (define-key map (kbd "s")         #'treemacs-resort)
       (define-key map (kbd "b")         #'treemacs-add-bookmark)
       (define-key map (kbd "C-c C-p")   treemacs-project-map)
+      (define-key map (kbd "C-c C-w")   treemacs-workspace-map)
       (define-key map (kbd "<M-up>")    #'treemacs-move-project-up)
       (define-key map (kbd "<M-down>")  #'treemacs-move-project-down)
       (define-key map (kbd "<backtab>") #'treemacs-collapse-all-projects)
@@ -298,21 +346,31 @@ to it will instead show a blank."
               (t
                '(" Treemacs ")))))
 
-(defun treemacs--set-default-directory ()
+(defun treemacs--post-command ()
   "Set the default directory to the nearest directory of the current node.
-If there is no node at point use \"/\" instead.
+If there is no node at point use \"~/\" instead.
+Also skip hidden buttons (as employed by variadic extensions).
 
 Used as a post command hook."
-  (-if-let* ((btn  (treemacs-current-button))
-             (path (or (treemacs-button-get btn :default-directory)
-                       (treemacs--nearest-path btn))))
-      (when (and (stringp path)
-                 (file-readable-p path))
-        (setq default-directory (f-slash (if (file-directory-p path) path (file-name-directory path))))
-        (when treemacs-eldoc-display
-          (put-text-property 0 (length path) 'face 'font-lock-string-face path)
-          (message path)))
-    "/"))
+  (-when-let (btn (treemacs-current-button))
+    (when (treemacs-button-get btn 'invisible)
+      (treemacs-next-line 1))
+    (-if-let* ((project (treemacs-project-of-node btn))
+               (path (or (treemacs-button-get btn :default-directory)
+                         (treemacs--nearest-path btn))))
+        (when (and (treemacs-project->is-readable? project)
+                   (file-readable-p path))
+          (setq treemacs--eldoc-msg path
+                default-directory (treemacs--add-trailing-slash
+                                   (if (file-directory-p path) path (file-name-directory path)))))
+      (setq treemacs--eldoc-msg nil
+            default-directory "~/"))))
+
+(defun treemacs--eldoc-function ()
+  "Treemacs' implementation of `eldoc-documentation-function'.
+Will simply return `treemacs--eldoc-msg'."
+  (when (and treemacs-eldoc-display treemacs--eldoc-msg)
+    (propertize treemacs--eldoc-msg 'face 'font-lock-string-face)))
 
 ;;;###autoload
 (define-derived-mode treemacs-mode special-mode "Treemacs"
@@ -337,10 +395,15 @@ Used as a post command hook."
   ;; and make a switch to visual state
   (setq-local double-click-fuzz 15)
   (setq-local show-paren-mode nil)
+  (setq-local eldoc-documentation-function #'treemacs--eldoc-function)
+  (setq-local eldoc-message-commands treemacs--eldoc-obarray)
+  ;; integrate with bookmark.el
+  (setq-local bookmark-make-record-function #'treemacs--make-bookmark-record)
   (electric-indent-local-mode -1)
   (visual-line-mode -1)
   (font-lock-mode -1)
   (jit-lock-mode nil)
+  (buffer-disable-undo)
   ;; fringe indicator must be set up right here, before hl-line-mode, since activating hl-line-mode will
   ;; invoke the movement of the fringe overlay that would otherwise be nil
   (when treemacs-fringe-indicator-mode
@@ -356,9 +419,11 @@ Used as a post command hook."
   (add-hook 'kill-buffer-hook #'treemacs--on-buffer-kill nil t)
   ;; (add-hook 'after-make-frame-functions #'treemacs--remove-treemacs-window-in-new-frames)
   (add-to-list 'delete-frame-functions #'treemacs--on-frame-kill)
-  (add-hook 'post-command-hook #'treemacs--set-default-directory nil t)
+  (add-hook 'post-command-hook #'treemacs--post-command nil t)
 
-  (treemacs--adjust-icons-to-window-system)
+
+  (treemacs--build-indentation-cache 6)
+  (treemacs--select-icon-set)
   (treemacs--setup-icon-highlight)
   (treemacs--setup-icon-background-colors)
   (treemacs--setup-mode-line)
@@ -370,8 +435,12 @@ Used as a post command hook."
 Must be run as advice to prevent changing of the major mode.
 Will run original MODE-ACTIVATION and its ARGS only when
 `treemacs--in-this-buffer' is non-nil."
-  (if treemacs--in-this-buffer
-      (apply mode-activation args)
+  (cond
+   (treemacs--in-this-buffer
+    (apply mode-activation args))
+   ((eq major-mode 'treemacs-mode)
+    (ignore "Reactivating the major-mode resets buffer-local variables."))
+   (t
     (switch-to-buffer (get-buffer-create "*Clippy*"))
     (erase-buffer)
     (insert
@@ -379,8 +448,10 @@ Will run original MODE-ACTIVATION and its ARGS only when
       "
  --------------------------------------------------------------------------------------
  | It looks like you are trying to run treemacs. Would you like some help with that?  |
- | You have called %s, but this only the major mode for treemacs' buffers, |
- | it is not meant to be used manually. Instead you should call a function like       |
+ | You have called %s, but that is just the major mode for treemacs'       |
+ | buffers, it is not meant to be used manually.                                      |
+ |                                                                                    |
+ | Instead you should call a function like                                            |
  |  * %s,                                                                       |
  |  * %s, or                                                      |
  |  * %s                                        |
@@ -404,7 +475,7 @@ Will run original MODE-ACTIVATION and its ARGS only when
    || |/
    || ||
    |\\_/|
-   \\___/" 'face 'font-lock-keyword-face)))))
+   \\___/" 'face 'font-lock-keyword-face))))))
 
 (advice-add #'treemacs-mode :around #'treemacs--mode-check-advice)
 

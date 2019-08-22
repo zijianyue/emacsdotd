@@ -31,17 +31,23 @@
 
 ;;; Obsolete since v2.91.0
 
-(define-obsolete-variable-alias 'magit-branch-popup-show-variables
-  magit-branch-direct-configure "Magit 2.91.0")
+(define-obsolete-function-alias 'magit-diff-visit-file-worktree
+  'magit-diff-visit-worktree-file "Magit 2.91.0")
 
-(define-obsolete-variable-alias 'magit-remote-popup-show-variables
-  magit-remote-direct-configure "Magit 2.91.0")
+(define-obsolete-function-alias 'magit-status-internal
+  'magit-status-setup-buffer "Magit 2.91.0")
+
+(define-obsolete-variable-alias 'magit-mode-setup-hook
+  'magit-setup-buffer-hook "Magit 2.91.0")
+
+(define-obsolete-variable-alias 'magit-branch-popup-show-variables
+  'magit-branch-direct-configure "Magit 2.91.0")
 
 (define-obsolete-function-alias 'magit-dispatch-popup
   'magit-dispatch "Magit 2.91.0")
 
-(define-obsolete-variable-alias 'magit-push-current-set-remote-if-missing
-  'magit-remote-set-if-missing "Magit 2.91.0")
+(define-obsolete-function-alias 'magit-repolist-column-dirty
+  'magit-repolist-column-flag "Magit 2.91.0")
 
 (defun magit--magit-popup-warning ()
   (display-warning 'magit "\
@@ -70,7 +76,10 @@ that for.
 * If you add additional arguments and/or actions to Magit's popups,
   then you have to port that to modify the new \"transients\" instead.
   See https://github.com/magit/magit/wiki/\
-Converting-popup-modifications-to-transient-modifications"))
+Converting-popup-modifications-to-transient-modifications
+
+To find installed packages that still use `magit-popup' you can
+use e.g. \"M-x rgrep RET magit-popup RET RET ~/.emacs.d/ RET\"."))
 (cl-eval-when (eval load)
   (unless (require 'magit-popup nil t)
     (defun magit-define-popup-switch (&rest _)

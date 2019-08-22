@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Alexander Miller
+;; Copyright (C) 2019 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 ;;; Commentary:
 ;;; General purpose macros, and those used in, but defined outside of
-;;; treemacs-impl.el are put here, to prevent using them before their
+;;; treemacs-core-utils.el are put here, to prevent using them before their
 ;;; definition, hopefully preventing issues like #97.
 
 ;;; Code:
@@ -207,7 +207,8 @@ under or below it."
        (treemacs-without-following
         (let* ((state (treemacs-button-get btn :state))
                (current-window (selected-window)))
-          (if (not (memq state ',valid-states))
+          (if (and (not (memq state ',valid-states))
+                   (not (get state :treemacs-visit-action)))
               (treemacs-pulse-on-failure "%s" ,no-match-explanation)
             (progn
               ,@(if ensure-window-split
@@ -232,8 +233,11 @@ under or below it."
                        ,@(when tag-action
                            `((`tag-node
                               ,tag-action)))
-                       (_ (error "No match achieved even though button's state %s was part of the set of valid states %s"
-                                 state ',valid-states)))
+                       (_
+                        (-if-let (visit-action (get state :treemacs-visit-action))
+                            (funcall visit-action btn)
+                          (error "No match achieved even though button's state %s was part of the set of valid states %s"
+                                 state ',valid-states))))
                 (when ,save-window
                   (select-window current-window))))))))))
 
@@ -256,6 +260,7 @@ it on the same line."
   (declare (debug (form body)))
   `(treemacs-without-following
     (let* ((curr-btn       (treemacs-current-button))
+           (curr-point     (point-marker))
            (next-path      (-some-> curr-btn (treemacs--next-non-child-button) (button-get :path)))
            (prev-path      (-some-> curr-btn (treemacs--prev-non-child-button) (button-get :path)))
            (curr-node-path (-some-> curr-btn (treemacs-button-get :path)))
@@ -270,7 +275,10 @@ it on the same line."
       ;; try to stay at the same file/tag
       ;; if the tag no longer exists move to the tag's owning file node
       (pcase curr-state
-        ((or 'root-node-open 'root-node-closed 'dir-node-open 'dir-node-closed 'file-node-open 'file-node-closed)
+        ((or 'root-node-open 'root-node-closed)
+         ;; root nodes are always visible even if deleted.
+         (treemacs-goto-file-node curr-file))
+        ((or 'dir-node-open 'dir-node-closed 'file-node-open 'file-node-closed)
          ;; stay on the same file
          (if (and (file-exists-p curr-file)
                   (or treemacs-show-hidden-files
@@ -297,7 +305,7 @@ it on the same line."
          ;; no correction needed, if the tag does not exist point is left at the next best node
          (treemacs--goto-tag-button-at curr-tagpath))
         ((pred null)
-         (goto-char (point-min)))
+         (goto-char curr-point))
         (_
          ;; point is on a custom node
          ;; TODO(2018/10/30): custom node exists predicate?
@@ -306,6 +314,8 @@ it on the same line."
            (error (ignore)))))
       (treemacs--evade-image)
       ,@final-form
+      (when (get-text-property (point) 'invisible)
+        (goto-char (next-single-property-change (point) 'invisible)))
       (when curr-win-line
         (with-selected-window curr-window
           ;; recenter starts counting at 0
@@ -393,14 +403,14 @@ When PREDICATE returns non-nil RET will be returned."
 For the PREDICATE call the button being checked is bound as 'child-btn'."
   (declare (indent 1) (debug (sexp body)))
   `(cl-block __search__
-     (let* ((child-btn (next-button (button-end ,btn) t))
+     (let* ((child-btn (next-button (treemacs-button-end ,btn) t))
             (depth (when child-btn (treemacs-button-get child-btn :depth))))
        (when (and child-btn
                   (equal (treemacs-button-get child-btn :parent) ,btn))
          (if ,@predicate
              (cl-return-from __search__ child-btn)
            (while child-btn
-             (setq child-btn (next-button (button-end child-btn)))
+             (setq child-btn (next-button (treemacs-button-end child-btn)))
              (when child-btn
                (-let [child-depth (treemacs-button-get child-btn :depth)]
                  (cond
@@ -434,11 +444,11 @@ also `treemacs--canonical-path').
 
 Even if LEFT or RIGHT should be a form and not a variable it is guaranteed that
 they will be evaluated only once."
+  (declare (debug (form form form)))
   (treemacs-static-assert (memq op '(:same-as :in :parent-of :in-project :in-workspace))
     "Invalid treemacs-is-path operator: `%s'" op)
   (treemacs-static-assert (or (eq op :in-workspace) right)
     ":in-workspace operator requires right-side argument.")
-  (declare (debug (form form form)))
   (macroexp-let2* nil
       ((left left)
        (right right))
@@ -447,9 +457,9 @@ they will be evaluated only once."
        `(string= ,left ,right))
       (:in
        `(or (string= ,left ,right)
-            (s-starts-with? (f-slash ,right) ,left)))
+            (s-starts-with? (treemacs--add-trailing-slash ,right) ,left)))
       (:parent-of
-       `(and (s-starts-with? (f-slash ,left) ,right)
+       `(and (s-starts-with? (treemacs--add-trailing-slash ,left) ,right)
              (not (string= ,left ,right))))
       (:in-project
        `(treemacs-is-path ,left :in (treemacs-project->path ,right)))
@@ -458,6 +468,32 @@ they will be evaluated only once."
          `(--first (treemacs-is-path ,left :in-project it)
                    (treemacs-workspace->projects ,ws)))))))
 
+(cl-defmacro treemacs-with-path (path &key file-action top-level-extension-action directory-extension-action project-extension-action no-match-action)
+  "Execute an action depending on the type of PATH.
+
+FILE-ACTION is the action to perform when PATH is a regular file node.
+TOP-LEVEL-EXTENSION-ACTION, DIRECTORY-EXTENSION-ACTION, and
+PROJECT-EXTENSION-ACTION operate on paths for the different extension types.
+
+If none of the path types matches, NO-MATCH-ACTION is executed."
+  (declare (indent 1))
+  (let ((path-symbol (make-symbol "path")))
+    `(let ((,path-symbol ,path))
+       (cond
+        ,@(when file-action
+            `(((stringp ,path-symbol) ,file-action)))
+        ,@(when top-level-extension-action
+            `(((eq :custom (car ,path-symbol)) ,top-level-extension-action)))
+        ,@(when directory-extension-action
+            `(((stringp (car ,path-symbol)) ,directory-extension-action)))
+        ,@(when project-extension-action
+            `(((treemacs-project-p (car ,path-symbol)) ,project-extension-action)))
+        (t
+         ,(if no-match-action
+              no-match-action
+            `(error "Path type did not match: %S" ,path-symbol)))))))
+
+
 (defmacro treemacs-with-toggle (&rest body)
   "Building block helper macro.
 If treemacs is currently visible it will be hidden, if it is not visible, or no
@@ -465,6 +501,22 @@ treemacs buffer exists at all, BODY will be executed."
   `(--if-let (treemacs-get-local-window)
        (delete-window it)
      ,@body))
+
+(defmacro treemacs-with-ignored-errors (ignored-errors &rest body)
+  "Evaluate BODY with specific errors ignored.
+
+IGNORED-ERRORS is a list of errors to ignore.  Each element is a list whose car
+is the error's type, and second item is a regex to match against error messages.
+If any of the IGNORED-ERRORS matches, the error is suppressed and nil returned."
+  (let ((err (make-symbol "err")))
+    `(condition-case-unless-debug ,err
+         ,(macroexp-progn body)
+       ,@(mapcar
+          (lambda (ignore-spec)
+            `(,(car ignore-spec)
+              (unless (string-match-p ,(nth 1 ignore-spec) (error-message-string ,err))
+                (signal (car ,err) (cdr ,err)))))
+          ignored-errors))))
 
 (provide 'treemacs-macros)
 
