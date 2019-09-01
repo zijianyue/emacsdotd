@@ -78,15 +78,8 @@ It returns a file name which can be used directly as argument of
     (doom-modeline--set-char-widths
      `((2 . ,fonts)))))
 
-(defconst doom-modeline-icons-alist
-  '(;; macro
-    ("fiber_manual_record" . "\xe061")
-    ("triangle-right" . "\xf05a")
-
-    ;; multiple-cursors
-    ("i-cursor" . "\xf246")
-
-    ;; vcs
+(defconst doom-modeline-rhs-icons-alist
+  '(;; vcs
     ("git-compare" . "\xf0ac")
     ("git-merge" . "\xf023")
     ("arrow-down" . "\xf03f")
@@ -104,10 +97,13 @@ It returns a file name which can be used directly as argument of
     ;; Persp
     ("aspect_ratio" . "\xe85b")
 
+    ;; Preview
+    ("pageview" . "\xe8a0")
+
     ;; LSP
     ("rocket" . "\xf135")
 
-    ;; github
+    ;; GitHub
     ("github" . "\xf09b")
 
     ;; debug
@@ -115,7 +111,6 @@ It returns a file name which can be used directly as argument of
 
     ;; mu4e
     ("email" . "\xe0be")
-    ;; ("mail" . "\xe158")
 
     ;; irc
     ("message" . "\xe0c9")
@@ -127,7 +122,7 @@ It returns a file name which can be used directly as argument of
     ("battery-half" . "\xf242")
     ("battery-quarter" . "\xf243")
     ("battery-three-quarters" . "\xf241")))
-(doom-moddeline--set-font-widths doom-modeline-icons-alist)
+(doom-moddeline--set-font-widths doom-modeline-rhs-icons-alist)
 
 
 ;;
@@ -252,12 +247,12 @@ If the actual char height is larger, it respects the actual char height."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-github nil
-  "Whether display github notifications or not. Requires `ghub' package."
+  "Whether display GitHub notifications or not. Requires `ghub' package."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-github-interval 1800 ; (* 30 60)
-  "The interval of checking github."
+  "The interval of checking GitHub."
   :type 'integer
   :group 'doom-modeline)
 
@@ -451,9 +446,8 @@ If the actual char height is larger, it respects the actual char height."
 ;; Modeline library
 ;;
 
-(eval-and-compile
-  (defvar doom-modeline-fn-alist ())
-  (defvar doom-modeline-var-alist ()))
+(defvar doom-modeline-fn-alist ())
+(defvar doom-modeline-var-alist ())
 
 (defmacro doom-modeline-def-segment (name &rest body)
   "Defines a modeline segment NAME with BODY and byte compiles it."
@@ -490,6 +484,15 @@ If the actual char height is larger, it respects the actual char height."
             ((error "%s is not a valid segment" seg))))
     (nreverse forms)))
 
+(defvar doom-modeline--width-cache nil)
+(defun doom-modeline--window-font-width ()
+  "Cache the font width."
+  (let ((attributes (face-all-attributes 'default)))
+    (or (cdr (assoc attributes doom-modeline--width-cache))
+        (let ((width (window-font-width nil 'mode-line)))
+          (push (cons attributes width) doom-modeline--width-cache)
+          width))))
+
 (defun doom-modeline-def-modeline (name lhs &optional rhs)
   "Defines a modeline format and byte-compiles it.
   NAME is a symbol to identify it (used by `doom-modeline' for retrieval).
@@ -512,7 +515,7 @@ If the actual char height is larger, it respects the actual char height."
                'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
                'display `((space :align-to (- (+ right right-fringe right-margin)
                                               ,(* (if (number-or-marker-p (face-attribute 'mode-line :height))
-                                                      (/ (window-font-width nil 'mode-line)
+                                                      (/ (doom-modeline--window-font-width)
                                                          (frame-char-width) 1.0)
                                                     1)
                                                   (string-width
@@ -675,12 +678,12 @@ If the actual char height is larger, it respects the actual char height."
   Return `default-directory' if no project was found."
   (or doom-modeline-project-root
       (setq doom-modeline-project-root
-            (or (and (bound-and-true-p projectile-mode)
-                     (ignore-errors (projectile-project-root)))
-                (and (fboundp 'project-current)
+            (or (and (fboundp 'project-current)
                      (ignore-errors
                        (when-let ((project (project-current)))
                          (expand-file-name (car (project-roots project))))))
+                (and (bound-and-true-p projectile-mode)
+                     (ignore-errors (projectile-project-root)))
                 default-directory))))
 
 (defun doom-modeline--make-xpm (face width height)

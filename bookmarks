@@ -8,7 +8,7 @@
  (rear-context-string . "d-region\" nil t)")
  (position . 17473))
 ("mynote.org"
- (filename . "~/.emacs.d/mynote.org")
+ (filename . "~/.emacs.d/org/mynote.org")
  (front-context-string . "#+ATTR_LATEX: :e")
  (rear-context-string)
  (position . 1))

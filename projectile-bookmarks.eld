@@ -1,1 +1,1 @@
-("~/.emacs.d/" "d:/jdee-server/")
+("d:/jdee-server/" "~/.emacs.d/")

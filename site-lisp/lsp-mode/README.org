@@ -139,7 +139,7 @@
    | Erlang                | [[https://github.com/erlang-ls/erlang_ls][erlang_ls]]                                 | Yes            | [[https://github.com/erlang-ls/erlang_ls][erlang_ls]]                                                                                               |                              |
    | F#                    | [[https://github.com/fsharp/FsAutoComplete][fsautocomplete]]                            | Yes            | Automatic by [[https://github.com/emacs-lsp/lsp-mode/blob/master/lsp-fsharp.el][lsp-fsharp]]                                                                                 | No                           |
    | Fortran               | [[https://github.com/hansec/fortran-language-server][fortran-language-server]]                   | Yes            | pip install fortran-language-server                                                                     | Yes                          |
-   | Go                    | [[https://golang.org/x/tools/cmd/gopls][gopls]]                                     | Yes            | [[golang.org/x/tools/cmd/gopls][gopls]] go get -u golang.org/x/tools/cmd/gopls                                                            | Yes                          |
+   | Go                    | [[https://golang.org/x/tools/cmd/gopls][gopls]]                                     | Yes            | [[https://github.com/golang/go/wiki/gopls][gopls]] go get golang.org/x/tools/gopls@latest                                                           | Yes                          |
    | Go                    | [[https://github.com/saibing/bingo][bingo]]                                     | Yes            | [[https://github.com/saibing/bingo/wiki/Install][bingo]]                                                                                                   | Yes                          |
    | Groovy                | [[https://github.com/palantir/language-servers][groovy-language-server]]                    | Yes            | [[https://github.com/palantir/language-servers][groovy-language-server]]                                                                                  |                              |
    | Hack                  | [[https://docs.hhvm.com/hhvm/][hhvm]]                                      | Yes            | [[https://docs.hhvm.com/hhvm/installation/introduction][hhvm]]                                                                                                    |                              |
@@ -306,6 +306,11 @@
        either disable them by setting =lsp-enable-snippet= to =nil= or you
        should switch to =company-lsp=. Note also that =company-tng= frontend
        does not support snippet expansion(see [[https://github.com/company-mode/company-mode/issues/891][company-mode#891]])
+   - How to automatically follow =lsp-ui-log=?
+     - Go into the log buffer and execute the following snippet(source: [[https://stackoverflow.com/questions/12663061/emacs-auto-scrolling-log-buffer][Emacs auto scrolling log buffer]])
+     #+begin_src elisp
+       (set (make-local-variable 'window-point-insertion-type) t)
+     #+end_src
 ** See also
    - [[https://github.com/sebastiencs/company-box/][company-box]] - =company= frontend with icons.
    - [[https://github.com/yyoncho/dap-mode][dap-mode]] - Debugger integration for ~lsp-mode~.

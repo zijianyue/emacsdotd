@@ -5,6 +5,20 @@
 [![MELPA Stable](https://stable.melpa.org/packages/doom-modeline-badge.svg)](https://stable.melpa.org/#/doom-modeline)
 [![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [doom-modeline](#doom-modeline)
+    - [Feature](#feature)
+    - [Screenshots](#screenshots)
+    - [Install](#install)
+        - [Manual](#manual)
+        - [Use-package](#use-package)
+    - [Customize](#customize)
+    - [FAQ](#faq)
+
+<!-- markdown-toc end -->
+
 A fancy and fast mode-line inspired by minimalism design.
 
 It's integrated into [Centaur Emacs](https://github.com/seagle0128/.emacs.d), [Doom
@@ -31,12 +45,13 @@ The `doom-modeline` was designed for minimalism, and offers:
 - An indicator for debug state
 - An indicator for current input method
 - An indicator for LSP state with `lsp-mode` or `eglot`
-- An indicator for github notifications
+- An indicator for GitHub notifications
 - An indicator for unread emails with `mu4e-alert`
 - An indicator for irc notifications with `circe`
 - An indicator for buffer position which is compatible with `nyan-mode`
 - An indicator for party parrot
 - An indicator for PDF page number with `pdf-tools`
+- An indicator for markdown/org preview with `grip`
 - An indicator for battery status with `fancy-battery`
 - Truncated file name, file icon, buffer state and project name in buffer
   information segment, which is compatible with `projectile` and `project`
@@ -44,7 +59,7 @@ The `doom-modeline` was designed for minimalism, and offers:
 - New package mode-line for `paradox`
 - New mode-line for `helm` buffers
 - New mode-line for `git-timemachine` buffers
-  
+
 ## Screenshots
 
 ![modeline](https://user-images.githubusercontent.com/140797/49694177-10dcd280-fbc0-11e8-8d21-971ede6afdb5.png
@@ -207,10 +222,10 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; Whether display `lsp' state or not. Non-nil to display in mode-line.
 (setq doom-modeline-lsp t)
 
-;; Whether display github notifications or not. Requires `ghub` package.
+;; Whether display GitHub notifications or not. Requires `ghub` package.
 (setq doom-modeline-github nil)
 
-;; The interval of checking github.
+;; The interval of checking GitHub.
 (setq doom-modeline-github-interval (* 30 60))
 
 ;; Whether display mu4e notifications or not. Requires `mu4e-alert' package.
@@ -319,10 +334,13 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
     (set-face-attribute 'mode-line nil :height 100)
     (set-face-attribute 'mode-line-inactive nil :height 100)
     ```
+
     or
+
     ```emacs-lisp
     (custom-set-faces
       '(mode-line ((t (:height 0.9))))
       '(mode-line-inactive ((t (:height 0.9)))))
     ```
+
     Please refer to [#189](https://github.com/seagle0128/doom-modeline/issues/189).

@@ -28,6 +28,7 @@
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -107,8 +108,8 @@
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
   (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-  (setenv "MAVEN_HOME" "G:\\apache-maven-3.6.0\\bin")
-  (setenv "IMAGE_MAGICk" "G:\\ImageMagick-7.0.8-58-portable-Q16-x64")
+  (setenv "MAVEN_HOME" "D:\\apache-maven-3.6.1\\bin")
+  (setenv "IMAGE_MAGICk" "D:\\ImageMagick-7.0.8-61-portable-Q16-x64")
   (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
   )
 
@@ -453,7 +454,6 @@
  '(magit-log-arguments (quote ("-n32" "--stat")))
  '(magit-log-margin (quote (t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
  '(magit-log-section-commit-count 0)
- '(magit-refresh-verbose t)
  '(make-backup-files nil)
  '(maple-imenu-auto-update t)
  '(maple-imenu-display-alist (quote ((side . left) (slot . 2))))
@@ -475,7 +475,7 @@
  '(nxml-child-indent 4)
  '(org-default-notes-file "~/.emacs.d/.notes")
  '(org-directory "~/.emacs.d/org")
- '(org-download-screenshot-file "f:/org/screenshot.png")
+ '(org-download-screenshot-file "~/.emacs.d/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-image-actual-width (quote (500)))
  '(org-imenu-depth 4)
@@ -583,6 +583,29 @@
 
 (eval-after-load "company"
   '(progn
+     ;; 智能补全
+     (require 'company-tabnine)
+     (add-to-list 'company-backends #'company-tabnine)
+     ;; Trigger completion immediately.
+     (setq company-idle-delay 0)
+     ;; Number the candidates (use M-1, M-2 etc to select completions).
+     (setq company-show-numbers t)
+     ;; workaround for company-transformers
+     (setq company-tabnine--disable-next-transform nil)
+     (defun my-company--transform-candidates (func &rest args)
+       (if (not company-tabnine--disable-next-transform)
+           (apply func args)
+         (setq company-tabnine--disable-next-transform nil)
+         (car args)))
+
+     (defun my-company-tabnine (func &rest args)
+       (when (eq (car args) 'candidates)
+         (setq company-tabnine--disable-next-transform t))
+       (apply func args))
+
+     (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
+     (advice-add #'company-tabnine :around #'my-company-tabnine)
+     
      ;; (require 'company-box)
      ;; (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
@@ -1409,85 +1432,85 @@
 ;;   (fset 'tabbar-line 'tabbar-line-fset))
 
 ;; 防止undo后标签颜色不恢复
-(defadvice undo(after undo-after activate)
-  ;;   (on-modifying-buffer) ;; tabbar
-  (tabbar-update-if-changes-undone)       ; aquamacs-tabbar
-  )
-(defadvice redo(after redo-after activate)
-  ;;   (on-modifying-buffer)  ;; tabbar
-  (tabbar-window-update-tabsets-when-idle)
-  )
+;; (defadvice undo(after undo-after activate)
+;;   ;;   (on-modifying-buffer) ;; tabbar
+;;   (tabbar-update-if-changes-undone)       ; aquamacs-tabbar
+;;   )
+;; (defadvice redo(after redo-after activate)
+;;   ;;   (on-modifying-buffer)  ;; tabbar
+;;   (tabbar-window-update-tabsets-when-idle)
+;;   )
 ;; (add-hook 'after-revert-hook 'on-modifying-buffer)
-(add-hook 'after-revert-hook 'tabbar-window-update-tabsets-when-idle)
-(define-key special-event-map [iconify-frame] 'ignore)
-(defadvice iconify-frame (after leave-hidden-frame
-                                (&rest args) disable compile)
-  (aquamacs-handle-frame-iconified (car args)))
+;; (add-hook 'after-revert-hook 'tabbar-window-update-tabsets-when-idle)
+;; (define-key special-event-map [iconify-frame] 'ignore)
+;; (defadvice iconify-frame (after leave-hidden-frame
+;;                                 (&rest args) disable compile)
+;;   (aquamacs-handle-frame-iconified (car args)))
 
 ;; 重新定义以下函数，关闭按钮不显示图片（windows上显示效果差）
-(when (memq system-type '(windows-nt ms-dos))
-  (setq tabbar-use-images nil)
-  (defsubst tabbar-line-tab (tab)
-    "Return the display representation of tab TAB.
-That is, a propertized string used as an `header-line-format' template
-element.
-Call `tabbar-tab-label-function' to obtain a label for TAB."
-    (let* ((selected-p (tabbar-selected-p tab (tabbar-current-tabset)))
-           (close-button-image (tabbar-find-image tabbar-close-tab-button))
-           (mouse-face (if selected-p
-                           'tabbar-selected-highlight
-                         'tabbar-unselected-highlight))
+;; (when (memq system-type '(windows-nt ms-dos))
+;;   (setq tabbar-use-images nil)
+;;   (defsubst tabbar-line-tab (tab)
+;;     "Return the display representation of tab TAB.
+;; That is, a propertized string used as an `header-line-format' template
+;; element.
+;; Call `tabbar-tab-label-function' to obtain a label for TAB."
+;;     (let* ((selected-p (tabbar-selected-p tab (tabbar-current-tabset)))
+;;            (close-button-image (tabbar-find-image tabbar-close-tab-button))
+;;            (mouse-face (if selected-p
+;;                            'tabbar-selected-highlight
+;;                          'tabbar-unselected-highlight))
 
-           (text-face (if selected-p
-                          'tabbar-selected
-                        'tabbar-unselected))
-           (close-button
-            (propertize "[Ⅹ]"
-                        'tabbar-tab tab
-                        'local-map (tabbar-make-tab-keymap tab)
-                        'tabbar-action 'close-tab
-                        ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
-                        'mouse-face mouse-face
-                        'face text-face
-                        'pointer 'arrow
-                        ;; 'display (tabbar-normalize-image close-button-image 0 'nomask)
-                        ))
+;;            (text-face (if selected-p
+;;                           'tabbar-selected
+;;                         'tabbar-unselected))
+;;            (close-button
+;;             (propertize "[Ⅹ]"
+;;                         'tabbar-tab tab
+;;                         'local-map (tabbar-make-tab-keymap tab)
+;;                         'tabbar-action 'close-tab
+;;                         ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
+;;                         'mouse-face mouse-face
+;;                         'face text-face
+;;                         'pointer 'arrow
+;;                         ;; 'display (tabbar-normalize-image close-button-image 0 'nomask)
+;;                         ))
 
-           (display-label
-            (propertize (if tabbar-tab-label-function
-                            (funcall tabbar-tab-label-function tab)
-                          tab)
-                        'tabbar-tab tab
-                        'local-map (tabbar-make-tab-keymap tab)
-                        ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
-                        'mouse-face mouse-face
-                        'face (cond ((and selected-p
-                                          (buffer-modified-p (tabbar-tab-value tab)))
-                                     'tabbar-selected-modified)
-                                    ((and (not selected-p)
-                                          (buffer-modified-p (tabbar-tab-value tab)))
-                                     'tabbar-unselected-modified)
-                                    ((and selected-p
-                                          (not (buffer-modified-p (tabbar-tab-value tab))))
-                                     'tabbar-selected)
-                                    (t 'tabbar-unselected))
-                        'pointer 'arrow))
-           (key-label
-            (if (and tabbar-show-key-bindings (boundp 'tabbar-line-tabs) tabbar-line-tabs)
-                (let* ((mm (member tab tabbar-line-tabs) )
-                       ;; calc position (i.e., like position from cl-seq)
-                       (index (if mm (- (length tabbar-line-tabs) (length mm)))))
-                  (if (and index (fboundp (tabbar-key-command (+ 1 index))))
-                      (propertize
-                       (get (tabbar-key-command (+ 1 index)) 'label)
-                                        ;(format "%s" (+ 1 index))
-                       'mouse-face mouse-face
-                       ;; same mouse-face leads to joint mouse activation for all elements
-                       'face (list 'tabbar-key-binding text-face) ;; does not work
-                       )
-                    "")
-                  ) "")))
-      (concat close-button display-label key-label tabbar-separator-value))))
+;;            (display-label
+;;             (propertize (if tabbar-tab-label-function
+;;                             (funcall tabbar-tab-label-function tab)
+;;                           tab)
+;;                         'tabbar-tab tab
+;;                         'local-map (tabbar-make-tab-keymap tab)
+;;                         ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
+;;                         'mouse-face mouse-face
+;;                         'face (cond ((and selected-p
+;;                                           (buffer-modified-p (tabbar-tab-value tab)))
+;;                                      'tabbar-selected-modified)
+;;                                     ((and (not selected-p)
+;;                                           (buffer-modified-p (tabbar-tab-value tab)))
+;;                                      'tabbar-unselected-modified)
+;;                                     ((and selected-p
+;;                                           (not (buffer-modified-p (tabbar-tab-value tab))))
+;;                                      'tabbar-selected)
+;;                                     (t 'tabbar-unselected))
+;;                         'pointer 'arrow))
+;;            (key-label
+;;             (if (and tabbar-show-key-bindings (boundp 'tabbar-line-tabs) tabbar-line-tabs)
+;;                 (let* ((mm (member tab tabbar-line-tabs) )
+;;                        ;; calc position (i.e., like position from cl-seq)
+;;                        (index (if mm (- (length tabbar-line-tabs) (length mm)))))
+;;                   (if (and index (fboundp (tabbar-key-command (+ 1 index))))
+;;                       (propertize
+;;                        (get (tabbar-key-command (+ 1 index)) 'label)
+;;                                         ;(format "%s" (+ 1 index))
+;;                        'mouse-face mouse-face
+;;                        ;; same mouse-face leads to joint mouse activation for all elements
+;;                        'face (list 'tabbar-key-binding text-face) ;; does not work
+;;                        )
+;;                     "")
+;;                   ) "")))
+;;       (concat close-button display-label key-label tabbar-separator-value))))
 
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
@@ -1692,11 +1715,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    (require 'lsp-java-boot)
+    ;; (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
