@@ -324,7 +324,7 @@
  '(custom-enabled-themes (quote (doom-one)))
  '(custom-safe-themes
    (quote
-    ("b753c0d7872e154cd395c3d311456c71749dd3f1395e96f34a329cedd9209307" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
+    ("2d1fe7c9007a5b76cea4395b0fc664d0c1cfd34bb4f1860300347cdad67fb2f9" "b753c0d7872e154cd395c3d311456c71749dd3f1395e96f34a329cedd9209307" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default)))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
  '(diff-hl-flydiff-delay 4)
@@ -354,7 +354,6 @@
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
  '(global-auto-revert-mode t)
- '(global-diff-hl-mode nil)
  '(global-display-line-numbers-mode t)
  '(global-eldoc-mode nil)
  '(global-hl-line-mode t)
@@ -362,7 +361,7 @@
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
  '(gud-pdb-command-name "python -i -m pdb")
  '(helm-M-x-fuzzy-match t)
- '(helm-ag-base-command "ag --nocolor --nogroup -S -Q -u")
+ '(helm-ag-base-command "ag --nocolor --nogroup -S -Q -U")
  '(helm-ag-insert-at-point (quote symbol))
  '(helm-allow-mouse t)
  '(helm-autoresize-mode t)
@@ -1624,7 +1623,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'python-mode-hook 'lsp)
   ;; (add-hook 'js-mode-hook 'lsp)
   (add-hook 'sh-mode-hook 'lsp)
-  ;; (add-hook 'kotlin-mode-hook 'lsp)
+  (add-hook 'kotlin-mode-hook 'lsp)
   (add-hook 'nxml-mode-hook 'lsp)
   (add-hook 'js-mode-hook 'lsp)
 
@@ -1636,7 +1635,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 
   (yas-global-mode t)
-
+  (global-diff-hl-mode)
   ;; (setq lsp-auto-guess-root t)
 
   (setq lsp-prefer-flymake nil)
@@ -1715,11 +1714,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    ;; (require 'lsp-java-boot)
+    (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)

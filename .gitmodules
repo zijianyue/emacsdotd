@@ -7,3 +7,6 @@
 [submodule "site-lisp/libgit"]
 	path = site-lisp/libgit
 	url = https://github.com/magit/libegit2.git
+[submodule "site-lisp/company-tabnine"]
+	path = site-lisp/company-tabnine
+	url = https://github.com/TommyX12/company-tabnine.git

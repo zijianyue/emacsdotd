@@ -284,6 +284,9 @@
     (all-the-icons-lsilver  :foreground (doom-lighten grey 0.7))
     (all-the-icons-dsilver  :foreground (doom-lighten grey 0.1))
 
+    ;; all-the-icons-dired
+    (all-the-icons-dired-dir-face    :foreground doc-comments)
+
     ;; anzu
     (anzu-replace-highlight :background base0 :foreground red   :weight 'bold :strike-through t)
     (anzu-replace-to        :background base0 :foreground green :weight 'bold)
@@ -423,7 +426,12 @@
     (diredp-date-time              :foreground blue)
 
     ;; dired-k
-    (dired-k-directory :foreground blue)
+    (dired-k-modified :foreground vc-modified :weight 'bold)
+    (dired-k-commited :foreground green :weight 'bold)
+    (dired-k-added :foreground vc-added :weight 'bold)
+    (dired-k-untracked :foreground teal :weight 'bold)
+    (dired-k-ignored :foreground base5 :weight 'bold)
+    (dired-k-directory :foreground blue :weight 'bold)
 
     ;; dired-subtree
     (dired-subtree-depth-1-face :background (doom-darken bg-alt 0.02))
@@ -917,6 +925,8 @@
     (smerge-upper :background (doom-blend red base3 0.2))
     (smerge-base  :background (doom-blend blue bg 0.2))
     (smerge-markers :background comments :foreground bg :distant-foreground fg :weight 'bold)
+    (smerge-refined-added   :inherit 'diff-added :inverse-video t)
+    (smerge-refined-removed :inherit 'diff-removed :inverse-video t)
     ;; Emacs <25 compatibility
     ((smerge-mine  &inherit smerge-upper))
     ((smerge-other &inherit smerge-lower))
@@ -1130,6 +1140,10 @@
     ;; makefile-*-mode
     (makefile-targets :foreground blue)
 
+    ;; man-mode
+    (Man-overstrike :inherit 'bold :foreground operators)
+    (Man-underline :inherit 'underline :foreground keywords)
+
     ;; markdown-mode
     (markdown-header-face           :inherit 'bold :foreground highlight)
     (markdown-header-delimiter-face :inherit 'markdown-header-face)
@@ -1304,7 +1318,11 @@
     (web-mode-html-attr-name-face    :foreground type)
     (web-mode-html-entity-face       :foreground cyan :inherit 'italic)
     (web-mode-block-control-face     :foreground orange)
-    (web-mode-html-tag-bracket-face  :foreground operators))
+    (web-mode-html-tag-bracket-face  :foreground operators)
+
+    ;; woman
+    (woman-bold :inherit 'Man-overstrike)
+    (woman-italic :inherit 'Man-underline))
   "TODO")
 
 (defvar doom-themes-base-vars

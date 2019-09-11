@@ -10,7 +10,7 @@
   "If non-nil, adds a 4px padding to the mode-line.
 Can be an integer to determine the exact padding."
   :group 'doom-moonlight-theme
-  :type '(or integer boolean))
+  :type '(choice integer boolean))
 
 ;;
 (def-doom-theme doom-moonlight
@@ -180,10 +180,11 @@ Can be an integer to determine the exact padding."
 
    ;; rjsx-mode
    (rjsx-tag :foreground violet)
-   (rjsx-attr :foreground yellow :slant 'italic :weight 'medium)))
+   (rjsx-attr :foreground yellow :slant 'italic :weight 'medium)
+
+   ;; tooltip
+   (tooltip              :background (doom-darken bg-alt 0.2) :foreground fg)))
 
 (provide 'doom-moonlight-theme)
-
-
 
 ;;; doom-moonlight-theme.el ends here

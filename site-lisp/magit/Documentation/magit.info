@@ -32,7 +32,7 @@ to perform almost all of their daily version control tasks directly
 from within Emacs.  While many fine Git clients exist, only Magit and
 Git itself deserve to be called porcelains.
 
-This manual is for Magit version 2.90.1 (v2.90.1-763-gb88c86043+1).
+This manual is for Magit version 2.90.1 (v2.90.1-776-g2bebacf71+1).
 
      Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
 
@@ -7956,35 +7956,21 @@ File: magit.info,  Node: MacOS Performance,  Prev: Microsoft Windows Performance
 MacOS Performance
 .................
 
-On macOS Emacs currently creates child processes using `fork'.  It
-appears that this also copies GUI resources.  The result is that
-forking takes about 30 times as long on Darwin than on Linux.  And
-because Magit starts many `git' processes even when doing simple things,
-that makes quite a difference.
+Before Emacs 26.1 child processes were created using `fork' on macOS.
+That needlessly copied GUI resources, which is expensive.  The result
+was that forking took about 30 times as long on Darwin than on Linux,
+and because Magit starts many `git' processes that made quite a
+difference.
 
-   On the `master' branch Emacs now uses `vfork' when possible, like
-this was already done on Linux, and now child creation only takes about
-twice as long on Darwin.  See (1) for more information.
-
-   Nobody knows when the changes on the `master' branch will be
-released as `26.1', but it is still a long way off.  You might want to
-get your hands on this change before then.  The easiest way to get a
-patched Emacs is to install the `emacs-plus' formula (2) using
-`homebrew'.  The change has been backported, so you get it not only
-when using `--HEAD', but also when using `--devel' or when installing
-the latest release (by not using a version argument).
-
-   Alternatively you can apply the backport (3) manually.
+   So make sure that you are using at least Emacs 26.1, in which case
+the faster `vfork' will be used.  (The creation of child processes still
+takes about twice as long on Darwin compared to Linux.)  See (1) for
+more information.
 
    ---------- Footnotes ----------
 
    (1)
 `https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html'
-
-   (2) `https://github.com/d12frosted/homebrew-emacs-plus'
-
-   (3)
-`https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch'
 
 
 File: magit.info,  Node: Plumbing,  Next: FAQ,  Prev: Customizing,  Up: Top
@@ -10735,46 +10721,44 @@ Node: Safety313639
 Node: Performance315378
 Node: Microsoft Windows Performance321979
 Node: MacOS Performance323164
-Ref: MacOS Performance-Footnote-1324360
-Ref: MacOS Performance-Footnote-2324441
-Ref: MacOS Performance-Footnote-3324501
-Node: Plumbing324666
-Node: Calling Git325487
-Node: Getting a Value from Git326984
-Node: Calling Git for Effect329976
-Node: Section Plumbing336423
-Node: Creating Sections336651
-Node: Section Selection340450
-Node: Matching Sections342232
-Node: Refreshing Buffers347984
-Node: Conventions351016
-Node: Theming Faces351208
-Node: FAQ359172
-Node: FAQ - How to ...?359611
-Node: How to show git's output?359973
-Node: How to install the gitman info manual?360699
-Node: How to show diffs for gpg-encrypted files?361639
-Node: How does branching and pushing work?362235
-Node: Can Magit be used as `ediff-version-control-package'?362600
-Node: FAQ - Issues and Errors364537
-Node: Magit is slow365473
-Node: I changed several thousand files at once and now Magit is unusable365687
-Node: I am having problems committing366415
-Node: I am using MS Windows and cannot push with Magit366930
-Node: I am using OS X and SOMETHING works in shell but not in Magit367545
-Node: Diffs contain control sequences368335
-Node: Expanding a file to show the diff causes it to disappear369410
-Node: Point is wrong in the `COMMIT_EDITMSG' buffer369955
-Node: The mode-line information isn't always up-to-date370983
-Node: A branch and tag sharing the same name breaks SOMETHING372067
-Node: My Git hooks work on the command-line but not inside Magit372955
-Node: `git-commit-mode' isn't used when committing from the command-line373766
-Node: Point ends up inside invisible text when jumping to a file-visiting buffer375943
-Node: Debugging Tools376723
-Node: Keystroke Index378551
-Node: Command Index411755
-Node: Function Index447780
-Node: Variable Index463999
+Ref: MacOS Performance-Footnote-1323857
+Node: Plumbing323938
+Node: Calling Git324759
+Node: Getting a Value from Git326256
+Node: Calling Git for Effect329248
+Node: Section Plumbing335695
+Node: Creating Sections335923
+Node: Section Selection339722
+Node: Matching Sections341504
+Node: Refreshing Buffers347256
+Node: Conventions350288
+Node: Theming Faces350480
+Node: FAQ358444
+Node: FAQ - How to ...?358883
+Node: How to show git's output?359245
+Node: How to install the gitman info manual?359971
+Node: How to show diffs for gpg-encrypted files?360911
+Node: How does branching and pushing work?361507
+Node: Can Magit be used as `ediff-version-control-package'?361872
+Node: FAQ - Issues and Errors363809
+Node: Magit is slow364745
+Node: I changed several thousand files at once and now Magit is unusable364959
+Node: I am having problems committing365687
+Node: I am using MS Windows and cannot push with Magit366202
+Node: I am using OS X and SOMETHING works in shell but not in Magit366817
+Node: Diffs contain control sequences367607
+Node: Expanding a file to show the diff causes it to disappear368682
+Node: Point is wrong in the `COMMIT_EDITMSG' buffer369227
+Node: The mode-line information isn't always up-to-date370255
+Node: A branch and tag sharing the same name breaks SOMETHING371339
+Node: My Git hooks work on the command-line but not inside Magit372227
+Node: `git-commit-mode' isn't used when committing from the command-line373038
+Node: Point ends up inside invisible text when jumping to a file-visiting buffer375215
+Node: Debugging Tools375995
+Node: Keystroke Index377823
+Node: Command Index411027
+Node: Function Index447052
+Node: Variable Index463271
 
 End Tag Table
 

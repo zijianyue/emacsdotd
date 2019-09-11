@@ -16,13 +16,13 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/org/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/"
- "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/"
  "d:/jdee-server/"
  "d:/"
@@ -36,21 +36,25 @@
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("c:/emacs/share/emacs/26.2/site-lisp/" (23923 44341 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-tabnine/" (23914 39531 0 0) "screenshot.png" "screenshot-deep-5.png" "screenshot-deep-4.png" "screenshot-deep-3.png" "screenshot-deep-2.png" "screenshot-deep-1.png" "README.md" "melpa-recipe" "LICENSE" "fetch-binaries.sh" "company-tabnine.el" ".gitignore" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23914 40781 0 0) "treemacs/" "swiper/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" (23914 40477 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "magit-version.el" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (23914 40155 0 0) "README.md" "Makefile" "images/" "helm.elc" "helm.el" "helm-x-files.elc" "helm-x-files.el" "helm-utils.elc" "helm-utils.el" "helm-types.elc" "helm-types.el" "helm-tags.elc" "helm-tags.el" "helm-sys.elc" "helm-sys.el" "helm-source.elc" "helm-source.el" "helm-shell.elc" "helm-shell.el" "helm-semantic.elc" "helm-semantic.el" "helm-ring.elc" "helm-ring.el" "helm-regexp.elc" "helm-regexp.el" "helm-pkg.el" "helm-occur.elc" "helm-occur.el" "helm-net.elc" "helm-net.el" "helm-multi-match.elc" "helm-multi-match.el" "helm-mode.elc" "helm-mode.el" "helm-misc.elc" "helm-misc.el" "helm-man.elc" "helm-man.el" "helm-locate.elc" "helm-locate.el" "helm-lib.elc" "helm-lib.el" "helm-info.elc" "helm-info.el" "helm-imenu.elc" "helm-imenu.el" "helm-id-utils.elc" "helm-id-utils.el" "helm-help.elc" "helm-help.el" "helm-grep.elc" "helm-grep.el" "helm-for-files.elc" "helm-for-files.el" "helm-font.elc" "helm-font.el" "helm-find.elc" "helm-find.el" "helm-files.elc" "helm-files.el" "helm-external.elc" "helm-external.el" "helm-eval.elc" "helm-eval.el" "helm-eshell.elc" "helm-eshell.el" "helm-elisp.elc" "helm-elisp.el" "helm-elisp-package.elc" "helm-elisp-package.el" "helm-easymenu.elc" "helm-easymenu.el" "helm-dabbrev.elc" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.elc" "helm-config.el" "helm-command.elc" "helm-command.el" "helm-comint.elc" "helm-comint.el" "helm-color.elc" "helm-color.el" "helm-buffers.elc" "helm-buffers.el" "helm-bookmark.elc" "helm-bookmark.el" "helm-autoloads.el" "helm-adaptive.elc" "helm-adaptive.el" "emacs-helm.sh" "COPYING" ".gitignore" ".github/" ".git/" "../" "./")
+
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23902 53513 0 0) "mynote.org" "MAC使用/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23902 53469 0 0) "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org/" "init.el" "ido.last" "eshell/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/" (23902 48360 0 0) "with-editor.el" "treepy.el" "transient.el" "Makefile" "magit.el" "magit-worktree.el" "magit-wip.el" "magit-utils.elc" "magit-utils.el" "magit-transient.el" "magit-tag.el" "magit-subtree.el" "magit-submodule.el" "magit-status.el" "magit-stash.el" "magit-sequence.el" "magit-section.elc" "magit-section.el" "magit-reset.el" "magit-repos.el" "magit-remote.el" "magit-refs.el" "magit-reflog.el" "magit-push.el" "magit-pull.el" "magit-process.el" "magit-popup.el" "magit-pkg.el" "magit-patch.el" "magit-obsolete.el" "magit-notes.el" "magit-mode.el" "magit-merge.el" "magit-margin.el" "magit-log.el" "magit-libgit.el" "magit-imenu.el" "magit-gitignore.el" "magit-git.el" "magit-files.el" "magit-fetch.el" "magit-extras.el" "magit-ediff.el" "magit-diff.el" "magit-core.el" "magit-commit.el" "magit-clone.el" "magit-branch.el" "magit-bookmark.el" "magit-blame.el" "magit-bisect.el" "magit-autorevert.el" "magit-apply.el" "lv.el" "graphql.el" "git-rebase.el" "git-commit.elc" "git-commit.el" "ghub.el" "ghub-graphql.el" "dash.el" "dash-functional.el" "../" "./")
 
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" (23902 48035 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "magit-version.el" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
-
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/" (23902 47689 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
 
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23902 47877 0 0) "treemacs/" "swiper/" "multiple-cursors.el/" "magit-/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libegit2/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "dired-hacks/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
-
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/" (23902 47187 0 0) "test.el" "test/" "symbols.cfg" "src/" "README.md" "Makefile" "LICENSE" "libgit2/" "libgit.el" "gensyms.py" "CMakeLists.txt" ".travis.yml" ".gitmodules" ".gitignore" ".git/" ".appveyor.yml" ".appveyor.mk" ".appveyor-script.ps1" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (23902 46936 0 0) "README.md" "Makefile" "images/" "helm.elc" "helm.el" "helm-x-files.elc" "helm-x-files.el" "helm-utils.elc" "helm-utils.el" "helm-types.elc" "helm-types.el" "helm-tags.elc" "helm-tags.el" "helm-sys.elc" "helm-sys.el" "helm-source.elc" "helm-source.el" "helm-shell.elc" "helm-shell.el" "helm-semantic.elc" "helm-semantic.el" "helm-ring.elc" "helm-ring.el" "helm-regexp.elc" "helm-regexp.el" "helm-pkg.el" "helm-occur.elc" "helm-occur.el" "helm-net.elc" "helm-net.el" "helm-multi-match.elc" "helm-multi-match.el" "helm-mode.elc" "helm-mode.el" "helm-misc.elc" "helm-misc.el" "helm-man.elc" "helm-man.el" "helm-locate.elc" "helm-locate.el" "helm-lib.elc" "helm-lib.el" "helm-info.elc" "helm-info.el" "helm-imenu.elc" "helm-imenu.el" "helm-id-utils.elc" "helm-id-utils.el" "helm-help.elc" "helm-help.el" "helm-grep.elc" "helm-grep.el" "helm-for-files.elc" "helm-for-files.el" "helm-font.elc" "helm-font.el" "helm-find.elc" "helm-find.el" "helm-files.elc" "helm-files.el" "helm-external.elc" "helm-external.el" "helm-eval.elc" "helm-eval.el" "helm-eshell.elc" "helm-eshell.el" "helm-elisp.elc" "helm-elisp.el" "helm-elisp-package.elc" "helm-elisp-package.el" "helm-easymenu.elc" "helm-easymenu.el" "helm-dabbrev.elc" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.elc" "helm-config.el" "helm-command.elc" "helm-command.el" "helm-comint.elc" "helm-comint.el" "helm-color.elc" "helm-color.el" "helm-buffers.elc" "helm-buffers.el" "helm-bookmark.elc" "helm-bookmark.el" "helm-autoloads.el" "helm-adaptive.elc" "helm-adaptive.el" "emacs-helm.sh" "COPYING" ".gitignore" ".github/" ".git/" "../" "./")
 
  ("d:/jdee-server/" (23902 38731 0 0) "src/" "pom.xml" ".gitignore" ".git/" "../" "./")
 
@@ -61,8 +65,6 @@
  ("c:/Users/gezijian/AppData/Roaming/" (23888 20353 0 0) "迅雷X/" "迅雷/" "WinRAR/" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "SSTap Beta/" "Scooter Software/" "Psiphon3/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".gitconfig" ".emacs.d/" "../" "./")
 
  ("d:/KotlinLanguageServer-/" (23780 8470 0 0) "vscode-extension-src/" "tsconfig.json" "TROUBLESHOOTING.md" "TODO.md" "syntaxes/" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "package.json" "package-lock.json" "LICENSE.txt" "images/" "Icon128.png" "grammar/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscodeignore" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
-
- ("c:/emacs/share/emacs/26.2/site-lisp/" (23749 50443 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "posframe.el" "org-download.el" "nlinum.el" "mew/" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" "../" "./")
 
  ("c:/emacs/share/emacs/26.2/" (23734 64157 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
 

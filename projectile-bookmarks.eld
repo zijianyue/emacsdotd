@@ -1,1 +1,1 @@
-("d:/jdee-server/" "~/.emacs.d/")
+("~/.emacs.d/" "d:/jdee-server/" "d:/kotlin/" "c:/")
