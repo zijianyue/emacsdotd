@@ -307,7 +307,7 @@
  '(bookmark-sort-flag nil)
  '(c-electric-pound-behavior (quote (alignleft)))
  '(cc-search-directories (quote ("." "/usr/include" "/usr/local/include/*" "../*")))
- '(centaur-tabs-close-button " Ⅹ")
+ '(centaur-tabs-close-button " ♆")
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
@@ -565,6 +565,7 @@
 (require 'redo+)
 (setq undo-no-redo t)
 (global-set-key (kbd "C-/") 'redo)
+(global-set-key (kbd "C-Z") 'redo)
 (global-set-key (kbd "C-z") 'undo)
 
 ;; stl(解析vector map等)
