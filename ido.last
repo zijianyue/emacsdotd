@@ -2,6 +2,7 @@
 
 ;; ----- ido-last-directory-list -----
 (
+ ("c:/Users/gezijian/" . "Downloads/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" . "org/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" . "lisp/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" . "magit-/")
@@ -16,8 +17,11 @@
 
 ;; ----- ido-work-directory-list -----
 (
- "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
+ "d:/study/"
+ "d:/"
+ "c:/Users/gezijian/Desktop/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/org/"
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/"
@@ -25,7 +29,6 @@
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/"
  "d:/jdee-server/"
- "d:/"
  "c:/"
 )
 
@@ -36,19 +39,37 @@
 
 ;; ----- ido-dir-file-cache -----
 (
- ("c:/emacs/share/emacs/26.2/site-lisp/" (23923 44341 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
+ ("c:/emacs/share/emacs/26.2/site-lisp/" (23942 15543 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/rg.el/" (23947 34251 0 0) "wgrep-rg.el" "tools/" "test/" "screenshot.png" "rgel.info" "rg.el" "rg-result.el" "rg-menu.el" "rg-info-hack.el" "rg-ibuffer.el" "rg-history.el" "rg-header.el" "README.md" "Makefile" "LICENSE" "docs/" "Cask" ".travis.yml" ".gitignore" ".git/" ".ert-runner" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23947 33243 0 0) "treemacs/" "swiper/" "snails/" "rg.el/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23942 16426 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org/" "init.el" "ido.last" "eshell/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
+
+ ("d:/study/" (23942 15010 0 0) "Web/" "../" "./")
+
+ ("c:/Users/gezijian/Desktop/" (23942 13568 0 0) "酷狗音乐.lnk" "迅雷.lnk" "腾讯影视库.lnk" "无界1902.exe" "搜索 Everything.lnk" "《侠盗猎车5》3DM简体中文版.lnk" "web-study/" "utmp/" "u1902.exe" "u.ini" "PanDownload.lnk" "MSYS2 MinGW 64-bit.lnk" "MinGW Installer.lnk" "Microsoft Edge.lnk" "Football Manager 2019.url" "F1_2019.lnk" "F1 2018.lnk" "Emacs.lnk" "desktop.ini" "debug.log" "Chrome - Chrome.lnk" "4t Tray Minimizer.lnk" "../" "./")
+
+ ("c:/Users/gezijian/Desktop/web-study/" (23942 13627 0 0) "demo.html" "../" "./")
+
+ ("c:/Users/gezijian/Downloads/" (23937 3320 0 0) "自由门fg767p.zip" "注册文件(解压后放到安装目录下).zip" "未确认 983534.crdownload" "未确认 948275.crdownload" "未确认 914663.crdownload" "未确认 764267.crdownload" "未确认 594176.crdownload" "未确认 398480.crdownload" "未确认 390720.crdownload" "未确认 375743.crdownload" "未确认 370317.crdownload" "未确认 350594.crdownload" "未确认 272524.crdownload" "未确认 258031.crdownload" "未确认 208501.crdownload" "未确认 123160.crdownload" "无界1902.exe" "新版谷歌浏览器插件.crx" "XX-Net-3.13.1.7z" "wrar570scp.exe" "with-editor-master.zip" "winrar-x64-570sc (1).exe" "WeChatSetup.exe" "WeChatSetup (1).exe" "v2rayN.zip" "v2rayN-Core.zip" "v2rayN (1).zip" "utmp/" "Unlocker1.9.2.0.zip" "unicode-escape.el-master.zip" "u1902.exe" "u.zip" "u (1).zip" "TunSafe-1.4.exe" "transient-master.zip" "Thunder9.1.46.998.exe" "TencentVideo10.21.4318.0.exe" "tdm-gcc-5.1.0-3.exe" "SteamSetup.exe" "SSTap-beta-setup-1.1.0.1.exe.7z" "SPES_PRODUCT_V10.0.8.6_Setup.exe" "Shadowsocks-4.1.5.zip" "setup-x86.exe" "Razer_Synapse_Installer_v2.21.21.1.exe" "python-3.7.4.exe" "python-3.7.4-amd64.exe" "pushpin.rar" "Proxyee Down.3.4.windows.x64.7z" "Proxyee Down/" "projectile-master.zip" "pptvsetup_5.0.8.0001.exe" "pfuture-master.zip" "PanDownload_v2.0.6.zip" "PanDownload_v2.0.6/" "origami.el-master.zip" "npp.7.6.6.Installer.x64.exe" "npp.7.6.6.Installer.exe" "names-master.zip" "msys2-x86_64-20180531.exe" "mingw-w64-install.exe" "mingw-w64-install (1).exe" "mingw-get-setup.exe" "mingw-get-setup (3).exe" "mingw-get-setup (2).exe" "mingw-get-setup (1).exe" "lsp-origami-master.zip" "lantern-installer.exe" "kotlin-mode-master.zip" "jyzbdhzwb102.rar" "jyuanzibuasda.zip" "jdqscjzcmnq.rar" "jdk-8u202-windows-x64.exe" "itools_pro_1.8.1.6.dmg" "itoolssetup_4439.exe" "install_flash_player_ppapi.exe" "ImageMagick-7.0.8-61-Q16-x64-dll.exe" "ImageMagick-7.0.8-61-portable-Q16-x64.zip" "ideaIC-2019.2.1.exe" "i686-8.1.0-release-win32-sjlj-rt_v6-rev0.7z" "i686-8.1.0-release-win32-sjlj-rt_v6-rev0 (1).7z" "i686-8.1.0-release-win32-sjlj-rt_v6-rev0/" "http%3a%2f%2fcygwin.mirrors.hoobly.com%2f/" "http%3a%2f%2fcygwin.mirror.constant.com%2f/" "htmlize-master.zip" "ht.el-master.zip" "gta5pjb_137440.rar" "git-lfs-windows-v2.7.1.exe" "Git-2.21.0-64-bit.exe" "ghub-master.zip" "feifei-2.9.0.0.zip" "f12018pjb_44493.zip" "f12018pjb_44493 (1).zip" "f.el-master.zip" "Everything-1.4.1.935.x64-Setup.exe" "ES-1.1.0.15.zip" "ES-1.1.0.15 (1).zip" "emax64-bin-26.2.7z" "emax.7z" "emax (1).7z" "emacs-26.1-x86_64.zip" "desktop.ini" "ctfile.exe" "cmake-3.15.2-win64-x64.msi" "ChromeSetup.exe" "ChromeGo_SkyZip.7z" "chromego-master.zip" "Chrome75_64bit_v2rayN_2019.6.23.7z" "Chrome75_64bit_Goflyway_2019.6.27.7z" "Beyond_Compare.exe" "Beyond_Compare-Trial-WM.exe" "BaiduNetdisk_6.7.2.16.exe" "apache-maven-3.6.1-bin.zip" "all-the-icons-dired-master.zip" "ag.el-master.zip" "ag-2019-03-23_2.2.0-19-g965f71d-x64.zip" "ACCSmartInstaller_7PY4M_WIN_1.1.11.0_A00.exe" "7z1900-x64.exe" "7z1900-x64 (1).exe" "720P_1500K_219965001.mp4" "720P_1500K_185140951.mp4" "720P_1500K_178253991.mp4" "4t-min.exe" "480P_600K_187989261.mp4" "3H3Rescue.HQ.The.Tycoon-SiMPLEX.torrent" "3DMGAME-Need.for.Speed.Most.Wanted.Limited.Edition-PLAZA.torrent" "../" "./")
+
+ ("c:/Users/gezijian/" (23923 33783 0 0) "「开始」菜单/" "Videos/" "Templates/" "SendTo/" "Searches/" "Saved Games/" "Recent/" "PUTTY.RND" "PrintHood/" "Pictures/" "OneDrive/" "ntuser.ini" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000002.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000001.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TM.blf" "ntuser.dat.LOG2" "ntuser.dat.LOG1" "NTUSER.DAT" "NetHood/" "My Documents/" "Music/" "MicrosoftEdgeBackups/" "Local Settings/" "Links/" "IntelGraphicsProfiles/" "Favorites/" "Downloads/" "Documents/" "Desktop/" "Cookies/" "Contacts/" "Application Data/" "AppData/" "ansel/" "3D Objects/" ".tooling/" ".tabnine/" ".sts4/" ".m2/" ".IdeaIC2019.2/" ".gradle/" ".gitconfig" ".firefly.conf" ".bash_history" ".android/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/" (23815 42620 0 0) "Roaming/" "LocalLow/" "Local/" "Flash Player/" "APlayerCodecs3.exe" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/" (23935 46272 0 0) "迅雷X/" "迅雷/" "WinRAR/" "WB.CFG" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "TabNine/" "SSTap Beta/" "Scooter Software/" "RussianFishingLLC/" "Psiphon3/" "PPLive/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "JetBrains/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "Apple Computer/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".TabNine/" ".stardict/" ".sdcv_history" ".gitconfig" ".emacs.d/" ".cache/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23929 2935 0 0) "mynote.org" "MAC使用/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-ui/" (23928 64134 0 0) "README.md" "Makefile" "lsp-ui.el" "lsp-ui-sideline.el" "lsp-ui-peek.el" "lsp-ui-imenu.el" "lsp-ui-flycheck.el" "lsp-ui-doc.html" "lsp-ui-doc.el" "LICENSE" "images/" "Cask" ".gitignore" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-tabnine/" (23914 39531 0 0) "screenshot.png" "screenshot-deep-5.png" "screenshot-deep-4.png" "screenshot-deep-3.png" "screenshot-deep-2.png" "screenshot-deep-1.png" "README.md" "melpa-recipe" "LICENSE" "fetch-binaries.sh" "company-tabnine.el" ".gitignore" ".git/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23914 40781 0 0) "treemacs/" "swiper/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" (23914 40477 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "magit-version.el" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (23914 40155 0 0) "README.md" "Makefile" "images/" "helm.elc" "helm.el" "helm-x-files.elc" "helm-x-files.el" "helm-utils.elc" "helm-utils.el" "helm-types.elc" "helm-types.el" "helm-tags.elc" "helm-tags.el" "helm-sys.elc" "helm-sys.el" "helm-source.elc" "helm-source.el" "helm-shell.elc" "helm-shell.el" "helm-semantic.elc" "helm-semantic.el" "helm-ring.elc" "helm-ring.el" "helm-regexp.elc" "helm-regexp.el" "helm-pkg.el" "helm-occur.elc" "helm-occur.el" "helm-net.elc" "helm-net.el" "helm-multi-match.elc" "helm-multi-match.el" "helm-mode.elc" "helm-mode.el" "helm-misc.elc" "helm-misc.el" "helm-man.elc" "helm-man.el" "helm-locate.elc" "helm-locate.el" "helm-lib.elc" "helm-lib.el" "helm-info.elc" "helm-info.el" "helm-imenu.elc" "helm-imenu.el" "helm-id-utils.elc" "helm-id-utils.el" "helm-help.elc" "helm-help.el" "helm-grep.elc" "helm-grep.el" "helm-for-files.elc" "helm-for-files.el" "helm-font.elc" "helm-font.el" "helm-find.elc" "helm-find.el" "helm-files.elc" "helm-files.el" "helm-external.elc" "helm-external.el" "helm-eval.elc" "helm-eval.el" "helm-eshell.elc" "helm-eshell.el" "helm-elisp.elc" "helm-elisp.el" "helm-elisp-package.elc" "helm-elisp-package.el" "helm-easymenu.elc" "helm-easymenu.el" "helm-dabbrev.elc" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.elc" "helm-config.el" "helm-command.elc" "helm-command.el" "helm-comint.elc" "helm-comint.el" "helm-color.elc" "helm-color.el" "helm-buffers.elc" "helm-buffers.el" "helm-bookmark.elc" "helm-bookmark.el" "helm-autoloads.el" "helm-adaptive.elc" "helm-adaptive.el" "emacs-helm.sh" "COPYING" ".gitignore" ".github/" ".git/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23902 53513 0 0) "mynote.org" "MAC使用/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23902 53469 0 0) "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org/" "init.el" "ido.last" "eshell/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/" (23902 48360 0 0) "with-editor.el" "treepy.el" "transient.el" "Makefile" "magit.el" "magit-worktree.el" "magit-wip.el" "magit-utils.elc" "magit-utils.el" "magit-transient.el" "magit-tag.el" "magit-subtree.el" "magit-submodule.el" "magit-status.el" "magit-stash.el" "magit-sequence.el" "magit-section.elc" "magit-section.el" "magit-reset.el" "magit-repos.el" "magit-remote.el" "magit-refs.el" "magit-reflog.el" "magit-push.el" "magit-pull.el" "magit-process.el" "magit-popup.el" "magit-pkg.el" "magit-patch.el" "magit-obsolete.el" "magit-notes.el" "magit-mode.el" "magit-merge.el" "magit-margin.el" "magit-log.el" "magit-libgit.el" "magit-imenu.el" "magit-gitignore.el" "magit-git.el" "magit-files.el" "magit-fetch.el" "magit-extras.el" "magit-ediff.el" "magit-diff.el" "magit-core.el" "magit-commit.el" "magit-clone.el" "magit-branch.el" "magit-bookmark.el" "magit-blame.el" "magit-bisect.el" "magit-autorevert.el" "magit-apply.el" "lv.el" "graphql.el" "git-rebase.el" "git-commit.elc" "git-commit.el" "ghub.el" "ghub-graphql.el" "dash.el" "dash-functional.el" "../" "./")
 
@@ -61,8 +82,6 @@
  ("d:/kotlin/server/src/test/resources/j2k/" (23902 38749 0 0) "JavaJSONConverter.kt" "JavaJSONConverter.java" "../" "./")
 
  ("d:/kotlin/" (23902 38305 0 0) "TROUBLESHOOTING.md" "TODO.md" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "LICENSE.txt" "images/" "Icon128.png" "grammars/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "EDITORS.md" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/" (23888 20353 0 0) "迅雷X/" "迅雷/" "WinRAR/" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "SSTap Beta/" "Scooter Software/" "Psiphon3/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".gitconfig" ".emacs.d/" "../" "./")
 
  ("d:/KotlinLanguageServer-/" (23780 8470 0 0) "vscode-extension-src/" "tsconfig.json" "TROUBLESHOOTING.md" "TODO.md" "syntaxes/" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "package.json" "package-lock.json" "LICENSE.txt" "images/" "Icon128.png" "grammar/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscodeignore" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
 
