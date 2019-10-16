@@ -212,13 +212,11 @@ Content assist will propose those static members even if the
 import is missing."
   :type '(repeat string))
 
-
 (defcustom lsp-java-completion-import-order ["java" "javax" "com" "org"]
   "Defines the sorting order of import statements. A package or
 type name prefix (e.g. 'org.eclipse') is a valid entry. An import
 is always added to the most specific group."
   :type '(repeat string))
-
 
 (defcustom lsp-java-folding-range-enabled t
   "Enable/disable smart folding range support. If disabled, it
@@ -294,6 +292,13 @@ and equals methods."
 then list all."
   :type 'number)
 
+(defcustom lsp-java-completion-filtered-types ["java.awt.*" "com.sun.*"]
+  "Defines the type filters. All types whose fully qualified name
+matches the selected filter strings will be ignored in content
+assist or quick fix proposals and when organizing imports. For
+example 'java.awt.*' will hide all types from the awt packages."
+  :type 'vector)
+
 (lsp-register-custom-settings
  '(("java.codeGeneration.toString.limitElements" lsp-java-code-generation-to-string-limit-elements)
    ("java.codeGeneration.toString.listArrayContents" lsp-java-code-generation-to-string-list-array-contents t)
@@ -333,7 +338,8 @@ then list all."
    ("java.configuration.updateBuildConfiguration" lsp-java-configuration-update-build-configuration)
    ("java.configuration.checkProjectSettingsExclusions" lsp-java-configuration-check-project-settings-exclusions t)
    ("java.errors.incompleteClasspath.severity" lsp-java-errors-incomplete-classpath-severity)
-   ("java.dependency.packagePresentation" lsp-java-dependency-package-representation)))
+   ("java.dependency.packagePresentation" lsp-java-dependency-package-representation)
+   ("java.completion.filteredTypes" lsp-java-completion-filtered-types)))
 
 (defcustom lsp-java-inhibit-message t
   "If non-nil, inhibit java messages echo via `inhibit-message'."
@@ -872,6 +878,16 @@ current symbol."
   (interactive)
   (lsp-execute-code-action-by-kind "source.generate.accessors"))
 
+(defun lsp-java-open-super-implementation ()
+  "Open super implementation."
+  (interactive)
+  (if-let ((locations (append (lsp-request "java/findLinks"
+                                    (list :type "superImplementation"
+                                          :position (lsp--text-document-position-params)))
+                              nil)))
+      (lsp-show-xrefs (lsp--locations-to-xref-items locations) nil nil)
+    (user-error "No super implementations.")))
+
 (defun lsp-java--completing-read-multiple (message items initial-selection)
   (if (functionp 'helm)
       (let (result)
@@ -1164,7 +1180,8 @@ current symbol."
                       "extractMethod"
                       "extractField"
                       "convertVariableToField"
-                      "invertVariable")
+                      "invertVariable"
+                      "convertAnonymousClassToNestedCommand")
                     command)
         (-let ((arguments (when (memq command '("extractField" "convertVariableToField"))
                             (when-let (scope (pcase (append (gethash "initializedScopes" command-info) nil)

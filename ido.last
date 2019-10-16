@@ -7,7 +7,7 @@
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" . "lisp/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" . "magit-/")
  ("c:/Users/gezijian/AppData/Roaming/" . ".emacs.d/")
- ("d:/" . "jdee-server/")
+ ("d:/" . "leetcode/")
  ("c:/emacs/share/emacs/26.2/" . "site-lisp/")
  ("c:/emacs/share/emacs/" . "26.2/")
  ("c:/emacs/share/" . "emacs/")
@@ -17,6 +17,9 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "d:/leetcode/"
+ "d:/software/msys64/home/gezijian/ccls/Release/"
+ "c:/"
  "d:/study/"
  "d:/"
  "c:/Users/gezijian/Desktop/"
@@ -29,16 +32,24 @@
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/"
  "d:/jdee-server/"
- "c:/"
 )
 
 ;; ----- ido-work-file-list -----
 (
+ "test.cpp"
  "magit-libgit.el"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("d:/leetcode/" (23973 60305 0 0) "test.cpp" ".cquery_cached_index/" ".cquery" "../" "./")
+
+ ("d:/software/msys64/home/gezijian/ccls/Release/" (23970 61820 0 0) "rules.ninja" "cmake_install.cmake" "CMakeFiles/" "CMakeCache.txt" "build.ninja" ".ninja_log" ".ninja_deps" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23970 45544 0 0) "mynote.org" "MAC使用/" "../" "./")
+
+ ("d:/jdee-server/" (23929 4376 0 0) "target/" "src/" "pom.xml" "jdee-server.iml" "GTAGS" "GRTAGS" "GPATH" ".settings/" ".project" ".idea/" ".gitignore" ".git/" ".classpath" "../" "./")
+
  ("c:/emacs/share/emacs/26.2/site-lisp/" (23942 15543 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/rg.el/" (23947 34251 0 0) "wgrep-rg.el" "tools/" "test/" "screenshot.png" "rgel.info" "rg.el" "rg-result.el" "rg-menu.el" "rg-info-hack.el" "rg-ibuffer.el" "rg-history.el" "rg-header.el" "README.md" "Makefile" "LICENSE" "docs/" "Cask" ".travis.yml" ".gitignore" ".git/" ".ert-runner" "../" "./")
@@ -61,8 +72,6 @@
 
  ("c:/Users/gezijian/AppData/Roaming/" (23935 46272 0 0) "迅雷X/" "迅雷/" "WinRAR/" "WB.CFG" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "TabNine/" "SSTap Beta/" "Scooter Software/" "RussianFishingLLC/" "Psiphon3/" "PPLive/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "JetBrains/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "Apple Computer/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".TabNine/" ".stardict/" ".sdcv_history" ".gitconfig" ".emacs.d/" ".cache/" "../" "./")
 
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23929 2935 0 0) "mynote.org" "MAC使用/" "../" "./")
-
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-ui/" (23928 64134 0 0) "README.md" "Makefile" "lsp-ui.el" "lsp-ui-sideline.el" "lsp-ui-peek.el" "lsp-ui-imenu.el" "lsp-ui-flycheck.el" "lsp-ui-doc.html" "lsp-ui-doc.el" "LICENSE" "images/" "Cask" ".gitignore" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-tabnine/" (23914 39531 0 0) "screenshot.png" "screenshot-deep-5.png" "screenshot-deep-4.png" "screenshot-deep-3.png" "screenshot-deep-2.png" "screenshot-deep-1.png" "README.md" "melpa-recipe" "LICENSE" "fetch-binaries.sh" "company-tabnine.el" ".gitignore" ".git/" "../" "./")
@@ -76,8 +85,6 @@
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/" (23902 47689 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/" (23902 47187 0 0) "test.el" "test/" "symbols.cfg" "src/" "README.md" "Makefile" "LICENSE" "libgit2/" "libgit.el" "gensyms.py" "CMakeLists.txt" ".travis.yml" ".gitmodules" ".gitignore" ".git/" ".appveyor.yml" ".appveyor.mk" ".appveyor-script.ps1" "../" "./")
-
- ("d:/jdee-server/" (23902 38731 0 0) "src/" "pom.xml" ".gitignore" ".git/" "../" "./")
 
  ("d:/kotlin/server/src/test/resources/j2k/" (23902 38749 0 0) "JavaJSONConverter.kt" "JavaJSONConverter.java" "../" "./")
 

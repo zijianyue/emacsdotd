@@ -109,8 +109,8 @@
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
   (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-  (setenv "MAVEN_HOME" "D:\\apache-maven-3.6.1\\bin")
-  (setenv "IMAGE_MAGICk" "D:\\ImageMagick-7.0.8-61-portable-Q16-x64")
+  (setenv "MAVEN_HOME" "D:\\software\\apache-maven-3.6.1\\bin")
+  (setenv "IMAGE_MAGICk" "D:\\software\\ImageMagick-7.0.8-61-portable-Q16-x64")
   (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
   )
 
@@ -572,9 +572,10 @@
 
 ;; stl(解析vector map等)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
-
+(setq vs-dir "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/include")
 ;; 设置成c++文件类型
 (add-to-list 'auto-mode-alist (cons stl-base-dir-14 'c++-mode))
+(add-to-list 'auto-mode-alist (cons vs-dir 'c++-mode))
 
 ;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
@@ -1161,7 +1162,7 @@
 (autoload 'pt-regexp "pt" nil t)
 
 ;; rg
-(autoload 'rg "rg" nil t)
+(autoload 'rg "rg" nil t)               ;搜索的结果按s保存，然后rg-list-searches可以列出所有结果，里面有搜索的关键字,目录
 (autoload 'rg-project "rg" nil t)       ;代替ag-project
 (autoload 'rg-dwim "rg" nil t)       ;直接在project搜索光标下的symbol，并且不用指定类型
 ;; 搜索模式如下
@@ -1717,11 +1718,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    (require 'lsp-java-boot)
+    ;; (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1764,7 +1765,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; cquery config
 (with-eval-after-load 'cquery
   (if (memq system-type '(windows-nt ms-dos))
-      (setq cquery-executable "G:/cquery/build/release/bin/cquery")
+      (setq cquery-executable "d:/software/cquery/build/release/bin/cquery")
     (setq cquery-executable "~/cquery/build/release/bin/cquery"))
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引

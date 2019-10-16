@@ -1,1 +1,1 @@
-("~/.emacs.d/" "d:/jdee-server/" "d:/kotlin/" "c:/")
+("~/.emacs.d/" "d:/software/llvm-project/" "c:/" "d:/jdee-server/" "d:/kotlin/" "~/.emacs.d/site-lisp/lsp-mode/")
