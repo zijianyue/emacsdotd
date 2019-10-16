@@ -1,9 +1,9 @@
-;;-----------------------------------------------------------Íâ¹Û-----------------------------------------------------------;;
-;; ×ÖÌå±£Ö¤ÖĞÎÄÊÇÓ¢ÎÄµÄÁ½±¶¿í
+;;-----------------------------------------------------------å¤–è§‚-----------------------------------------------------------;;
+;; å­—ä½“ä¿è¯ä¸­æ–‡æ˜¯è‹±æ–‡çš„ä¸¤å€å®½
 ;; Setting English Font
 
 ;; (package-initialize)
-;; Ä¿Â¼¸´ÔÓµÄÒÆµ½.emacs.dÄ¿Â¼ÏÂ²¢×¨ÃÅÖ¸¶¨load-path£¬·ÀÖ¹load-path¹ı¶à
+;; ç›®å½•å¤æ‚çš„ç§»åˆ°.emacs.dç›®å½•ä¸‹å¹¶ä¸“é—¨æŒ‡å®šload-pathï¼Œé˜²æ­¢load-pathè¿‡å¤š
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/all-the-icons.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/expand-region.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/evil"))
@@ -33,17 +33,17 @@
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
-;; ´òÓ¡µ÷ÓÃº¯ÊıµÄĞÔÄÜ·½·¨ÈçÏÂ
-;; M-x elp-instrument-package magit¼´²é¿´magit°üËùÓĞ·½·¨ÓÃµôµÄÊ±¼ä
-;; Ö´ĞĞ magit-status
-;; M-x elp-results ²é¿´½á¹û
-;; M-x elp-restore-allÈ¡Ïû
+;; æ‰“å°è°ƒç”¨å‡½æ•°çš„æ€§èƒ½æ–¹æ³•å¦‚ä¸‹
+;; M-x elp-instrument-package magitå³æŸ¥çœ‹magitåŒ…æ‰€æœ‰æ–¹æ³•ç”¨æ‰çš„æ—¶é—´
+;; æ‰§è¡Œ magit-status
+;; M-x elp-results æŸ¥çœ‹ç»“æœ
+;; M-x elp-restore-allå–æ¶ˆ
 
-;; magit debugÃüÁî
+;; magit debugå‘½ä»¤
 ;; magit-version magit-emacs-Q-command magit-debug-git-executable with-editor-debug
 (require 'all-the-icons)
 
-;; ´°¿ÚÎ»ÖÃ ´óĞ¡
+;; çª—å£ä½ç½® å¤§å°
 (setq initial-frame-alist
       '((top . 20) (left . 350) (width . 200 ) (height . 70)))
 
@@ -55,17 +55,17 @@
  ;; 'default nil :font "inconsolata 14")
  'default nil :font "Consolas 10")
 
-;; ĞÂ¿ªµÄ´°¿Ú±£³Ö×ÖÌå
+;; æ–°å¼€çš„çª—å£ä¿æŒå­—ä½“
 (add-to-list 'default-frame-alist '(font . "Consolas 10"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
-                    ;; (font-spec :family "Heiti SC" :size 14)));macÖĞHeiti SCÄÜÖĞÓ¢ÎÄµÈ¸ß
-                    (font-spec :family "ĞÂËÎÌå" :size 14)));macÖĞHeiti SCÄÜÖĞÓ¢ÎÄµÈ¸ß
+                    ;; (font-spec :family "Heiti SC" :size 14)));macä¸­Heiti SCèƒ½ä¸­è‹±æ–‡ç­‰é«˜
+                    (font-spec :family "æ–°å®‹ä½“" :size 14)));macä¸­Heiti SCèƒ½ä¸­è‹±æ–‡ç­‰é«˜
 
-;; »ñÈ¡site-lispÂ·¾¶
+;; è·å–site-lispè·¯å¾„
 (defvar site-lisp-directory nil)
 (if (eq system-type 'darwin)
     ;; (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
@@ -73,8 +73,8 @@
   (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
 
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "/site-lisp/emacs-doom-themes/themes"))
-;;-----------------------------------------------------------ÉèÖÃ-----------------------------------------------------------;;
-;; Ö»ÓĞÒ»¸öÊµÀı
+;;-----------------------------------------------------------è®¾ç½®-----------------------------------------------------------;;
+;; åªæœ‰ä¸€ä¸ªå®ä¾‹
 (server-force-delete)
 (server-start)
 
@@ -89,25 +89,25 @@
 ;;                   (cons "Input your LDAP UID !"
 ;;                         (base64-encode-string "usrname:password")))))
 
-;; »·¾³±äÁ¿
+;; ç¯å¢ƒå˜é‡
 (when (memq window-system '(mac ns))
   (require 'exec-path-from-shell)
   (exec-path-from-shell-initialize))
 
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "HOME" (expand-file-name "~"))
-  (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;ĞèÒª×°wgetÃüÁî£¬wget·ÃÎÊgithubĞèÒª¼Ó--no-check-certificate²ÎÊı
+  (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;éœ€è¦è£…wgetå‘½ä»¤ï¼Œwgetè®¿é—®githubéœ€è¦åŠ --no-check-certificateå‚æ•°
   (setenv "MINGW" "C:\\MinGW\\bin")
   ;; (setenv "PUTTY" "C:\\Program Files\\PuTTY")
   (setenv "LLVM" "G:\\llvm-release\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
-  ;; (setenv "PYTHON" "C:\\Python27")		;ÓÃ27µÄ»°ycmd¿ÉÒÔÊ¹ÓÃsemantic²¹È«
-  (setenv "PYTHON3" "c:\\Python37")		;ÓÃ27µÄ»°ycmd¿ÉÒÔÊ¹ÓÃsemantic²¹È«
+  ;; (setenv "PYTHON" "C:\\Python27")		;ç”¨27çš„è¯ycmdå¯ä»¥ä½¿ç”¨semanticè¡¥å…¨
+  (setenv "PYTHON3" "c:\\Python37")		;ç”¨27çš„è¯ycmdå¯ä»¥ä½¿ç”¨semanticè¡¥å…¨
   (setenv "CYGWIN" "C:\\cygwin\\bin")
   (setenv "CPPCHECK" "C:\\Program Files (x86)\\Cppcheck")
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
-  (setenv "PYTHONIOENCODING" "utf-8")     ;·ÀÖ¹raw_input³ö´í
+  (setenv "PYTHONIOENCODING" "utf-8")     ;é˜²æ­¢raw_inputå‡ºé”™
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
   (setenv "MAVEN_HOME" "D:\\software\\apache-maven-3.6.1\\bin")
   (setenv "IMAGE_MAGICk" "D:\\software\\ImageMagick-7.0.8-61-portable-Q16-x64")
@@ -133,9 +133,9 @@
 
 ;; (setenv "GTAGSLABEL" "pygments")
 
-(setq python-shell-prompt-detect-enabled nil) ;ÓÃpython27Ê±ĞèÒª¼ÓÕâ¸ö²»È»ÓĞwarning
-(setq python-shell-completion-native-enable nil) ;ÓÃpython27Ê±ĞèÒª¼ÓÕâ¸ö²»È»ÓĞwarning
-(define-coding-system-alias 'UTF-8 'utf-8)       ;·ÀÖ¹Warning (mule): Invalid coding system ¡®UTF-8¡¯ is specified for the current buffer/file by the :coding tag.
+(setq python-shell-prompt-detect-enabled nil) ;ç”¨python27æ—¶éœ€è¦åŠ è¿™ä¸ªä¸ç„¶æœ‰warning
+(setq python-shell-completion-native-enable nil) ;ç”¨python27æ—¶éœ€è¦åŠ è¿™ä¸ªä¸ç„¶æœ‰warning
+(define-coding-system-alias 'UTF-8 'utf-8)       ;é˜²æ­¢Warning (mule): Invalid coding system â€˜UTF-8â€™ is specified for the current buffer/file by the :coding tag.
 
 (setenv "PATH"
         (concat
@@ -172,8 +172,8 @@
          (getenv "PATH")))
 
 (when (eq system-type 'darwin)
-  (add-to-list 'exec-path (getenv "LIBEXEC")) ;·ÅÇ°Ãæ ´øtÊÇappend
-  (add-to-list 'exec-path (getenv "LOCALBIN")) ;·ÅÇ°Ãæ ´øtÊÇappend
+  (add-to-list 'exec-path (getenv "LIBEXEC")) ;æ”¾å‰é¢ å¸¦tæ˜¯append
+  (add-to-list 'exec-path (getenv "LOCALBIN")) ;æ”¾å‰é¢ å¸¦tæ˜¯append
   (add-to-list 'exec-path (getenv "PYTHONMAC"))
   )
 
@@ -191,13 +191,13 @@
 (add-to-list 'exec-path (getenv "PDFLATEX") t)
 (add-to-list 'exec-path (getenv "MAVEN_HOME") t)
 
-;; windowsµÄfind¸úgnu µÄgrepÓĞ³åÍ»
+;; windowsçš„findè·Ÿgnu çš„grepæœ‰å†²çª
 (setq find-program (concat "\"" (getenv "MSYS") "\\find.exe\""))
-(setq grep-program "grep -nH -F")		;-F°´ÆÕÍ¨×Ö·û´®ËÑË÷
-;; Ä¬ÈÏÄ¿Â¼
+(setq grep-program "grep -nH -F")		;-FæŒ‰æ™®é€šå­—ç¬¦ä¸²æœç´¢
+;; é»˜è®¤ç›®å½•
 (setq default-directory "d:/")
 
-;; Æô¶¯mode
+;; å¯åŠ¨mode
 (setq initial-major-mode 'text-mode)
 
 ;; elpa
@@ -206,24 +206,24 @@
  ;; package-enable-at-startup nil
  )
 
-;; ÏÈÖ´ĞĞpackage-initializeÔÙpackage-list-packages
+;; å…ˆæ‰§è¡Œpackage-initializeå†package-list-packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
                          ("melpa-stable" . "http://stable.melpa.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")))
 
 
-;; mini buffer µÄ´óĞ¡±£³Ö²»±ä
+;; mini buffer çš„å¤§å°ä¿æŒä¸å˜
 ;; (setq resize-mini-windows nil)
-;; Ã»ÓĞÌáÊ¾Òô,Ò²²»ÉÁÆÁ
+;; æ²¡æœ‰æç¤ºéŸ³,ä¹Ÿä¸é—ªå±
 (setq ring-bell-function 'ignore)
 
 ;; Load CEDET
-;; Éú³Éº¯Êı×¢ÊÍ
+;; ç”Ÿæˆå‡½æ•°æ³¨é‡Š
 (global-set-key (kbd "C-c / C") 'srecode-document-insert-comment)
 (autoload 'srecode-document-insert-comment "srecode" nil t)
 (autoload 'global-srecode-minor-mode "srecode" nil t)
-;; ÉèÖÃÄ£°åÂ·¾¶,°ÑÄ£°å·Åµ½"~/.emacs.d/.srecode/"£¬±ÜÃâ¿½À´¿½È¥
+;; è®¾ç½®æ¨¡æ¿è·¯å¾„,æŠŠæ¨¡æ¿æ”¾åˆ°"~/.emacs.d/.srecode/"ï¼Œé¿å…æ‹·æ¥æ‹·å»
 (eval-after-load "srecode/map"
   '(progn
      (semantic-mode 1)
@@ -233,46 +233,46 @@
 (setq semantic-c-obey-conditional-section-parsing-flag nil) ; ignore #ifdef
 (set-default 'semantic-case-fold t)
 
-;;ĞŞ¸Ä±êÌâÀ¸£¬ÏÔÊ¾bufferµÄÃû×Ö
+;;ä¿®æ”¹æ ‡é¢˜æ ï¼Œæ˜¾ç¤ºbufferçš„åå­—
 (setq frame-title-format "%b [%+] %f")
 (setq icon-title-format "%b [%+] %f")
 
-;; ¸Ä±ä Emacs ¹ÌÖ´µÄÒªÄã»Ø´ğ yes µÄĞĞÎª¡£°´ y »ò¿Õ¸ñ¼ü±íÊ¾ yes£¬n ±íÊ¾ no¡£
+;; æ”¹å˜ Emacs å›ºæ‰§çš„è¦ä½ å›ç­” yes çš„è¡Œä¸ºã€‚æŒ‰ y æˆ–ç©ºæ ¼é”®è¡¨ç¤º yesï¼Œn è¡¨ç¤º noã€‚
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; ²»ÕÛĞĞ£¬Ó°ÏìĞÔÄÜ
-;; ÓĞ³¤ĞĞµÄÎÄ¼ş³ıÁË´ò¿ªtruncate-lines£¬»¹¿ÉÒÔÓÃfind-file-literally´ò¿ªÎÄ¼şÌá¸ßĞÔÄÜ
+;; ä¸æŠ˜è¡Œï¼Œå½±å“æ€§èƒ½
+;; æœ‰é•¿è¡Œçš„æ–‡ä»¶é™¤äº†æ‰“å¼€truncate-linesï¼Œè¿˜å¯ä»¥ç”¨find-file-literallyæ‰“å¼€æ–‡ä»¶æé«˜æ€§èƒ½
 ;; (set-default 'truncate-lines t)
-;; (setq truncate-partial-width-windows nil) ;; ×óÓÒ·ÖÆÁÊ±ÕÛĞĞ
+;; (setq truncate-partial-width-windows nil) ;; å·¦å³åˆ†å±æ—¶æŠ˜è¡Œ
 ;; (if (eq 25 emacs-major-version)
 ;;  (horizontal-scroll-bar-mode 1))
 
-;; ×Ô¶¯ºáÒÆ¸úËæË®Æ½¹ö¶¯ÌõÇĞ»»
+;; è‡ªåŠ¨æ¨ªç§»è·Ÿéšæ°´å¹³æ»šåŠ¨æ¡åˆ‡æ¢
 ;; (defadvice horizontal-scroll-bar-mode(after horizontal-scroll-bar-mode-after activate)
 ;;   (if horizontal-scroll-bar-mode
 ;;    (setq auto-hscroll-mode nil)
 ;;  (setq auto-hscroll-mode t)))
 
-;; ¸ßÁÁµ¥´Ê¸ú¸ßÁÁµ±Ç°ĞĞÓĞ³åÍ»
+;; é«˜äº®å•è¯è·Ÿé«˜äº®å½“å‰è¡Œæœ‰å†²çª
 (defadvice highlight-symbol-at-point(after highlight-symbol-at-point-after activate)
   (if global-hl-line-mode
       (global-hl-line-mode -1)))
-(setq compile-command "devenv.com projects.sln /build \"Debug|Win32\"") ;¿ÉÒÔ´«sln »òvcproj±àÒë¹¤³Ì
-;; tab²¹È«Ê±ºöÂÔ´óĞ¡Ğ´
+(setq compile-command "devenv.com projects.sln /build \"Debug|Win32\"") ;å¯ä»¥ä¼ sln æˆ–vcprojç¼–è¯‘å·¥ç¨‹
+;; tabè¡¥å…¨æ—¶å¿½ç•¥å¤§å°å†™
 (setq-default completion-ignore-case t)
-;; DIREDµÄÊ±¼äÏÔÊ¾¸ñÊ½
+;; DIREDçš„æ—¶é—´æ˜¾ç¤ºæ ¼å¼
 (setq ls-lisp-format-time-list  '("%Y-%m-%d %H:%M:%S" "%Y-%m-%d %H:%M:%S")
       ls-lisp-use-localized-time-format t)
-;; ÓÅÏÈºá·Ö¸î´°¿Ú
-(setq split-width-threshold 9999)	;Ôö´óÏòÓÒ·Ö¸îµÄÒªÇó
+;; ä¼˜å…ˆæ¨ªåˆ†å‰²çª—å£
+(setq split-width-threshold 9999)	;å¢å¤§å‘å³åˆ†å‰²çš„è¦æ±‚
 ;; (setq split-height-threshold 0)
 ;; (setq split-height-threshold nil)       ; Disable vertical window splitting
 ;; (setq split-width-threshold nil)        ; Disable horizontal window splitting
 
-;; macÉÏµÄ¼üÅÌ»»Î»
+;; macä¸Šçš„é”®ç›˜æ¢ä½
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
-;; hi lockÑÕÉ«²»Òªhi-black-hb
+;; hi locké¢œè‰²ä¸è¦hi-black-hb
 (with-eval-after-load 'hi-lock
   ;; (unless (featurep 'swiper)
     ;; (require 'swiper))
@@ -280,15 +280,15 @@
                                 ;; "ivy-minibuffer-match-face-4" "ivy-minibuffer-match-face-3" "ivy-minibuffer-match-face-2" "ivy-minibuffer-match-face-1"
                                 "hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b")))
 
-;; ³¤ĞĞĞÔÄÜÌáÉı
+;; é•¿è¡Œæ€§èƒ½æå‡
 (setq-default bidi-display-reordering nil)
-;; (global-visual-line-mode)        ;ÏµÍ³×Ô´ø word wrap ÓÒ²àÃ»ÓĞ»»ĞĞµÄ±ê¼Ç
+;; (global-visual-line-mode)        ;ç³»ç»Ÿè‡ªå¸¦ word wrap å³ä¾§æ²¡æœ‰æ¢è¡Œçš„æ ‡è®°
 
 ;; org inline picture size
-;; (setq org-image-actual-width nil) ; org-image-actual-widthµÄÉèÖÃĞèÒªbuild with imagemagick support.ÓÃemax64
-;; ÔÚorgÎÄ¼şÖĞÍ¼Æ¬ÉÏ·½¼ÓÉÏ#+ATTR_ORG: :width 800£¬Ö´ĞĞorg-redisplay-inline-imagesÉúĞ§
+;; (setq org-image-actual-width nil) ; org-image-actual-widthçš„è®¾ç½®éœ€è¦build with imagemagick support.ç”¨emax64
+;; åœ¨orgæ–‡ä»¶ä¸­å›¾ç‰‡ä¸Šæ–¹åŠ ä¸Š#+ATTR_ORG: :width 800ï¼Œæ‰§è¡Œorg-redisplay-inline-imagesç”Ÿæ•ˆ
 
-;; ×Ô¶¯Ìí¼ÓµÄÉèÖÃ
+;; è‡ªåŠ¨æ·»åŠ çš„è®¾ç½®
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -559,7 +559,7 @@
      (define-key gtags-select-mode-map (kbd "<M-mouse-1>") 'gtags-select-tag-by-event)
      ))
 
-;; Ñ¡ÖĞµ¥Î»
+;; é€‰ä¸­å•ä½
 (autoload 'er/expand-region "expand-region" nil t)
 (global-set-key (kbd "M-s") 'er/expand-region)
 
@@ -570,10 +570,10 @@
 (global-set-key (kbd "C-Z") 'redo)
 (global-set-key (kbd "C-z") 'undo)
 
-;; stl(½âÎövector mapµÈ)
+;; stl(è§£ævector mapç­‰)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
 (setq vs-dir "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/include")
-;; ÉèÖÃ³Éc++ÎÄ¼şÀàĞÍ
+;; è®¾ç½®æˆc++æ–‡ä»¶ç±»å‹
 (add-to-list 'auto-mode-alist (cons stl-base-dir-14 'c++-mode))
 (add-to-list 'auto-mode-alist (cons vs-dir 'c++-mode))
 
@@ -586,7 +586,7 @@
 
 (eval-after-load "company"
   '(progn
-     ;; ÖÇÄÜ²¹È«
+     ;; æ™ºèƒ½è¡¥å…¨
      (require 'company-tabnine)
      (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
@@ -631,11 +631,11 @@
          ))
      ))
 
-;;yasnippet ÊÖ¶¯¿ªÆôÍ¨¹ı yas-global-mode£¬»á×Ô¶¯¼ÓÔØ×ÊÔ´£¬Èç¹ûÖ´ĞĞyas-minor-mode£¬»¹ĞèÒªÖ´ĞĞyas-reload-all¼ÓÔØ×ÊÔ´
+;;yasnippet æ‰‹åŠ¨å¼€å¯é€šè¿‡ yas-global-modeï¼Œä¼šè‡ªåŠ¨åŠ è½½èµ„æºï¼Œå¦‚æœæ‰§è¡Œyas-minor-modeï¼Œè¿˜éœ€è¦æ‰§è¡Œyas-reload-allåŠ è½½èµ„æº
 (autoload 'yas-global-mode "yasnippet" nil t)
 (autoload 'yas-minor-mode "yasnippet" nil t)
 
-;; Ç°½ø¡¢ºóÍË
+;; å‰è¿›ã€åé€€
 (require 'recent-jump-small)
 (setq rjs-mode-line-format nil)
 (recent-jump-small-mode)
@@ -687,7 +687,7 @@
         )))
 
 (defun rjs-pre-command-fset ()
-  "Ã¿¸öÃüÁîÖ´ĞĞÇ°Ö´ĞĞÕâ¸öº¯Êı"
+  "æ¯ä¸ªå‘½ä»¤æ‰§è¡Œå‰æ‰§è¡Œè¿™ä¸ªå‡½æ•°"
   (unless (or (active-minibuffer-window) isearch-mode (uninterested-buffer (current-buffer) t) (is-mwheeling))
     (unless (memq this-command rjs-command-ignore)
       (let ((position (list (buffer-file-name) (current-buffer) (point))))
@@ -707,7 +707,7 @@
 
 
 (defun rjs-post-command-fset ()
-  "Ã¿¸öÃüÁîÖ´ĞĞºóÖ´ĞĞÕâ¸öº¯Êı"
+  "æ¯ä¸ªå‘½ä»¤æ‰§è¡Œåæ‰§è¡Œè¿™ä¸ªå‡½æ•°"
   (unless (or (active-minibuffer-window) isearch-mode (uninterested-buffer (current-buffer) t) (is-mwheeling))
     (unless (memq this-command rjs-command-ignore)
       (let ((position (list (buffer-file-name) (current-buffer) (point))))
@@ -722,7 +722,7 @@
   (setq rjs-position-pre-command nil))
 
 (defun recent-jump-small-backward-fset (arg)
-  "Ìøµ½ÃüÁîÖ´ĞĞÇ°µÄÎ»ÖÃ"
+  "è·³åˆ°å‘½ä»¤æ‰§è¡Œå‰çš„ä½ç½®"
   (interactive "p")
   (let ((index rjs-index)
         (last-is-rjs (memq last-command '(recent-jump-small-backward recent-jump-small-forward))))
@@ -748,7 +748,7 @@
             (if (not (or file (buffer-live-p buffer)))
                 (progn
                   (ring-remove rjs-ring index)
-                  (message "ÒªÌø×ªµÄÎ»ÖÃËùÔÚµÄbufferÎªÎŞÎÄ¼ş¹ØÁªbuffer, µ«¸ÃbufferÒÑ±»É¾³ı"))
+                  (message "è¦è·³è½¬çš„ä½ç½®æ‰€åœ¨çš„bufferä¸ºæ— æ–‡ä»¶å…³è”buffer, ä½†è¯¥bufferå·²è¢«åˆ é™¤"))
               (if file
                   (find-file (nth 0 position))
                 (assert (buffer-live-p buffer))
@@ -782,14 +782,14 @@
   "Face used to highlight current line."
   :group 'bm)
 
-;; ÏÔÊ¾ÁĞÊúÏß
+;; æ˜¾ç¤ºåˆ—ç«–çº¿
 (autoload 'fci-mode "fill-column-indicator" "" t)
 (global-set-key (kbd "C-:") 'fci-mode)
 (setq fci-rule-column 120)
 
 (eval-after-load "fill-column-indicator"
   '(progn
-     ;; ±ÜÃâÆÆ»µ auto complete
+     ;; é¿å…ç ´å auto complete
      (defun sanityinc/fci-enabled-p () (symbol-value 'fci-mode))
 
      (defvar sanityinc/fci-mode-suppressed nil)
@@ -809,7 +809,7 @@
          (setq sanityinc/fci-mode-suppressed nil)
          (turn-on-fci-mode)))
 
-     ;; ±ÜÃâºÍcompany³åÍ»
+     ;; é¿å…å’Œcompanyå†²çª
      (defvar-local company-fci-mode-on-p nil)
 
      (defun company-turn-off-fci (&rest ignore)
@@ -824,13 +824,13 @@
      (add-hook 'company-completion-finished-hook 'company-maybe-turn-on-fci)
      (add-hook 'company-completion-cancelled-hook 'company-maybe-turn-on-fci)
      ))
-;; Òì²½copy renameÎÄ¼ş
+;; å¼‚æ­¥copy renameæ–‡ä»¶
 (autoload 'dired-async-mode "dired-async.el" nil t)
 
-;; helmÏµÁĞ
-;; C-c 1/2/3... C-x 1/2/3 ÊÇÖ±½ÓÑ¡ÖĞÀëµ±Ç°ĞĞµÚ¼¸¸öcandi C-cÊÇÍùÏÂÊı£¬C-xÊÇÍùÉÏÊı£¬Ê¡µÄÉÏÏÂÒÆ¶¯
-;; C-@ ÊÇ±ê¼ÇÎÄ¼ş
-(autoload 'helm-mode "helm-config" nil t) ;¿ªÆôhelm-modeÊ±ÒªÏÈ¹Ø±Õido-mode·ñÔò²»ÉúĞ§
+;; helmç³»åˆ—
+;; C-c 1/2/3... C-x 1/2/3 æ˜¯ç›´æ¥é€‰ä¸­ç¦»å½“å‰è¡Œç¬¬å‡ ä¸ªcandi C-cæ˜¯å¾€ä¸‹æ•°ï¼ŒC-xæ˜¯å¾€ä¸Šæ•°ï¼Œçœçš„ä¸Šä¸‹ç§»åŠ¨
+;; C-@ æ˜¯æ ‡è®°æ–‡ä»¶
+(autoload 'helm-mode "helm-config" nil t) ;å¼€å¯helm-modeæ—¶è¦å…ˆå…³é—­ido-modeå¦åˆ™ä¸ç”Ÿæ•ˆ
 (autoload 'helm-show-kill-ring "helm-config" nil t)
 (autoload 'helm-semantic-or-imenu "helm-config" nil t)
 (autoload 'helm-for-files "helm-config" nil t)
@@ -844,7 +844,7 @@
 (autoload 'helm-ag-project-root "helm-ag" nil t)
 (global-set-key (kbd "C-S-f") 'helm-ag-project-root)
 
-(autoload 'helm-org-in-buffer-headings "helm-config" nil t) ;ÔÚorg-modeÖĞÕÒ±êÌâºÜ·½±ã
+(autoload 'helm-org-in-buffer-headings "helm-config" nil t) ;åœ¨org-modeä¸­æ‰¾æ ‡é¢˜å¾ˆæ–¹ä¾¿
 
 (autoload 'helm-gtags-mode "helm-gtags" nil t)
 (autoload 'helm-gtags-select "helm-gtags" nil t)
@@ -885,19 +885,19 @@
   (ido-mode nil))
 
 (with-eval-after-load 'helm
-  ;; helm-modeÖĞÉ¾³ıÎÄ¼şM-D×¢ÒâÊÇ´óD£¬»òÕßC-c dÉ¾³ıµ«ÊÇ²»Àë¿ªhelm
+  ;; helm-modeä¸­åˆ é™¤æ–‡ä»¶M-Dæ³¨æ„æ˜¯å¤§Dï¼Œæˆ–è€…C-c dåˆ é™¤ä½†æ˜¯ä¸ç¦»å¼€helm
   ;; (helm-mode 1)
-  ;; helm-browse-project »òÕßhelm-ls-git-ls»òÕßc-x c-fºóc-x c-d¿ÉÒÔ²é¿´µ±Ç°Ä¿Â¼ÏÂËùÓĞgitÎÄ¼ş
+  ;; helm-browse-project æˆ–è€…helm-ls-git-lsæˆ–è€…c-x c-fåc-x c-då¯ä»¥æŸ¥çœ‹å½“å‰ç›®å½•ä¸‹æ‰€æœ‰gitæ–‡ä»¶
   (require 'helm-ls-git)
   (global-set-key (kbd "C-x C-d") 'helm-browse-project)
 
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
   (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-  (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;Ä¬ÈÏÊÇM-D, M-spcÊÇmark, M-aÊÇÈ«Ñ¡£¬ M-mÊÇtoggle mark
-  ;; helm-locateÉèÖÃ C-x c l
+  (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;é»˜è®¤æ˜¯M-D, M-spcæ˜¯mark, M-aæ˜¯å…¨é€‰ï¼Œ M-mæ˜¯toggle mark
+  ;; helm-locateè®¾ç½® C-x c l
   (when (memq system-type '(windows-nt ms-dos))
-    (setq helm-locate-command "es %s -sort run-count %s") ;Ôö¼ÓÅÅĞò¹¦ÄÜ
+    (setq helm-locate-command "es %s -sort run-count %s") ;å¢åŠ æ’åºåŠŸèƒ½
     (defun helm-es-hook ()
       (when (and (equal (assoc-default 'name (helm-get-current-source)) "Locate")
                  (string-match "\\`es" helm-locate-command))
@@ -908,7 +908,7 @@
     (add-hook 'helm-find-many-files-after-hook 'helm-es-hook))
   (when (eq system-type 'darwin)
     (setq helm-locate-fuzzy-match nil)
-    (setq helm-locate-command "mdfind -name %s %s") ;½á¹ûÓëmdfind²»ÍêÈ«Ò»ÖÂ£¬counsel-locateÃ»ÎÊÌâ
+    (setq helm-locate-command "mdfind -name %s %s") ;ç»“æœä¸mdfindä¸å®Œå…¨ä¸€è‡´ï¼Œcounsel-locateæ²¡é—®é¢˜
     )
   )
 
@@ -925,11 +925,11 @@
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
-(global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c bÄ¬ÈÏ
+(global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c bé»˜è®¤
 
 (autoload 'helm-swoop "helm-swoop" nil t)
 (autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
-(autoload 'helm-multi-swoop-all "helm-swoop" nil t) ;ËÑË÷ËùÓĞbuffer£¬»òÕßÓÃhelm-multi-swoopÈ»ºómarkÒªËÑË÷µÄbuffer £¬»òÕßhelm-multi-swoop-projectileËÑË÷ËùÓĞµ±Ç°¹¤³Ì´ò¿ªµÄbuffer
+(autoload 'helm-multi-swoop-all "helm-swoop" nil t) ;æœç´¢æ‰€æœ‰bufferï¼Œæˆ–è€…ç”¨helm-multi-swoopç„¶åmarkè¦æœç´¢çš„buffer ï¼Œæˆ–è€…helm-multi-swoop-projectileæœç´¢æ‰€æœ‰å½“å‰å·¥ç¨‹æ‰“å¼€çš„buffer
 (global-set-key (kbd "M-]") 'helm-swoop)
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
 (define-key isearch-mode-map (kbd "M-]") 'helm-swoop-from-isearch)
@@ -942,12 +942,12 @@
 (autoload 'helm-rg "helm-rg" nil t)
 
 (global-set-key (kbd "C-c b") 'helm-gtags-find-files)
-(global-set-key (kbd "C-c d") 'helm-gtags-find-tag);ÒªÔÚ¿Õ°×´¦Ê¹ÓÃ²ÅÄÜÊäÈë£¬·ñÔòÊÇ²éÕÒ¹â±êÏÂµÄ·ûºÅ
+(global-set-key (kbd "C-c d") 'helm-gtags-find-tag);è¦åœ¨ç©ºç™½å¤„ä½¿ç”¨æ‰èƒ½è¾“å…¥ï¼Œå¦åˆ™æ˜¯æŸ¥æ‰¾å…‰æ ‡ä¸‹çš„ç¬¦å·
 ;; (global-set-key (kbd "C-c B") 'gtags-find-file)
 (global-set-key (kbd "<f6>") 'helm-gtags-select-path)
 (global-set-key (kbd "<f7>") 'helm-gtags-select)
-(global-set-key (kbd "<S-f5>") 'helm-gtags-create-tags) ;¿ÉÒÔÖ¸¶¨Â·¾¶ºÍlabel
-(global-set-key (kbd "<f5>") 'helm-gtags-update-tags) ;c-u È«¾ÖË¢ĞÂ £¬c-u c-u ´´½¨
+(global-set-key (kbd "<S-f5>") 'helm-gtags-create-tags) ;å¯ä»¥æŒ‡å®šè·¯å¾„å’Œlabel
+(global-set-key (kbd "<f5>") 'helm-gtags-update-tags) ;c-u å…¨å±€åˆ·æ–° ï¼Œc-u c-u åˆ›å»º
 (global-set-key (kbd "C-\\") 'helm-gtags-dwim)
 (global-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
 
@@ -980,7 +980,7 @@
             (setq truncate-lines t)))
 
 ;; flycheck
-;; (defvar package-user-dir "")			;·ÀÖ¹check lisp³ö´í
+;; (defvar package-user-dir "")			;é˜²æ­¢check lispå‡ºé”™
 (autoload 'flycheck-mode "flycheck" nil t)
 (autoload 'global-flycheck-mode "flycheck" nil t)
 (with-eval-after-load 'flycheck
@@ -996,7 +996,7 @@
                                  (flycheck-buffer)
                                  ))
 
-;; ĞĞºÅĞÔÄÜ¸ÄÉÆ
+;; è¡Œå·æ€§èƒ½æ”¹å–„
 (autoload 'nlinum-mode "nlinum" nil t)
 (autoload 'global-nlinum-mode "nlinum" nil t)
 ;; (global-nlinum-mode 1)
@@ -1009,7 +1009,7 @@
                              (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
                         "d"))))
 (add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
-;; ±ÜÃâ ¡°ERROR: Invalid face: linum¡± error
+;; é¿å… â€œERROR: Invalid face: linumâ€ error
 (defun initialize-nlinum (&optional frame)
   (require 'nlinum)
   (add-hook 'prog-mode-hook 'nlinum-mode))
@@ -1023,7 +1023,7 @@
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
-;; markdown mode (markdown-live-preview-mode Ö±½ÓÔÚemacsÀïÔ¤ÀÀ)
+;; markdown mode (markdown-live-preview-mode ç›´æ¥åœ¨emacsé‡Œé¢„è§ˆ)
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
@@ -1033,7 +1033,7 @@
   "Major mode for editing GitHub Flavored Markdown files" t)
 (add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
 
-;; ´ò¿ª´óÎÄ¼ş
+;; æ‰“å¼€å¤§æ–‡ä»¶
 (require 'vlf-setup)
 (eval-after-load "vlf"
   '(progn
@@ -1075,12 +1075,12 @@
 (global-set-key (kbd "M-j") 'avy-goto-char)
 (global-set-key (kbd "M-g j") 'avy-goto-char-timer)
 
-(global-set-key (kbd "M-v") 'ace-window) ;·­Ò³ÓÃpage up´úÌæ
+(global-set-key (kbd "M-v") 'ace-window) ;ç¿»é¡µç”¨page upä»£æ›¿
 ;; (global-set-key (kbd "M-g j") 'ace-jump-char-mode)
 
 
-;; ²é¿´diff
-;; smartrep£¬»á¸údoom-modeline³åÍ»£¬µ«ÊÇÓĞsmartrep£¬°´¼ü»á·½±ã
+;; æŸ¥çœ‹diff
+;; smartrepï¼Œä¼šè·Ÿdoom-modelineå†²çªï¼Œä½†æ˜¯æœ‰smartrepï¼ŒæŒ‰é”®ä¼šæ–¹ä¾¿
 ;; (require 'diff-hl-margin )
 ;; (global-diff-hl-mode)
 (autoload 'diff-hl-dired-mode "diff-hl-dired" nil t)
@@ -1134,8 +1134,8 @@
      (fset 'diff-hl-changes 'diff-hl-changes-fset)
      ))
 
-;; É¾³ı×Ô´øµÄgitÖ§³Ö£¬ÔÚ´¥·¢Ïà¹ØÃüÁîÊ±ÔÙ´ò¿ª
-(defun toggle-git-backend ()            ;ÎÄ¼şÒªÏÈ´ò¿ªgit backºóÔÙÖ´ĞĞvcÃüÁî£¬·ñÔò»á±¨ÕÒ²»µ½vc-nil
+;; åˆ é™¤è‡ªå¸¦çš„gitæ”¯æŒï¼Œåœ¨è§¦å‘ç›¸å…³å‘½ä»¤æ—¶å†æ‰“å¼€
+(defun toggle-git-backend ()            ;æ–‡ä»¶è¦å…ˆæ‰“å¼€git backåå†æ‰§è¡Œvcå‘½ä»¤ï¼Œå¦åˆ™ä¼šæŠ¥æ‰¾ä¸åˆ°vc-nil
   "docstring"
   (interactive)
   (if (memq 'Git vc-handled-backends)
@@ -1162,10 +1162,10 @@
 (autoload 'pt-regexp "pt" nil t)
 
 ;; rg
-(autoload 'rg "rg" nil t)               ;ËÑË÷µÄ½á¹û°´s±£´æ£¬È»ºórg-list-searches¿ÉÒÔÁĞ³öËùÓĞ½á¹û£¬ÀïÃæÓĞËÑË÷µÄ¹Ø¼ü×Ö,Ä¿Â¼
-(autoload 'rg-project "rg" nil t)       ;´úÌæag-project
-(autoload 'rg-dwim "rg" nil t)       ;Ö±½ÓÔÚprojectËÑË÷¹â±êÏÂµÄsymbol£¬²¢ÇÒ²»ÓÃÖ¸¶¨ÀàĞÍ
-;; ËÑË÷Ä£Ê½ÈçÏÂ
+(autoload 'rg "rg" nil t)               ;æœç´¢çš„ç»“æœæŒ‰sä¿å­˜ï¼Œç„¶årg-list-searcheså¯ä»¥åˆ—å‡ºæ‰€æœ‰ç»“æœï¼Œé‡Œé¢æœ‰æœç´¢çš„å…³é”®å­—,ç›®å½•
+(autoload 'rg-project "rg" nil t)       ;ä»£æ›¿ag-project
+(autoload 'rg-dwim "rg" nil t)       ;ç›´æ¥åœ¨projectæœç´¢å…‰æ ‡ä¸‹çš„symbolï¼Œå¹¶ä¸”ä¸ç”¨æŒ‡å®šç±»å‹
+;; æœç´¢æ¨¡å¼å¦‚ä¸‹
 (defun rg-rerun-toggle-word ()
   ""
   (interactive)
@@ -1176,7 +1176,7 @@
 ;;     (define-key map "i" 'rg-rerun-toggle-ignore)
 ;;     (define-key map "r" 'rg-rerun-change-regexp)
 ;;     (define-key map "t" 'rg-rerun-change-literal)
-(global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep Ò²ºÃÓÃ£¬projectile-agÍêÈ«µÈ¼Û
+(global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep ä¹Ÿå¥½ç”¨ï¼Œprojectile-agå®Œå…¨ç­‰ä»·
 
 
 ;; fast silver searcher
@@ -1188,10 +1188,10 @@
 
 (global-set-key (kbd "<M-f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
-;; (global-set-key (kbd "C-S-f") 'ag-project) ;counsel-git-grep Ò²ºÃÓÃ£¬projectile-agÍêÈ«µÈ¼Û£¬ helm-ag-project-root
-;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;ËÙ¶È×î¿ì,Çø·Ö´óĞ¡Ğ´
+;; (global-set-key (kbd "C-S-f") 'ag-project) ;counsel-git-grep ä¹Ÿå¥½ç”¨ï¼Œprojectile-agå®Œå…¨ç­‰ä»·ï¼Œ helm-ag-project-root
+;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;é€Ÿåº¦æœ€å¿«,åŒºåˆ†å¤§å°å†™
 (global-set-key (kbd "<S-f9>") 'ag-dired)
-;; C-c C-k Í£Ö¹ag-dired
+;; C-c C-k åœæ­¢ag-dired
 
 (autoload 'wgrep-ag-setup "wgrep-ag")
 (add-hook 'ag-mode-hook 'wgrep-ag-setup)
@@ -1290,16 +1290,16 @@
      (fset 'ag/buffer-name 'ag/buffer-name-fset)
      ))
 
-;; magit È·±£sshµÄppkÕıÈ·£¬»»µçÄÔµÄ»°ÒªÖØĞÂÉú³ÉÃÜÔ¿
+;; magit ç¡®ä¿sshçš„ppkæ­£ç¡®ï¼Œæ¢ç”µè„‘çš„è¯è¦é‡æ–°ç”Ÿæˆå¯†é’¥
 (when (memq system-type '(windows-nt ms-dos))
-  (setenv "GIT_ASKPASS" "git-gui--askpass") ;½â¾ögit push²»ÌáÊ¾ÃÜÂëµÄÎÊÌâ
+  (setenv "GIT_ASKPASS" "git-gui--askpass") ;è§£å†³git pushä¸æç¤ºå¯†ç çš„é—®é¢˜
   (setenv "SSH_ASKPASS" "git-gui--askpass")
-  ;; (setenv "GIT_SSH" "c:/Program Files/PuTTY/plink.exe") ;Óöµ½µ¯³öPOTENTIAL SECURITY BREACH!¸æ¾¯¾ÍÃ»·¨ÓÃÁË
-  (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");Õâ¸ö°²×°git for windowsÊ±ÓĞÑ¡ÏîÒ²¿ÉÒÔÖ¸¶¨£¬ÓÃÕâ¸öÓĞÊ²Ã´ĞèÒªµãµÄÌáÊ¾ÄÜµ¯³öÀ´£¬²»ÏñplinkÃ»·¨µã
+  ;; (setenv "GIT_SSH" "c:/Program Files/PuTTY/plink.exe") ;é‡åˆ°å¼¹å‡ºPOTENTIAL SECURITY BREACH!å‘Šè­¦å°±æ²¡æ³•ç”¨äº†
+  (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");è¿™ä¸ªå®‰è£…git for windowsæ—¶æœ‰é€‰é¡¹ä¹Ÿå¯ä»¥æŒ‡å®šï¼Œç”¨è¿™ä¸ªæœ‰ä»€ä¹ˆéœ€è¦ç‚¹çš„æç¤ºèƒ½å¼¹å‡ºæ¥ï¼Œä¸åƒplinkæ²¡æ³•ç‚¹
   )
 
-;; ÒªÏë±£´æÃÜÂë²»ÓÃÃ¿´ÎÊäÈëµÃĞŞ¸Ä.git-credentialsºÍ.gitconfig
-;; ½â¾ömagitºÍ·şÎñÆ÷µÄÂÒÂëÎÊÌâ£¬²»ĞèÒªÔÚ.gitconfigÖĞ¸Ä118nµÄÅäÖÃ(±ÈÈçÅäÖÃ³Égb2312)
+;; è¦æƒ³ä¿å­˜å¯†ç ä¸ç”¨æ¯æ¬¡è¾“å…¥å¾—ä¿®æ”¹.git-credentialså’Œ.gitconfig
+;; è§£å†³magitå’ŒæœåŠ¡å™¨çš„ä¹±ç é—®é¢˜ï¼Œä¸éœ€è¦åœ¨.gitconfigä¸­æ”¹118nçš„é…ç½®(æ¯”å¦‚é…ç½®æˆgb2312)
 (defun my-git-commit-hook ()
   (set-buffer-file-coding-system 'utf-8-unix))
 
@@ -1325,20 +1325,20 @@
 (global-set-key (kbd "C-x t g") 'magit-blame-addition)
 (global-set-key (kbd "C-x t l") 'magit-log-buffer-file)
 
-;; ±ÜÃâÊ±Çø²î8Ğ¡Ê±
+;; é¿å…æ—¶åŒºå·®8å°æ—¶
 (eval-after-load "magit"
   '(progn
      (defadvice magit-blame-format-time-string (before magit-blame-format-time-strin-bef activate)
        ""
        (setq tz 0))
 
-     ;; Ìá¸ßĞÔÄÜ
+     ;; æé«˜æ€§èƒ½
      ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
-     ;; (remove-hook 'server-switch-hook 'magit-commit-diff) ;Ìá½»Ê±²»ÏÔÊ¾²îÒì£¬ÈçĞèÏÔÊ¾ÇÃc-c c-d
+     ;; (remove-hook 'server-switch-hook 'magit-commit-diff) ;æäº¤æ—¶ä¸æ˜¾ç¤ºå·®å¼‚ï¼Œå¦‚éœ€æ˜¾ç¤ºæ•²c-c c-d
      ))
 
 
-;; ĞÇ¼ÊÒëÍõ ´Êµä·ÅÔÚ×Ô¼ºµÄhomeÄ¿Â¼ÏÂµÄ.stardict/dic/ Òª°Ñ×Öµä½âÑ¹³ÉÎÄ¼ş¼Ğ£¬url£ºhttp://download.huzheng.org
+;; æ˜Ÿé™…è¯‘ç‹ è¯å…¸æ”¾åœ¨è‡ªå·±çš„homeç›®å½•ä¸‹çš„.stardict/dic/ è¦æŠŠå­—å…¸è§£å‹æˆæ–‡ä»¶å¤¹ï¼Œurlï¼šhttp://download.huzheng.org
 (defun kid-sdcv-to-buffer (&optional input)
   (interactive "P")
   (let ((word (if mark-active
@@ -1365,20 +1365,20 @@
              (local-set-key (kbd "RET") 'kid-sdcv-to-buffer)
              (local-set-key (kbd ",") (lambda ()
                                         (interactive)
-                                        (quit-window t))));; quit-window t ¿ÉÒÔ¹Ø±Õ´°¿Ú²¢»Ö¸´Ô­ÏÈ´°¿Ú²¼¾Ö,µ«ÊÇbuffer±»kill
+                                        (quit-window t))));; quit-window t å¯ä»¥å…³é—­çª—å£å¹¶æ¢å¤åŸå…ˆçª—å£å¸ƒå±€,ä½†æ˜¯bufferè¢«kill
            (goto-char (point-min))
            (open-line 1)))))))
 
 (global-set-key (kbd "<M-f11>") 'kid-sdcv-to-buffer)
 
-;; ÏÔÊ¾ËÑË÷index
+;; æ˜¾ç¤ºæœç´¢index
 (require 'anzu)
 (global-anzu-mode +1)
-(setq anzu-search-threshold 200) ;;·ÀÖ¹´óÎÄ¼şËÑË÷Ê±ºÜ¿¨
+(setq anzu-search-threshold 200) ;;é˜²æ­¢å¤§æ–‡ä»¶æœç´¢æ—¶å¾ˆå¡
 (global-set-key (kbd "M-%") 'anzu-query-replace)
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 
-;; anzu mode-line²»ÏÔÊ¾À¨ºÅ
+;; anzu mode-lineä¸æ˜¾ç¤ºæ‹¬å·
 (defun anzu--update-mode-line-default-fset (here total)
   (when anzu--state
     (let ((status (cl-case anzu--state
@@ -1412,7 +1412,7 @@
 (setq centaur-tabs-modified-marker "*")
 ;; (setq centaur-tabs-height 18)
 
-;; ¹ıÂËµôÄ³Ğ©buffer¹¦ÄÜÔÚaquamacs-tabbarÖĞÎ´Ê¹ÓÃ£¬¼ÓÉÏ
+;; è¿‡æ»¤æ‰æŸäº›bufferåŠŸèƒ½åœ¨aquamacs-tabbarä¸­æœªä½¿ç”¨ï¼ŒåŠ ä¸Š
 ;; (defun tabbar-gzj-inhgibit-function ()
 ;;   ""
 ;;   (uninterested-buffer (current-buffer)))
@@ -1434,7 +1434,7 @@
 ;;           (tabbar-line-format tabbar-current-tabset)))))
 ;;   (fset 'tabbar-line 'tabbar-line-fset))
 
-;; ·ÀÖ¹undoºó±êÇ©ÑÕÉ«²»»Ö¸´
+;; é˜²æ­¢undoåæ ‡ç­¾é¢œè‰²ä¸æ¢å¤
 ;; (defadvice undo(after undo-after activate)
 ;;   ;;   (on-modifying-buffer) ;; tabbar
 ;;   (tabbar-update-if-changes-undone)       ; aquamacs-tabbar
@@ -1450,7 +1450,7 @@
 ;;                                 (&rest args) disable compile)
 ;;   (aquamacs-handle-frame-iconified (car args)))
 
-;; ÖØĞÂ¶¨ÒåÒÔÏÂº¯Êı£¬¹Ø±Õ°´Å¥²»ÏÔÊ¾Í¼Æ¬£¨windowsÉÏÏÔÊ¾Ğ§¹û²î£©
+;; é‡æ–°å®šä¹‰ä»¥ä¸‹å‡½æ•°ï¼Œå…³é—­æŒ‰é’®ä¸æ˜¾ç¤ºå›¾ç‰‡ï¼ˆwindowsä¸Šæ˜¾ç¤ºæ•ˆæœå·®ï¼‰
 ;; (when (memq system-type '(windows-nt ms-dos))
 ;;   (setq tabbar-use-images nil)
 ;;   (defsubst tabbar-line-tab (tab)
@@ -1468,7 +1468,7 @@
 ;;                           'tabbar-selected
 ;;                         'tabbar-unselected))
 ;;            (close-button
-;;             (propertize "[¢ú]"
+;;             (propertize "[â…©]"
 ;;                         'tabbar-tab tab
 ;;                         'local-map (tabbar-make-tab-keymap tab)
 ;;                         'tabbar-action 'close-tab
@@ -1517,21 +1517,21 @@
 
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
-(global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;²»ÒªÖ±½ÓÓÃimenu-listÃüÁî£¬ÒòÎª²»Æğtimer£¬ÎŞ·¨×Ô¶¯Ë¢ĞÂ
+(global-set-key (kbd "M-q") 'imenu-list-smart-toggle) ;ä¸è¦ç›´æ¥ç”¨imenu-listå‘½ä»¤ï¼Œå› ä¸ºä¸èµ·timerï¼Œæ— æ³•è‡ªåŠ¨åˆ·æ–°
 
 ;; maple-imenu
 (autoload 'maple-imenu "maple-imenu" nil t)
 ;; (global-set-key (kbd "M-q") 'maple-imenu)
 
-;; modelineºÍÖ÷Ìâ¶¨ÖÆ
+;; modelineå’Œä¸»é¢˜å®šåˆ¶
 ;; doom theme with its mode line
 (require 'doom-themes)
 ;; (doom-themes-visual-bell-config)
 ;; (doom-themes-neotree-config)
 (autoload 'doom-themes-org-config "doom-themes-ext-org.el" nil t)
 (doom-themes-org-config)
-;; (doom-themes-treemacs-config)           ;Õâ¾ä»áµ¼ÖÂtreemacsÎŞ·¨µã»÷´ò¿ªÎÄ¼şµÄtags£¬µ«ÊÇ¿ÉÒÔÔÚÎÄ¼şÃûÉÏÓÒ¼üÑ¡Ôñ´ò¿ª
-;; (load-theme 'doom-nord t) ;; Õâ¾äÒªÓÃ '(custom-enabled-themes (quote (doom-nord)))£¬·ñÔòtabbarµÄfaceÓĞÎÊÌâ
+;; (doom-themes-treemacs-config)           ;è¿™å¥ä¼šå¯¼è‡´treemacsæ— æ³•ç‚¹å‡»æ‰“å¼€æ–‡ä»¶çš„tagsï¼Œä½†æ˜¯å¯ä»¥åœ¨æ–‡ä»¶åä¸Šå³é”®é€‰æ‹©æ‰“å¼€
+;; (load-theme 'doom-nord t) ;; è¿™å¥è¦ç”¨ '(custom-enabled-themes (quote (doom-nord)))ï¼Œå¦åˆ™tabbarçš„faceæœ‰é—®é¢˜
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
 (setq inhibit-compacting-font-caches t) ; laggy issue on Windows
@@ -1555,7 +1555,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (fset 'doom-modeline-set-main-modeline 'doom-modeline-set-main-misc-for-all-modeline)
 (doom-modeline-mode 1)
 
-;; org screenshort£¬µÃ×°image magick
+;; org screenshortï¼Œå¾—è£…image magick
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
 
@@ -1588,8 +1588,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'taglist-list-tags "taglist" nil t)
 (global-set-key (kbd "M-Q") 'taglist-list-tags)
 
-;; lsp IDE¼¶²å¼ş£¬ÓĞĞ©server±ÈÈçbash,javascriptĞèÒªÓÃnpmÃüÁî°²×°£¬npmÃüÁîÒª×°https://nodejs.org/en/²ÅÓĞ
-;; from source±àÒë£¬Òª×°yarn
+;; lsp IDEçº§æ’ä»¶ï¼Œæœ‰äº›serveræ¯”å¦‚bash,javascriptéœ€è¦ç”¨npmå‘½ä»¤å®‰è£…ï¼Œnpmå‘½ä»¤è¦è£…https://nodejs.org/en/æ‰æœ‰
+;; from sourceç¼–è¯‘ï¼Œè¦è£…yarn
 ;; # install dependencies
 ;; npm install
 ;; # compile
@@ -1601,13 +1601,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq lsp-java-workspace-dir "d:/lsp-java-workspace/"))  
 
 (autoload 'projectile-mode "projectile" nil t)
-(global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);ÇĞ»»srcºÍtestÎÄ¼ş£¬µÃÏÈprojectile-mode
+(global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);åˆ‡æ¢srcå’Œtestæ–‡ä»¶ï¼Œå¾—å…ˆprojectile-mode
 (autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
 (autoload 'helm-lsp-workspace-symbol "helm-lsp" nil t)
 
-;; lspÄ¬ÈÏÖ§³Öjs-mode²»Ö§³Öjson-mode,flycheckÄ¬ÈÏÖ§³Öjson-mode
+;; lspé»˜è®¤æ”¯æŒjs-modeä¸æ”¯æŒjson-mode,flychecké»˜è®¤æ”¯æŒjson-mode
 (with-eval-after-load 'lsp-mode
-  (require 'projectile)                 ;Ä¿Â¼ÏÂÃæ·Å.projectileÎÄ¼ş²ÅĞĞ
+  (require 'projectile)                 ;ç›®å½•ä¸‹é¢æ”¾.projectileæ–‡ä»¶æ‰è¡Œ
   (require 'flycheck)
   (require 'lsp-ui)
   (require 'yasnippet)
@@ -1631,9 +1631,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'nxml-mode-hook 'lsp)
   (add-hook 'js-mode-hook 'lsp)
 
-  (add-hook 'origami-mode-hook #'lsp-origami-mode) ;Ö§³ÖÕÛµş
+  (add-hook 'origami-mode-hook #'lsp-origami-mode) ;æ”¯æŒæŠ˜å 
 
-  ;;·ÀÖ¹ÔÚ×¢ÊÍÀïlsp²»ÄÜ²¹È«Ê±Ê¹ÓÃÆäËûºó¶Ë»á¿¨£¬ÁíÍâ´øÉÏcompany-yasnippet £¬Ì«¿¨£¬ÁíÍâ²¹È«³ÉÔ±µÄÊ±ºò²»Ó¦¸ÃÌáÊ¾
+  ;;é˜²æ­¢åœ¨æ³¨é‡Šé‡Œlspä¸èƒ½è¡¥å…¨æ—¶ä½¿ç”¨å…¶ä»–åç«¯ä¼šå¡ï¼Œå¦å¤–å¸¦ä¸Šcompany-yasnippet ï¼Œå¤ªå¡ï¼Œå¦å¤–è¡¥å…¨æˆå‘˜çš„æ—¶å€™ä¸åº”è¯¥æç¤º
   ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
   ;;   (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
 
@@ -1643,9 +1643,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (setq lsp-auto-guess-root t)
 
   (setq lsp-prefer-flymake nil)
-  (setq lsp-ui-imenu-enable nil)        ;´ò¿ª´óÎÄ¼şÌ«¿¨
+  (setq lsp-ui-imenu-enable nil)        ;æ‰“å¼€å¤§æ–‡ä»¶å¤ªå¡
   (setq lsp-ui-sideline-enable nil)
-  (setq lsp-ui-doc-enable nil)          ;ÓÃÊÖ¶¯lsp-describe-thing-at-pointÌæ´ú
+  (setq lsp-ui-doc-enable nil)          ;ç”¨æ‰‹åŠ¨lsp-describe-thing-at-pointæ›¿ä»£
   (setq lsp-ui-flycheck-enable t)
   ;; (setq lsp-auto-configure nil)
   (global-company-mode t)
@@ -1657,7 +1657,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
 
   (global-set-key (kbd "<f1>") 'lsp-ui-peek-find-definitions)
-  (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;¿ÉÒÔÌæ´úlsp-ui-doc
+  (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;å¯ä»¥æ›¿ä»£lsp-ui-doc
   (global-set-key (kbd "<C-f12>") 'lsp-execute-code-action)
   (global-set-key (kbd "<M-f12>") 'lsp-find-implementation)
   (global-set-key (kbd "<f12>") 'xref-find-references)
@@ -1665,7 +1665,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
 
-  ;; imenuÖ»ÏÔÊ¾·µ»ØÖµºÍº¯ÊıÃû£¬²ÎÊı²»ÏÔÊ¾
+  ;; imenuåªæ˜¾ç¤ºè¿”å›å€¼å’Œå‡½æ•°åï¼Œå‚æ•°ä¸æ˜¾ç¤º
   (defun lsp--symbol-to-imenu-elem-fset (sym)
     (let* ((start-point (lsp--symbol-get-start-point sym))
            (name (gethash "name" sym))
@@ -1692,7 +1692,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   ;; (fset 'lsp--symbol-to-hierarchical-imenu-elem 'lsp--symbol-to-hierarchical-imenu-elem-fset)
 
-  ;; java-script ×·¼Ójson-mode
+  ;; java-script è¿½åŠ json-mode
   (lsp-register-client
    (make-lsp-client :new-connection (lsp-stdio-connection "javascript-typescript-stdio")
                     :major-modes '(json-mode)
@@ -1712,7 +1712,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :server-id 'kt-ls))
   
   ;; java settings
-  ;; lsp-javaµÄTreemacsºÍClasspath browsing¹¦ÄÜĞèÒªÓÃEclipse Che Language Server
+  ;; lsp-javaçš„Treemacså’ŒClasspath browsingåŠŸèƒ½éœ€è¦ç”¨Eclipse Che Language Server
   ;; lsp-java-jdt-download-url - JDT JS download url. Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server-latest.tar.gz if you want to use Eclipse Che JDT LS.
   (with-eval-after-load 'lsp-java
     (setq lsp-ui-imenu-enable t)
@@ -1749,7 +1749,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
     ;; (fset 'lsp-java-treemacs-unregister 'lsp-java-treemacs-unregister-fset)
     )
-  ;; xref°´¼üÖØ¶¨Òå
+  ;; xrefæŒ‰é”®é‡å®šä¹‰
   (define-key xref--button-map [mouse-1] 'ignore)
   (define-key xref--button-map (kbd "<double-mouse-1>") 'xref-show-location-at-point)
   (defun xref--mouse-2-fset (event)
@@ -1768,8 +1768,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
       (setq cquery-executable "d:/software/cquery/build/release/bin/cquery")
     (setq cquery-executable "~/cquery/build/release/bin/cquery"))
   ;; Use t for true, :json-false for false, :json-null for null
-  ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpackÕ¼ÓÃ¿Õ¼äĞ¡£¬µ«ÊÇ²é¿´À§ÄÑ£¬²¢ÇÒ½á¹¹Ìå±ä¸ü£¬ÒªÊÖ¶¯¸üĞÂË÷Òı
-  ;; containerÏÖÔÚÔÚxrefÀï»¹Ã»ÓĞÏÔÊ¾£¬ÎŞ·¨Ê¹ÓÃ£¬ÅäÖÃÊÇ:xref (:container t), commentsÓĞÂÒÂëÏÈ²»ÓÃ , :completion (:detailedLabel t)¸ú²»ÉèÖÃÇø±ğ²»´ó
+  ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpackå ç”¨ç©ºé—´å°ï¼Œä½†æ˜¯æŸ¥çœ‹å›°éš¾ï¼Œå¹¶ä¸”ç»“æ„ä½“å˜æ›´ï¼Œè¦æ‰‹åŠ¨æ›´æ–°ç´¢å¼•
+  ;; containerç°åœ¨åœ¨xrefé‡Œè¿˜æ²¡æœ‰æ˜¾ç¤ºï¼Œæ— æ³•ä½¿ç”¨ï¼Œé…ç½®æ˜¯:xref (:container t), commentsæœ‰ä¹±ç å…ˆä¸ç”¨ , :completion (:detailedLabel t)è·Ÿä¸è®¾ç½®åŒºåˆ«ä¸å¤§
   (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*" ".*/netconf/.*" ".*/ftpc/.*" ".*/xsm/.*" ".*/sshc/.*" ".*/sshs/.*"))))
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
@@ -1778,9 +1778,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (define-key c-mode-map (kbd "<S-f12>") 'cquery-call-hierarchy)
   (define-key c++-mode-map (kbd "<S-f12>") 'cquery-call-hierarchy)
 
-  ;;ÌáÊ¾cquery is not enabled in buffer¾Í°Ñµ÷cquery--cquery-buffer-checkµÄµØ·½¶¼×¢µô
+  ;;æç¤ºcquery is not enabled in bufferå°±æŠŠè°ƒcquery--cquery-buffer-checkçš„åœ°æ–¹éƒ½æ³¨æ‰
 
-  ;;½ø³ÌÒì³£Ê±£¬¼ÇÂ¼ÓĞ²ĞÁô£¬Ö´ĞĞÕâ¾ä¸´Ô­
+  ;;è¿›ç¨‹å¼‚å¸¸æ—¶ï¼Œè®°å½•æœ‰æ®‹ç•™ï¼Œæ‰§è¡Œè¿™å¥å¤åŸ
   (global-set-key (kbd "<C-S-f12>") (lambda () "" (interactive)
                                       (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
@@ -1794,7 +1794,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                                (back-to-indentation)))
   (add-hook 'cquery-tree-mode-hook 'set-c-word-mode)
   ;; (cquery-use-default-rainbow-sem-highlight)
-  ;; ÆäËû¹¦ÄÜ
+  ;; å…¶ä»–åŠŸèƒ½
   ;; (cquery-xref-find-custom "$cquery/base")
   ;; (cquery-xref-find-custom "$cquery/callers")
   ;; (cquery-xref-find-custom "$cquery/derived")
@@ -1803,16 +1803,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (cquery-xref-find-custom "$cquery/references-address")"
   ;; (cquery-xref-find-custom "$cquery/references-read")
   ;; (cquery-xref-find-custom "$cquery/references-write")
-  ;; cquery-call-hierarchy´øc-u²éµÄÊÇcallee£¬²»´ø²éµÄÊÇcaller
+  ;; cquery-call-hierarchyå¸¦c-uæŸ¥çš„æ˜¯calleeï¼Œä¸å¸¦æŸ¥çš„æ˜¯caller
 
-  ;; ²»ÕÛĞĞ
+  ;; ä¸æŠ˜è¡Œ
   (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
     (eval
      `(defadvice ,command (after cquery-after activate)
         (setq truncate-lines t)
         )))
 
-  ;; ½â¾öÂÒÂë
+  ;; è§£å†³ä¹±ç 
   (defun cquery-tree--make-prefix-fset (node number nchildren depth)
     "."
     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
@@ -1821,8 +1821,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                            "< "
                          "")
                      (if (cquery-tree-node-has-children node)
-                         (if (cquery-tree-node-expanded node) "©¸- " "©¸+ ")
-                       (if (eq number (- nchildren 1)) "©¸* " "©À* ")))))
+                         (if (cquery-tree-node-expanded node) "â””- " "â””+ ")
+                       (if (eq number (- nchildren 1)) "â””* " "â”œ* ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
 
@@ -1836,10 +1836,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; pkg-info for flycheck
 (autoload 'pkg-info-version-info "pkg-info" nil t)
 
-;; clipmon¼àÊÓ¼ôÌù°å
+;; clipmonç›‘è§†å‰ªè´´æ¿
 (autoload 'clipmon-mode "clipmon" nil t)
 ;; (setq clipmon-autoinsert-sound nil) 
-;; clipmon-autoinsert-toggle ×Ô¶¯²åÈëµ±Ç°buffer£¬Ö»ÄÜ¼àÊÓÆäËû³ÌĞò£¬µ±Ç°³ÌĞò²»ĞĞ
+;; clipmon-autoinsert-toggle è‡ªåŠ¨æ’å…¥å½“å‰bufferï¼Œåªèƒ½ç›‘è§†å…¶ä»–ç¨‹åºï¼Œå½“å‰ç¨‹åºä¸è¡Œ
 
 ;; treemacs
 (global-set-key (kbd "<M-f6>") 'treemacs-select-window)
@@ -1859,26 +1859,26 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   (add-hook 'treemacs-mode-hook
             (lambda ()
-              ;; (setq treemacs-collapse-dirs 3) ;Ì«¿¨£¬¶øÇÒÓĞÊ±»áµ¼ÖÂÍ¬²½ÎÄ¼şÎ»ÖÃ³ö´í
+              ;; (setq treemacs-collapse-dirs 3) ;å¤ªå¡ï¼Œè€Œä¸”æœ‰æ—¶ä¼šå¯¼è‡´åŒæ­¥æ–‡ä»¶ä½ç½®å‡ºé”™
               (treemacs-icons-dired-mode)
               ;; (treemacs-tag-follow-mode)
-              (treemacs-follow-mode -1) ;treemacs-find-file ÊÖ¶¯focus
-              ;; (treemacs-filewatch-mode -1)                                        ;Ì«¿¨
-              (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode) ;treemacs-find-tag ÊÖ¶¯focus
+              (treemacs-follow-mode -1) ;treemacs-find-file æ‰‹åŠ¨focus
+              ;; (treemacs-filewatch-mode -1)                                        ;å¤ªå¡
+              (define-key treemacs-mode-map (kbd "tt") 'treemacs-tag-follow-mode) ;treemacs-find-tag æ‰‹åŠ¨focus
               (define-key treemacs-mode-map (kbd "e") 'treemacs-toggle-node)
               (define-key treemacs-mode-map (kbd "f") 'treemacs-visit-node-no-split)
               (define-key treemacs-mode-map (kbd "/") 'isearch-forward)
               (define-key treemacs-mode-map (kbd "?") 'isearch-backward)
               (setq truncate-lines t))))
 
-;; dap-mode µ÷ÊÔ
+;; dap-mode è°ƒè¯•
 (autoload 'dap-mode "dap-mode" nil t)
 (autoload 'dap-ui-mode "dap-ui" nil t)
 (with-eval-after-load 'dap-mode
   (require 'dap-java)
   (require 'dap-python))
 
-;; ¶ÔÆëÏß
+;; å¯¹é½çº¿
 (autoload 'highlight-indent-guides-mode "highlight-indent-guides" nil t)
 ;; (add-hook 'nxml-mode-hook 'highlight-indent-guides-mode)
 ;; (add-hook 'emacs-lisp-mode-hook 'highlight-indent-guides-mode)
@@ -1889,7 +1889,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (setq highlight-indent-guides-delay 0.7)
   )
 
-;; kotlin mode ¸újava×ª»»µÄÒ»ÖÖÓïÑÔ
+;; kotlin mode è·Ÿjavaè½¬æ¢çš„ä¸€ç§è¯­è¨€
 (autoload 'kotlin-mode "kotlin-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.kt$" . kotlin-mode))
 
@@ -1902,7 +1902,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
              (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 ;; swiper
-;; Ìæ´úhelm-gtags
+;; æ›¿ä»£helm-gtags
 ;; (autoload 'counsel-gtags-mode "counsel-gtags" nil t)
 (autoload 'counsel-gtags-find-file "counsel-gtags" nil t)
 ;; (autoload 'counsel-gtags-find-symbol "counsel-gtags" nil t)
@@ -1915,12 +1915,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<C-S-f5>") 'counsel-gtags-find-file)
 (global-set-key (kbd "<C-S-f7>") 'counsel-gtags-find-definition)
 ;; (global-set-key (kbd "C-\\") 'counsel-gtags-dwim)
-;; (global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;¿ÉÒÔÖ¸¶¨Â·¾¶ºÍlabel
-;; (global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u È«¾ÖË¢ĞÂ £¬c-u c-u ´´½¨
+;; (global-set-key (kbd "<S-f5>") 'counsel-gtags-create-tags) ;å¯ä»¥æŒ‡å®šè·¯å¾„å’Œlabel
+;; (global-set-key (kbd "<f5>") 'counsel-gtags-update-tags) ;c-u å…¨å±€åˆ·æ–° ï¼Œc-u c-u åˆ›å»º
 ;; (global-set-key (kbd "C-c s") 'counsel-gtags-find-symbol)
 ;; (global-set-key (kbd "C-c r") 'counsel-gtags-find-reference)
 
-;; ½Ó¹ÜÊäÈë
+;; æ¥ç®¡è¾“å…¥
 (autoload 'ivy-mode "ivy" nil t)
 (global-set-key (kbd "<M-apps>") 'ivy-resume)
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
@@ -1940,9 +1940,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   )
 
 ;; (ivy-mode)
-;; counsel-yank-popÏÔÊ¾ÀúÊ·Ä¬ÈÏM-y
-;; counsel-git²é¿´µ±Ç°¹¤³ÌÏÂµÄÎÄ¼şÍ¨¹ıgit
-;; counsel-faces¿ÉÒÔÏÔÊ¾face list
+;; counsel-yank-popæ˜¾ç¤ºå†å²é»˜è®¤M-y
+;; counsel-gitæŸ¥çœ‹å½“å‰å·¥ç¨‹ä¸‹çš„æ–‡ä»¶é€šè¿‡git
+;; counsel-faceså¯ä»¥æ˜¾ç¤ºface list
 ;; (global-set-key (kbd "<C-f10>") 'counsel-locate)
 ;; (autoload 'counsel-locate "counsel" nil t) 
 (autoload 'counsel-mode "counsel" nil t) 
@@ -1951,7 +1951,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;     (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind))
 ;;   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 ;; (counsel-mode)
-;; ½Ó¹ÜËÑË÷
+;; æ¥ç®¡æœç´¢
 (autoload 'swiper "swiper" nil t)
 
 ;; (global-set-key (kbd "<f9>") 'swiper)
@@ -1964,10 +1964,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;                                             (swiper-from-isearch)))
 ;;   )
 
-;; ¶à¹â±ê²Ù×÷ 
+;; å¤šå…‰æ ‡æ“ä½œ 
 (autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
 (autoload 'mc/edit-lines "multiple-cursors" nil t)
-(global-set-key (kbd "C-c C-e") 'mc/mark-all-like-this) ;Ñ¡ÖĞºóC-yÕ³ÌùÌæ»»
+(global-set-key (kbd "C-c C-e") 'mc/mark-all-like-this) ;é€‰ä¸­åC-yç²˜è´´æ›¿æ¢
 (global-set-key (kbd "C-c C-s") 'mc/edit-lines)
 (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
 
@@ -1976,12 +1976,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'neotree-toggle "neotree" nil t)
 (global-set-key (kbd "<M-f7>") 'neotree-toggle)
 
-;; ÕÛµş
+;; æŠ˜å 
 (autoload 'origami-mode "origami" nil t)
 ;; (add-hook 'prog-mode-hook
 ;;           (lambda () (origami-mode)))
 
-(autoload 'yafolding-mode "yafolding" nil t) ;²àÀ¸ÓĞ±ê¼Ç£¬»ùÓÚËõ½ø
+(autoload 'yafolding-mode "yafolding" nil t) ;ä¾§æ æœ‰æ ‡è®°ï¼ŒåŸºäºç¼©è¿›
 (autoload 'yafolding-toggle-element "yafolding" nil t)
 (define-key global-map (kbd "M-[") 'yafolding-toggle-element)
 (with-eval-after-load 'yafolding
@@ -1991,18 +1991,18 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; (add-hook 'prog-mode-hook
 ;;           (lambda () (yafolding-mode)))
 
-;; evil fold±¸ÓÃ£¬ÒÀÀµorigami-mode
+;; evil foldå¤‡ç”¨ï¼Œä¾èµ–origami-mode
 ;; (autoload 'evil-toggle-fold "evil" nil t)
 ;; (defadvice evil-toggle-fold(before evil-toggle-fold-bf activate)
 ;;   (unless origami-mode
 ;;     (origami-mode t)))
 
-;; fold region, ´´½¨foldºóÓÃc-` toggle
+;; fold region, åˆ›å»ºfoldåç”¨c-` toggle
 (autoload 'vimish-fold "vimish-fold" nil t)
 (global-set-key (kbd "C-.") 'vimish-fold)
 (global-set-key (kbd "C->") 'vimish-fold-delete)
 
-;; ·ûºÅ¸ßÁÁ
+;; ç¬¦å·é«˜äº®
 (autoload 'symbol-overlay-put "symbol-overlay" nil t)
 (autoload 'symbol-overlay-jump-next "symbol-overlay" nil t)
 (autoload 'symbol-overlay-jump-prev "symbol-overlay" nil t)
@@ -2011,14 +2011,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<C-f8>") 'symbol-overlay-remove-all)
 (global-set-key (kbd "M-n") 'symbol-overlay-jump-next)
 (global-set-key (kbd "M-p") 'symbol-overlay-jump-prev)
-(global-set-key (kbd "C-c n") 'symbol-overlay-switch-forward) ;ÇĞµ½ÏÂÒ»ÏÂ¸ßÁÁµÄ·ûºÅ£¬Ã»ÓĞ¸ßÁÁÊ±²»¹ÜÓÃ
+(global-set-key (kbd "C-c n") 'symbol-overlay-switch-forward) ;åˆ‡åˆ°ä¸‹ä¸€ä¸‹é«˜äº®çš„ç¬¦å·ï¼Œæ²¡æœ‰é«˜äº®æ—¶ä¸ç®¡ç”¨
 (global-set-key (kbd "C-c p") 'symbol-overlay-switch-backward)
-;; (symbol-overlay-mode t)                   ;×Ô¶¯¸ßÁÁ£¬²»ÊÇÈ«¾ÖµÄ
+;; (symbol-overlay-mode t)                   ;è‡ªåŠ¨é«˜äº®ï¼Œä¸æ˜¯å…¨å±€çš„
 
 ;; purpose
 (autoload 'purpose-mode "window-purpose" nil t)
-(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;¸Ã´°¿Ú²»»á±»Õ¼
-(global-set-key (kbd "<M-S-f10>") 'purpose-mode)                         ;¸Ã´°¿ÚÓÃÓÚÄ³Ò»Ààbuffer
+(autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;è¯¥çª—å£ä¸ä¼šè¢«å 
+(global-set-key (kbd "<M-S-f10>") 'purpose-mode)                         ;è¯¥çª—å£ç”¨äºæŸä¸€ç±»buffer
 (global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
 
 ;; nyan
@@ -2030,8 +2030,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (setq ffip-use-rust-fd t)
 
 ;; json reformat
-;; Í¨¹ıpackageÒÑ¾­¼ÓÔØµÄjson-mode-beautifyÃüÁîC-c C-f¾ÍÊÇ°ÑÒ»¶Îjson±¨ÎÄÃÀ»¯³ÉÓĞ¶ÎÂäËõ½øµÄĞ§¹û£¬µ«ÊÇ×ª³öÀ´µÄË³ĞòÊÇÂÒµÄ
-;; web-beautify×ªµÄÕıÈ·£¬ĞèÒªÒÀÀµnpm -g install js-beautify
+;; é€šè¿‡packageå·²ç»åŠ è½½çš„json-mode-beautifyå‘½ä»¤C-c C-få°±æ˜¯æŠŠä¸€æ®µjsonæŠ¥æ–‡ç¾åŒ–æˆæœ‰æ®µè½ç¼©è¿›çš„æ•ˆæœï¼Œä½†æ˜¯è½¬å‡ºæ¥çš„é¡ºåºæ˜¯ä¹±çš„
+;; web-beautifyè½¬çš„æ­£ç¡®ï¼Œéœ€è¦ä¾èµ–npm -g install js-beautify
 (autoload 'web-beautify-js "web-beautify" nil t)
 (autoload 'web-beautify-css "web-beautify" nil t)
 (autoload 'web-beautify-html "web-beautify" nil t)
@@ -2058,10 +2058,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; smartparens
 (autoload 'smartparens-mode "smartparens-config" nil  t)
 ;; (add-hook 'prog-mode-hook #'smartparens-mode)
-;; ÒÆ¶¯µÄ°´¼ü sp-smartparens-bindings
+;; ç§»åŠ¨çš„æŒ‰é”® sp-smartparens-bindings
 
 ;; dired-hacks
-;; dired-rainbowÌ«¾É£¬ÒÑ¾­²»¹ÜÓÃÁË
+;; dired-rainbowå¤ªæ—§ï¼Œå·²ç»ä¸ç®¡ç”¨äº†
 (autoload 'dired-collapse-mode "dired-collapse" nil t)
 (autoload 'dired-filter-group-mode "dired-filter" nil t)
 (setq dired-filter-group-saved-groups '(("default"
@@ -2081,9 +2081,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                           (extension "ogg" "flv" "mpg" "avi" "mp4" "mp3"))
                                          ("Archives"
                                           (extension "zip" "rar" "gz" "bz2" "tar")))))
-(autoload 'dired-narrow-fuzzy "dired-narrow" nil t) ;¶¯Ì¬¹ıÂË£¬°´g»Ö¸´
+(autoload 'dired-narrow-fuzzy "dired-narrow" nil t) ;åŠ¨æ€è¿‡æ»¤ï¼ŒæŒ‰gæ¢å¤
 
-;; snailsËÑË÷¿ò¼Ü
+;; snailsæœç´¢æ¡†æ¶
 (autoload 'snails "snails" nil t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
@@ -2112,7 +2112,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
             overlays (cdr overlays)))
     found))
 
-;; Ìí¼ÓÉ¾³ı×¢ÊÍ
+;; æ·»åŠ åˆ é™¤æ³¨é‡Š
 (defun qiang-comment-dwim-line (&optional arg)
   "Replacement for the comment-dwim command.
 If no region is selected and current line is not blank and we are not at the end of the line,
@@ -2124,11 +2124,11 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))
     (comment-dwim arg)))
 
-(global-set-key "\M-'" 'qiang-comment-dwim-line) ;; ÒÑÓĞcomment-line c-x c-;´úÌæ c-c c-c×¢ÊÍregion
+(global-set-key "\M-'" 'qiang-comment-dwim-line) ;; å·²æœ‰comment-line c-x c-;ä»£æ›¿ c-c c-cæ³¨é‡Šregion
 
 
-;; ¿½±´´úÂë×Ô¶¯¸ñÊ½»¯Ä¬ÈÏÊÇÕ³ÌùÍêºó°´c-m-\»á¸ñÊ½»¯Õ³ÌùÄÚÈİ)
-(dolist (command '(yank yank-pop))      ;ÒªÏëÕ³Ìùºó²»×Ô¶¯Ëõ½ø£¬Òª½èÖúhelm-show-kill-ring£¬ÓÃÕâ¸öÕ³Ìù²»Ëõ½ø
+;; æ‹·è´ä»£ç è‡ªåŠ¨æ ¼å¼åŒ–é»˜è®¤æ˜¯ç²˜è´´å®ŒåæŒ‰c-m-\ä¼šæ ¼å¼åŒ–ç²˜è´´å†…å®¹)
+(dolist (command '(yank yank-pop))      ;è¦æƒ³ç²˜è´´åä¸è‡ªåŠ¨ç¼©è¿›ï¼Œè¦å€ŸåŠ©helm-show-kill-ringï¼Œç”¨è¿™ä¸ªç²˜è´´ä¸ç¼©è¿›
   (eval
    `(defadvice ,command (after indent-region activate)
       (and (not current-prefix-arg)
@@ -2149,17 +2149,17 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
              ;; (c-indent-line-or-region t t)
              )))))
 
-;; Ìøµ½Æ¥ÅäµÄÀ¨ºÅ´¦£¬²»ÒªÅäÖÃ%µ±¿ì½İ¼ü
+;; è·³åˆ°åŒ¹é…çš„æ‹¬å·å¤„ï¼Œä¸è¦é…ç½®%å½“å¿«æ·é”®
 (defun his-match-paren (arg)
   "Go to the matching paren if on a paren; otherwise insert %."
   (interactive "p")
   (let ((prev-char (char-to-string (preceding-char)))
         (next-char (char-to-string (following-char))))
-    (cond ((string-match "[[{(<£¨]" next-char) (forward-sexp 1))
-          ((string-match "[\]})>£©]" prev-char) (backward-sexp 1))
+    (cond ((string-match "[[{(<ï¼ˆ]" next-char) (forward-sexp 1))
+          ((string-match "[\]})>ï¼‰]" prev-char) (backward-sexp 1))
           )))
 
-;; Ñ¡ÖĞÀ¨ºÅ¼äµÄÄÚÈİ
+;; é€‰ä¸­æ‹¬å·é—´çš„å†…å®¹
 (defun select-match ()
   "select between match paren"
   (interactive)
@@ -2169,7 +2169,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key (kbd "C-'") 'his-match-paren)
 (global-set-key (kbd "C-\"") 'select-match)
 
-;; ¸´ÖÆÎÄ¼şÂ·¾¶(Ö§³ÖbufferÖĞºÍdiredÖĞ)
+;; å¤åˆ¶æ–‡ä»¶è·¯å¾„(æ”¯æŒbufferä¸­å’Œdiredä¸­)
 (defun copy-file-name (&optional full)
   "Copy file name of current-buffer.
 If FULL is t, copy full file name."
@@ -2184,7 +2184,7 @@ If FULL is t, copy full file name."
         (kill-new file))
       (message "File `%s' copied." file))))
 
-;; diredÏÂm-0 w¸´ÖÆÈ«Â·¾¶£¬²¢ÇÒ°Ñ/»»³É\ ,M-9²»×ª»»
+;; diredä¸‹m-0 wå¤åˆ¶å…¨è·¯å¾„ï¼Œå¹¶ä¸”æŠŠ/æ¢æˆ\ ,M-9ä¸è½¬æ¢
 (defadvice dired-copy-filename-as-kill(after copy-full-path activate)
   (let ((strmod (current-kill 0)))
     (if (eq last-command 'kill-region)
@@ -2195,10 +2195,10 @@ If FULL is t, copy full file name."
           (kill-new (setq strmod (car (dired-get-marked-files))))))
       (message "%s" strmod))))
 
-(global-set-key (kbd "<M-f3>") 'copy-file-name) ;¼ÓÉÏÈÎÒâµÄ²ÎÊı¾ÍÊÇ¸´ÖÆÈ«Â·¾¶£¬±ÈÈçm-0
+(global-set-key (kbd "<M-f3>") 'copy-file-name) ;åŠ ä¸Šä»»æ„çš„å‚æ•°å°±æ˜¯å¤åˆ¶å…¨è·¯å¾„ï¼Œæ¯”å¦‚m-0
 (global-set-key (kbd "<C-f3>") 'ergoemacs-open-in-desktop)
-(global-set-key (kbd "<C-f4>") 'ergoemacs-open-in-external-app) ;; windowsÏÂÃ»ÓÃ£¬ÔÚdiredÉÏÓÃ&¾ÍĞĞ
-;;¼ôÇĞ¡¢¸´ÖÆµ±Ç°ĞĞ
+(global-set-key (kbd "<C-f4>") 'ergoemacs-open-in-external-app) ;; windowsä¸‹æ²¡ç”¨ï¼Œåœ¨diredä¸Šç”¨&å°±è¡Œ
+;;å‰ªåˆ‡ã€å¤åˆ¶å½“å‰è¡Œ
 (defadvice kill-ring-save (before slickcopy activate compile)
   "When called interactively with no active region, copy a single line instead."
   (interactive
@@ -2221,7 +2221,7 @@ If FULL is t, copy full file name."
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
 
-;; ÀûÓÃevil-jumpÊµÏÖ»ØÌø»úÖÆ, Ã¿¸ö´°¿ÚÓĞ¶ÀÁ¢µÄpopÀúÊ·
+;; åˆ©ç”¨evil-jumpå®ç°å›è·³æœºåˆ¶, æ¯ä¸ªçª—å£æœ‰ç‹¬ç«‹çš„popå†å²
 (dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition symbol-overlay-jump-next symbol-overlay-jump-prev))
   (eval
    `(defadvice ,command (before jump-mru activate)
@@ -2232,13 +2232,13 @@ If FULL is t, copy full file name."
       ;; (window-configuration-to-register :prev-win-layout)
       )))
 
-;; ÉèÖÃµ¥´ÊÁ¬½Ó
+;; è®¾ç½®å•è¯è¿æ¥
 (defun set-c-word-mode ()
   ""
   (interactive)
   (require 'cc-mode)
   (set-syntax-table c++-mode-syntax-table)
-  ;; (modify-syntax-entry ?- ".")			;-×÷Îª±êµã·ûºÅ£¬Æğµ½·Ö¸ôµ¥´Ê×÷ÓÃ
+  ;; (modify-syntax-entry ?- ".")			;-ä½œä¸ºæ ‡ç‚¹ç¬¦å·ï¼Œèµ·åˆ°åˆ†éš”å•è¯ä½œç”¨
   (modify-syntax-entry ?& ".")
   (modify-syntax-entry ?$ ".")
   (modify-syntax-entry ?< ".")
@@ -2260,7 +2260,7 @@ If FULL is t, copy full file name."
       (kill-buffer buffer))))
 
 (global-set-key (kbd "<C-S-f9>") 'kill-spec-buffers)
-;; Ò²¿ÉÒÔÓÃclean-buffer-list,midnight-mode
+;; ä¹Ÿå¯ä»¥ç”¨clean-buffer-list,midnight-mode
 
 ;; reuse buffer in DIRED
 (defadvice dired-find-file (around dired-find-file-single-buffer activate)
@@ -2279,7 +2279,7 @@ If FULL is t, copy full file name."
     ad-do-it
     (kill-buffer orig)))
 
-;; ´óÎÄ¼ş´¦Àí
+;; å¤§æ–‡ä»¶å¤„ç†
 (defun check-large-file-hook ()
   ""
   (when (< (* 200 1024) (buffer-size))
@@ -2306,9 +2306,9 @@ If FULL is t, copy full file name."
     (while (re-search-forward "\^M" nil t)
       (replace-match "" nil nil)))
   (save-buffer))
-(global-set-key (kbd "C-c m") 'unix-to-dos-trim-M) ;×¢ÒâÔÚ´óÓÚ200KµÄÎÄ¼şÖĞÌæ»»Ê±»á¿¨×¡£¬Òªc-gºó·´¸´ÓÃ´ËÃüÁî
+(global-set-key (kbd "C-c m") 'unix-to-dos-trim-M) ;æ³¨æ„åœ¨å¤§äº200Kçš„æ–‡ä»¶ä¸­æ›¿æ¢æ—¶ä¼šå¡ä½ï¼Œè¦c-gååå¤ç”¨æ­¤å‘½ä»¤
 
-;; ÖØĞÂ´ò¿ªÎÄ¼ş
+;; é‡æ–°æ‰“å¼€æ–‡ä»¶
 (defun reopen-file()
   ""
   (interactive)
@@ -2318,7 +2318,7 @@ If FULL is t, copy full file name."
     (find-file file)
     (goto-char pos)))
 
-;; ÄÜ¹»È¥³ı¹â±êÏÂµÄ¸ßÁÁ
+;; èƒ½å¤Ÿå»é™¤å…‰æ ‡ä¸‹çš„é«˜äº®
 (defun hi-lock--regexps-at-point-fset ()
   (let ((regexps '()))
     ;; When using overlays, there is no ambiguity on the best
@@ -2373,7 +2373,7 @@ then remove all hi-lock highlighting."
        ;;                             (car defaults)))
        ;;                   hi-lock-interactive-patterns
        ;;                    nil t nil nil defaults))
-       (list (car defaults))			;²»ÓÃ¶ÁÈ¡ÓÃ»§ÊäÈë£¬Ö±½ÓÓÃ¹â±êÏÂµÄµ¥´Ê
+       (list (car defaults))			;ä¸ç”¨è¯»å–ç”¨æˆ·è¾“å…¥ï¼Œç›´æ¥ç”¨å…‰æ ‡ä¸‹çš„å•è¯
        ))))
   (dolist (keyword (if (eq regexp t) hi-lock-interactive-patterns
                      (list (assoc regexp hi-lock-interactive-patterns))))
@@ -2400,7 +2400,7 @@ then remove all hi-lock highlighting."
      (fset 'hi-lock-unface-buffer 'hi-lock-unface-buffer-fset)
      ))
 
-;; C++ÖĞ¸øº¯ÊıÇ°Ãæ¼ÓÉÏÀàÃû
+;; C++ä¸­ç»™å‡½æ•°å‰é¢åŠ ä¸Šç±»å
 (with-eval-after-load 'semantic/format
   (lambda ()
     (define-mode-local-override semantic-format-tag-uml-abbreviate
@@ -2475,7 +2475,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
         text
         ))))
 
-;; ÔÚ×ÊÔ´¹ÜÀíÆ÷ÖĞ´ò¿ª
+;; åœ¨èµ„æºç®¡ç†å™¨ä¸­æ‰“å¼€
 (defun open-in-desktop-select ()
   (interactive)
   (let ((file (buffer-name)))
@@ -2501,7 +2501,7 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
     (let ((process-connection-type nil))
       (start-process "" nil "xdg-open" ".")))))
 
-;; ÓÃÄ¬ÈÏµÄ³ÌĞò´ò¿ª£¬windowsÏÂÓÃ&ÃüÁîÖ±½Ó´ò¿ª
+;; ç”¨é»˜è®¤çš„ç¨‹åºæ‰“å¼€ï¼Œwindowsä¸‹ç”¨&å‘½ä»¤ç›´æ¥æ‰“å¼€
 (defcustom ergoemacs-maximum-number-of-file-to-open 5
   "Maximum number of files to open.
 If less than or equal to zero, there is no limit."
@@ -2542,7 +2542,7 @@ If less than or equal to zero, there is no limit."
     (setq deactivate-mark nil)))
 
 (global-set-key (kbd "<C-insert>") 'kill-ring-save-keep-highlight)
-;; À¬»ø»ØÊÕµ÷Õû£¬±ÜÃâ¿¨¶Ù
+;; åƒåœ¾å›æ”¶è°ƒæ•´ï¼Œé¿å…å¡é¡¿
 (defmacro k-time (&rest body)
   "Measure and return the time it takes evaluating BODY."
   `(let ((time (current-time)))
@@ -2716,11 +2716,11 @@ If less than or equal to zero, there is no limit."
           (lambda ()
             (abbrev-mode -1)))
 
-(dolist (hook '(c-mode-hook c++-mode-hook));c-mode-common-hook²»Ö»ÊÇc ºÍc++,javaÒ²Ëã
+(dolist (hook '(c-mode-hook c++-mode-hook));c-mode-common-hookä¸åªæ˜¯c å’Œc++,javaä¹Ÿç®—
   (add-hook hook
             (lambda()
-              (modify-syntax-entry ?_ "w")    ;_ µ±³Éµ¥´ÊµÄÒ»²¿·Ö
-              (c-set-style "gzj")      ;¶¨ÖÆC/C++Ëõ½ø·ç¸ñ,µ½Êµ¼Ê¹¤×÷»·¾³ÖĞÒªÓÃguess style(main mode²Ëµ¥ÀïÓĞ¸östyle×Ó²Ëµ¥)À´Ìí¼ÓÏêÏ¸µÄËõ½ø·ç¸ñ¡£Press ¡®C-c C-o¡¯ to see the syntax at point
+              (modify-syntax-entry ?_ "w")    ;_ å½“æˆå•è¯çš„ä¸€éƒ¨åˆ†
+              (c-set-style "gzj")      ;å®šåˆ¶C/C++ç¼©è¿›é£æ ¼,åˆ°å®é™…å·¥ä½œç¯å¢ƒä¸­è¦ç”¨guess style(main modeèœå•é‡Œæœ‰ä¸ªstyleå­èœå•)æ¥æ·»åŠ è¯¦ç»†çš„ç¼©è¿›é£æ ¼ã€‚Press â€˜C-c C-oâ€™ to see the syntax at point
               ;; (fci-mode 1)
               ;; (hs-minor-mode 1)
               ;; (hide-ifdef-mode 1)
@@ -2729,14 +2729,14 @@ If less than or equal to zero, there is no limit."
                                       '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
                                          1  font-lock-function-name-face keep))
                                       1)
-              ;; (superword-mode)                ;Á¬×Ö·û²»·Ö¸îµ¥´Ê,Ó°ÏìmoveºÍedit£¬µ«ÊÇÊó±êË«»÷Ñ¡Ôñ²»¹ÜÓÃ £¬Ïà¶Ôsubword-mode(through CamelCase words)
+              ;; (superword-mode)                ;è¿å­—ç¬¦ä¸åˆ†å‰²å•è¯,å½±å“moveå’Œeditï¼Œä½†æ˜¯é¼ æ ‡åŒå‡»é€‰æ‹©ä¸ç®¡ç”¨ ï¼Œç›¸å¯¹subword-mode(through CamelCase words)
               (set-default 'semantic-imenu-summary-function 'semantic-format-tag-uml-abbreviate)
               )))
 (add-hook 'java-mode-hook
           (lambda ()
-            ;; (prefer-coding-system 'utf-8) ;Õâ¸ö»á¸Ä±äshellµÄ±àÂë
-            (modify-syntax-entry ?_ "w")    ;_ µ±³Éµ¥´ÊµÄÒ»²¿·Ö
-            (modify-syntax-entry ?- "w")    ;_ µ±³Éµ¥´ÊµÄÒ»²¿·Ö
+            ;; (prefer-coding-system 'utf-8) ;è¿™ä¸ªä¼šæ”¹å˜shellçš„ç¼–ç 
+            (modify-syntax-entry ?_ "w")    ;_ å½“æˆå•è¯çš„ä¸€éƒ¨åˆ†
+            (modify-syntax-entry ?- "w")    ;_ å½“æˆå•è¯çš„ä¸€éƒ¨åˆ†
             ;; (setq-local company-idle-delay 0)
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
@@ -2758,19 +2758,19 @@ If less than or equal to zero, there is no limit."
 
 (add-hook 'dired-mode-hook
           (lambda ()
-            (require 'dired-ranger);; ¸´ÖÆÕ³Ìù dired-ranger-copy dired-ranger-paste dired-ranger-move £¬¼ôÌù°å²é¿´dired-ranger-copy-ring
-            (define-key dired-mode-map (kbd ";") 'dired-narrow-fuzzy) ;Ä¬ÈÏµÄ&Ò²ĞĞ
-            ;; pasteÊ±°´c-u²»Çå¿Õ¼ôÌù°å£¬ÕâÑù¿ÉÒÔÖØ¸´Õ³Ìù
+            (require 'dired-ranger);; å¤åˆ¶ç²˜è´´ dired-ranger-copy dired-ranger-paste dired-ranger-move ï¼Œå‰ªè´´æ¿æŸ¥çœ‹dired-ranger-copy-ring
+            (define-key dired-mode-map (kbd ";") 'dired-narrow-fuzzy) ;é»˜è®¤çš„&ä¹Ÿè¡Œ
+            ;; pasteæ—¶æŒ‰c-uä¸æ¸…ç©ºå‰ªè´´æ¿ï¼Œè¿™æ ·å¯ä»¥é‡å¤ç²˜è´´
             (define-key dired-mode-map "b" 'dired-up-directory)
             ;; (define-key dired-mode-map "e" (lambda () "" (interactive)
             ;;                                  (ergoemacs-open-in-desktop t)))
             (define-key dired-mode-map (kbd "e") 'ergoemacs-open-in-desktop)
-            (define-key dired-mode-map (kbd ",") 'ergoemacs-open-in-external-app) ;Ä¬ÈÏµÄ&Ò²ĞĞ
+            (define-key dired-mode-map (kbd ",") 'ergoemacs-open-in-external-app) ;é»˜è®¤çš„&ä¹Ÿè¡Œ
             (define-key dired-mode-map "/" 'isearch-forward)
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
             (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
-            ;; diredÖĞÓÃÄ¬ÈÏ´ò¿ª·½Ê½´ò¿ªÎÄ¼ş
+            ;; diredä¸­ç”¨é»˜è®¤æ‰“å¼€æ–¹å¼æ‰“å¼€æ–‡ä»¶
             (define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
                                                    (if (eq system-type 'windows-nt)
                                                        (progn
@@ -2784,7 +2784,7 @@ If less than or equal to zero, there is no limit."
             ;;             (equal (buffer-name) "f:/")
             ;;             (equal (buffer-name) "g:/"))
             ;;   (dired-collapse-mode 1))
-                                        ;ÔÚÅÌ·û¸ùÄ¿Â¼ÏÂÊ¹ÓÃ»á±¨È¨ÏŞ´íÎóµ¼ÖÂ¸ùÄ¿Â¼´ò²»¿ª
+                                        ;åœ¨ç›˜ç¬¦æ ¹ç›®å½•ä¸‹ä½¿ç”¨ä¼šæŠ¥æƒé™é”™è¯¯å¯¼è‡´æ ¹ç›®å½•æ‰“ä¸å¼€
             (dired-filter-group-mode 1)
             ;; (require 'all-the-icons-dired)
             ;; (all-the-icons-dired-mode)
@@ -2799,10 +2799,10 @@ If less than or equal to zero, there is no limit."
               (setq-local vc-handled-backends (append '(Git) vc-handled-backends)))
             ))
 
-;; shellÏà¹ØÉèÖÃ
+;; shellç›¸å…³è®¾ç½®
 (add-hook 'shell-mode-hook
           (lambda () "DOCSTRING" (interactive)
-            ;; (set-buffer-process-coding-system 'utf-8 'utf-8) ;·ÀÖ¹shellÂÒÂë
+            ;; (set-buffer-process-coding-system 'utf-8 'utf-8) ;é˜²æ­¢shellä¹±ç 
             (define-key comint-mode-map (kbd "M-.") 'comint-previous-matching-input-from-input)
             (define-key comint-mode-map (kbd "M-,") 'comint-next-matching-input-from-input)
             (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
@@ -2821,18 +2821,18 @@ If less than or equal to zero, there is no limit."
 (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 (remove-hook 'comint-output-filter-functions 'comint-postoutput-scroll-to-bottom)
 
-;; telnetµÇÂ¼Ö÷»úºó£¬export LANG=zh_CN.GBK »ò export LC_ALL=en_US.ISO-8859-1 Õâ¸ö¹ÜÓÃ ,export LC_CTYPE=zh_CN.GB2312
+;; telnetç™»å½•ä¸»æœºåï¼Œexport LANG=zh_CN.GBK æˆ– export LC_ALL=en_US.ISO-8859-1 è¿™ä¸ªç®¡ç”¨ ,export LC_CTYPE=zh_CN.GB2312
 
-;; gtags symref µÄ½á¹û¶¼ÉèÖÃÎªCÓï·¨£¬Ö÷ÒªÎªÁËhighlight-symbolÄÜÕıÈ·
+;; gtags symref çš„ç»“æœéƒ½è®¾ç½®ä¸ºCè¯­æ³•ï¼Œä¸»è¦ä¸ºäº†highlight-symbolèƒ½æ­£ç¡®
 (dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook))
   (add-hook hook
             (lambda()
               (require 'cc-mode)
               (setq truncate-lines t)
               (set-syntax-table c++-mode-syntax-table)
-              (modify-syntax-entry ?_ "w")    ;_ µ±³Éµ¥´ÊµÄÒ»²¿·Ö
+              (modify-syntax-entry ?_ "w")    ;_ å½“æˆå•è¯çš„ä¸€éƒ¨åˆ†
               )))
-;; ÉèÖÃµ¥´Ê±ß½ç
+;; è®¾ç½®å•è¯è¾¹ç•Œ
 (dolist (hook '(nxml-mode-hook yaml-mode-hook org-mode-hook cquery-tree-mode-hook ag-mode-hook eshell-mode-hook))
   (add-hook hook
             (lambda()
@@ -2843,15 +2843,15 @@ If less than or equal to zero, there is no limit."
             (remove-dos-eol)
             ))
 
-;; org ÉèÖÃ
-;; ±êÌâ×Ô¶¯¼ÓÊ±¼ä´Á '(16)´ú±íÁ½¸öc-u
+;; org è®¾ç½®
+;; æ ‡é¢˜è‡ªåŠ¨åŠ æ—¶é—´æˆ³ '(16)ä»£è¡¨ä¸¤ä¸ªc-u
 (defadvice org-insert-heading(after org-insert-heading-after activate)
   (org-time-stamp '(16))
   (search-backward "<")
-  (save-excursion (insert " ")))        ;Ìøµ½¿ªÍ·²¢²å¸ö¿Õ¸ñ
-;; ÏÔÊ¾Ëõ½ø
+  (save-excursion (insert " ")))        ;è·³åˆ°å¼€å¤´å¹¶æ’ä¸ªç©ºæ ¼
+;; æ˜¾ç¤ºç¼©è¿›
 (setq org-startup-indented t)
-;; orgµ¼³öpdf, orgÒªÓÃutf-8±£´æ
+;; orgå¯¼å‡ºpdf, orgè¦ç”¨utf-8ä¿å­˜
 (setq org-latex-pdf-process (quote ("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f")))
 (add-hook 'org-mode-hook
           (lambda () "DOCSTRING" (interactive)
@@ -2863,12 +2863,12 @@ If less than or equal to zero, there is no limit."
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
             (setq truncate-lines nil)
             ))
-(setq org-export-with-sub-superscripts '{}) ;ÉèÖÃÈÃ Org Mode ÔÚÄ¬ÈÏÇé¿öÏÂ£¬²»×ªÒå _ ×Ö·û,ÕâÑù¾Í»áÓÃ {} À´×ªÒåÁË
-;; (setq-default org-use-sub-superscripts nil) ;½ûÓÃÏÂ»®Ïß×ªÒå
+(setq org-export-with-sub-superscripts '{}) ;è®¾ç½®è®© Org Mode åœ¨é»˜è®¤æƒ…å†µä¸‹ï¼Œä¸è½¬ä¹‰ _ å­—ç¬¦,è¿™æ ·å°±ä¼šç”¨ {} æ¥è½¬ä¹‰äº†
+;; (setq-default org-use-sub-superscripts nil) ;ç¦ç”¨ä¸‹åˆ’çº¿è½¬ä¹‰
 
 (eval-after-load "which-func"
   '(progn
-     ;; ±£Ö¤which-funcÇ¿ÖÆË¢ĞÂÃ¿¸ö´°¿Ú
+     ;; ä¿è¯which-funcå¼ºåˆ¶åˆ·æ–°æ¯ä¸ªçª—å£
      (defun which-func-update-fset ()
        ;; "Update the Which-Function mode display for all windows."
        (walk-windows 'which-func-update-1 nil 'visible))
@@ -2876,41 +2876,41 @@ If less than or equal to zero, there is no limit."
 
      (fset 'which-func-update 'which-func-update-fset)
 
-     ;; ÈÃwhich-funcÔÚmode lineÇ°ÃæÏÔÊ¾
+     ;; è®©which-funcåœ¨mode lineå‰é¢æ˜¾ç¤º
      (setq mode-line-misc-info (delete '(which-func-mode
                                          ("" which-func-format " ")) mode-line-misc-info))
      (setq mode-line-front-space (append '(which-func-mode
                                            ("" which-func-format " ")) mode-line-front-space))))
-;;-----------------------------------------------------------ÈÈ¼ü-----------------------------------------------------------;;
+;;-----------------------------------------------------------çƒ­é”®-----------------------------------------------------------;;
 
-;;ĞŞ¸ÄËÑË÷ºÍ±£´æµÄ¿ì½İ¼ü
+;;ä¿®æ”¹æœç´¢å’Œä¿å­˜çš„å¿«æ·é”®
 (define-key isearch-mode-map [f3] 'isearch-repeat-forward)
 (define-key isearch-mode-map [f8] 'isearch-repeat-forward)
 (define-key isearch-mode-map [f4] 'isearch-repeat-backward)
 (define-key isearch-mode-map [S-f8] 'isearch-repeat-backward)
-;; isearchÏÂµÄ°´¼ü Ä¬ÈÏ£º m-rÇĞ»»regexp£¬ m-e±à¼­minibuff £¬m-cÇĞ»»´óĞ¡Ğ´Ãô¸Ğ
+;; isearchä¸‹çš„æŒ‰é”® é»˜è®¤ï¼š m-råˆ‡æ¢regexpï¼Œ m-eç¼–è¾‘minibuff ï¼Œm-cåˆ‡æ¢å¤§å°å†™æ•æ„Ÿ
 (define-key isearch-mode-map "\C-v" 'isearch-yank-kill)
 (define-key isearch-mode-map "\M-o" 'isearch-occur)
 (define-key isearch-mode-map "\M-w" 'isearch-toggle-word)
 (define-key isearch-mode-map "\M-/" 'isearch-complete)
 
-;; occur°´¼ü
+;; occuræŒ‰é”®
 (define-key occur-mode-map "p" 'occur-prev)
 (define-key occur-mode-map "n" 'occur-next)
 (define-key occur-mode-map (kbd "SPC") 'occur-mode-display-occurrence)
 
-;; ËÑË÷¹â±êÏÂµÄµ¥´Ê
+;; æœç´¢å…‰æ ‡ä¸‹çš„å•è¯
 (global-set-key (kbd "<f8>") 'isearch-forward-symbol-at-point)
-;; (global-set-key (kbd "<M-f8>") 'highlight-symbol-at-point) ;¸ßÁÁ¹â±êÏÂµÄµ¥´Ê
-(global-set-key (kbd "<C-M-f8>") 'unhighlight-regexp)        ;É¾³ı¸ßÁÁ£¬c-0È«É¾
+;; (global-set-key (kbd "<M-f8>") 'highlight-symbol-at-point) ;é«˜äº®å…‰æ ‡ä¸‹çš„å•è¯
+(global-set-key (kbd "<C-M-f8>") 'unhighlight-regexp)        ;åˆ é™¤é«˜äº®ï¼Œc-0å…¨åˆ 
 (global-set-key (kbd "<M-S-f8>") 'highlight-regexp)
 
-;;Ê¹ÓÃfindµİ¹é²éÕÒÎÄ¼ş
-;; (global-set-key (kbd "<M-f7>") 'find-name-dired) ;ÕÒÎÄ¼şÃû ÓÃag-dired´úÌæ
-;; (global-set-key (kbd "<C-f7>") 'find-grep-dired) ;ÕÒÎÄ¼şÄÚÈİ ÓÃag-filesºÍmy-ag´úÌæ
+;;ä½¿ç”¨findé€’å½’æŸ¥æ‰¾æ–‡ä»¶
+;; (global-set-key (kbd "<M-f7>") 'find-name-dired) ;æ‰¾æ–‡ä»¶å ç”¨ag-diredä»£æ›¿
+;; (global-set-key (kbd "<C-f7>") 'find-grep-dired) ;æ‰¾æ–‡ä»¶å†…å®¹ ç”¨ag-fileså’Œmy-agä»£æ›¿
 ;; (global-set-key (kbd "<C-M-f7>") 'kill-find)
 
-;; ´°¿Ú¹ÜÀí
+;; çª—å£ç®¡ç†
 (global-set-key (kbd "C-S-w") 'kill-buffer-and-window)
 (global-set-key (kbd "M-1") 'delete-other-windows)
 (global-set-key (kbd "M-2") 'split-window-below)
@@ -2926,19 +2926,19 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "<S-f4>") 'delete-frame)
 
 
-;; ÎÄ¼şÌø×ª
+;; æ–‡ä»¶è·³è½¬
 (global-set-key (kbd "<C-f6>") 'find-file-at-point) ;ffap
-(global-set-key (kbd "M-o") 'ff-find-other-file) ;ÉùÃ÷ºÍÊµÏÖÖ®¼äÌø×ª
+(global-set-key (kbd "M-o") 'ff-find-other-file) ;å£°æ˜å’Œå®ç°ä¹‹é—´è·³è½¬
 
-;; rename buffer¿ÉÓÃÓÚ¸øshell¸ÄÃû£¬Æğ¶à¸öshellÓÃ
-;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;»òÕßc-u M-x shell
+;; rename bufferå¯ç”¨äºç»™shellæ”¹åï¼Œèµ·å¤šä¸ªshellç”¨
+;; (global-set-key (kbd "<M-f2>") 'rename-buffer) ;æˆ–è€…c-u M-x shell
 (global-set-key (kbd "<M-f2>") 'bookmark-jump)
 
-;; ÖØĞÂ¼ÓÔØÎÄ¼ş
+;; é‡æ–°åŠ è½½æ–‡ä»¶
 (global-set-key (kbd "<C-f1>") 'revert-buffer)
 (global-set-key (kbd "<M-f1>") 'reopen-file)
 
-;; ¶ÔÆë
+;; å¯¹é½
 (global-set-key (kbd "C-`") 'align)
 
 ;; shell
@@ -2947,7 +2947,7 @@ If less than or equal to zero, there is no limit."
 (autoload 'aweshell-toggle "aweshell" nil  t)
 
 
-;; ĞĞºÅÀ¸Ñ¡ÔñĞĞ
+;; è¡Œå·æ é€‰æ‹©è¡Œ
 (global-set-key (kbd "<left-margin> <down-mouse-1>") 'mouse-drag-region)
 (global-set-key (kbd "<left-margin> <mouse-1>") 'mouse-set-point)
 (global-set-key (kbd "<left-margin> <drag-mouse-1>") 'mouse-set-region)
@@ -2961,8 +2961,8 @@ If less than or equal to zero, there is no limit."
 (eval-after-load "icomplete"
   '(progn
      (define-key icomplete-minibuffer-map (kbd "<return>") 'minibuffer-force-complete-and-exit)))
-;; set-mark Ä¬ÈÏC-@ £¬c-x c-xÌø»Ø
-;; (global-set-key (kbd "C-,") 'set-mark-command) ;macÉÏÓÃÓÒ±ßµÄoption¸Ä³Éctrl²Å¿ÉÒÔ°´c-,×ó±ßµÄctrl²»ºÃÊ¹
+;; set-mark é»˜è®¤C-@ ï¼Œc-x c-xè·³å›
+;; (global-set-key (kbd "C-,") 'set-mark-command) ;macä¸Šç”¨å³è¾¹çš„optionæ”¹æˆctrlæ‰å¯ä»¥æŒ‰c-,å·¦è¾¹çš„ctrlä¸å¥½ä½¿
 
 ;; whitespace
 (global-set-key (kbd "C-=") 'whitespace-mode)
@@ -3002,16 +3002,16 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "C-M-,") 'evil-jump-forward)
 ;; indent select region
 (global-set-key (kbd "<S-tab>") 'indent-rigidly)
-;; ÁĞÄ£Ê½
+;; åˆ—æ¨¡å¼
 (global-set-key (kbd "<C-return>") 'cua-rectangle-mark-mode)
-;; ÁĞÄ£Ê½ÁíÍâÒ»¸öÑ¡Ôñ
-;; c-x spc¼¤»îÁĞÄ£Ê½£¬C-x r¿ªÍ·µÄÃüÁîÀ´²Ù×÷Ïê¼ûhttps://www.gnu.org/software/emacs/manual/html_node/emacs/Rectangles.html#Rectangles
-;; ³£ÓÃµÄc-x r tÌæ»»×Ö·û´®
+;; åˆ—æ¨¡å¼å¦å¤–ä¸€ä¸ªé€‰æ‹©
+;; c-x spcæ¿€æ´»åˆ—æ¨¡å¼ï¼ŒC-x rå¼€å¤´çš„å‘½ä»¤æ¥æ“ä½œè¯¦è§https://www.gnu.org/software/emacs/manual/html_node/emacs/Rectangles.html#Rectangles
+;; å¸¸ç”¨çš„c-x r tæ›¿æ¢å­—ç¬¦ä¸²
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
-(global-set-key (kbd "C-v") 'yank)      ;·­Ò³ÓÃpage down´úÌæ
+(global-set-key (kbd "C-v") 'yank)      ;ç¿»é¡µç”¨page downä»£æ›¿
 
-;; faceĞŞ¸Ä£¬ÓÃcopy-faceË¢µôÔ­À´µÄfaceÊôĞÔ
+;; faceä¿®æ”¹ï¼Œç”¨copy-faceåˆ·æ‰åŸæ¥çš„faceå±æ€§
 (defun change-face ()
   ""
   (require 'doom-modeline)
@@ -3027,7 +3027,7 @@ If less than or equal to zero, there is no limit."
 
   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
 
-  (copy-face 'mode-line-inactive 'tabbar-unselected) ;Ç³É«Ö÷ÌâÓÃmode-line£¬ÉîÉ«µÄÓÃmode-line-inactive
+  (copy-face 'mode-line-inactive 'tabbar-unselected) ;æµ…è‰²ä¸»é¢˜ç”¨mode-lineï¼Œæ·±è‰²çš„ç”¨mode-line-inactive
   (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
 
   (copy-face 'tabbar-unselected 'tabbar-modified)
@@ -3037,7 +3037,7 @@ If less than or equal to zero, there is no limit."
   (copy-face 'tabbar-modified 'tabbar-selected-modified)
   (copy-face 'tabbar-modified 'tabbar-unselected-modified)
   )
-;; Ç³É«Ö÷Ìâ¾ÍÖ»ÓÃÏÂÃæÒ»¾ä¾ÍĞĞ
+;; æµ…è‰²ä¸»é¢˜å°±åªç”¨ä¸‹é¢ä¸€å¥å°±è¡Œ
 (with-eval-after-load 'tabbar
   (set-face-attribute 'tabbar-default nil
                       :height 100
@@ -3045,9 +3045,9 @@ If less than or equal to zero, there is no limit."
                       )
   ;; (change-face)
   )
-;; ĞÂ´°¿ÚÀûÓÃface
+;; æ–°çª—å£åˆ©ç”¨face
 ;; (add-hook 'after-make-frame-functions
-;;           (lambda (_)                   ;ÕâÀïÈç¹û²»ÓÃ(_)»á±¨²ÎÊı´íÎó
+;;           (lambda (_)                   ;è¿™é‡Œå¦‚æœä¸ç”¨(_)ä¼šæŠ¥å‚æ•°é”™è¯¯
 ;;             (change-face)))
 ;; (defadvice load-theme (after load-theme-af activate)
 ;;   (change-face))
