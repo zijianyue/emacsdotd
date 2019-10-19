@@ -30,6 +30,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -483,7 +484,7 @@
  '(org-log-done (quote time))
  '(org-src-fontify-natively t)
  '(org-support-shift-select t)
- '(package-selected-packages (quote (json-mode)))
+ '(package-selected-packages (quote (leetcode json-mode)))
  '(password-cache-expiry nil)
  '(pcmpl-gnu-tarfile-regexp "")
  '(powerline-default-separator (quote box))
@@ -1613,8 +1614,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'yasnippet)
   (require 'company-yasnippet)
   (require 'company-lsp)
-  (require 'cquery)
-  ;; (require 'ccls)
+  ;; (require 'cquery)
+  (require 'ccls)
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
@@ -1710,6 +1711,43 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :major-modes '(kotlin-mode)
                     :priority 1
                     :server-id 'kt-ls))
+
+  ;; ccls
+  ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  ;; (setq ccls-args '("--log-file=/tmp/ccls.log"))
+  ;; Use t for true, :json-false for false, :json-null for null.
+  ;; (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
+  (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
+  (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
+  (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
+  (defun ccls/base (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels)))
+  (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
+  (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
+
+  ;; References w/ Role::Role
+  (defun ccls/references-read () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 8)))
+
+  ;; References w/ Role::Write
+  (defun ccls/references-write ()
+    (interactive)
+    (lsp-ui-peek-find-custom "textDocument/references"
+                             (plist-put (lsp--text-document-position-params) :role 16)))
+
+  ;; References w/ Role::Dynamic bit (macro expansions)
+  (defun ccls/references-macro () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 64)))
+
+  ;; References w/o Role::Call bit (e.g. where functions are taken addresses)
+  (defun ccls/references-not-call () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :excludeRole 32)))
+
+  ;; (lsp-ui-peek-find-references nil (list :folders (vector (projectile-project-root))))
+
   
   ;; java settings
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
