@@ -39,6 +39,8 @@
   (require 'cl-lib)
   (require 'treemacs-macros))
 
+(autoload 'ansi-color-apply-on-region "ansi-color")
+
 (treemacs-import-functions-from "treemacs"
   treemacs-select-window)
 
@@ -782,6 +784,25 @@ With a prefix ARG select project to remove by name."
      (treemacs-pulse-on-success "Selected workspace %s."
        (propertize (treemacs-workspace->name workspace))))))
 
+(defun treemacs-set-fallback-workspace (&optional arg)
+  "Set the current workspace as the default fallback.
+With a non-nil prefix ARG choose the fallback instead.
+
+The fallback workspace is the one treemacs will select when it is opened for the
+first time and the current file at the time is not part of any of treemacs'
+workspaces."
+  (interactive "P")
+  (treemacs-block
+   (-let [fallback (if arg (treemacs--select-workspace-by-name) (treemacs-current-workspace))]
+     (treemacs-error-return-if (null fallback)
+       "There is no workspace with that name.")
+     (setf treemacs--workspaces
+           (sort treemacs--workspaces
+                 (lambda (ws _) (equal ws fallback))))
+     (treemacs--persist)
+     (treemacs-pulse-on-success "Selected workspace %s as fallback."
+       (propertize (treemacs-workspace->name fallback) 'face 'font-lock-type-face)))))
+
 (defun treemacs-rename-workspace ()
   "Select a workspace to rename."
   (interactive)
@@ -853,7 +874,7 @@ really (or rather permanently) opened - any command other than `treemacs-peek',
 `treemacs-next-page-other-window' or `treemacs-previous-page-other-window' will
 cause it to be closed again and the previously shown buffer to be restored. The
 buffer visiting the peeked file will also be killed again, unless it was already
-open before eing used for peeking."
+open before being used for peeking."
   (interactive)
   (treemacs--execute-button-action
    :save-window t
@@ -1013,6 +1034,10 @@ Only works with a single project in the workspace."
         (f-write (apply #'concat (--map (concat it "\n") lines)) 'utf-8 treemacs-persist-file)
         (kill-buffer)
         (treemacs--restore)
+        (-if-let (ws (treemacs--select-workspace-by-name
+                      (treemacs-workspace->name (treemacs-current-workspace))))
+            (setf (treemacs-current-workspace) ws)
+          (treemacs--find-workspace))
         (treemacs--consolidate-projects)
         (-some-> (get-buffer treemacs--org-edit-buffer-name) (kill-buffer))
         (run-hooks 'treemacs-workspace-edit-hook)
@@ -1032,6 +1057,96 @@ Prefix ARG will be passed on to the closing function
         (treemacs--evade-image))
     (treemacs-pulse-on-failure
         (if btn "Already at root." "There is nothing to close here."))))
+
+(defun treemacs-run-shell-command-in-project-root (&optional arg)
+  "Run an asynchronous shell command in the root of the current project.
+Output will only be saved and displayed if prefix ARG is non-nil.
+
+Every instance of the string `$path' will be replaced with the (properly quoted)
+absolute path of the project root."
+  (interactive "P")
+  (let* ((cmd (read-shell-command "Command: "))
+         (name "*Treemacs Shell Command*")
+         (node (treemacs-node-at-point))
+         (buffer (progn (--when-let (get-buffer name)
+                          (kill-buffer it))
+                        (get-buffer-create name)))
+         (working-dir nil))
+    (treemacs-block
+     (treemacs-error-return-if (null node)
+       (treemacs-pulse-on-failure "There is no project here."))
+     (-let [project (treemacs-project-of-node node)]
+       (treemacs-error-return-if (treemacs-project->is-unreadable? project)
+         (treemacs-pulse-on-failure "Project path is not readable."))
+       (setf working-dir (treemacs-project->path project)
+             cmd (s-replace "$path" (shell-quote-argument working-dir) cmd))
+       (pfuture-callback `(,shell-file-name ,shell-command-switch ,cmd)
+         :name name
+         :buffer buffer
+         :directory working-dir
+         :on-success
+         (if arg
+             (progn
+               (pop-to-buffer pfuture-buffer)
+               (require 'ansi-color)
+               (ansi-color-apply-on-region (point-min) (point-max)))
+           (treemacs-log "Shell command completed successfully.")
+           (kill-buffer buffer))
+         :on-error
+         (progn
+           (treemacs-log "Shell command failed with exit code %s and output:" (process-exit-status process))
+           (message "%s" (pfuture-callback-output))
+           (kill-buffer buffer)))))))
+
+(defun treemacs-run-shell-command-for-current-node (&optional arg)
+  "Run a shell command on the current node.
+Output will only be saved and displayed if prefix ARG is non-nil.
+
+Will use the location of the current node as working directory. If the current
+node is not a file/dir, then the next-closest file node will be used. If all
+nodes are non-files, or if there is no node at point, $HOME will be set as the
+working directory.
+
+Every instance of the string `$file' will be replaced with the (properly quoted)
+absolute path of the node (if it is present)."
+  (interactive "P")
+  (let* ((cmd (read-shell-command "Command: "))
+         (name "*Treemacs Shell Command*")
+         (node (treemacs-node-at-point))
+         (buffer (progn (--when-let (get-buffer name)
+                          (kill-buffer it))
+                        (get-buffer-create name)))
+         (working-dir (-some-> node (treemacs-button-get :path))))
+    (cond
+     ((null node)
+      (setf working-dir "~/"))
+     ((or (null working-dir) (not (file-exists-p working-dir)))
+      (setf working-dir (treemacs--nearest-path node))
+      (when (or (null working-dir)
+                (not (file-exists-p working-dir)))
+        (setf working-dir "~/")))
+     (t
+      (setf working-dir (treemacs--parent working-dir))))
+    (when (and node (treemacs-is-node-file-or-dir? node))
+      (setf cmd (s-replace "$file" (shell-quote-argument (treemacs-button-get node :path)) cmd)))
+    (pfuture-callback `(,shell-file-name ,shell-command-switch ,cmd)
+      :name name
+      :buffer buffer
+      :directory working-dir
+      :on-success
+      (if arg
+          (progn
+            (pop-to-buffer pfuture-buffer)
+             (require 'ansi-color)
+             (autoload 'ansi-color-apply-on-region "ansi-color")
+             (ansi-color-apply-on-region (point-min) (point-max)))
+        (treemacs-log "Shell command completed successfully.")
+        (kill-buffer buffer))
+      :on-error
+      (progn
+        (treemacs-log "Shell command failed with exit code %s and output:" (process-exit-status process))
+        (message "%s" (pfuture-callback-output))
+        (kill-buffer buffer)))))
 
 (provide 'treemacs-interface)
 

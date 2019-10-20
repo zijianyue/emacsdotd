@@ -370,8 +370,9 @@ helm-org-in-buffer-headings
 
 ** ccls编译
 on windows
-安装msys64 运行 minwg64 先更新库pacman -Syu
-pacman -S mingw-w64-x86_64-clang mingw-w64-x86_64-cmake mingw-w64-x86_64-jq mingw-w64-x86_64-ninja mingw-w64-x86_64-ncurses
+安装msys64 运行 minwg64 先更新库pacman -Syu 需要关闭再打开 pacman -Su
+pacman -S mingw-w64-x86_64-clang mingw-w64-x86_64-clang-tools-extra mingw64/mingw-w64-x86_64-polly mingw-w64-x86_64-cmake mingw-w64-x86_64-jq mingw-w64-x86_64-ninja mingw-w64-x86_64-ncurses
+pacman -S git
 git clone --depth=1 --recursive https://github.com/MaskRay/ccls
 mkdir build
 cd build
@@ -996,3 +997,9 @@ AOP 当中的概念：
 切入点（Pointcut）在哪些类，哪些方法上切入（where）通知（Advice）在方法执行的什么时间（when:方法前/方法后/方法前后）做什么（what:增强的功能）
 切面（Aspect）切面 = 切入点 + 通知，通俗点就是：在什么时机，什么地方，做什么增强！
 织入（Weaving）把切面加入到对象，并创建出代理对象的过程。（由 Spring 来完成）
+* LINUX命令 <2019-10-13 周日 13:32>
+** 输出当前目录下各个子目录所使用的空间 <2019-10-13 周日 13:32>
+
+命令：
+
+du -h  --max-depth=1

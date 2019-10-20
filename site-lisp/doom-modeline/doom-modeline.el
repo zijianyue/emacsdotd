@@ -4,7 +4,7 @@
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; Homepage: https://github.com/seagle0128/doom-modeline
-;; Version: 2.6.1
+;; Version: 2.6.2
 ;; Package-Requires: ((emacs "25.1") (all-the-icons "1.0.0") (shrink-path "0.2.0") (dash "2.11.0"))
 ;; Keywords: faces mode-line
 
@@ -45,8 +45,8 @@
 ;; - A workspace number segment for eyebrowse
 ;; - A perspective name segment for persp-mode
 ;; - A window number segment for winum and window-numbering
-;; - An indicator for modal editing state, including evil, overwrite, god, ryo and
-;;   xah-fly-keys, etc.
+;; - An indicator for modal editing state, including evil, overwrite, god, ryo
+;;   and xah-fly-keys, etc.
 ;; - An indicator for remote host
 ;; - An indicator for current input method
 ;; - An indicator for debug state
@@ -60,7 +60,8 @@
 ;; - An indicator for markdown/org preivews with grip
 ;; - An indicator for battery status with fancy-battery
 ;; - Truncated file name, file icon, buffer state and project name in buffer
-;;   information segment, which is compatible with projectile and project
+;;   information segment, which is compatible with project, find-file-in-project
+;;   and projectile
 ;; - New mode-line for Info-mode buffers
 ;; - New package mode-line for paradox
 ;; - New mode-line for helm buffers
@@ -197,6 +198,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   "Storage for the old `mode-line-format', so it can be restored when
 `doom-modeline-mode' is disabled.")
 
+(defvar doom-modeline-mode-map (make-sparse-keymap))
+
 (declare-function helm-display-mode-line 'helm) ; suppress warnings
 
 ;;;###autoload
@@ -205,16 +208,15 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   :group 'doom-modeline
   :global t
   :lighter nil
+  :keymap doom-modeline-mode-map
   (if doom-modeline-mode
       (progn
         (doom-modeline-refresh-bars)        ; create bars
         (doom-modeline-set-main-modeline t) ; set default mode-line
-        (unless after-init-time
-          ;; These buffers are already created and don't get modelines. For the love
-          ;; of Emacs, someone give the man a modeline!
-          (dolist (bname '("*scratch*" "*Messages*"))
-            (with-current-buffer bname
-              (doom-modeline-set-main-modeline))))
+        ;; These buffers are already created and don't get modelines
+        (dolist (bname '("*scratch*" "*Messages*"))
+          (with-current-buffer bname
+            (doom-modeline-set-main-modeline)))
         ;; Add hooks
         (add-hook 'Info-mode-hook #'doom-modeline-set-info-modeline)
         (add-hook 'dired-mode-hook #'doom-modeline-set-project-modeline)

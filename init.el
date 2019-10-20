@@ -30,6 +30,8 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -109,8 +111,8 @@
   (setenv "PDFLATEX" "F:\\CTEX\\MiKTeX\\miktex\\bin")
   (setenv "PYTHONIOENCODING" "utf-8")     ;防止raw_input出错
   (setenv "GITCMD" "C:\\Program Files\\Git\\cmd")
-  (setenv "MAVEN_HOME" "D:\\apache-maven-3.6.1\\bin")
-  (setenv "IMAGE_MAGICk" "D:\\ImageMagick-7.0.8-61-portable-Q16-x64")
+  (setenv "MAVEN_HOME" "D:\\software\\apache-maven-3.6.1\\bin")
+  (setenv "IMAGE_MAGICk" "D:\\software\\ImageMagick-7.0.8-61-portable-Q16-x64")
   (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
   )
 
@@ -308,7 +310,8 @@
  '(bookmark-sort-flag nil)
  '(c-electric-pound-behavior (quote (alignleft)))
  '(cc-search-directories (quote ("." "/usr/include" "/usr/local/include/*" "../*")))
- '(centaur-tabs-close-button " ♆")
+ '(centaur-tabs-close-button " X")
+ '(centaur-tabs-cycle-scope (quote tabs))
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
@@ -491,7 +494,7 @@
  '(org-log-done (quote time))
  '(org-src-fontify-natively t)
  '(org-support-shift-select t)
- '(package-selected-packages (quote (json-mode)))
+ '(package-selected-packages (quote (leetcode json-mode)))
  '(password-cache-expiry nil)
  '(pcmpl-gnu-tarfile-regexp "")
  '(powerline-default-separator (quote box))
@@ -584,9 +587,10 @@
 
 ;; stl(解析vector map等)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
-
+(setq vs-dir "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/include")
 ;; 设置成c++文件类型
 (add-to-list 'auto-mode-alist (cons stl-base-dir-14 'c++-mode))
+(add-to-list 'auto-mode-alist (cons vs-dir 'c++-mode))
 
 ;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
@@ -1042,7 +1046,7 @@
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
-;; markdown mode
+;; markdown mode (markdown-live-preview-mode 直接在emacs里预览)
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
@@ -1181,7 +1185,7 @@
 (autoload 'pt-regexp "pt" nil t)
 
 ;; rg
-(autoload 'rg "rg" nil t)
+(autoload 'rg "rg" nil t)               ;搜索的结果按s保存，然后rg-list-searches可以列出所有结果，里面有搜索的关键字,目录
 (autoload 'rg-project "rg" nil t)       ;代替ag-project
 (autoload 'rg-dwim "rg" nil t)       ;直接在project搜索光标下的symbol，并且不用指定类型
 ;; 搜索模式如下
@@ -1636,8 +1640,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'yasnippet)
   (require 'company-yasnippet)
   (require 'company-lsp)
-  (require 'cquery)
-  ;; (require 'ccls)
+  ;; (require 'cquery)
+  (require 'ccls)
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
@@ -1733,6 +1737,43 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :major-modes '(kotlin-mode)
                     :priority 1
                     :server-id 'kt-ls))
+
+  ;; ccls
+  ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  ;; (setq ccls-args '("--log-file=/tmp/ccls.log"))
+  ;; Use t for true, :json-false for false, :json-null for null.
+  ;; (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
+  (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
+  (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
+  (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
+  (defun ccls/base (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels)))
+  (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
+  (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
+
+  ;; References w/ Role::Role
+  (defun ccls/references-read () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 8)))
+
+  ;; References w/ Role::Write
+  (defun ccls/references-write ()
+    (interactive)
+    (lsp-ui-peek-find-custom "textDocument/references"
+                             (plist-put (lsp--text-document-position-params) :role 16)))
+
+  ;; References w/ Role::Dynamic bit (macro expansions)
+  (defun ccls/references-macro () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 64)))
+
+  ;; References w/o Role::Call bit (e.g. where functions are taken addresses)
+  (defun ccls/references-not-call () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :excludeRole 32)))
+
+  ;; (lsp-ui-peek-find-references nil (list :folders (vector (projectile-project-root))))
+
   
   ;; java settings
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
@@ -1741,12 +1782,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    (require 'lsp-java-boot)
+    ;; (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode) 
-    
+    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
@@ -1789,7 +1829,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; cquery config
 (with-eval-after-load 'cquery
   (if (memq system-type '(windows-nt ms-dos))
-      (setq cquery-executable "G:/cquery/build/release/bin/cquery")
+      (setq cquery-executable "d:/software/cquery/build/release/bin/cquery")
     (setq cquery-executable "~/cquery/build/release/bin/cquery"))
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
@@ -2788,7 +2828,7 @@ If less than or equal to zero, there is no limit."
             ;; (hs-minor-mode 1)
             (company-mode 1)
             (eldoc-mode 1)
-            (setq-local company-backends (push '(company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
+            (setq-local company-backends (push '(company-tabnine :with company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
 

@@ -49,3 +49,50 @@ make
 git clone git@github.com:company-mode/company-mode.git
 git clone https://github.com/company-mode/company-mode.git
 ag --version
+git clone https://github.com/qianguyihao/Web.git
+git clone https://github.com/manateelazycat/snails.git
+df -u
+df -h
+df --help
+du -h
+du --help
+change to be equivalent to --dereference-args (-D)
+ll
+du -sh
+du --help
+du -Sh
+du
+du --help
+du -S
+du -c
+du -s
+du -h  --max-depth=1
+gtags --version
+gtags --version
+ls
+rm -rf cquery
+git clone --recursive https://github.com/cquery-project/cquery.git
+mv cquery/ /software/cquery
+ll
+cd software/
+ll
+cd cquery/
+git submodule update --init
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=release -DCMAKE_EXPORT_COMPILE_COMMANDS=YES -DCMAKE_GENERATOR_PLATFORM=x64
+cmake --build .
+cmake --build . --config release
+cmake --build . --target install --config release
+g++ -g test.cpp
+g++ -g test.cpp
+./a.exe
+which gdb 
+whereis gdb
+npm i -g javascript-typescript-langserver
+..
+git clone https://github.com/angelozerr/lsp4xml.git
+D:\software\apache-maven-3.6.1\bin
+mvnw.cmd clean verify
+mvn.cmd clean verify
+cd lsp4xml
+mvn.cmd clean verify

@@ -39,8 +39,8 @@ The `doom-modeline` was designed for minimalism, and offers:
 - A workspace number segment for `eyebrowse`
 - A perspective name segment for `persp-mode`
 - A window number segment for `ace-window`, `winum` and `window-numbering`
-- An indicator for modal editing state, including `evil`, `overwrite`, `god`,
-  `ryo` and `xah-fly-keys`, etc.
+- An indicator for modal editing state, including `evil`, `overwrite`, `god`, `ryo` and
+  `xah-fly-keys`, etc.
 - An indicator for remote host
 - An indicator for debug state
 - An indicator for current input method
@@ -53,8 +53,8 @@ The `doom-modeline` was designed for minimalism, and offers:
 - An indicator for PDF page number with `pdf-tools`
 - An indicator for markdown/org preview with `grip`
 - An indicator for battery status with `fancy-battery`
-- Truncated file name, file icon, buffer state and project name in buffer
-  information segment, which is compatible with `projectile` and `project`
+- Truncated file name, file icon, buffer state and project name in buffer information segment, which
+  is compatible with `project`, `find-file-in-project` and `projectile`.
 - New mode-line for `Info-mode` buffers
 - New package mode-line for `paradox`
 - New mode-line for `helm` buffers
@@ -344,3 +344,15 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
     ```
 
     Please refer to [#189](https://github.com/seagle0128/doom-modeline/issues/189).
+
+## Donate
+
+If you think it's helpful for you, please consider pay a cup of coffee for me. Thank you! :smile:
+
+<img
+src="https://user-images.githubusercontent.com/140797/65818854-44204900-e248-11e9-9cc5-3e6339587cd8.png"
+alt="Alipay" width="120"/>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img
+src="https://user-images.githubusercontent.com/140797/65818844-366ac380-e248-11e9-931c-4bd872d0566b.png"
+alt="Wechat" width="120"/>

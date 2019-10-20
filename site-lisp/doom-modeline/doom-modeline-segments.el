@@ -88,6 +88,7 @@
 (declare-function anzu--reset-status 'anzu)
 (declare-function anzu--where-is-here 'anzu)
 (declare-function async-inject-variables 'async)
+(declare-function async-start 'async)
 (declare-function avy-traverse 'avy)
 (declare-function avy-tree 'avy)
 (declare-function aw-update 'ace-window)
@@ -142,6 +143,7 @@
 (declare-function flymake-running-backends 'flymake)
 (declare-function flymake-show-diagnostics-buffer 'flymake)
 (declare-function flymake-start 'flymake)
+(declare-function grip-browse-preview 'grip-mode)
 (declare-function grip-mode 'grip-mode)
 (declare-function helm-candidate-number-at-point 'helm)
 (declare-function helm-get-candidate-number 'helm)
@@ -166,6 +168,7 @@
 (declare-function org-narrow-to-block 'org)
 (declare-function org-narrow-to-element 'org)
 (declare-function org-narrow-to-subtree 'org)
+(declare-function org-toggle-narrow-to-subtree 'org)
 (declare-function parrot-create 'parrot)
 (declare-function pdf-cache-number-of-pages 'pdf-cache)
 (declare-function persp-add-buffer 'persp-mode)
@@ -296,6 +299,7 @@ Uses `all-the-icons-material' to fetch the icon."
 (advice-add #'undo :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'undo-tree-undo-1 :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'undo-tree-redo-1 :after #'doom-modeline-update-buffer-file-state-icon)
+(advice-add #'fill-paragraph :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'generate-new-buffer :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'not-modified :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'narrow-to-region :after #'doom-modeline-update-buffer-file-state-icon)
@@ -305,6 +309,7 @@ Uses `all-the-icons-material' to fetch the icon."
 (advice-add #'org-narrow-to-block :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'org-narrow-to-element :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'org-narrow-to-subtree :after #'doom-modeline-update-buffer-file-state-icon)
+(advice-add #'org-toggle-narrow-to-subtree :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'org-edit-src-save :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'symbol-overlay-rename :after #'doom-modeline-update-buffer-file-state-icon)
 
@@ -351,6 +356,7 @@ mouse-1: Previous buffer\nmouse-3: Next buffer"
 (advice-add #'undo :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'undo-tree-undo-1 :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'undo-tree-redo-1 :after #'doom-modeline-update-buffer-file-name)
+(advice-add #'fill-paragraph :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'popup-create :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'popup-delete :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'org-edit-src-save :after #'doom-modeline-update-buffer-file-name)
@@ -1769,16 +1775,12 @@ Example:
 (defun doom-modeline--github-fetch-notifications ()
   "Fetch GitHub notifications."
   (when (and doom-modeline-github
-             (fboundp 'async-start))
-    ;; load `async' if it exists but is not loaded
-    (unless (fboundp 'async-inject-variables)
-      (require 'async nil t))
+             (require 'async nil t))
     (async-start
      `(lambda ()
         ,(async-inject-variables "\\`\\(load-path\\|auth-sources\\|doom-modeline-before-github-fetch-notification-hook\\)\\'")
         (run-hooks 'doom-modeline-before-github-fetch-notification-hook)
-        (require 'ghub nil t)
-        (when (fboundp 'ghub-get)
+        (when (require 'ghub nil t)
           (with-timeout (10)
             (ignore-errors
               (if (ghub--token ghub-default-host
@@ -2340,9 +2342,7 @@ mouse-2: Stop preview"
         'mouse-face '(:box 0)
         'local-map (let ((map (make-sparse-keymap)))
                      (define-key map [mode-line mouse-1]
-                       (lambda ()
-                         (interactive)
-                         (browse-url (format "http://localhost:%d" grip-port))))
+                       #'grip-browse-preview)
                      (define-key map [mode-line mouse-2]
                        #'grip-mode)
                      map)))

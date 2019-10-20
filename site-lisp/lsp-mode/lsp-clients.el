@@ -41,6 +41,51 @@
 (require 'lsp-metals)
 (require 'lsp-fsharp)
 (require 'lsp-erlang)
+(require 'lsp-haxe)
+(require 'lsp-vhdl)
+
+;;; Ada
+(defgroup lsp-ada nil
+  "Settings for Ada Language Server."
+  :group 'tools
+  :tag "Language Server"
+  :package-version '(lsp-mode . "6.2"))
+
+(defcustom lsp-ada-project-file "default.gpr"
+  "Set the project file full path to configure the language server with.
+  The ~ prefix (for the user home directory) is supported.
+  See https://github.com/AdaCore/ada_language_server for a per-project
+  configuration example."
+  :type 'string
+  :group 'lsp-ada
+  :package-version '(lsp-mode . "6.2"))
+
+(defcustom lsp-ada-option-charset "UTF-8"
+  "The charset to use by the Ada Language server. Defaults to 'UTF-8'."
+  :type 'string
+  :group 'lsp-ada
+  :package-version '(lsp-mode . "6.2"))
+
+(defcustom lsp-ada-enable-diagnostics t
+  "A boolean to disable diagnostics. Defaults to true."
+  :type 'boolean
+  :group 'lsp-ada
+  :package-version '(lsp-mode . "6.2"))
+
+(lsp-register-custom-settings
+ '(("ada.projectFile" lsp-ada-project-file)
+   ("ada.enableDiagnostics" lsp-ada-enable-diagnostics)
+   ("ada.defaultCharset" lsp-ada-option-charset)))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection '("ada_language_server"))
+                  :major-modes '(ada-mode)
+                  :priority -1
+                  :initialized-fn (lambda (workspace)
+                                    (with-lsp-workspace workspace
+                                      (lsp--set-configuration
+                                       (lsp-configuration-section "ada"))))
+                  :server-id 'ada-ls))
 
 ;;; Bash
 (lsp-register-client
@@ -80,7 +125,7 @@ This directory shoud contain a file matching groovy-language-server-*.jar"
 (defgroup lsp-typescript-javascript nil
   "Support for TypeScript/JavaScript, using Sourcegraph's JavaScript/TypeScript language server."
   :group 'lsp-mode
-  :link "https://github.com/sourcegraph/javascript-typescript-langserver")
+  :link '(url-link "https://github.com/sourcegraph/javascript-typescript-langserver"))
 
 (defcustom lsp-clients-javascript-typescript-server "javascript-typescript-stdio"
   "The javascript-typescript-stdio executable to use.
@@ -98,7 +143,7 @@ finding the executable with variable `exec-path'."
 
 (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename &optional _)
   "Check if the javascript-typescript language server should be enabled based on FILENAME."
-  (string-match-p (rx (one-or-more char) "." (or "ts" "js") (opt "x") string-end) filename))
+  (string-match-p (rx (one-or-more anything) "." (or "ts" "js") (opt "x") string-end) filename))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection (lambda ()
@@ -114,7 +159,7 @@ finding the executable with variable `exec-path'."
 (defgroup lsp-typescript nil
   "LSP support for TypeScript, using Theia/Typefox's TypeScript Language Server."
   :group 'lsp-mode
-  :link "https://github.com/theia-ide/typescript-language-server")
+  :link '(url-link "https://github.com/theia-ide/typescript-language-server"))
 
 (defcustom lsp-clients-typescript-server "typescript-language-server"
   "The typescript-language-server executable to use.
@@ -130,12 +175,37 @@ finding the executable with variable `exec-path'."
   :risky t
   :type '(repeat string))
 
+(defcustom lsp-clients-typescript-log-verbosity "info"
+  "The server log verbocity."
+  :group 'lsp-typescript
+  :type 'string)
+
+(defcustom lsp-clients-typescript-plugins (vector)
+  "The list of plugins to load.
+It should be a vector of plist with keys `:location' and `:name'
+where `:name' is the name of the package and `:location' is the
+directory containing the package. Example:
+\(vector
+   \(list :name \"@vsintellicode/typescript-intellicode-plugin\"
+         :location \"<path>.vscode/extensions/visualstudioexptteam.vscodeintellicode-1.1.9/\"))"
+  :group 'lsp-typescript
+  :type  '(restricted-sexp :tag "Vector"
+                           :match-alternatives
+                           (lambda (xs)
+                             (and (vectorp xs) (seq-every-p
+                                                (-lambda ((&plist :name :location))
+                                                  (and name location))
+                                                xs)))))
+
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection (lambda ()
                                                           (cons lsp-clients-typescript-server
                                                                 lsp-clients-typescript-server-args)))
                   :activation-fn 'lsp-typescript-javascript-tsx-jsx-activate-p
                   :priority -2
+                  :initialization-options (lambda ()
+                                            (list :plugins lsp-clients-typescript-plugins
+                                                  :logVerbosity lsp-clients-typescript-log-verbosity))
                   :ignore-messages '("readFile .*? requested by TypeScript but content not available")
                   :server-id 'ts-ls))
 
@@ -266,6 +336,28 @@ particular FILE-NAME and MODE."
                   :major-modes '(reason-mode caml-mode tuareg-mode)
                   :priority -1
                   :server-id 'ocaml-ls))
+
+(defgroup lsp-merlin nil
+  "LSP support for OCaml, using merlin."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/ocaml/merlin"))
+
+(defcustom lsp-merlin-command
+  '("ocamlmerlin-lsp")
+  "Command to start ocaml-language-server."
+  :group 'lsp-ocaml
+  :type '(choice
+          (string :tag "Single string value")
+          (repeat :tag "List of string values"
+                  string)))
+
+(lsp-register-client
+ (make-lsp-client
+  :new-connection
+  (lsp-stdio-connection (lambda () lsp-merlin-command))
+  :major-modes '(caml-mode tuareg-mode)
+  :priority 0
+  :server-id 'merlin))
 
 
 ;; C-family (C, C++, Objective-C, Objective-C++)
@@ -511,6 +603,85 @@ responsiveness at the cost of possibile stability issues."
                   :add-on? t
                   :server-id 'angular-ls))
 
+;;; C-sharp
+(defgroup lsp-csharp nil
+  "LSP support for C#, using the Omnisharp Language Server. Version 1.34.3 minimum required."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/OmniSharp/omnisharp-roslyn"))
+
+(defcustom lsp-clients-csharp-language-server-path
+  (expand-file-name "~/.omnisharp/omnisharp/omnisharp/OmniSharp.exe")
+  "The path to the OmnisSharp Roslyn language-server."
+  :group 'lsp-csharp
+  :type '(string :tag "Single string value"))
+
+(defun lsp-clients-csharp-language-server-command ()
+  (if (eq system-type 'windows-nt)
+      (list lsp-clients-csharp-language-server-path "-lsp")
+    (list "mono" lsp-clients-csharp-language-server-path "-lsp")))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection
+                                   #'lsp-clients-csharp-language-server-command)
+                  :major-modes '(csharp-mode)
+                  :server-id 'csharp))
+
+
+
+;; TeX
+(defgroup lsp-tex nil
+  "LSP support for TeX and friends, using Digestif."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/astoff/digestif/"))
+
+(defcustom lsp-clients-digestif-executable "digestif"
+  "Command to start the Digestif language server."
+  :group 'lsp-tex
+  :risky t
+  :type 'file)
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection lsp-clients-digestif-executable)
+                  :major-modes '(plain-tex-mode latex-mode)
+                  :priority -1
+                  :server-id 'digestif))
+
+
+;; LUA
+(defgroup lsp-emmy-lua nil
+  "LSP support for emmy-lua."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/EmmyLua/EmmyLua-LanguageServer"))
+
+
+
+(defcustom lsp-clients-emmy-lua-java-path "java"
+  "Path to java which will be used for running emmy-lua language server."
+  :group 'lsp-emmy-lua
+  :risky t
+  :type 'file)
+
+(defcustom lsp-clients-emmy-lua-jar-path (f-expand "~/.emacs.d/EmmyLua-LS-all.jar")
+  "Path to jar which will be used for running EmmyLua language server."
+  :group 'lsp-emmy-lua
+  :risky t
+  :type 'file)
+
+(defun lsp-clients-emmy-lua--create-connection ()
+  "Create connection to emmy lua language server."
+  (plist-put
+   (lsp-stdio-connection
+    (lambda ()
+      (list lsp-clients-emmy-lua-java-path "-jar" lsp-clients-emmy-lua-jar-path)))
+   :test? (lambda ()
+            (f-exists? lsp-clients-emmy-lua-jar-path))))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-clients-emmy-lua--create-connection)
+                  :major-modes '(lua-mode)
+                  :priority -1
+                  :server-id 'emmy-lua
+                  :notification-handlers (lsp-ht ("emmy/progressReport" #'ignore))))
 
 (provide 'lsp-clients)
 ;;; lsp-clients.el ends here
