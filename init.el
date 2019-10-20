@@ -1843,9 +1843,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                             (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
   
   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
-  (define-key ccls-tree-mode-map (kbd "SPC") 'cquery-tree-press)
+  (define-key ccls-tree-mode-map (kbd "SPC") 'ccls-tree-press)
   (define-key ccls-tree-mode-map [mouse-1] 'ignore )
-  (define-key ccls-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
+  (define-key ccls-tree-mode-map [mouse-3] 'ccls-tree-toggle-expand)
   (define-key ccls-tree-mode-map (kbd "n") (lambda () "" (interactive)
                                                (forward-line 1)
                                                (back-to-indentation)))
@@ -2858,7 +2858,7 @@ If less than or equal to zero, there is no limit."
             ;; (hs-minor-mode 1)
             (company-mode 1)
             (eldoc-mode 1)
-            (setq-local company-backends (push '(company-tabnine :with company-capf :with company-yasnippet :with company-dabbrev-code) company-backends))
+            (setq-local company-backends (push '(company-tabnine :with company-yasnippet) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
 
