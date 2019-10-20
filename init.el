@@ -284,13 +284,6 @@
 
 ;; 长行性能提升
 (setq-default bidi-display-reordering nil)
-;; (global-visual-line-mode)        ;系统自带 word wrap 右侧没有换行的标记
-
-;; org inline picture size
-;; (setq org-image-actual-width nil) ; org-image-actual-width的设置需要build with imagemagick support.用emax64
-;; 在org文件中图片上方加上#+ATTR_ORG: :width 800，执行org-redisplay-inline-images生效
-
-;; 自动添加的设置
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -310,6 +303,8 @@
  '(bookmark-sort-flag nil)
  '(c-electric-pound-behavior (quote (alignleft)))
  '(cc-search-directories (quote ("." "/usr/include" "/usr/local/include/*" "../*")))
+ '(ccls-sem-macro-faces [font-lock-warning-face])
+ '(ccls-tree-initial-levels 1)
  '(centaur-tabs-close-button " X")
  '(centaur-tabs-cycle-scope (quote tabs))
  '(column-number-mode t)
@@ -442,10 +437,10 @@
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-semantic-highlighting t)
  '(lsp-enable-symbol-highlighting nil)
- '(lsp-file-watch-threshold nil)
  '(lsp-file-watch-ignored
    (quote
     ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "/model/" "/client/")))
+ '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
@@ -546,6 +541,7 @@
     (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
  '(yas-also-auto-indent-first-line t))
 
+
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
@@ -604,7 +600,7 @@
      ;; 智能补全 tabnine ,exe的下载用company-tabnine-install-binary，
      ;; 如果下不下来可以通过IJ的Plugin安装tabnine插件后，搜到TabNine.exe并将整个.tabnine文件夹移到\Roaming目录下
      (require 'company-tabnine)
-     (add-to-list 'company-backends #'company-tabnine)
+     ;; (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
      (setq company-idle-delay 0)
      ;; Number the candidates (use M-1, M-2 etc to select completions).
@@ -1738,60 +1734,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :priority 1
                     :server-id 'kt-ls))
 
-  ;; ccls
-  ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
-  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-  ;; (setq ccls-args '("--log-file=/tmp/ccls.log"))
-  ;; Use t for true, :json-false for false, :json-null for null.
-  ;; (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
-  (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
-  (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
-  (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
-  (defun ccls/base (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels)))
-  (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
-  (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
-
-  ;; References w/ Role::Address bit (e.g. variables explicitly being taken addresses)
-  (defun ccls/references-address ()
-    (interactive)
-    (lsp-ui-peek-find-custom "textDocument/references"
-                             (plist-put (lsp--text-document-position-params) :role 128)))
-  ;; References w/ Role::Role
-  (defun ccls/references-read () (interactive)
-         (lsp-ui-peek-find-custom "textDocument/references"
-                                  (plist-put (lsp--text-document-position-params) :role 8)))
-
-  ;; References w/ Role::Write
-  (defun ccls/references-write ()
-    (interactive)
-    (lsp-ui-peek-find-custom "textDocument/references"
-                             (plist-put (lsp--text-document-position-params) :role 16)))
-
-  ;; References w/ Role::Dynamic bit (macro expansions)
-  (defun ccls/references-macro () (interactive)
-         (lsp-ui-peek-find-custom "textDocument/references"
-                                  (plist-put (lsp--text-document-position-params) :role 64)))
-
-  ;; References w/o Role::Call bit (e.g. where functions are taken addresses)
-  (defun ccls/references-not-call () (interactive)
-         (lsp-ui-peek-find-custom "textDocument/references"
-                                  (plist-put (lsp--text-document-position-params) :excludeRole 32)))
-
-  ;; (lsp-ui-peek-find-references nil (list :folders (vector (projectile-project-root))))
-
-  (defun ccls-tree--make-prefix-fset (node number nchildren depth)
-    "."
-    (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
-           (symbol (if (= depth 0)
-                       (if (ccls-tree-node-parent node)
-                           "◂ "
-                         "")
-                     (if (ccls-tree-node-has-children node)
-                         (if (ccls-tree-node-expanded node) "▸ " "▾ ")
-                       (if (eq number (- nchildren 1)) "└╸" "├╸")))))
-      (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
-
-  (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
 
   ;; java settings
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
@@ -1843,6 +1785,76 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (xref-show-location-at-point))
   (fset 'xref--mouse-2 'xref--mouse-2-fset)
   )
+
+;; ccls
+(with-eval-after-load 'ccls
+  ;; ccls
+  ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  ;; (setq ccls-args '("--log-file=d:/ccls.log"))
+  ;; Use t for true, :json-false for false, :json-null for null.
+  ;; (setq ccls-initialization-options '(:index (:comments 0 :blacklist (".*") :whitelist (".*/cfdg/.*"))))
+  (define-key c-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
+  (define-key c++-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
+  
+  (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
+  (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
+  (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
+  (defun ccls/base (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels)))
+  (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
+  (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
+  
+  ;; References w/ Role::Address bit (e.g. variables explicitly being taken addresses)
+  (defun ccls/references-address ()
+         (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 128)))
+  ;; References w/ Role::Role
+  (defun ccls/references-read () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 8)))
+  
+  ;; References w/ Role::Write
+  (defun ccls/references-write ()
+         (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 16)))
+  
+  ;; References w/ Role::Dynamic bit (macro expansions)
+  (defun ccls/references-macro () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :role 64)))
+  
+  ;; References w/o Role::Call bit (e.g. where functions are taken addresses)
+  (defun ccls/references-not-call () (interactive)
+         (lsp-ui-peek-find-custom "textDocument/references"
+                                  (plist-put (lsp--text-document-position-params) :excludeRole 32)))
+  
+  (defun ccls-tree--make-prefix-fset (node number nchildren depth)
+         "."
+         (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
+                (symbol (if (= depth 0)
+                          (if (ccls-tree-node-parent node)
+                            "◂ "
+                            "")
+                          (if (ccls-tree-node-has-children node)
+                            (if (ccls-tree-node-expanded node) "▸ " "▾ ")
+                            (if (eq number (- nchildren 1)) "└╸" "├╸")))))
+                            (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
+  
+  (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
+  (define-key ccls-tree-mode-map (kbd "SPC") 'cquery-tree-press)
+  (define-key ccls-tree-mode-map [mouse-1] 'ignore )
+  (define-key ccls-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
+  (define-key ccls-tree-mode-map (kbd "n") (lambda () "" (interactive)
+                                               (forward-line 1)
+                                               (back-to-indentation)))
+  (define-key ccls-tree-mode-map (kbd "p") (lambda () "" (interactive)
+                                               (forward-line -1)
+                                               (back-to-indentation)))
+  (add-hook 'ccls-tree-mode-hook 'set-c-word-mode)
+)
+
 
 ;; cquery config
 (with-eval-after-load 'cquery
@@ -1900,11 +1912,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
            (symbol (if (= depth 0)
                        (if (cquery-tree-node-parent node)
-                           "< "
+                           "◂ "
                          "")
                      (if (cquery-tree-node-has-children node)
-                         (if (cquery-tree-node-expanded node) "└- " "└+ ")
-                       (if (eq number (- nchildren 1)) "└* " "├* ")))))
+                         (if (cquery-tree-node-expanded node) "▸ " "▾ ")
+                       (if (eq number (- nchildren 1)) "└╸ " "├╸ ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
 
@@ -3139,13 +3151,6 @@ If less than or equal to zero, there is no limit."
                       )
   ;; (change-face)
   )
-;; 新窗口利用face
-;; (add-hook 'after-make-frame-functions
-;;           (lambda (_)                   ;这里如果不用(_)会报参数错误
-;;             (change-face)))
-;; (defadvice load-theme (after load-theme-af activate)
-;;   (change-face))
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -3158,3 +3163,4 @@ If less than or equal to zero, there is no limit."
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
+

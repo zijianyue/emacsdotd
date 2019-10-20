@@ -10,3 +10,6 @@
 [submodule "site-lisp/company-tabnine"]
 	path = site-lisp/company-tabnine
 	url = https://github.com/TommyX12/company-tabnine.git
+[submodule "site-lisp/emacs-ccls"]
+	path = site-lisp/emacs-ccls
+	url = https://github.com/MaskRay/emacs-ccls.git
