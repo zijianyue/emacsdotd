@@ -76,6 +76,16 @@ git remote add fork ssh://git@source.huawei.com:2222/NCE-IP/IPTunnelService.git
  ( --> %28    ) --> %29    * --> %2A    + --> %2B    , --> %2C
  / --> %2F    : --> %3A    ; --> %3B    = --> %3D    ? --> %3F
  @ --> %40    [ --> %5B    ] --> %5D
+
+** 下载报SSL错误，需要改配置 <2019-10-15 周二 14:12>
+g00280886@DESKTOP-4QTA7QT MINGW64 /g
+$ git clone https://github.com/llvm/llvm-project.git
+正克隆到 'llvm-project'...
+fatal: 无法访问 'https://github.com/llvm/llvm-project.git/'：SSL certificate problem: unable to get local issuer certificate
+
+g00280886@DESKTOP-4QTA7QT MINGW64 /g
+$ git config --global http.sslVerify false
+
 * 其他
 ** pscp problem when called from bash 
 
@@ -331,6 +341,7 @@ I	#+INCLUDE: line
       pstTopoGroup->bIsDeadLock);
 #+END_SRC
 
+<q TAB是输入一段引用
 *** helm列出所有标题命令 <2019-03-29 周五 15:39>
 helm-org-in-buffer-headings
 
@@ -368,7 +379,13 @@ cd build
 cmake .. -G Ninja  -DSYSTEM_CLANG=ON -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 cmake --build  .
 
+如果有z3的错误 -DLLVM_WITH_Z3=off
+#+BEGIN_QUOTE
+ninja: error: '/mingw64/lib/libz3.dll.a', needed by 'ccls.exe', missing and no known rule to make it
+#+END_QUOTE
 PS. msys64的代理设置g:\msys64\home\g00280886\.bashrc中添加
+export http_proxy=http://user:pwd@url:port
+export https_proxy=http://user:pwd@url:port
 *** 使用VS2017编译
 安装步骤
 第一步：安装VS2017最新版，安装时勾选上CMake
@@ -640,6 +657,11 @@ debug
 ~/.globalrc编写skip时不要写在最前，也不要写在最后
 
 ** c-x c-t上下两行互换 <2019-04-13 周六 15:39>
+
+** GDB <2019-10-14 周一 16:27>
+C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe -g 是生成debug的符号表 -o可以省略
+m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start开始调试 quit结束调试
+运行exe shell中 ./ab.exe
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.

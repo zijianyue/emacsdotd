@@ -28,6 +28,7 @@
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
@@ -249,10 +250,10 @@
 ;;  (horizontal-scroll-bar-mode 1))
 
 ;; 自动横移跟随水平滚动条切换
-;; (defadvice horizontal-scroll-bar-mode(after horizontal-scroll-bar-mode-after activate)
-;;   (if horizontal-scroll-bar-mode
-;;    (setq auto-hscroll-mode nil)
-;;  (setq auto-hscroll-mode t)))
+(defadvice horizontal-scroll-bar-mode(after horizontal-scroll-bar-mode-after activate)
+  (if horizontal-scroll-bar-mode
+   (setq auto-hscroll-mode nil)
+ (setq auto-hscroll-mode t)))
 
 ;; 高亮单词跟高亮当前行有冲突
 (defadvice highlight-symbol-at-point(after highlight-symbol-at-point-after activate)
@@ -299,7 +300,7 @@
  '(ag-arguments (quote ("--smart-case" "--stats" "-u")))
  '(ag-highlight-search t)
  '(auto-save-default nil)
- '(auto-save-visited-interval 2)
+ '(auto-save-visited-interval 3)
  '(auto-save-visited-mode t)
  '(autopair-blink nil)
  '(avy-background t)
@@ -357,6 +358,7 @@
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
  '(global-auto-revert-mode t)
+ '(global-diff-hl-mode nil)
  '(global-display-line-numbers-mode t)
  '(global-eldoc-mode nil)
  '(global-hl-line-mode t)
@@ -364,7 +366,8 @@
  '(grep-template "grep <X> <C> -nH -F <R> <F>")
  '(gud-pdb-command-name "python -i -m pdb")
  '(helm-M-x-fuzzy-match t)
- '(helm-ag-base-command "ag --nocolor --nogroup -S -Q -U")
+ '(helm-ag-base-command "ag --vimgrep -S -Q -U")
+ '(helm-ag-ignore-patterns (quote ("target" "coverage-report")))
  '(helm-ag-insert-at-point (quote symbol))
  '(helm-allow-mouse t)
  '(helm-autoresize-mode t)
@@ -401,6 +404,7 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-buffers-list helm-source-recentf helm-source-bookmarks)))
+ '(helm-grep-file-path-style (quote relative))
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 104857600)
  '(helm-gtags-cache-select-result t)
@@ -428,7 +432,7 @@
  '(inhibit-startup-screen t)
  '(isearch-allow-scroll t)
  '(ivy-count-format "(%d/%d) ")
- '(ivy-format-function (quote ivy-format-function-arrow))
+ '(ivy-format-function (quote ivy-format-function-arrow) t)
  '(ivy-height 25)
  '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
@@ -436,7 +440,9 @@
  '(lsp-eldoc-hook (quote (lsp-hover)))
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
+ '(lsp-enable-semantic-highlighting t)
  '(lsp-enable-symbol-highlighting nil)
+ '(lsp-file-watch-threshold nil)
  '(lsp-file-watch-ignored
    (quote
     ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "/model/" "/client/")))
@@ -444,8 +450,12 @@
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
  '(lsp-java-max-concurrent-builds 4)
+ '(lsp-java-progress-reports-enabled nil)
  '(lsp-java-save-action-organize-imports nil)
  '(lsp-java-update-build-configuration (quote interactive))
+ '(lsp-java-vmargs
+   (quote
+    ("-noverify" "-Xmx3G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication")))
  '(lsp-response-timeout 20)
  '(lsp-ui-doc-include-signature t)
  '(lsp-ui-doc-use-webkit t)
@@ -492,6 +502,7 @@
  '(proced-filter (quote emacs))
  '(proced-format (quote medium))
  '(proced-tree-flag t)
+ '(properties-unicode-escape-uppercase t)
  '(recentf-auto-cleanup 600)
  '(regexp-search-ring-max 50)
  '(rg-custom-type-aliases nil)
@@ -509,6 +520,9 @@
  '(show-paren-when-point-in-periphery t)
  '(show-paren-when-point-inside-paren t)
  '(size-indication-mode t)
+ '(snails-default-backends
+   (quote
+    (snails-backend-awesome-tab-group snails-backend-buffer snails-backend-recentf snails-backend-bookmark snails-backend-rg snails-backend-projectile snails-backend-imenu)))
  '(sp-base-key-bindings (quote sp))
  '(switch-window-shortcut-style (quote (quote qwerty)))
  '(tab-width 4)
@@ -587,7 +601,8 @@
 
 (eval-after-load "company"
   '(progn
-     ;; 智能补全
+     ;; 智能补全 tabnine ,exe的下载用company-tabnine-install-binary，
+     ;; 如果下不下来可以通过IJ的Plugin安装tabnine插件后，搜到TabNine.exe并将整个.tabnine文件夹移到\Roaming目录下
      (require 'company-tabnine)
      (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
@@ -843,7 +858,9 @@
 (autoload 'helm-occur "helm-config" nil t)
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 (autoload 'helm-ag-project-root "helm-ag" nil t)
-(global-set-key (kbd "C-S-f") 'helm-ag-project-root)
+(autoload 'helm-ag-buffers "helm-ag" nil t)
+(global-set-key (kbd "C-S-f") 'helm-ag-project-root) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode
+(global-set-key (kbd "C-S-b") 'helm-ag-buffers) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode
 
 (autoload 'helm-org-in-buffer-headings "helm-config" nil t) ;在org-mode中找标题很方便
 
@@ -927,7 +944,12 @@
 (global-set-key (kbd "<C-apps>") 'helm-for-files)
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
+(global-set-key (kbd "<C-M-f6>") 'helm-ls-git-ls)
+(global-set-key (kbd "C-S-g")  (lambda () "" (interactive)
+                                      (helm-grep-do-git-grep t))) ;默认是搜当前目录，加上c-u是搜整个repo
 
+(autoload 'helm-grep-do-git-grep "helm-grep" nil t)
+(autoload 'helm-ls-git-ls "helm-ls-git" nil t)
 (autoload 'helm-swoop "helm-swoop" nil t)
 (autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
 (autoload 'helm-multi-swoop-all "helm-swoop" nil t) ;搜索所有buffer，或者用helm-multi-swoop然后mark要搜索的buffer ，或者helm-multi-swoop-projectile搜索所有当前工程打开的buffer
@@ -1405,6 +1427,10 @@
 (global-set-key (kbd "C-<next>") 'centaur-tabs-forward)
 (global-set-key (kbd "<C-tab>") 'centaur-tabs-forward)
 (global-set-key (kbd "<C-S-tab>") 'centaur-tabs-backward)
+
+(global-set-key (kbd "<header-line> <wheel-down>") 'centaur-tabs-forward-group)
+(global-set-key (kbd "<header-line> <wheel-up>") 'centaur-tabs-backward-group)
+
 (centaur-tabs-headline-match)
 (setq centaur-tabs-style "bar")
 (setq centaur-tabs-set-icons t)
@@ -1619,7 +1645,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
-  (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix
+  (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix lsp-treemacs-symbols-list
   (require 'lsp-origami)
   (projectile-mode)
   (add-hook 'java-mode-hook 'lsp)
@@ -1660,7 +1686,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (global-set-key (kbd "<f1>") 'lsp-ui-peek-find-definitions)
   (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
   (global-set-key (kbd "<C-f12>") 'lsp-execute-code-action)
-  (global-set-key (kbd "<M-f12>") 'lsp-find-implementation)
+  (global-set-key (kbd "<C-M-b>") 'lsp-find-implementation)
   (global-set-key (kbd "<f12>") 'xref-find-references)
   (global-set-key (kbd "M-.") 'lsp-find-definition)
 
@@ -2000,7 +2026,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; counsel-git查看当前工程下的文件通过git
 ;; counsel-faces可以显示face list
 ;; (global-set-key (kbd "<C-f10>") 'counsel-locate)
-;; (autoload 'counsel-locate "counsel" nil t) 
+;; (autoload 'counsel-locate "counsel" nil t)
+
+(autoload 'counsel-rg "counsel" nil t) 
+(autoload 'counsel-git "counsel" nil t) 
 (autoload 'counsel-mode "counsel" nil t) 
 ;; (with-eval-after-load 'counsel
 ;;   (when (eq system-type 'darwin)
@@ -2092,6 +2121,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'web-beautify-css "web-beautify" nil t)
 (autoload 'web-beautify-html "web-beautify" nil t)
 (global-set-key (kbd "C-c C-b") 'web-beautify-js)
+(global-set-key (kbd "C-c C-h") 'web-beautify-html)
 
 ;; meghanada
 ;; (autoload 'meghanada-mode "meghanada" nil t)
@@ -2139,8 +2169,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                           (extension "zip" "rar" "gz" "bz2" "tar")))))
 (autoload 'dired-narrow-fuzzy "dired-narrow" nil t) ;动态过滤，按g恢复
 
-;; snails搜索框架
+;; 显示java properties中的中文
+(autoload 'properties-mode "properties-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.properties$" . properties-mode))
+
+;; 搜索
 (autoload 'snails "snails" nil t)
+;; multiple scratch buffers 创建一个跟当前buffer mode一样的scratch buffer
+(autoload 'scratch "scratch" nil t)
+
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2278,7 +2316,7 @@ If FULL is t, copy full file name."
   (aset buffer-display-table ?\^M []))
 
 ;; 利用evil-jump实现回跳机制, 每个窗口有独立的pop历史
-(dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-declaration  lsp-find-implementation lsp-find-type-definition symbol-overlay-jump-next symbol-overlay-jump-prev))
+(dolist (command '(avy-goto-char avy-goto-char-timer lsp-ui-peek-find-definitions helm-gtags-dwim helm-gtags-find-rtag helm-gtags-find-tag helm-gtags-select helm-gtags-select-path counsel-gtags-dwim counsel-gtags-find-symbol counsel-gtags-find-file my-ag ag-this-file occur rgrep gtags-find-tag-by-event semantic-analyze-proto-impl-toggle ff-find-other-file find-file-at-point xref-find-definitions xref-find-apropos xref-find-references cquery-tree-press-and-switch lsp-ui-find-workspace-symbol  lsp-find-definition lsp-find-declaration  lsp-find-implementation lsp-find-type-definition symbol-overlay-jump-next symbol-overlay-jump-prev helm-ag-buffers helm-ag-project-root))
   (eval
    `(defadvice ,command (before jump-mru activate)
       (unless (featurep 'evil-jumps)
@@ -3114,6 +3152,7 @@ If less than or equal to zero, there is no limit."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(epe-pipeline-time-face ((t (:foreground "dodger blue"))))
+ '(helm-ls-git-modified-not-staged-face ((t (:foreground "medium blue"))))
  '(helm-moccur-buffer ((t (:foreground "dark green" :underline t))))
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
