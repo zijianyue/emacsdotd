@@ -17,6 +17,8 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "d:/software/lsp4xml/"
+ "d:/leetcode/.vscode/"
  "d:/leetcode/"
  "d:/software/msys64/home/gezijian/ccls/Release/"
  "c:/"
@@ -36,12 +38,23 @@
 
 ;; ----- ido-work-file-list -----
 (
+ "test.js"
  "test.cpp"
  "magit-libgit.el"
 )
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/emacs-ccls/" (23979 3454 0 0) "README.md" "ccls.el" "ccls-tree.el" "ccls-semantic-highlight.el" "ccls-member-hierarchy.el" "ccls-inheritance-hierarchy.el" "ccls-common.el" "ccls-code-lens.el" "ccls-call-hierarchy.el" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23979 3450 0 0) "treemacs/" "swiper/" "snails/" "rg.el/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "emacs-ccls/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23974 37770 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
+
+ ("d:/software/lsp4xml/" (23974 34749 0 0) "travis-settings.xml" "README.md" "pom.xml" "org.eclipse.lsp4xml/" "NOTICE" "mvnw.cmd" "mvnw" "LICENSE" "images/" "extensions/" "deploySnapshot.sh" "deployRelease.sh" "demos/" "CHANGELOG.md" ".vscode/" ".travis.yml" ".mvn/" ".gitignore" ".git/" "../" "./")
+
+ ("d:/leetcode/.vscode/" (23973 62337 0 0) "tasks.json" "settings.json" "launch.json" "../" "./")
+
  ("d:/leetcode/" (23973 60305 0 0) "test.cpp" ".cquery_cached_index/" ".cquery" "../" "./")
 
  ("d:/software/msys64/home/gezijian/ccls/Release/" (23970 61820 0 0) "rules.ninja" "cmake_install.cmake" "CMakeFiles/" "CMakeCache.txt" "build.ninja" ".ninja_log" ".ninja_deps" "../" "./")
@@ -53,10 +66,6 @@
  ("c:/emacs/share/emacs/26.2/site-lisp/" (23942 15543 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/rg.el/" (23947 34251 0 0) "wgrep-rg.el" "tools/" "test/" "screenshot.png" "rgel.info" "rg.el" "rg-result.el" "rg-menu.el" "rg-info-hack.el" "rg-ibuffer.el" "rg-history.el" "rg-header.el" "README.md" "Makefile" "LICENSE" "docs/" "Cask" ".travis.yml" ".gitignore" ".git/" ".ert-runner" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23947 33243 0 0) "treemacs/" "swiper/" "snails/" "rg.el/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23942 16426 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org/" "init.el" "ido.last" "eshell/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
 
  ("d:/study/" (23942 15010 0 0) "Web/" "../" "./")
 

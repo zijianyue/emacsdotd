@@ -1725,6 +1725,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
   (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
 
+  ;; References w/ Role::Address bit (e.g. variables explicitly being taken addresses)
+  (defun ccls/references-address ()
+    (interactive)
+    (lsp-ui-peek-find-custom "textDocument/references"
+                             (plist-put (lsp--text-document-position-params) :role 128)))
   ;; References w/ Role::Role
   (defun ccls/references-read () (interactive)
          (lsp-ui-peek-find-custom "textDocument/references"
@@ -1748,7 +1753,20 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   ;; (lsp-ui-peek-find-references nil (list :folders (vector (projectile-project-root))))
 
-  
+  (defun ccls-tree--make-prefix-fset (node number nchildren depth)
+    "."
+    (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
+           (symbol (if (= depth 0)
+                       (if (ccls-tree-node-parent node)
+                           "◂ "
+                         "")
+                     (if (ccls-tree-node-has-children node)
+                         (if (ccls-tree-node-expanded node) "▸ " "▾ ")
+                       (if (eq number (- nchildren 1)) "└╸" "├╸")))))
+      (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
+
+  (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
+
   ;; java settings
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
   ;; lsp-java-jdt-download-url - JDT JS download url. Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server-latest.tar.gz if you want to use Eclipse Che JDT LS.
