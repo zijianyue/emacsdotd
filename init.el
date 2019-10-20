@@ -1636,8 +1636,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'yasnippet)
   (require 'company-yasnippet)
   (require 'company-lsp)
-  ;; (require 'cquery)
-  (require 'ccls)
+  (require 'cquery)
+  ;; (require 'ccls)
   (require 'lsp-java)
   (require 'helm-lsp)
   ;; (require 'helm-xref)
@@ -1793,7 +1793,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
   ;; (setq ccls-args '("--log-file=d:/ccls.log"))
   ;; Use t for true, :json-false for false, :json-null for null.
-  (setq ccls-initialization-options '(:index (:threads 2 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/cfdg/.*"])))
+  ;; (setq ccls-initialization-options '(:index (:threads 2 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/dir/.*"])))
   (define-key c-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
   (define-key c++-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
   
