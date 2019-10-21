@@ -28,7 +28,6 @@
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
@@ -412,6 +411,8 @@
  '(helm-gtags-ignore-case t)
  '(helm-gtags-update-interval-second 3)
  '(helm-mode-fuzzy-match t)
+ '(helm-rg-hidden t)
+ '(helm-rg-smart-case t)
  '(helm-semantic-display-style
    (quote
     ((python-mode . semantic-format-tag-summarize)
@@ -442,10 +443,10 @@
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-semantic-highlighting t)
  '(lsp-enable-symbol-highlighting nil)
- '(lsp-file-watch-threshold nil)
  '(lsp-file-watch-ignored
    (quote
-    ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "/model/" "/client/")))
+    ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "[/\\\\]\\deployment\\target")))
+ '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
@@ -487,7 +488,6 @@
  '(nxml-child-indent 4)
  '(org-default-notes-file "~/.emacs.d/.notes")
  '(org-directory "~/.emacs.d/org")
- '(org-download-screenshot-file "~/.emacs.d/screenshot.png")
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-image-actual-width (quote (500)))
  '(org-imenu-depth 4)
@@ -582,7 +582,7 @@
 (require 'redo+)
 (setq undo-no-redo t)
 (global-set-key (kbd "C-/") 'redo)
-(global-set-key (kbd "C-Z") 'redo)
+(global-set-key (kbd "C-S-z") 'redo)
 (global-set-key (kbd "C-z") 'undo)
 
 ;; stl(解析vector map等)
@@ -937,7 +937,7 @@
      ))
 
 (global-set-key (kbd "<C-f10>") 'helm-locate)
-(global-set-key (kbd "<f9>") 'helm-occur)
+;; (global-set-key (kbd "<f9>") 'helm-occur)
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
@@ -953,9 +953,9 @@
 (autoload 'helm-swoop "helm-swoop" nil t)
 (autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
 (autoload 'helm-multi-swoop-all "helm-swoop" nil t) ;搜索所有buffer，或者用helm-multi-swoop然后mark要搜索的buffer ，或者helm-multi-swoop-projectile搜索所有当前工程打开的buffer
-(global-set-key (kbd "M-]") 'helm-swoop)
+(global-set-key (kbd "<f9>") 'helm-swoop)
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-(define-key isearch-mode-map (kbd "M-]") 'helm-swoop-from-isearch)
+(define-key isearch-mode-map (kbd "<f9>") 'helm-swoop-from-isearch)
 (setq helm-swoop-split-with-multiple-windows t)
 
 (global-set-key (kbd "C-c j") 'helm-ag-this-file)
@@ -1692,6 +1692,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
   (define-key lsp-ui-peek-mode-map (kbd "f") 'lsp-ui-peek--goto-xref)
 
+  ;; (defadvice lsp--auto-configure (after lsp--auto-configure-af activate)
+  ;;   (when (functionp 'company-tabnine)
+  ;;     (setq company-backends (push '(company-lsp :with company-tabnine) company-backends))
+  ;;     ))
+
   ;; imenu只显示返回值和函数名，参数不显示
   (defun lsp--symbol-to-imenu-elem-fset (sym)
     (let* ((start-point (lsp--symbol-get-start-point sym))
@@ -1834,7 +1839,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; Use t for true, :json-false for false, :json-null for null
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack")) ;; msgpack占用空间小，但是查看困难，并且结构体变更，要手动更新索引
   ;; container现在在xref里还没有显示，无法使用，配置是:xref (:container t), comments有乱码先不用 , :completion (:detailedLabel t)跟不设置区别不大
-  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/PCE/resthandler/pceserver/.*" ".*/PCE/resthandler/networkte/.*" ".*/PCE/resthandler/resthandler_lib/.*" ".*/mcast/gpath/.*" ".*/mcast_cbb/.*" ".*/mcast_lib/.*" ".*/mos_lib/.*" ".*/mrib_lib/.*" ".*/mpls/vtem/.*" ".*/mpls/pcep/.*" ".*/netconf/.*" ".*/ftpc/.*" ".*/xsm/.*" ".*/sshc/.*" ".*/sshs/.*"))))
+  (setq-default cquery-extra-init-params '(:index (:threads 1 :comments 0 :blacklist (".*") :whitelist (".*/dira/dirb/.*" ".*/dirc/dird/.*"))))
   ;; (setq cquery-extra-args '("--log-stdin-stdout-to-stderr" "--log-file=/tmp/cq.log"))
 ;;;; enable semantic highlighting:
   ;; (setq cquery-sem-highlight-method 'overlay)
@@ -1916,7 +1921,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (treemacs-git-mode 'deferred) 
   (if (memq system-type '(windows-nt ms-dos))
       (progn
-        (setq treemacs-max-git-entries 100)
+        ;; (setq treemacs-max-git-entries 100)
         (setq treemacs-python-executable "c:/Python37/python.exe")))
   (global-set-key (kbd "<S-f6>") 'treemacs-find-file)
   (global-set-key (kbd "<C-S-f6>") 'treemacs-find-tag)
@@ -2105,23 +2110,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c C-b") 'web-beautify-js)
 (global-set-key (kbd "C-c C-h") 'web-beautify-html)
 
-;; meghanada
-;; (autoload 'meghanada-mode "meghanada" nil t)
-;; (add-hook 'java-mode-hook
-;;           (lambda ()
-;;             ;; meghanada-mode on
-;;             (meghanada-mode t)
-;;             (flycheck-mode +1)
-;;             (setq c-basic-offset 2)
-;;             ;; use code format
-;;             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
-;; (cond
-;;  ((eq system-type 'windows-nt)
-;;   (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
-;;   (setq meghanada-maven-path "mvn.cmd"))
-;;  (t
-;;   (setq meghanada-java-path "java")
-;;   (setq meghanada-maven-path "mvn")))
 
 ;; smartparens
 (autoload 'smartparens-mode "smartparens-config" nil  t)
@@ -3133,6 +3121,10 @@ If less than or equal to zero, there is no limit."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))
+ '(color-rg-font-lock-function-location ((t (:foreground "DarkGoldenrod4" :weight bold))))
+ '(color-rg-font-lock-header-line-edit-mode ((t (:foreground "goldenrod4" :weight bold))))
+ '(color-rg-font-lock-header-line-keyword ((t (:foreground "DarkGoldenrod4" :weight bold))))
  '(epe-pipeline-time-face ((t (:foreground "dodger blue"))))
  '(helm-ls-git-modified-not-staged-face ((t (:foreground "medium blue"))))
  '(helm-moccur-buffer ((t (:foreground "dark green" :underline t))))
