@@ -1001,10 +1001,6 @@
      ;; (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-show-stack)
      ))
 
-(add-hook 'helm-update-hook
-          (lambda ()
-            (setq truncate-lines t)))
-
 ;; flycheck
 ;; (defvar package-user-dir "")			;防止check lisp出错
 (autoload 'flycheck-mode "flycheck" nil t)
@@ -1800,10 +1796,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; ccls
 (with-eval-after-load 'ccls
   ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
-  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  ;; (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
   ;; (setq ccls-args '("--log-file=d:/ccls.log"))
   ;; Use t for true, :json-false for false, :json-null for null.
-  ;; (setq-default ccls-initialization-options '(:index (:threads 2 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/dir/.*"])))
+  ;; (setq-default ccls-initialization-options '(:index (:threads 1 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/dir/.*"])))
   (define-key c-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
   (define-key c++-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
 
@@ -1840,16 +1836,17 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
          (lsp-ui-peek-find-custom "textDocument/references"
                                   (plist-put (lsp--text-document-position-params) :excludeRole 32)))
 
+  ;; 显示的符号修改
   (defun ccls-tree--make-prefix-fset (node number nchildren depth)
          "."
          (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
                 (symbol (if (= depth 0)
                           (if (ccls-tree-node-parent node)
-                            "◂ "
+                            "< "
                             "")
                           (if (ccls-tree-node-has-children node)
-                            (if (ccls-tree-node-expanded node) "▸ " "▾ ")
-                            (if (eq number (- nchildren 1)) "└╸" "├╸")))))
+                              (if (ccls-tree-node-expanded node) "└- " "└+ ")
+                            (if (eq number (- nchildren 1)) "└* " "├* ")))))
                             (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
 
   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
@@ -1908,24 +1905,17 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (cquery-xref-find-custom "$cquery/references-write")
   ;; cquery-call-hierarchy带c-u查的是callee，不带查的是caller
 
-  ;; 不折行
-  (dolist (command '(cquery-call-hierarchy cquery-inheritance-hierarchy cquery-member-hierarchy))
-    (eval
-     `(defadvice ,command (after cquery-after activate)
-        (setq truncate-lines t)
-        )))
-
   ;; 解决乱码
   (defun cquery-tree--make-prefix-fset (node number nchildren depth)
     "."
     (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
            (symbol (if (= depth 0)
                        (if (cquery-tree-node-parent node)
-                           "◂ "
+                           "< "
                          "")
                      (if (cquery-tree-node-has-children node)
-                         (if (cquery-tree-node-expanded node) "▸ " "▾ ")
-                       (if (eq number (- nchildren 1)) "└╸ " "├╸ ")))))
+                         (if (cquery-tree-node-expanded node) "└- " "└+ ")
+                       (if (eq number (- nchildren 1)) "└* " "├* ")))))
       (concat padding (propertize symbol 'face 'cquery-tree-icon-face))))
   (fset 'cquery-tree--make-prefix 'cquery-tree--make-prefix-fset)
 
@@ -1952,6 +1942,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 (with-eval-after-load 'treemacs
   (require 'treemacs-icons-dired)
+  ;; (require 'treemacs-magit)
   (treemacs-git-mode 'deferred)
   (if (memq system-type '(windows-nt ms-dos))
       (progn
@@ -1972,7 +1963,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
               (define-key treemacs-mode-map (kbd "f") 'treemacs-visit-node-no-split)
               (define-key treemacs-mode-map (kbd "/") 'isearch-forward)
               (define-key treemacs-mode-map (kbd "?") 'isearch-backward)
-              (setq truncate-lines t))))
+              )))
 
 ;; dap-mode 调试
 (autoload 'dap-mode "dap-mode" nil t)
@@ -2922,7 +2913,7 @@ If less than or equal to zero, there is no limit."
 ;; telnet登录主机后，export LANG=zh_CN.GBK 或 export LC_ALL=en_US.ISO-8859-1 这个管用 ,export LC_CTYPE=zh_CN.GB2312
 
 ;; gtags symref 的结果都设置为C语法，主要为了highlight-symbol能正确
-(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook))
+(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook))
   (add-hook hook
             (lambda()
               (require 'cc-mode)
