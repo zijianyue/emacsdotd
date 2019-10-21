@@ -283,6 +283,13 @@
 
 ;; 长行性能提升
 (setq-default bidi-display-reordering nil)
+;; (global-visual-line-mode)        ;系统自带 word wrap 右侧没有换行的标记
+
+;; org inline picture size
+;; (setq org-image-actual-width nil) ; org-image-actual-width的设置需要build with imagemagick support.用emax64
+;; 在org文件中图片上方加上#+ATTR_ORG: :width 800，执行org-redisplay-inline-images生效
+
+;; 自动添加的设置
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -436,12 +443,10 @@
  '(lsp-eldoc-hook (quote (lsp-hover)))
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
- '(lsp-enable-semantic-highlighting t)
  '(lsp-enable-symbol-highlighting nil)
  '(lsp-file-watch-ignored
    (quote
     ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "[/\\\\]\\deployment\\target")))
- '(lsp-file-watch-threshold nil)
  '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
@@ -542,7 +547,6 @@
     (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
  '(yas-also-auto-indent-first-line t))
 
-
 ;;-----------------------------------------------------------plugin begin-----------------------------------------------------------;;
 ;; gtags
 (setq gtags-suggested-key-mapping nil)
@@ -585,6 +589,8 @@
 ;; stl(解析vector map等)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
 (setq vs-dir "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/include")
+
+
 ;; 设置成c++文件类型
 (add-to-list 'auto-mode-alist (cons stl-base-dir-14 'c++-mode))
 (add-to-list 'auto-mode-alist (cons vs-dir 'c++-mode))
@@ -603,7 +609,7 @@
      (require 'company-tabnine)
      ;; (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
-     (setq company-idle-delay 0)
+     ;; (setq company-idle-delay 0)
      ;; Number the candidates (use M-1, M-2 etc to select completions).
      (setq company-show-numbers t)
      ;; workaround for company-transformers
@@ -621,7 +627,7 @@
 
      (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
      (advice-add #'company-tabnine :around #'my-company-tabnine)
-     
+
      ;; (require 'company-box)
      ;; (add-hook 'company-mode-hook 'company-box-mode)
      (setq company-async-timeout 15)
@@ -1622,7 +1628,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq lsp-java-server-install-dir "D:/jdt-language-server-latest/")
   (setq lsp-java-java-path "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\java.exe")
   (setq lsp-java-workspace-cache-dir "d:/lsp-java-workspace/.cache/")
-  (setq lsp-java-workspace-dir "d:/lsp-java-workspace/"))  
+  (setq lsp-java-workspace-dir "d:/lsp-java-workspace/"))
 
 (autoload 'projectile-mode "projectile" nil t)
 (global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);切换src和test文件，得先projectile-mode
@@ -1740,7 +1746,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                     :priority 1
                     :server-id 'kt-ls))
 
-
   ;; java settings
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
   ;; lsp-java-jdt-download-url - JDT JS download url. Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server-latest.tar.gz if you want to use Eclipse Che JDT LS.
@@ -1794,22 +1799,21 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; ccls
 (with-eval-after-load 'ccls
-  ;; ccls
   ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
   (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
   ;; (setq ccls-args '("--log-file=d:/ccls.log"))
   ;; Use t for true, :json-false for false, :json-null for null.
-  ;; (setq ccls-initialization-options '(:index (:threads 2 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/dir/.*"])))
+  ;; (setq-default ccls-initialization-options '(:index (:threads 2 :comments 0 :initialBlacklist [".*"] :initialWhitelist [".*/dir/.*"])))
   (define-key c-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
   (define-key c++-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
-  
+
   (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
   (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
   (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
   (defun ccls/base (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels)))
   (defun ccls/derived (levels) (lsp-ui-peek-find-custom "$ccls/inheritance" `(:levels ,levels :derived t)))
   (defun ccls/member (kind) (interactive) (lsp-ui-peek-find-custom "$ccls/member" `(:kind ,kind)))
-  
+
   ;; References w/ Role::Address bit (e.g. variables explicitly being taken addresses)
   (defun ccls/references-address ()
          (interactive)
@@ -1819,23 +1823,23 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (defun ccls/references-read () (interactive)
          (lsp-ui-peek-find-custom "textDocument/references"
                                   (plist-put (lsp--text-document-position-params) :role 8)))
-  
+
   ;; References w/ Role::Write
   (defun ccls/references-write ()
          (interactive)
          (lsp-ui-peek-find-custom "textDocument/references"
                                   (plist-put (lsp--text-document-position-params) :role 16)))
-  
+
   ;; References w/ Role::Dynamic bit (macro expansions)
   (defun ccls/references-macro () (interactive)
          (lsp-ui-peek-find-custom "textDocument/references"
                                   (plist-put (lsp--text-document-position-params) :role 64)))
-  
+
   ;; References w/o Role::Call bit (e.g. where functions are taken addresses)
   (defun ccls/references-not-call () (interactive)
          (lsp-ui-peek-find-custom "textDocument/references"
                                   (plist-put (lsp--text-document-position-params) :excludeRole 32)))
-  
+
   (defun ccls-tree--make-prefix-fset (node number nchildren depth)
          "."
          (let* ((padding (if (= depth 0) "" (make-string (* 2 (- depth 1)) ?\ )))
@@ -1847,7 +1851,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                             (if (ccls-tree-node-expanded node) "▸ " "▾ ")
                             (if (eq number (- nchildren 1)) "└╸" "├╸")))))
                             (concat padding (propertize symbol 'face 'ccls-tree-icon-face))))
-  
+
   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
   (define-key ccls-tree-mode-map (kbd "SPC") 'ccls-tree-press)
   (define-key ccls-tree-mode-map [mouse-1] 'ignore )
@@ -1860,7 +1864,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                                (back-to-indentation)))
   (add-hook 'ccls-tree-mode-hook 'set-c-word-mode)
 )
-
 
 ;; cquery config
 (with-eval-after-load 'cquery
@@ -1938,7 +1941,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; clipmon监视剪贴板
 (autoload 'clipmon-mode "clipmon" nil t)
-;; (setq clipmon-autoinsert-sound nil) 
+;; (setq clipmon-autoinsert-sound nil)
 ;; clipmon-autoinsert-toggle 自动插入当前buffer，只能监视其他程序，当前程序不行
 
 ;; treemacs
@@ -1949,7 +1952,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 (with-eval-after-load 'treemacs
   (require 'treemacs-icons-dired)
-  (treemacs-git-mode 'deferred) 
+  (treemacs-git-mode 'deferred)
   (if (memq system-type '(windows-nt ms-dos))
       (progn
         ;; (setq treemacs-max-git-entries 100)
@@ -2046,9 +2049,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; (global-set-key (kbd "<C-f10>") 'counsel-locate)
 ;; (autoload 'counsel-locate "counsel" nil t)
 
-(autoload 'counsel-rg "counsel" nil t) 
-(autoload 'counsel-git "counsel" nil t) 
-(autoload 'counsel-mode "counsel" nil t) 
+(autoload 'counsel-rg "counsel" nil t)
+(autoload 'counsel-git "counsel" nil t)
+(autoload 'counsel-mode "counsel" nil t)
 ;; (with-eval-after-load 'counsel
 ;;   (when (eq system-type 'darwin)
 ;;     (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind))
@@ -2067,7 +2070,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;;                                             (swiper-from-isearch)))
 ;;   )
 
-;; 多光标操作 
+;; 多光标操作
 (autoload 'mc/mark-all-like-this "multiple-cursors" nil t)
 (autoload 'mc/edit-lines "multiple-cursors" nil t)
 (global-set-key (kbd "C-c C-e") 'mc/mark-all-like-this) ;选中后C-y粘贴替换
@@ -2574,13 +2577,13 @@ Optional argument COLOR means highlight the prototype with font-lock colors."
 (defun open-in-desktop-select ()
   (interactive)
   (let ((file (buffer-name)))
-	(if (string-equal major-mode "dired-mode")
-		;; (setq file (dired-get-filename 'no-dir)) ;xp
-		(setq file (replace-regexp-in-string "/" "\\\\" (dired-get-filename) )) ;win7
-	  ;; (setq file (file-name-nondirectory (buffer-file-name) )) ;xp
-	  (setq file (replace-regexp-in-string "/" "\\\\" (buffer-file-name) ))) ;win7
-	(call-process-shell-command (concat "explorer" "/select," file))
-	)
+    (if (string-equal major-mode "dired-mode")
+        ;; (setq file (dired-get-filename 'no-dir)) ;xp
+        (setq file (replace-regexp-in-string "/" "\\\\" (dired-get-filename) )) ;win7
+      ;; (setq file (file-name-nondirectory (buffer-file-name) )) ;xp
+      (setq file (replace-regexp-in-string "/" "\\\\" (buffer-file-name) ))) ;win7
+    (call-process-shell-command (concat "explorer" "/select," file))
+    )
   )
 
 (defun ergoemacs-open-in-desktop ()
@@ -2730,82 +2733,82 @@ If less than or equal to zero, there is no limit."
                 (template-args-cont c-lineup-template-args +))))
 
 (c-add-style "javagzj"
-	         '("java"
-	           (c-basic-offset . 4)	; Guessed value
-	           (c-offsets-alist
-		        (annotation-top-cont . 0)   ; Guessed value
-		        (arglist-intro . ++)	; Guessed value
-		        (block-close . 0)	; Guessed value
-		        (case-label . +)	; Guessed value
-		        (class-close . 0)	; Guessed value
-		        (class-open . 0)	; Guessed value
-		        (defun-block-intro . +)	; Guessed value
-		        (else-clause . 0)	; Guessed value
-		        (func-decl-cont . ++)	; Guessed value
-		        (inclass . +)		; Guessed value
-		        (inline-close . 0)	; Guessed value
-		        (statement . 0)		; Guessed value
-		        (statement-block-intro . +) ; Guessed value
-		        (statement-case-intro . +) ; Guessed value
-		        (statement-cont . ++)	; Guessed value
-		        (substatement-open . 0)	; Guessed value
-		        (topmost-intro . 0)	; Guessed value
-		        (access-label . 0)
-		        (annotation-var-cont . +)
-		        (arglist-close . c-lineup-close-paren)
-		        (arglist-cont c-lineup-gcc-asm-reg 0)
-		        (arglist-cont-nonempty . c-lineup-arglist)
-		        (block-open . 0)
-		        (brace-entry-open . 0)
-		        (brace-list-close . 0)
-		        (brace-list-entry . c-lineup-under-anchor)
-		        (brace-list-intro . +)
-		        (brace-list-open . 0)
-		        (c . c-lineup-C-comments)
-		        (catch-clause . 0)
-		        (comment-intro . c-lineup-comment)
-		        (composition-close . 0)
-		        (composition-open . 0)
-		        (cpp-define-intro c-lineup-cpp-define +)
-		        (cpp-macro . -1000)
-		        (cpp-macro-cont . +)
-		        (defun-close . 0)
-		        (defun-open . 0)
-		        (do-while-closure . 0)
-		        (extern-lang-close . 0)
-		        (extern-lang-open . 0)
-		        (friend . 0)
-		        (incomposition . +)
-		        (inexpr-class . +)
-		        (inexpr-statement . +)
-		        (inextern-lang . +)
-		        (inher-cont . c-lineup-multi-inher)
-		        (inher-intro . +)
-		        (inlambda . c-lineup-inexpr-block)
-		        (inline-open . 0)
-		        (inmodule . +)
-		        (innamespace . +)
-		        (knr-argdecl . 0)
-		        (knr-argdecl-intro . 5)
-		        (label . +)
-		        (lambda-intro-cont . +)
-		        (member-init-cont . c-lineup-multi-inher)
-		        (member-init-intro . +)
-		        (module-close . 0)
-		        (module-open . 0)
-		        (namespace-close . 0)
-		        (namespace-open . 0)
-		        (objc-method-args-cont . c-lineup-ObjC-method-args)
-		        (objc-method-call-cont c-lineup-ObjC-method-call-colons c-lineup-ObjC-method-call +)
-		        (objc-method-intro .
-				                   [0])
-		        (statement-case-open . +)
-		        (stream-op . c-lineup-streamop)
-		        (string . -1000)
-		        (substatement . +)
-		        (substatement-label . +)
-		        (template-args-cont c-lineup-template-args +)
-		        (topmost-intro-cont . +))))
+             '("java"
+               (c-basic-offset . 4)	; Guessed value
+               (c-offsets-alist
+                (annotation-top-cont . 0)   ; Guessed value
+                (arglist-intro . ++)	; Guessed value
+                (block-close . 0)	; Guessed value
+                (case-label . +)	; Guessed value
+                (class-close . 0)	; Guessed value
+                (class-open . 0)	; Guessed value
+                (defun-block-intro . +)	; Guessed value
+                (else-clause . 0)	; Guessed value
+                (func-decl-cont . ++)	; Guessed value
+                (inclass . +)		; Guessed value
+                (inline-close . 0)	; Guessed value
+                (statement . 0)		; Guessed value
+                (statement-block-intro . +) ; Guessed value
+                (statement-case-intro . +) ; Guessed value
+                (statement-cont . ++)	; Guessed value
+                (substatement-open . 0)	; Guessed value
+                (topmost-intro . 0)	; Guessed value
+                (access-label . 0)
+                (annotation-var-cont . +)
+                (arglist-close . c-lineup-close-paren)
+                (arglist-cont c-lineup-gcc-asm-reg 0)
+                (arglist-cont-nonempty . c-lineup-arglist)
+                (block-open . 0)
+                (brace-entry-open . 0)
+                (brace-list-close . 0)
+                (brace-list-entry . c-lineup-under-anchor)
+                (brace-list-intro . +)
+                (brace-list-open . 0)
+                (c . c-lineup-C-comments)
+                (catch-clause . 0)
+                (comment-intro . c-lineup-comment)
+                (composition-close . 0)
+                (composition-open . 0)
+                (cpp-define-intro c-lineup-cpp-define +)
+                (cpp-macro . -1000)
+                (cpp-macro-cont . +)
+                (defun-close . 0)
+                (defun-open . 0)
+                (do-while-closure . 0)
+                (extern-lang-close . 0)
+                (extern-lang-open . 0)
+                (friend . 0)
+                (incomposition . +)
+                (inexpr-class . +)
+                (inexpr-statement . +)
+                (inextern-lang . +)
+                (inher-cont . c-lineup-multi-inher)
+                (inher-intro . +)
+                (inlambda . c-lineup-inexpr-block)
+                (inline-open . 0)
+                (inmodule . +)
+                (innamespace . +)
+                (knr-argdecl . 0)
+                (knr-argdecl-intro . 5)
+                (label . +)
+                (lambda-intro-cont . +)
+                (member-init-cont . c-lineup-multi-inher)
+                (member-init-intro . +)
+                (module-close . 0)
+                (module-open . 0)
+                (namespace-close . 0)
+                (namespace-open . 0)
+                (objc-method-args-cont . c-lineup-ObjC-method-args)
+                (objc-method-call-cont c-lineup-ObjC-method-call-colons c-lineup-ObjC-method-call +)
+                (objc-method-intro .
+                                   [0])
+                (statement-case-open . +)
+                (stream-op . c-lineup-streamop)
+                (string . -1000)
+                (substatement . +)
+                (substatement-label . +)
+                (template-args-cont c-lineup-template-args +)
+                (topmost-intro-cont . +))))
 
 (add-hook 'prog-mode-hook
           (lambda ()
@@ -3116,7 +3119,7 @@ If less than or equal to zero, there is no limit."
                       :height 100
                       :family "Consolas"
                       )
-  
+
   (copy-face 'line-number-current-line 'tabbar-selected)
   ;; (copy-face 'doom-modeline-buffer-major-mode 'tabbar-selected)
 
@@ -3140,6 +3143,13 @@ If less than or equal to zero, there is no limit."
                       )
   ;; (change-face)
   )
+;; 新窗口利用face
+;; (add-hook 'after-make-frame-functions
+;;           (lambda (_)                   ;这里如果不用(_)会报参数错误
+;;             (change-face)))
+;; (defadvice load-theme (after load-theme-af activate)
+;;   (change-face))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -3156,4 +3166,3 @@ If less than or equal to zero, there is no limit."
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
-
