@@ -225,7 +225,10 @@ occasionally break as language servers are updated."
   "A client with this server-id already exists" 'lsp-error)
 
 (defcustom lsp-auto-guess-root nil
-  "Automatically guess the project root using projectile/project."
+  "Automatically guess the project root using projectile/project.
+Do *not* use this setting unless you are familiar with `lsp-mode'
+internals and you are sure that all of your projects are
+following `projectile'/`project.el' conventions."
   :group 'lsp-mode
   :type 'boolean)
 
@@ -789,6 +792,22 @@ They are added to `markdown-code-lang-modes'")
 (defun lsp--string-listp (sequence)
   "Return t if all elements of SEQUENCE are strings, else nil."
   (not (seq-find (lambda (x) (not (stringp x))) sequence)))
+
+(defun lsp--string-vector-p (candidate)
+  "Returns true if CANDIDATE is a vector data structure and
+every element of it is of type string, else nil."
+  (and
+   (vectorp candidate)
+   (seq-every-p #'stringp candidate)))
+
+(define-widget 'lsp-string-vector 'lazy
+  "A vector of zero or more elements, every element of which is a string.
+Appropriate for any language-specific `defcustom' that needs to
+serialize as a JSON array of strings."
+  :offset 4
+  :tag "Vector"
+  :type '(restricted-sexp
+          :match-alternatives (lsp--string-vector-p)))
 
 (defun lsp--info (format &rest args)
   "Display lsp info message with FORMAT with ARGS."
@@ -5068,7 +5087,8 @@ standard I/O."
   (list :connect (lambda (filter sentinel name)
                    (let ((final-command (lsp-resolve-final-function command))
                          (process-name (generate-new-buffer-name name)))
-                     (let ((proc (make-process
+                     (let* ((stderr-buf (format "*%s::stderr*" process-name))
+                            (proc (make-process
                                   :name process-name
                                   :connection-type 'pipe
                                   :buffer (format "*%s*" process-name)
@@ -5076,9 +5096,10 @@ standard I/O."
                                   :command final-command
                                   :filter filter
                                   :sentinel sentinel
-                                  :stderr (format "*%s::stderr*" process-name)
+                                  :stderr stderr-buf
                                   :noquery t)))
                        (set-process-query-on-exit-flag proc nil)
+                       (set-process-query-on-exit-flag (get-buffer-process stderr-buf) nil)
                        (cons proc proc))))
         :test? (lambda () (-> command lsp-resolve-final-function lsp-server-present?))))
 
@@ -5389,7 +5410,8 @@ SESSION is the active session."
                                (lsp--open-in-workspace workspace)))
 
                            (with-lsp-workspace workspace
-                             (run-hooks 'lsp-after-initialize-hook)))
+                             (run-hooks 'lsp-after-initialize-hook))
+                           (lsp--info "%s initialized successfully" (lsp--workspace-print workspace)))
                          :mode 'detached))
     workspace))
 
@@ -5535,7 +5557,9 @@ TBL - a hashtable, PATHS is the path to the nested VALUE."
   (let ((ret (ht-create)))
     (mapc (-lambda ((path variable boolean?))
             (when (s-matches? (concat section "\\..*") path)
-              (let* ((symbol-value (symbol-value variable))
+              (let* ((symbol-value (if (symbolp variable)
+                                       (symbol-value variable)
+                                     variable))
                      (value (if (and boolean? (not symbol-value))
                                 :json-false
                               symbol-value)))
@@ -5724,37 +5748,39 @@ IGNORE-MULTI-FOLDER to ignore multi folder server."
 Returns nil if the project should not be added to the current SESSION."
   (condition-case nil
       (let* ((project-root-suggestion (or (lsp--suggest-project-root) default-directory))
-             (choices (list
-                       (format "Import project root \"%s\"." project-root-suggestion)
-                       "Import project by selecting root directory interactively."
-                       (format "Do not ask again for the current project by adding \"%s\" to lsp-session-folder-blacklist."
-                               project-root-suggestion)
-                       "Do not ask again for the current project by selecting ignore path interactively."
-                       "Do nothing; ask again when opening other files from the current project."))
-             (action-index (cl-position
-                            (completing-read (format "%s is not part of any project. Select action: "
-                                                     (buffer-name))
-                                             choices
-                                             nil
-                                             t)
-                            choices
-                            :test 'equal)))
-        (cl-case action-index
-          (0 project-root-suggestion)
-          (1 (read-directory-name "Select workspace folder to add: "
-                                  (or project-root-suggestion default-directory)
-                                  nil
-                                  t))
-          (2 (push project-root-suggestion (lsp-session-folders-blacklist session))
-             (lsp--persist-session session)
-             nil)
-          (3 (push (read-directory-name "Select folder to blacklist: "
-                                        (or project-root-suggestion default-directory)
-                                        nil
-                                        t)
-                   (lsp-session-folders-blacklist session))
-             (lsp--persist-session session)
-             nil)
+             (action (read-key (format
+                                "%s is not part of any project. Select action:
+
+%s==>Import project root %s.
+%s==>Import project by selecting root directory interactively.
+%s==>Do not ask again for the current project by adding %s to lsp-session-folder-blacklist.
+%s==>Do not ask again for the current project by selecting ignore path interactively.
+%s==>Do nothing: ask again when opening other files from the current project."
+                                (propertize (buffer-name) 'face 'bold)
+                                (propertize "i" 'face 'success)
+                                (propertize project-root-suggestion 'face 'bold)
+                                (propertize "I" 'face 'success)
+                                (propertize "d" 'face 'warning)
+                                (propertize project-root-suggestion 'face 'bold)
+                                (propertize "D" 'face 'warning)
+                                (propertize "n" 'face 'warning)))))
+        (cl-case action
+          (?i project-root-suggestion)
+          (?\r project-root-suggestion)
+          (?I (read-directory-name "Select workspace folder to add: "
+                                   (or project-root-suggestion default-directory)
+                                   nil
+                                   t))
+          (?d (push project-root-suggestion (lsp-session-folders-blacklist session))
+              (lsp--persist-session session)
+              nil)
+          (?D (push (read-directory-name "Select folder to blacklist: "
+                                         (or project-root-suggestion default-directory)
+                                         nil
+                                         t)
+                    (lsp-session-folders-blacklist session))
+              (lsp--persist-session session)
+              nil)
           (t nil)))
     ('quit)))
 
