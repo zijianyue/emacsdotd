@@ -3146,7 +3146,7 @@ If less than or equal to zero, there is no limit."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))
+ ;; '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))
  '(color-rg-font-lock-function-location ((t (:foreground "DarkGoldenrod4" :weight bold))))
  '(color-rg-font-lock-header-line-edit-mode ((t (:foreground "goldenrod4" :weight bold))))
  '(color-rg-font-lock-header-line-keyword ((t (:foreground "DarkGoldenrod4" :weight bold))))
