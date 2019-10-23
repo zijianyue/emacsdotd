@@ -370,7 +370,7 @@ helm-org-in-buffer-headings
 
 ** ccls编译
 on windows
-安装msys64 运行 minwg64 先更新库pacman -Syu 需要关闭再打开 pacman -Su
+安装msys64 运行 minwg64 先更新库pacman -Syu 需要关闭再打开 pacman -Su ，另外添加国内的源，详见[[*emax%E5%8F%8Amsys2%E7%8E%AF%E5%A2%83%E7%9A%84%E4%BD%BF%E7%94%A8 <2019-02-14 %E5%91%A8%E5%9B%9B 19:42>][emax及msys2环境的使用 <2019-02-14 周四 19:42>]]
 pacman -S mingw-w64-x86_64-clang mingw-w64-x86_64-clang-tools-extra mingw64/mingw-w64-x86_64-polly mingw-w64-x86_64-cmake mingw-w64-x86_64-jq mingw-w64-x86_64-ninja mingw-w64-x86_64-ncurses
 pacman -S git
 git clone --depth=1 --recursive https://github.com/MaskRay/ccls
@@ -468,11 +468,15 @@ systemProp.https.proxyPort=your_proxy_https_port
 # SigLevel = Optional TrustedOnly
 SigLevel = Never
 Server = https://dl.bintray.com/git-for-windows/pacman/$arch
-2. 可以用清华的源加速MSYS2的使用。具体改两个地方就行：
+2. 可以用清华或者中科大的源加速MSYS2的使用。具体改两个地方就行：
 # /etc/pacman.d/mirrorlist.mingw64
-Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/x86_64
+Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/x86_64/
+Server = http://mirrors.ustc.edu.cn/msys2/mingw/x86_64/
+
 # /etc/pacman.d/mirrorlist.msys
-Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/msys/$arch
+Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/msys/$arch/
+Server = http://mirrors.ustc.edu.cn/msys2/msys/$arch/
+
 *** TODO 长行性能<2019-02-25 周一 14:38>
 ** magit <2019-01-28 周一 10:15>
 *** magit部分提交修改
@@ -662,6 +666,11 @@ debug
 C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe -g 是生成debug的符号表 -o可以省略
 m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start开始调试 quit结束调试
 运行exe shell中 ./ab.exe
+
+** org-mode <2019-10-23 周三 22:52>
+
+*** 将标题作为链接插入到内容中的方法 <2019-10-23 周三 22:53>
+先在目录标题处执行org-store-link，然后在要插入链接的位置执行org-insert-link，在提示中会出现刚才保存的标题作为链接可以插入了
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
