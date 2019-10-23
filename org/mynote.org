@@ -440,6 +440,8 @@ cd build
 
 msbuild /m -p:Configuration=Release INSTALL.vcxproj
 
+/maxcpucount:3 并发进程数
+
 2. 然后以d:\llvm+clang-9.0.0-win64-msvc-release为lib编译ccls
 参考 https://zh4ui.net/post/2019-01-28-build-ccls-on-window10/
 准备工作：先安装msys2，并在msys2里安装pacman -S mingw-w64-x86_64-jq mingw-w64-x86_64-ncurses，然后windows安装cmake和ninja确保在PATH中
@@ -447,8 +449,9 @@ msbuild /m -p:Configuration=Release INSTALL.vcxproj
 cd ccls
 mkdir build
 cd build
-cmake ..  -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_CXX_STANDARD=17  -G "Ninja" -DCMAKE_PREFIX_PATH="d:/llvm+clang-9.0.0-win64-msvc-release/;C:/msys64/mingw64/"  -DCMAKE_CXX_COMPILER="d:/llvm+clang-.0.0-win64-msvc-release/bin/clang-cl.exe"
+cmake ..  -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_CXX_STANDARD=17  -G "Ninja" -DCMAKE_PREFIX_PATH="d:/llvm+clang-9.0.0-win64-msvc-release/;C:/msys64/mingw64/"  -DCMAKE_CXX_COMPILER="d:/llvm+clang-9.0.0-win64-msvc-release/bin/clang-cl.exe"
 cmake --build .
+
 
 
 
