@@ -250,7 +250,7 @@ libglib-2.0.dll.a 要装32位版本的cygwin
 如果有c++ runtime error 把C:\Program Files\CMake\bin下的msvcp120.dll和msvcr120.dll改名(C:\Program Files\ImageMagick-6.9.1-Q16下还有一份)，保证全局只有一份
 ** 直接打开图片显示二进制
 把dynamic-library-alist中指定的dll拷贝到emacs/bin目录下
-** org
+** org-mode
 *** org-mode如何显示图片	
 把图片放到org文件所在目录下
 在org文件中填写文件名
@@ -353,6 +353,10 @@ helm-org-in-buffer-headings
 分别对应 
 (* / _ = ~ +)
 
+
+*** 将标题作为链接插入到内容中的方法 <2019-10-23 周三 22:53>
+先在目录标题处执行org-store-link，然后在要插入链接的位置执行org-insert-link，在提示中会出现刚才保存的标题作为链接可以插入了
+
 ** 指定某目录下的.h文件都按c++ mode显示
 目录下创建.dir-locals.el，内容：
 ((c-mode . ((mode . c++))))
@@ -414,11 +418,44 @@ cmake -H. -BRelease -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=cla
 // 构建
 ninja -C Release
 -DCMAKE_PREFIX_PATH 对照自己的路径修改。
+*** 使用2019编译 <2019-10-24 周四 00:41>
+以下命令都要在x64 Native Tools Command Prompt for VS 2019里面敲，这是装VS2019带的命令行
+1. 先编译llvm+clang，得编译不带z3的不然ccls没法编译
+参考 https://github.com/ziglang/zig/wiki/How-to-build-LLVM%2C-libclang%2C-and-liblld-from-source
+下载代码
+git clone https://mirrors.tuna.tsinghua.edu.cn/git/llvm/llvm.git
+git clone https://mirrors.tuna.tsinghua.edu.cn/git/llvm/clang.git llvm/tools/clang
+到llvm的目录下 
+mkdir build
+cd build
 
-*** lsp-java <2019-01-15 周二 11:19>
+"c:\Program Files\CMake\bin\cmake.exe" .. -Thost=x64 -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=d:\llvm+clang-9.0.0-win64-msvc-release -DCMAKE_PREFIX_PATH=d:\llvm+clang-9.0.0-win64-msvc-release -DCMAKE_BUILD_TYPE=Release -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="AVR" -DLLVM_ENABLE_LIBXML2=OFF -DLLVM_USE_CRT_RELEASE=MT -DLLVM_WITH_Z3=off
+
+msbuild /m -p:Configuration=Release INSTALL.vcxproj
+
+再到clang目录下
+mkdir build
+cd build
+"c:\Program Files\CMake\bin\cmake.exe" .. -Thost=x64 -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=d:\llvm+clang-9.0.0-win64-msvc-release -DCMAKE_PREFIX_PATH=d:\llvm+clang-9.0.0-win64-msvc-release -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_CRT_RELEASE=MT -DLLVM_WITH_Z3=off
+
+msbuild /m -p:Configuration=Release INSTALL.vcxproj
+
+2. 然后以d:\llvm+clang-9.0.0-win64-msvc-release为lib编译ccls
+参考 https://zh4ui.net/post/2019-01-28-build-ccls-on-window10/
+准备工作：先安装msys2，并在msys2里安装pacman -S mingw-w64-x86_64-jq mingw-w64-x86_64-ncurses，然后windows安装cmake和ninja确保在PATH中
+然后在x64 Native Tools Command Prompt for VS 2019执行以下命令
+cd ccls
+mkdir build
+cd build
+cmake ..  -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_CXX_STANDARD=17  -G "Ninja" -DCMAKE_PREFIX_PATH="d:/llvm+clang-9.0.0-win64-msvc-release/;C:/msys64/mingw64/"  -DCMAKE_CXX_COMPILER="d:/llvm+clang-.0.0-win64-msvc-release/bin/clang-cl.exe"
+cmake --build .
+
+
+
+** lsp-java <2019-01-15 周二 11:19>
 要在C:\Users\g00280886\.m2目录下放私服的settings.xml
 
-*** gradle proxy <2019-03-18 周一 14:30>
+** gradle proxy <2019-03-18 周一 14:30>
 There are 2 ways for using Gradle behind a proxy :
 
 Add arguments in command line
@@ -667,10 +704,6 @@ C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe -g 是生成debug的符号�
 m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start开始调试 quit结束调试
 运行exe shell中 ./ab.exe
 
-** org-mode <2019-10-23 周三 22:52>
-
-*** 将标题作为链接插入到内容中的方法 <2019-10-23 周三 22:53>
-先在目录标题处执行org-store-link，然后在要插入链接的位置执行org-insert-link，在提示中会出现刚才保存的标题作为链接可以插入了
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
