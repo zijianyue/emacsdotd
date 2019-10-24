@@ -433,6 +433,11 @@ cd build
 
 msbuild /m -p:Configuration=Release INSTALL.vcxproj
 
+-m:6 并行任务的个数 
+
+PS G:\llvm8-rc2\llvm-project-llvmorg-8.0.0-rc2\llvm\build> msbuild .\ALL_BUILD.vcxproj -m:6 -p:Configuration=RelWithDebInfo
+
+解压cfe-9.0.0.src.tar.xz会报权限错误，这里需要以管理员身份运行7z程序再解压 
 再到clang目录下
 mkdir build
 cd build
@@ -441,6 +446,7 @@ cd build
 msbuild /m -p:Configuration=Release INSTALL.vcxproj
 
 /maxcpucount:3 并发进程数
+如果出现编译器堆空间不足的报错，就重新开一个vs的命令窗口，另外python用的是2.7编成功的
 
 2. 然后以d:\llvm+clang-9.0.0-win64-msvc-release为lib编译ccls
 参考 https://zh4ui.net/post/2019-01-28-build-ccls-on-window10/
@@ -449,11 +455,28 @@ msbuild /m -p:Configuration=Release INSTALL.vcxproj
 cd ccls
 mkdir build
 cd build
-cmake ..  -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_CXX_STANDARD=17  -G "Ninja" -DCMAKE_PREFIX_PATH="d:/llvm+clang-9.0.0-win64-msvc-release/;C:/msys64/mingw64/"  -DCMAKE_CXX_COMPILER="d:/llvm+clang-9.0.0-win64-msvc-release/bin/clang-cl.exe"
+cmake ..  -DCMAKE_BUILD_TYPE=Release -DSYSTEM_CLANG=ON -DCMAKE_CXX_STANDARD=17  -G "Ninja" -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS -DCMAKE_PREFIX_PATH="d:/llvm+clang-9.0.0-win64-msvc-release/;C:/msys64/mingw64/"  -DCMAKE_CXX_COMPILER="d:/llvm+clang-9.0.0-win64-msvc-release/bin/clang-cl.exe"
 cmake --build .
 
 
-
+如果出现error: expected ‘)’ before ‘PRIu64’的错误，则需要使用CMake选项 -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS
+*** 纯VS2019编译 <2019-10-24 周四 18:27>
+1. 编译llvm+clang
+参考https://cxuesong.com/archives/1056
+1.1  准备CMAKE和VS2019，然后llvm和clang按llvm 和 llvm/tools/clang放好
+在“x64 Native Tools Command Prompt for VS 2019”命令行工具中执行cmake-gui
+指定llvm的路径以及llvm/build作为build路径
+1.2 点configure,添加host=x64 in the -T arguments然后点finish,
+然后LLVM_TARGETS_TO_BUILD填X86注意是大写的，还有CMAKE_INSTALL_PREFIX指定一个安装路径，要有写入权限的，不然最后编译INSTALL工程会报错（默认的C盘路径就报错）。
+1.3 点Generate生成sln，点Open Project用VS2019打开sln，在ALL_BUILD工程上右键点生成，注意先把VS工具栏里的Debug改为Release。
+1.4 生成完后在INSTALL工程上右键点生成，所以的文件就安装到指定目录了
+2. 编译ccls
+参考https://cxuesong.com/archives/1067
+2.1 在“x64 Native Tools Command Prompt for VS 2019”命令行工具中执行cmake-gui
+指定ccls的根路径以及ccls/build作为build路径
+“Add Entry” and specify your LLVM path in CMAKE_PREFIX_PATH
+然后点击configure
+2.2 点Generate生成sln，点Open Project后，切到Release，在ALL_BUILD工程上右键点生成，这时ccls.exe已经生成了，不必再生成INSTALL
 
 ** lsp-java <2019-01-15 周二 11:19>
 要在C:\Users\g00280886\.m2目录下放私服的settings.xml
