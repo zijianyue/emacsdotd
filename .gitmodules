@@ -13,3 +13,6 @@
 [submodule "site-lisp/emacs-ccls"]
 	path = site-lisp/emacs-ccls
 	url = https://github.com/MaskRay/emacs-ccls.git
+[submodule "site-lisp/lsp-treemacs"]
+	path = site-lisp/lsp-treemacs
+	url = https://github.com/emacs-lsp/lsp-treemacs.git

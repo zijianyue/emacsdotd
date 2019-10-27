@@ -131,7 +131,7 @@ This is used to generate extensions for `treemacs' from `all-the-icons-icon-alis
       :config
       (progn
         (treemacs-create-icon
-         :icon (format " %s\t" (all-the-icons-octicon "repo" :v-adjust -0.1 :face face-spec))
+         :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face face-spec))
          :extensions (root))
         (treemacs-create-icon
          :icon (format "%s\t%s\t"
@@ -213,18 +213,8 @@ This is used to generate extensions for `treemacs' from `all-the-icons-icon-alis
       :config
       (progn
         (treemacs-create-icon
-         :icon (format "%s\t%s\t"
-                       (all-the-icons-octicon "chevron-down" :height 0.75 :v-adjust 0.1 :face face-spec)
-                       (all-the-icons-faicon "cube" :v-adjust 0.1 :face 'all-the-icons-purple))
-         :extensions (tag-open))
-        (treemacs-create-icon
-         :icon (format "%s\t%s\t"
-                       (all-the-icons-octicon "chevron-right" :height 0.75 :v-adjust 0.1 :face face-spec)
-                       (all-the-icons-faicon "cube" :v-adjust 0.1 :face 'all-the-icons-purple))
-         :extensions (tag-closed))
-        (treemacs-create-icon
-         :icon (format "%s " (all-the-icons-faicon "tag" :height 0.9 :face 'all-the-icons-lblue))
-         :extensions (tag-leaf))
+         :icon (format " %s\t" (all-the-icons-octicon "repo" :height 1.2 :v-adjust -0.1 :face 'font-lock-string-face))
+         :extensions (root))
         (treemacs-create-icon
          :icon (format "%s\t" (all-the-icons-octicon "flame" :v-adjust 0 :face 'all-the-icons-red))
          :extensions (error))
@@ -234,45 +224,6 @@ This is used to generate extensions for `treemacs' from `all-the-icons-icon-alis
         (treemacs-create-icon
          :icon (format "%s\t" (all-the-icons-octicon "info" :height 0.75 :v-adjust 0.1 :face 'all-the-icons-green))
          :extensions (info))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "cabal" :face 'all-the-icons-lblue))
-         :extensions ("cabal"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "kotlin" :face 'all-the-icons-orange))
-         :extensions ("kt" "kts"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "nimrod" :face 'all-the-icons-yellow))
-         :extensions ("nim" "nims"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "perl6" :face 'all-the-icons-pink))
-         :extensions ("pm6"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-octicon "database" :face 'all-the-icons-silver))
-         :extensions ("sql"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-material "style" :face 'all-the-icons-red))
-         :extensions ("styles"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "lua" :face 'all-the-icons-dblue))
-         :extensions ("lua"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "asciidoc" :face 'all-the-icons-lblue))
-         :extensions ("adoc" "asciidoc"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "puppet" :face 'all-the-icons-yellow))
-         :extensions ("pp"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "jinja" :face 'all-the-icons-silver))
-         :extensions ("j2" "jinja2"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "dockerfile" :face 'all-the-icons-cyan))
-         :extensions ("dockerfile"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "vagrant" :face 'all-the-icons-blue))
-         :extensions ("vagrantfile"))
-        (treemacs-create-icon
-         :icon (format "  %s\t" (all-the-icons-fileicon "verilog" :face 'all-the-icons-red))
-         :extensions ("v" "vh" "sv"))
         (treemacs-create-icon
          :icon (format "  %s\t" (all-the-icons-alltheicon "git" :face 'all-the-icons-red))
          :extensions ("gitignore" "git" "gitconfig" "gitmodules"))

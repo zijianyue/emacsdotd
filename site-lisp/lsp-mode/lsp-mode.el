@@ -5,7 +5,7 @@
 ;; Author: Vibhav Pant, Fangrui Song, Ivan Yonchovski
 ;; Keywords: languages
 ;; Package-Requires: ((emacs "25.1") (dash "2.14.1") (dash-functional "2.14.1") (f "0.20.0") (ht "2.0") (spinner "1.7.3") (markdown-mode "2.3"))
-;; Version: 6.1
+;; Version: 6.2
 
 ;; URL: https://github.com/emacs-lsp/lsp-mode
 ;; This program is free software; you can redistribute it and/or modify
@@ -57,6 +57,7 @@
 (require 'tree-widget)
 (require 'markdown-mode)
 (require 'ewoc)
+(require 'yasnippet nil t)
 
 (declare-function company-mode "company")
 (declare-function flycheck-mode "flycheck")
@@ -354,7 +355,7 @@ This flag affects only server which do not support incremental update."
   :package-version '(lsp-mode . "6.1"))
 
 (defcustom lsp-debounce-full-sync-notifications-interval 1.0
-  "Time to wait before sending full sync synchronization after buffer modication."
+  "Time to wait before sending full sync synchronization after buffer modification."
   :type 'float
   :group 'lsp-mode
   :package-version '(lsp-mode . "6.1"))
@@ -574,6 +575,7 @@ Changes take effect only when a new session is started."
                                         (".*\\.hx$" . "haxe")
                                         (".*\\.lua$" . "lua")
                                         (ada-mode . "ada")
+                                        (vimrc-mode . "vim")
                                         (sh-mode . "shellscript")
                                         (sh-mode . "lua")
                                         (scala-mode . "scala")
@@ -665,7 +667,7 @@ must be used for handling a particular message.")
 
 (defface lsp-face-highlight-textual
   '((t :inherit highlight))
-  "Face used for textual occurances of symbols."
+  "Face used for textual occurrences of symbols."
   :group 'lsp-faces)
 
 (defface lsp-face-highlight-read
@@ -887,7 +889,7 @@ depending on it."
     (`() ())
     ;; only one result - simply return it
     (`(,fst) fst)
-    ;; multiple results merge it based on stragegy
+    ;; multiple results merge it based on strategy
     (results
      (pcase method
        ("textDocument/hover" (let ((results (seq-filter
@@ -940,7 +942,7 @@ depending on it."
 (defun lsp--completing-read (prompt collection transform-fn &optional predicate
                                     require-match initial-input
                                     hist def inherit-input-method)
-  "Wrap `completing-read' to provide tranformation function.
+  "Wrap `completing-read' to provide transformation function.
 
 TRANSFORM-FN will be used to transform each of the items before displaying.
 
@@ -977,7 +979,7 @@ INHERIT-INPUT-METHOD will be proxied to `completing-read' without changes."
   (language-id nil :read-only t)
 
   ;; ‘add-on?’ when set to t the server will be started no matter whether there
-  ;; is another server hadling the same mode.
+  ;; is another server handling the same mode.
   (add-on? nil :read-only t)
   ;; ‘new-connection’ is a function that should start a language server process
   ;; and return a cons (COMMAND-PROCESS . COMMUNICATION-PROCESS).
@@ -1051,7 +1053,7 @@ INHERIT-INPUT-METHOD will be proxied to `completing-read' without changes."
   (activation-fn)
   ;; Break the tie when major-mode is supported by multiple clients.
   (priority 0)
-  ;; Unique identifier identifier for representing the client object.
+  ;; Unique identifier for representing the client object.
   (server-id)
   ;; defines whether the client supports multi root workspaces.
   (multi-root)
@@ -1063,11 +1065,11 @@ INHERIT-INPUT-METHOD will be proxied to `completing-read' without changes."
   ;; The function accepts one parameter currently active workspace.
   ;; See: https://github.com/emacs-lsp/lsp-mode/issues/225.
   (library-folders-fn)
-  ;; function which will be called when opening file in the workspace to perfom
+  ;; function which will be called when opening file in the workspace to perform
   ;; client specific initialization. The function accepts one parameter
   ;; currently active workspace.
   (before-file-open-fn)
-  ;; Function which will be called right after a workspace has been intialized.
+  ;; Function which will be called right after a workspace has been initialized.
   (initialized-fn)
   ;; ‘remote?’ indicate whether the client can be used for LSP server over TRAMP.
   (remote? nil)
@@ -1075,10 +1077,10 @@ INHERIT-INPUT-METHOD will be proxied to `completing-read' without changes."
   ;; ‘completion-in-comments?’ t if the client supports completion in comments.
   (completion-in-comments? nil)
 
-  ;; ‘path->uri-fn’ the function to use for path->uri convertion for the client.
+  ;; ‘path->uri-fn’ the function to use for path->uri conversion for the client.
   (path->uri-fn nil)
 
-  ;; ‘uri->path-fn’ the function to use for uri->path convertion for the client.
+  ;; ‘uri->path-fn’ the function to use for uri->path conversion for the client.
   (uri->path-fn nil))
 
 ;; from http://emacs.stackexchange.com/questions/8082/how-to-get-buffer-position-given-line-number-and-column-number
@@ -1299,7 +1301,7 @@ Do you want to watch all files in %s? "
              "and `lsp-file-watch-threshold' variables"))))
 
 (defun lsp-watch-root-folder (dir callback &optional watch warn-big-repo?)
-  "Create recursive file notificaton watch in DIR.
+  "Create recursive file notification watch in DIR.
 CALLBACK will be called when there are changes in any of
 the monitored files. WATCHES is a hash table directory->file
 notification handle which contains all of the watch that
@@ -1426,9 +1428,9 @@ PARAMS - the data sent from WORKSPACE."
   (line nil :read-only t)
   (column nil :read-only t)
   (severity nil :read-only t) ;; 1 - error, 2 - warning, 3 - information, 4 - hint
-  (code nil :read-only t) ;; the diagnostic's code
+  (code nil :read-only t) ;; the diagnostics code
   (source nil :read-only t) ;;
-  (message nil :read-only t) ;; diagnostic's message
+  (message nil :read-only t) ;; diagnostics message
   (original nil :read-only t))
 
 (defun lsp--make-diag (diag)
@@ -1807,7 +1809,9 @@ BUFFER-MODIFIED? determines whether the buffer is modified or not."
 
   (setq-local lsp--lens-page (cons (window-start) (window-end)))
   (setq-local lsp--lens-refresh-timer
-              (run-with-timer lsp-lens-debounce-interval nil 'lsp--lens-refresh buffer-modified?)))
+              (run-with-timer lsp-lens-debounce-interval nil 'lsp--lens-refresh
+                              (current-buffer)
+                              buffer-modified?)))
 
 (defun lsp--lens-keymap (command)
   (-doto (make-sparse-keymap)
@@ -1861,16 +1865,19 @@ BUFFER-MODIFIED? determines whether the buffer is modified or not."
           (delete-overlay it)))
       (setq-local lsp--lens-overlays overlays))))
 
-(defun lsp--lens-refresh (buffer-modified?)
+(defun lsp-lens-refresh (buffer-modified? &optional buffer)
   "Refresh lenses using lenses backend.
 BUFFER-MODIFIED? determines whether the buffer is modified or not."
-  (let ((buffer (current-buffer)))
+  (setq buffer (or buffer (current-buffer)))
+  (when (buffer-live-p buffer)
     (dolist (backend lsp-lens-backends)
       (funcall backend buffer-modified?
                (lambda (lenses version)
                  (when (buffer-live-p buffer)
                    (with-current-buffer buffer
                      (lsp--process-lenses backend lenses version))))))))
+
+(defalias 'lsp--lens-refresh 'lsp-lens-refresh)
 
 (defun lsp--process-lenses (backend lenses version)
   "Process LENSES originated from BACKEND.
@@ -2079,7 +2086,7 @@ CALLBACK - callback for the lenses."
   (client nil :read-only t)
 
   ;; ‘host-root’ contains the host root info as derived from `file-remote-p'. It
-  ;; used to deriver the file path in `lsp--uri-to-path' when using tramp
+  ;; used to derive the file path in `lsp--uri-to-path' when using tramp
   ;; connection.
   (host-root nil)
 
@@ -2425,7 +2432,7 @@ METHOD is the executed method."
 
 (defun lsp--send-request-async (body callback &optional mode error-callback no-merge)
   "Send BODY as a request to the language server.
-Call CALLBACK with the response recevied from the server
+Call CALLBACK with the response received from the server
 asynchronously. MODE determines when the callback will be called
 depending on the condition of the original buffer. It could be:
 `detached' which means that the callback will be executed no
@@ -2506,7 +2513,7 @@ disappearing, unset all the variables related to it."
       (lsp--managed-mode -1))))
 
 (defun lsp--client-capabilities (&optional custom-capabilities)
-  "Return the client capabilites."
+  "Return the client capabilities."
   (append
    `((workspace . ((workspaceEdit . ((documentChanges . t)
                                      (resourceOperations . ["create" "rename" "delete"])))
@@ -2540,8 +2547,8 @@ disappearing, unset all the variables related to it."
                                                                                (or
                                                                                 (featurep 'yasnippet)
                                                                                 (warn (concat
-                                                                                       "Yasnippet is not yet loaded, but `lsp-enable-snippet' is set to `t'. "
-                                                                                       "You must either (require 'yasnippet), or disable snippet support."))
+                                                                                       "Yasnippet is not installed, but `lsp-enable-snippet' is set to `t'. "
+                                                                                       "You must either install yasnippet, or disable snippet support."))
                                                                                 t)
                                                                              :json-false))
                                                         (documentationFormat . ["markdown"])))
@@ -2610,7 +2617,7 @@ disappearing, unset all the variables related to it."
               (root-folders (cl-set-difference
                              (lsp-find-roots-for-workspace lsp--cur-workspace session)
                              (ht-keys created-watches))))
-        ;; create watch for each root folder withtout such
+        ;; create watch for each root folder without such
         (dolist (folder root-folders)
           (let ((watch (make-lsp-watch :root-directory folder)))
             (puthash folder watch created-watches)
@@ -3252,7 +3259,7 @@ Added to `after-change-functions'."
         (with-demoted-errors "Error in ‘lsp-on-change’: %S"
           (save-match-data
             ;; A (revert-buffer) call with the 'preserve-modes parameter (eg, as done
-            ;; by auto-revert-mode) will cause this hander to get called with a nil
+            ;; by auto-revert-mode) will cause this handler to get called with a nil
             ;; buffer-file-name. We need the buffer-file-name to send notifications;
             ;; so we skip handling revert-buffer-caused changes and instead handle
             ;; reverts separately in lsp-on-revert
@@ -3285,7 +3292,7 @@ Added to `after-change-functions'."
   (lsp--set-document-link-timer)
   (when lsp-lens-mode
     (lsp--lens-schedule-refresh t))
-  ;; force cleanup overalys after each change
+  ;; force cleanup overlays after each change
   (lsp-foreach-workspace (lsp--remove-cur-overlays)))
 
 (defun lsp--on-self-insert ()
@@ -3482,7 +3489,7 @@ and the position respectively."
 
 (defun lsp--gethash (key table &optional dflt)
   "Look up KEY in TABLE and return its associated value,
-unless KEY not found or its value is falsy, when it returns DFLT.
+unless KEY not found or its value is false, when it returns DFLT.
 DFLT defaults to nil.
 
 Needed for completion request fallback behavior for the fields
@@ -3587,20 +3594,25 @@ https://microsoft.github.io/language-server-protocol/specification#textDocument_
   (unless (seq-empty-p locations)
     (cl-labels ((get-xrefs-in-file
                  (file-locs location-link)
-                 (let* ((filename (seq-first file-locs))
-                        (visiting (lsp--buffer-for-file filename))
-                        (fn (lambda (loc)
-                              (lsp--xref-make-item filename
-                                                   (if location-link (or (gethash "targetSelectionRange" loc)
-                                                                         (gethash "targetRange" loc))
-                                                     (gethash "range" loc))))))
-                   (if visiting
-                       (with-current-buffer visiting
-                         (seq-map fn (cdr file-locs)))
-                     (when (file-readable-p filename)
-                       (with-temp-buffer
-                         (insert-file-contents-literally filename)
-                         (seq-map fn (cdr file-locs))))))))
+                 (let ((filename (seq-first file-locs)))
+                   (condition-case err
+                       (let ((visiting (lsp--buffer-for-file filename))
+                             (fn (lambda (loc)
+                                   (lsp--xref-make-item filename
+                                                        (if location-link (or (gethash "targetSelectionRange" loc)
+                                                                              (gethash "targetRange" loc))
+                                                          (gethash "range" loc))))))
+                         (if visiting
+                             (with-current-buffer visiting
+                               (seq-map fn (cdr file-locs)))
+                           (when (file-readable-p filename)
+                             (with-temp-buffer
+                               (insert-file-contents-literally filename)
+                               (seq-map fn (cdr file-locs))))))
+                     (error (ignore
+                             (lsp-warn "Failed to process xref entry for filename '%s': %s" (error-message-string err))))
+                     (file-error (ignore
+                                  (lsp-warn "Failed to process xref entry, file-error, '%s': %s" filename (error-message-string err))))))))
       (apply #'append
              (if (gethash "uri" (seq-first locations))
                  (seq-map
@@ -3706,13 +3718,13 @@ MODE is the mode used in the parent frame."
   ;; This should really happen in markdown-mode instead,
   ;; but it doesn't, so we do it here for now.
   (setq prettify-symbols-alist
-	(cl-loop for i from 0 to 255
+        (cl-loop for i from 0 to 255
                  collect (cons (format "&#x%02X;" i) i)))
   (push '("&lt;" . ?<) prettify-symbols-alist)
   (push '("&gt;" . ?>) prettify-symbols-alist)
   (push '("&amp;" . ?&) prettify-symbols-alist)
   (setq prettify-symbols-compose-predicate
-	(lambda (_start _end _match) t))
+        (lambda (_start _end _match) t))
   (prettify-symbols-mode 1))
 
 (defun lsp--buffer-string-visible ()
@@ -3981,7 +3993,7 @@ If ACTION is not set it will be selected from `lsp-code-actions'."
            (lsp--apply-formatting edits)))
         ((or (lsp--capability "documentRangeFormattingProvider")
              (lsp--registered-capability "textDocument/rangeFormatting"))
-         (save-excursion
+         (save-restriction
            (widen)
            (lsp-format-region (point-min) (point-max))))
         (t (signal 'lsp-capability-not-supported (list "documentFormattingProvider")))))
@@ -4087,31 +4099,31 @@ A reference is highlighted only if it is visible in a window."
 (defface lsp-face-semhl-variable-parameter
   '((t :inherit font-lock-variable-name-face))
   "Face used for semantic highlighting scopes matching variable.parameter.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-variable-local
   '((t :inherit font-lock-variable-name-face))
   "Face used for semantic highlighting scopes matching variable.other.local.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-field
   '((t :inherit font-lock-variable-name-face))
   "Face used for semantic highlighting scopes matching variable.other.field.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-field-static
   '((t :inherit lsp-face-semhl-field :slant italic))
   "Face used for semantic highlighting scopes matching variable.other.field.static.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-enummember
   '((t :inherit font-lock-constant-face))
   "Face used for semantic highlighting scopes matching variable.other.enummember.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-constant
@@ -4122,74 +4134,74 @@ unless overriden by a more specific face association."
 (defface lsp-face-semhl-variable
   '((t :inherit font-lock-variable-name-face))
   "Face used for semantic highlighting scopes matching variable.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-function
   '((t :inherit font-lock-function-name-face))
   "Face used for semantic highlighting scopes matching entity.name.function.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-method
   '((t :inherit lsp-face-semhl-function))
   "Face used for semantic highlighting scopes matching entity.name.function.method.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-static-method
   '((t :inherit lsp-face-semhl-function :slant italic))
   "Face used for semantic highlighting scopes matching entity.name.function.method.static.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-type-class
   '((t :inherit font-lock-type-face))
   "Face used for semantic highlighting scopes matching entity.name.type.class.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-type-enum
   '((t :inherit font-lock-type-face))
   "Face used for semantic highlighting scopes matching entity.name.type.enum.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-type-typedef
   '((t :inherit font-lock-type-face :slant italic))
   "Face used for semantic highlighting scopes matching
- entity.name.type.typedef.*, unless overriden by a more
+ entity.name.type.typedef.*, unless overridden by a more
  specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-namespace
   '((t :inherit font-lock-type-face :weight bold))
   "Face used for semantic highlighting scopes matching entity.name.namespace.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-preprocessor
   '((t :inherit font-lock-preprocessor-face))
   "Face used for semantic highlighting scopes matching entity.name.function.preprocessor.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-type-template
   '((t :inherit font-lock-type-face :slant italic))
   "Face used for semantic highlighting scopes matching entity.name.type.template.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-type-primitive
   '((t :inherit font-lock-type-face :slant italic))
   "Face used for semantic highlighting scopes matching storage.type.primitive.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defface lsp-face-semhl-deprecated
   '((t (:underline (:color "yellow" :style wave))))
   "Face used for semantic highlighting scopes matching storage.type.primitive.*,
-unless overriden by a more specific face association."
+unless overridden by a more specific face association."
   :group 'lsp-faces)
 
 (defun lsp--semhl-scope-matchp (matchspec scopes)
@@ -4341,7 +4353,7 @@ Else, if the request was initiated by Imenu updating its menu-bar
 entry, perform it asynchronously; i.e., give Imenu the latest
 result and then force a refresh when a new one is available.
 
-Else (e.g., due to intereactive use of `imenu' or `xref'),
+Else (e.g., due to interactive use of `imenu' or `xref'),
 perform the request synchronously."
   (if (= (buffer-chars-modified-tick) lsp--document-symbols-tick)
       lsp--document-symbols
@@ -4444,6 +4456,8 @@ perform the request synchronously."
       (lsp--apply-workspace-edit edits))))
 
 (defun lsp-show-xrefs (xrefs display-action references?)
+  (unless (region-active-p) (push-mark nil t))
+  (xref-push-marker-stack)
   (if (boundp 'xref-show-definitions-function)
       (with-no-warnings
         (funcall (if references? xref-show-xrefs-function xref-show-definitions-function)
@@ -4560,7 +4574,7 @@ REFERENCES? t when METHOD returns references."
   "Set the SETTINGS for the lsp server."
   (lsp-notify "workspace/didChangeConfiguration" `(:settings , settings)))
 
-(defun lsp--on-set-visitied-file-name (old-func &rest args)
+(defun lsp--on-set-visited-file-name (old-func &rest args)
   "Advice around function `set-visited-file-name'.
 
 This advice sends textDocument/didClose for the old file and
@@ -4571,7 +4585,7 @@ textDocument/didOpen for the new file."
     (when lsp--cur-workspace
       (lsp--text-document-did-open))))
 
-(advice-add 'set-visited-file-name :around #'lsp--on-set-visitied-file-name)
+(advice-add 'set-visited-file-name :around #'lsp--on-set-visited-file-name)
 
 (defun lsp--send-no-wait (message proc)
   "Send MESSAGE to PROC without waiting for further output."
@@ -5089,15 +5103,15 @@ standard I/O."
                          (process-name (generate-new-buffer-name name)))
                      (let* ((stderr-buf (format "*%s::stderr*" process-name))
                             (proc (make-process
-                                  :name process-name
-                                  :connection-type 'pipe
-                                  :buffer (format "*%s*" process-name)
-                                  :coding 'no-conversion
-                                  :command final-command
-                                  :filter filter
-                                  :sentinel sentinel
-                                  :stderr stderr-buf
-                                  :noquery t)))
+                                   :name process-name
+                                   :connection-type 'pipe
+                                   :buffer (format "*%s*" process-name)
+                                   :coding 'no-conversion
+                                   :command final-command
+                                   :filter filter
+                                   :sentinel sentinel
+                                   :stderr stderr-buf
+                                   :noquery t)))
                        (set-process-query-on-exit-flag proc nil)
                        (set-process-query-on-exit-flag (get-buffer-process stderr-buf) nil)
                        (cons proc proc))))
@@ -5500,7 +5514,7 @@ remote machine and vice versa."
 (defun lsp--create-initialization-options (_session client)
   "Create initialization-options from SESSION and CLIENT.
 Add workspace folders depending on server being multiroot and
-session workspce folder configuration for the server."
+session workspace folder configuration for the server."
   (let* ((initialization-options-or-fn (lsp--client-initialization-options client)))
     (if (functionp initialization-options-or-fn)
         (funcall initialization-options-or-fn)
@@ -5528,13 +5542,17 @@ changing the value of `foo'."
 
 (defvar lsp-client-settings nil)
 
+(defun lsp--compare-setting-path (a b)
+  (equal (car a) (car b)))
+
 (defun lsp-register-custom-settings (props)
   "Register PROPS.
-The PROPS is list of triple (path symbol boolean?) Where: path is
-the path to the property, symbol is the defcustom symbol which
-will be used to retrieve the value and boolean determines whether
-the type of the property is boolean?"
-  (setq lsp-client-settings (-uniq (append lsp-client-settings props))))
+PROPS is list of triple (path value boolean?) where PATH is the
+path to the property, VALUE is either a literal value or symbol
+used to retrieve the value, and BOOLEAN? is an optional flag that
+should be non-nil for boolean settings."
+  (let ((-compare-fn #'lsp--compare-setting-path))
+    (setq lsp-client-settings (-uniq (append props lsp-client-settings)))))
 
 (defun lsp-region-text (region)
   "Get the text for REGION in current buffer."
@@ -5542,8 +5560,8 @@ the type of the property is boolean?"
     (buffer-substring-no-properties start end)))
 
 (defun lsp-ht-set (tbl paths value)
-  "Set nested hashtable value.
-TBL - a hashtable, PATHS is the path to the nested VALUE."
+  "Set nested hash table value.
+TBL - a hash table, PATHS is the path to the nested VALUE."
   (pcase paths
     (`(,path) (ht-set! tbl path value))
     (`(,path . ,rst) (let ((nested-tbl (or (gethash path tbl)
@@ -5822,7 +5840,8 @@ Returns nil if the project should not be added to the current SESSION."
   (and
    (->> session
         (lsp-session-folders-blacklist)
-        (--first (and (f-ancestor-of? it file-name)
+        (--first (and (lsp--files-same-host it file-name)
+                      (f-ancestor-of? it file-name)
                       (prog1 t
                         (lsp--info "File %s is in blacklisted directory %s" file-name it))))
         not)
@@ -5862,7 +5881,7 @@ The library folders are defined by each client for each of the active workspace.
 When IGNORE-MULTI-FOLDER is t the lsp mode will start new
 language server even if there is language server which can handle
 current language. When IGNORE-MULTI-FOLDER is nil current file
-will be openned in multi folder language server if there is
+will be opened in multi folder language server if there is
 such."
   (-let ((session (lsp-session)))
     (-if-let (clients (if ask-for-client
@@ -5872,7 +5891,7 @@ such."
                         (lsp--find-clients)))
         (-if-let (project-root (lsp--calculate-root session (buffer-file-name)))
             (progn
-              ;; update project roots if needed and persit the lsp session
+              ;; update project roots if needed and persist the lsp session
               (unless (-contains? (lsp-session-folders session) project-root)
                 (push project-root (lsp-session-folders session))
                 (lsp--persist-session session))
@@ -5942,7 +5961,7 @@ such."
   "Entry point for the server startup.
 When ARG is t the lsp mode will start new language server even if
 there is language server which can handle current language. When
-ARG is nil current file will be openned in multi folder language
+ARG is nil current file will be opened in multi folder language
 server if there is such. When `lsp' is called with prefix
 argument ask the user to select which language server to start. "
   (interactive "P")
@@ -5998,36 +6017,38 @@ This avoids overloading the server with many files when starting Emacs."
 (defun lsp-avy-lens ()
   "Click lsp lens using `avy' package."
   (interactive)
-  (let* ((avy-action 'identity)
-         (action (cl-third (avy-process
-                            (-mapcat (lambda (overlay)
-                                       (-map-indexed
-                                        (lambda (index lens-token)
-                                          (list overlay index (get-text-property 0 'action lens-token)))
-                                        (overlay-get overlay 'lsp--metadata)))
-                                     lsp--lens-overlays)
-                            (-lambda (path ((ov index) . _win))
-                              (let* ((path (mapcar #'avy--key-to-char path))
-                                     (str (propertize (string (car (last path)))
-                                                      'face 'avy-lead-face))
-                                     (old-str (overlay-get ov 'before-string))
-                                     (old-str-tokens (s-split "\|" old-str))
-                                     (old-token (seq-elt old-str-tokens index))
-                                     (tokens `(,@(-take index old-str-tokens)
-                                               ,(-if-let ((_ prefix suffix) (s-match "\\(^[[:space:]]+\\)\\(.*\\)" old-token))
-                                                    (concat prefix str suffix)
-                                                  (concat str old-token))
-                                               ,@(-drop (1+ index) old-str-tokens)))
-                                     (new-str (s-join (propertize "|" 'face 'lsp-lens-face) tokens))
-                                     (new-str (if (s-ends-with? "\n" new-str)
-                                                  new-str
-                                                (concat new-str "\n"))))
-                                (overlay-put ov 'before-string new-str)))
-                            (lambda ()
-                              (--map (overlay-put it 'before-string
-                                                  (overlay-get it 'lsp-original))
-                                     lsp--lens-overlays))))))
-    (funcall-interactively action)))
+  (if (not lsp-lens-mode)
+      (message "lsp-lens-mode not active")
+    (let* ((avy-action 'identity)
+           (action (cl-third (avy-process
+                              (-mapcat (lambda (overlay)
+                                         (-map-indexed
+                                          (lambda (index lens-token)
+                                            (list overlay index (get-text-property 0 'action lens-token)))
+                                          (overlay-get overlay 'lsp--metadata)))
+                                       lsp--lens-overlays)
+                              (-lambda (path ((ov index) . _win))
+                                (let* ((path (mapcar #'avy--key-to-char path))
+                                       (str (propertize (string (car (last path)))
+                                                        'face 'avy-lead-face))
+                                       (old-str (overlay-get ov 'before-string))
+                                       (old-str-tokens (s-split "\|" old-str))
+                                       (old-token (seq-elt old-str-tokens index))
+                                       (tokens `(,@(-take index old-str-tokens)
+                                                 ,(-if-let ((_ prefix suffix) (s-match "\\(^[[:space:]]+\\)\\(.*\\)" old-token))
+                                                      (concat prefix str suffix)
+                                                    (concat str old-token))
+                                                 ,@(-drop (1+ index) old-str-tokens)))
+                                       (new-str (s-join (propertize "|" 'face 'lsp-lens-face) tokens))
+                                       (new-str (if (s-ends-with? "\n" new-str)
+                                                    new-str
+                                                  (concat new-str "\n"))))
+                                  (overlay-put ov 'before-string new-str)))
+                              (lambda ()
+                                (--map (overlay-put it 'before-string
+                                                    (overlay-get it 'lsp-original))
+                                       lsp--lens-overlays))))))
+      (funcall-interactively action))))
 
 
 

@@ -550,6 +550,16 @@ lose of information.  Good properties to set here are `:weight'
 and `:slant'."
   :group 'magit-faces)
 
+(defface magit-diff-revision-summary
+  '((t :inherit magit-diff-hunk-heading))
+  "Face for commit message summaries."
+  :group 'magit-faces)
+
+(defface magit-diff-revision-summary-highlight
+  '((t :inherit magit-diff-hunk-heading-highlight))
+  "Face for highlighted commit message summaries."
+  :group 'magit-faces)
+
 (defface magit-diff-lines-heading
   '((((class color) (background light))
      :inherit magit-diff-hunk-heading-highlight
@@ -792,6 +802,7 @@ and `:slant'."
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat")
+   ("=g" "Show signature"                 "--show-signature")
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
   ["Actions"
@@ -823,6 +834,8 @@ and `:slant'."
    (magit-diff:-C)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat"
+    :if-derived magit-diff-mode)
+   ("=g" "Show signature"                 "--show-signature"
     :if-derived magit-diff-mode)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)]
@@ -1907,6 +1920,8 @@ Staging and applying changes is documented in info node
     (magit-git-wash #'magit-diff-wash-diffs args)))
 
 (defun magit-diff-wash-diffs (args &optional limit)
+  (when (member "--show-signature" args)
+    (magit-diff-wash-signature))
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
@@ -1928,6 +1943,13 @@ section or a child thereof."
                      (magit-section-ident magit-root-section)))
       (magit-section-goto it)
     (user-error "No diffstat in this buffer")))
+
+(defun magit-diff-wash-signature ()
+  (when (looking-at "^gpg: ")
+    (magit-insert-section (signature)
+      (while (looking-at "^gpg: ")
+        (forward-line))
+      (insert "\n"))))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
@@ -2288,7 +2310,7 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-message ()
   "Insert the commit message into a revision buffer."
   (magit-insert-section section (commit-message)
-    (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
+    (oset section heading-highlight-face 'magit-diff-revision-summary-highlight)
     (let ((beg (point))
           (rev magit-buffer-revision))
       (insert (with-temp-buffer
@@ -2335,7 +2357,8 @@ or a ref which is not a branch, then it inserts nothing."
                           (goto-char end))))))))))
         (save-excursion
           (forward-line)
-          (magit--add-face-text-property beg (point) 'magit-diff-hunk-heading)
+          (magit--add-face-text-property
+           beg (point) 'magit-diff-revision-summary)
           (magit-insert-heading))
         (when magit-diff-highlight-keywords
           (save-excursion

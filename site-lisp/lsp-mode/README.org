@@ -63,7 +63,8 @@
    - Highlights
    - Formatting
    - Debugger - [[https://github.com/yyoncho/dap-mode/][dap-mode]]
-   - Helm integration - [[https://github.com/yyoncho/helm-lsp/][helm-lsp]]
+   - Helm integration - [[https://github.com/emacs-lsp/helm-lsp/][helm-lsp]]
+   - Ivy integration - [[https://github.com/emacs-lsp/lsp-ivy/][lsp-ivy]]
    - Treemacs integration - [[https://github.com/emacs-lsp/lsp-treemacs][lsp-treemacs]]
    - Semantic highlighting (as currently implemented by JDT LS and unreleased builds of clangd, cf. [[https://github.com/microsoft/vscode-languageserver-node/pull/367][Semantic highlighting spec]])
 ** Installation
@@ -172,8 +173,10 @@
    | Swift                 | [[https://github.com/apple/sourcekit-lsp][sourcekit-LSP]]                             | [[https://github.com/emacs-lsp/lsp-sourcekit][lsp-sourcekit]]  | [[https://github.com/apple/sourcekit-lsp][sourcekit-LSP]]                                                                                           | Yes (via llvm debug adapter) |
    | TeX, LaTeX, etc.      | [[https://github.com/astoff/digestif][Digestif]]                                  | Yes            | luarocks install --server=http://luarocks.org/dev digestif                                              |                              |
    | VHDL                  | [[http://www.vhdltool.com][VHDL Tool]]                                 | Yes            | Download from http://www.vhdltool.com/download                                                          | No                           |
+   | Vimscript             | [[https://github.com/iamcco/vim-language-server][vim-language-server]]                       | Yes            | npm install -g vim-language-server                                                                      | n/a                          |
    | Vue                   | [[https://github.com/vuejs/vetur/tree/master/server][vue-language-server]]                       | Yes            | npm install -g vue-language-server                                                                      | Yes (Firefox/Chrome)         |
    | XML                   | [[https://github.com/angelozerr/lsp4xml][lsp4xml]]                                   | Yes            | Download from [[https://github.com/angelozerr/lsp4xml/releases][lsp4xml releases]]                                                                          |                              |
+   | YAML                  | [[https://github.com/redhat-developer/yaml-language-server][yaml]]                                      | Yes            | npm install -g yaml-language-server                                                                     |                              |
 ** Commands
    - ~lsp-describe-session~ - Display session folders and running servers.
    - ~lsp-describe-thing-at-point~ - Display help for the thing at point.
@@ -267,8 +270,8 @@
 
    [[file:https://graphs.waffle.io/emacs-lsp/lsp-mode/throughput.svg]]
 *** Members
-    Here it is a list of the current =lsp-mode= members and what they are primary working on/reposible for.
-    | Members                                               | Resposible for:                    |
+    Here it is a list of the current =lsp-mode= members and what they are primary working on/responsible for.
+    | Member                                                | Responsible for:                   |
     |-------------------------------------------------------+------------------------------------|
     | [[https://github.com/TOTBWF][TOTBWF]]                 | =F#=                               |
     | [[https://github.com/brotzeit][brotzeit]]             | =Rust=                             |
@@ -280,7 +283,7 @@
     | [[https://github.com/yyoncho][yyoncho]]               | =lsp-mode= core and =Java=         |
 
 ** Troubleshooting
-   - set ~lsp-log-io~ to ~t~ to inspect communication between client and the server.
+   - set ~lsp-log-io~ to ~t~ to inspect communication between client and the server. Use =lsp-workspace-show-log= to switch to the corresponding log buffer.
    - ~lsp-describe-session~ will show the current projects roots + the started severs and allows inspecting the server capabilities.
    #+caption: Describe session
    [[file:examples/describe.png]]
@@ -313,7 +316,6 @@
       (lsp-configuration-section  "foo")
       ;; =>  (("foo" ("settings" ("property" . "bar"))))
     #+END_SRC
-
 ** FAQ
    - How do I troubleshoot "Server FOO-LS:pid exited with status signal. Do you want to restart it? (y or n)"?
      - This message indicates that the language server has crashed for some

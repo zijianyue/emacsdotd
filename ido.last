@@ -2,14 +2,13 @@
 
 ;; ----- ido-last-directory-list -----
 (
- ("d:/software/ccls/" . "src/")
- ("d:/software/" . "ccls/")
+ ("d:/software/" . "cquery/")
  ("c:/Users/gezijian/" . "Downloads/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" . "org/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" . "lisp/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" . "magit-/")
  ("c:/Users/gezijian/AppData/Roaming/" . ".emacs.d/")
- ("d:/" . "leetcode/")
+ ("d:/" . "software/")
  ("c:/emacs/share/emacs/26.2/" . "site-lisp/")
  ("c:/emacs/share/emacs/" . "26.2/")
  ("c:/emacs/share/" . "emacs/")
@@ -19,10 +18,11 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/doom-modeline/"
  "d:/software/cquery/"
  "d:/software/ccls/src/"
+ "d:/"
  "d:/software/ccls/"
- "d:/software/cquery/src/"
  "d:/leetcode/cfdg/"
  "d:/software/lsp4xml/"
  "d:/leetcode/.vscode/"
@@ -30,7 +30,6 @@
  "d:/software/msys64/home/gezijian/ccls/Release/"
  "c:/"
  "d:/study/"
- "d:/"
  "c:/Users/gezijian/Desktop/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/org/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
@@ -45,8 +44,6 @@
 
 ;; ----- ido-work-file-list -----
 (
- "project.cc"
- ".ccls"
  "test.js"
  "test.cpp"
  "magit-libgit.el"
@@ -54,27 +51,37 @@
 
 ;; ----- ido-dir-file-cache -----
 (
- ("d:/software/cquery/" (23980 12694 0 0) "waf" "third_party/" "src/" "README.md" "publish.py" "LICENSE" "index_tests/" "e2e_test_runner.py" "e2e_tests/" "compile_commands.json" "CMakeLists.txt" "cmake/" "clang_archive_hashes/" "build/" ".travis.yml" ".pep8" ".gitmodules" ".gitignore" ".github/" ".gitattributes" ".git/" ".clang-format" ".ccls-cache/" ".ccls" ".appveyor.yml" "../" "./")
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/doom-modeline/" (23989 39514 0 0) "_config.yml" "test/" "README.md" "LICENSE" "doom-modeline.el" "doom-modeline-segments.el" "doom-modeline-env.el" "doom-modeline-core.el" "Cask" ".travis.yml" ".gitignore" ".github/" ".git/" "../" "./")
 
- ("d:/software/ccls/" (23980 10231 0 0) "third_party/" "src/" "README.md" "LICENSE" "index_tests/" "CMakeLists.txt" "ci/" ".gitmodules" ".gitignore" ".github/" ".git/" ".clang-format" ".ccls-cache/" ".ccls" ".appveyor.yml" "../" "./")
+ ("d:/software/cquery/" (23985 56590 0 0) "waf" "third_party/" "src/" "README.md" "publish.py" "LICENSE" "index_tests/" "e2e_test_runner.py" "e2e_tests/" "CMakeLists.txt" "cmake/" "clang_archive_hashes/" "build/" ".travis.yml" ".pep8" ".gitmodules" ".gitignore" ".github/" ".gitattributes" ".git/" ".clang-format" ".ccls-cache/" ".ccls" ".appveyor.yml" "../" "./")
 
- ("d:/software/ccls/src/" (23980 10050 0 0) "working_files.hh" "working_files.cc" "utils.hh" "utils.cc" "threaded_queue.hh" "test.hh" "test.cc" "serializer.hh" "serializer.cc" "sema_manager.hh" "sema_manager.cc" "query.hh" "query.cc" "project.hh" "project.cc" "position.hh" "position.cc" "platform_win.cc" "platform_posix.cc" "platform.hh" "pipeline.hh" "pipeline.cc" "message_handler.hh" "message_handler.cc" "messages/" "main.cc" "lsp.hh" "lsp.cc" "log.hh" "log.cc" "indexer.hh" "indexer.cc" "include_complete.hh" "include_complete.cc" "hierarchy.hh" "fuzzy_match.hh" "fuzzy_match.cc" "filesystem.hh" "filesystem.cc" "config.hh" "config.cc" "clang_tu.hh" "clang_tu.cc" "../" "./")
+ ("d:/software/cquery/src/" (23985 53983 0 0) "work_thread.h" "work_thread.cc" "working_files.h" "working_files.cc" "utils.h" "utils.cc" "type_printer.h" "type_printer.cc" "timestamp_manager.h" "timestamp_manager.cc" "timer.h" "timer.cc" "threaded_queue.h" "threaded_queue.cc" "third_party_impl.cc" "test.h" "test.cc" "task.h" "task.cc" "symbol.h" "standard_includes.h" "standard_includes.cc" "serializers/" "serializer.h" "serializer.cc" "semantic_highlight_symbol_cache.h" "semantic_highlight_symbol_cache.cc" "recorder.h" "recorder.cc" "queue_manager.h" "queue_manager.cc" "query_utils.h" "query_utils.cc" "query.h" "query.cc" "project.h" "project.cc" "position.h" "position.cc" "platform_win.cc" "platform_posix.cc" "platform.h" "platform.cc" "options.h" "options.cc" "method.h" "method.cc" "message_handler.h" "message_handler.cc" "messages/" "maybe.h" "match.h" "match.cc" "lsp_diagnostic.h" "lsp_diagnostic.cc" "lsp_completion.h" "lsp_code_action.h" "lsp.h" "lsp.cc" "lru_cache.h" "lex_utils.h" "lex_utils.cc" "language.h" "indexer.h" "include_complete.h" "include_complete.cc" "import_pipeline.h" "import_pipeline.cc" "import_manager.h" "import_manager.cc" "iindexer.h" "iindexer.cc" "hash_utils.h" "fuzzy_match.h" "fuzzy_match.cc" "file_types.h" "file_types.cc" "file_contents.h" "file_contents.cc" "file_consumer.h" "file_consumer.cc" "diagnostics_engine.h" "diagnostics_engine.cc" "c_cpp_properties.h" "c_cpp_properties.cc" "config.h" "compiler.h" "compiler.cc" "command_line.cc" "code_complete_cache.h" "code_complete_cache.cc" "clang_utils.h" "clang_utils.cc" "clang_translation_unit.h" "clang_translation_unit.cc" "clang_system_include_extractor.h" "clang_system_include_extractor.cc" "clang_indexer.cc" "clang_index.h" "clang_index.cc" "clang_format.h" "clang_format.cc" "clang_cursor.h" "clang_cursor.cc" "clang_complete.h" "clang_complete.cc" "cache_manager.h" "cache_manager.cc" "atomic_object.h" "../" "./")
 
- ("d:/software/" (23980 5399 0 0) "爱思助手7.0.lnk" "pushpin/" "llvm-project/" "ImageMagick-7.0.8-61-portable-Q16-x64/" "Grand Theft Auto V/" "FirefoxFQ/" "F1.2018/" "cquery/" "chromego-master/" "ccls/" "BitComet/" "apache-maven-3.6.1/" "../" "./")
+ ("d:/software/" (23985 33357 0 0) "爱思助手7.0.lnk" "pushpin/" "llvm/" "ImageMagick-7.0.8-61-portable-Q16-x64/" "Grand Theft Auto V/" "FirefoxFQ/" "F1.2018/" "cquery/" "chromego-master/" "ccls/" "BitComet/" "apache-maven-3.6.1/" "../" "./")
 
- ("d:/software/cquery/src/" (23973 58901 0 0) "work_thread.h" "work_thread.cc" "working_files.h" "working_files.cc" "utils.h" "utils.cc" "type_printer.h" "type_printer.cc" "timestamp_manager.h" "timestamp_manager.cc" "timer.h" "timer.cc" "threaded_queue.h" "threaded_queue.cc" "third_party_impl.cc" "test.h" "test.cc" "task.h" "task.cc" "symbol.h" "standard_includes.h" "standard_includes.cc" "serializers/" "serializer.h" "serializer.cc" "semantic_highlight_symbol_cache.h" "semantic_highlight_symbol_cache.cc" "recorder.h" "recorder.cc" "queue_manager.h" "queue_manager.cc" "query_utils.h" "query_utils.cc" "query.h" "query.cc" "project.h" "project.cc" "position.h" "position.cc" "platform_win.cc" "platform_posix.cc" "platform.h" "platform.cc" "options.h" "options.cc" "method.h" "method.cc" "message_handler.h" "message_handler.cc" "messages/" "maybe.h" "match.h" "match.cc" "lsp_diagnostic.h" "lsp_diagnostic.cc" "lsp_completion.h" "lsp_code_action.h" "lsp.h" "lsp.cc" "lru_cache.h" "lex_utils.h" "lex_utils.cc" "language.h" "indexer.h" "include_complete.h" "include_complete.cc" "import_pipeline.h" "import_pipeline.cc" "import_manager.h" "import_manager.cc" "iindexer.h" "iindexer.cc" "hash_utils.h" "fuzzy_match.h" "fuzzy_match.cc" "file_types.h" "file_types.cc" "file_contents.h" "file_contents.cc" "file_consumer.h" "file_consumer.cc" "diagnostics_engine.h" "diagnostics_engine.cc" "c_cpp_properties.h" "c_cpp_properties.cc" "config.h" "compiler.h" "compiler.cc" "command_line.cc" "code_complete_cache.h" "code_complete_cache.cc" "clang_utils.h" "clang_utils.cc" "clang_translation_unit.h" "clang_translation_unit.cc" "clang_system_include_extractor.h" "clang_system_include_extractor.cc" "clang_indexer.cc" "clang_index.h" "clang_index.cc" "clang_format.h" "clang_format.cc" "clang_cursor.h" "clang_cursor.cc" "clang_complete.h" "clang_complete.cc" "cache_manager.h" "cache_manager.cc" "atomic_object.h" "../" "./")
+ ("d:/software/ccls/src/" (23985 39297 0 0) "working_files.hh" "working_files.cc" "utils.hh" "utils.cc" "threaded_queue.hh" "test.hh" "test.cc" "serializer.hh" "serializer.cc" "sema_manager.hh" "sema_manager.cc" "query.hh" "query.cc" "project.hh" "project.cc" "position.hh" "position.cc" "platform_win.cc" "platform_posix.cc" "platform.hh" "pipeline.hh" "pipeline.cc" "message_handler.hh" "message_handler.cc" "messages/" "main.cc" "lsp.hh" "lsp.cc" "log.hh" "log.cc" "indexer.hh" "indexer.cc" "include_complete.hh" "include_complete.cc" "hierarchy.hh" "fuzzy_match.hh" "fuzzy_match.cc" "filesystem.hh" "filesystem.cc" "config.hh" "config.cc" "clang_tu.hh" "clang_tu.cc" "../" "./")
 
- ("d:/leetcode/cfdg/" (23980 4524 0 0) "cfdg.cpp" "../" "./")
+ ("d:/software/ccls/src/messages/" (23980 5404 0 0) "workspace.cc" "textDocument_signatureHelp.cc" "textDocument_rename.cc" "textDocument_references.cc" "textDocument_hover.cc" "textDocument_formatting.cc" "textDocument_foldingRange.cc" "textDocument_document.cc" "textDocument_did.cc" "textDocument_definition.cc" "textDocument_completion.cc" "textDocument_code.cc" "initialize.cc" "ccls_vars.cc" "ccls_reload.cc" "ccls_navigate.cc" "ccls_member.cc" "ccls_inheritance.cc" "ccls_info.cc" "ccls_call.cc" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23985 30309 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
+
+ ("d:/leetcode/" (23980 32632 0 0) "test.exe" "test.cpp" "mpps/" "incf/" "cfdg/" ".vscode/" ".log/" ".cquery_cached_index/" ".cquery" ".ccls-cache/" ".ccls" "../" "./")
+
+ ("d:/software/ccls/" (23985 20534 0 0) "third_party/" "src/" "README.md" "LICENSE" "index_tests/" "CMakeLists.txt" "ci/" "build/" ".gitmodules" ".gitignore" ".github/" ".git/" ".cquery_cached_index/" ".clang-format" ".ccls-cache/" ".ccls" ".appveyor.yml" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23985 30410 0 0) "mynote.org" "MAC使用/" "../" "./")
+
+ ("c:/msys64/etc/pacman.d/" (23984 25937 0 0) "mirrorlist.msys" "mirrorlist.mingw64" "mirrorlist.mingw32" "gnupg/" "../" "./")
+
+ ("c:/msys64/" (23971 9202 0 0) "var/" "usr/" "tmp/" "network.xml" "msys2_shell.cmd" "msys2.ini" "msys2.ico" "msys2.exe" "mingw64.ini" "mingw64.exe" "mingw64/" "mingw32.ini" "mingw32.exe" "mingw32/" "maintenancetool.ini" "maintenancetool.exe" "maintenancetool.dat" "installer.dat" "InstallationLog.txt" "home/" "etc/" "dir" "dev/" "components.xml" "autorebase.bat" "../" "./")
+
+ ("c:/msys64/etc/" (23971 1296 0 0) "xml/" "wgetrc" "skel/" "shells" "services" "protocols" "profile.d/" "profile" "post-install/" "pki/" "pkcs11/" "pacman.d/" "pacman.conf" "nsswitch.conf" "networks" "mtab" "msystem" "makepkg_mingw64.conf" "makepkg_mingw32.conf" "makepkg_clang64.conf" "makepkg_clang32.conf" "makepkg.conf" "localtime" "hosts" "fstab.d/" "fstab" "DIR_COLORS" "config.site" "bash.bash_logout" "bash.bashrc" "../" "./")
+
+ ("d:/leetcode/cfdg/" (23981 50874 0 0) "cfdg.cpp" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/" (23923 31541 0 0) "with-editor.el" "treepy.el" "transient.el" "Makefile" "magit.elc" "magit.el" "magit-worktree.elc" "magit-worktree.el" "magit-wip.elc" "magit-wip.el" "magit-utils.elc" "magit-utils.el" "magit-transient.elc" "magit-transient.el" "magit-tag.elc" "magit-tag.el" "magit-subtree.elc" "magit-subtree.el" "magit-submodule.elc" "magit-submodule.el" "magit-status.elc" "magit-status.el" "magit-stash.elc" "magit-stash.el" "magit-sequence.elc" "magit-sequence.el" "magit-section.elc" "magit-section.el" "magit-reset.elc" "magit-reset.el" "magit-repos.elc" "magit-repos.el" "magit-remote.elc" "magit-remote.el" "magit-refs.elc" "magit-refs.el" "magit-reflog.elc" "magit-reflog.el" "magit-push.elc" "magit-push.el" "magit-pull.elc" "magit-pull.el" "magit-process.elc" "magit-process.el" "magit-popup.el" "magit-pkg.el" "magit-patch.elc" "magit-patch.el" "magit-obsolete.elc" "magit-obsolete.el" "magit-notes.elc" "magit-notes.el" "magit-mode.elc" "magit-mode.el" "magit-merge.elc" "magit-merge.el" "magit-margin.elc" "magit-margin.el" "magit-log.elc" "magit-log.el" "magit-libgit.elc" "magit-libgit.el" "magit-imenu.elc" "magit-imenu.el" "magit-gitignore.elc" "magit-gitignore.el" "magit-git.elc" "magit-git.el" "magit-files.elc" "magit-files.el" "magit-fetch.elc" "magit-fetch.el" "magit-extras.elc" "magit-extras.el" "magit-ediff.elc" "magit-ediff.el" "magit-diff.elc" "magit-diff.el" "magit-core.elc" "magit-core.el" "magit-commit.elc" "magit-commit.el" "magit-clone.elc" "magit-clone.el" "magit-branch.elc" "magit-branch.el" "magit-bookmark.elc" "magit-bookmark.el" "magit-blame.elc" "magit-blame.el" "magit-bisect.elc" "magit-bisect.el" "magit-autorevert.elc" "magit-autorevert.el" "magit-autoloads.el" "magit-apply.elc" "magit-apply.el" "lv.el" "graphql.el" "git-rebase.elc" "git-rebase.el" "git-commit.elc" "git-commit.el" "ghub.el" "ghub-graphql.el" "dash.el" "dash-functional.el" "../" "./")
 
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23980 4190 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/org/" (23980 3657 0 0) "mynote.org" "MAC使用/" "../" "./")
-
  ("c:/Users/gezijian/Desktop/" (23979 3972 0 0) "酷狗音乐.lnk" "迅雷.lnk" "腾讯影视库.lnk" "搜索 Everything.lnk" "web-study/" "Visual Studio Code.lnk" "utmp/" "PanDownload.lnk" "Microsoft Edge.lnk" "GTAVLauncher.lnk" "Football Manager 2019.url" "F1_2019.lnk" "F1_2018.lnk" "Emacs27.lnk" "Emacs.lnk" "desktop.ini" "Chrome - Chrome.lnk" "BitComet_x64.lnk" "4t Tray Minimizer.lnk" "../" "./")
-
- ("d:/leetcode/" (23980 4307 0 0) "test.exe" "test.cpp" "mpps/" "cfdg/" ".vscode/" ".log/" ".cquery_cached_index/" ".cquery" ".ccls-cache/" "../" "./")
 
  ("d:/leetcode/.vscode/" (23974 33799 0 0) "tasks.json" "settings.json" "launch.json" "../" "./")
 

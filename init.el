@@ -25,12 +25,12 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -100,7 +100,7 @@
   (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;需要装wget命令，wget访问github需要加--no-check-certificate参数
   (setenv "MINGW" "C:\\MinGW\\bin")
   ;; (setenv "PUTTY" "C:\\Program Files\\PuTTY")
-  (setenv "LLVM" "G:\\llvm-release\\bin")
+  (setenv "LLVM" "d:\\llvm-build\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
   ;; (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
@@ -1571,7 +1571,7 @@ By default, this shows the information specified by `global-mode-string'."
 
 (doom-modeline-def-modeline 'main-misc-for-all
   '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position parrot selection-info)
-  '(misc-info-for-all persp-name lsp irc mu4e github debug fancy-battery minor-modes input-method buffer-encoding major-mode process vcs checker))
+  '(objed-state misc-info-for-all persp-name battery grip irc mu4e github debug lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
 
 (defun doom-modeline-set-main-misc-for-all-modeline (&optional default)
   "Set main mode-line.
