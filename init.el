@@ -31,6 +31,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -54,17 +55,17 @@
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
  ;; 'default nil :font "inconsolata 14")
- 'default nil :font "Consolas 10")
+ 'default nil :font "Consolas 11")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Consolas 10"))
+(add-to-list 'default-frame-alist '(font . "Consolas 11"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
                     ;; (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
-                    (font-spec :family "新宋体" :size 14)));mac中Heiti SC能中英文等高
+                    (font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -495,7 +496,7 @@
  '(org-log-done (quote time))
  '(org-src-fontify-natively t)
  '(org-support-shift-select t)
- '(package-selected-packages (quote (leetcode json-mode)))
+ '(package-selected-packages (quote (json-mode)))
  '(password-cache-expiry nil)
  '(pcmpl-gnu-tarfile-regexp "")
  '(powerline-default-separator (quote box))
@@ -538,7 +539,7 @@
  '(user-full-name "gezijian")
  '(vc-handled-backends (quote (Git SVN)))
  '(vc-svn-program "C:\\Program Files\\TortoiseSVN\\bin\\svn")
- '(vlf-batch-size 10000000)
+ '(vlf-batch-size 50000000)
  '(which-function-mode t)
  '(whitespace-line-column 120)
  '(winner-mode t)
@@ -1110,6 +1111,12 @@
 (autoload 'diff-hl-mode "diff-hl" nil t)
 (autoload 'turn-on-diff-hl-mode "diff-hl" nil t)
 (autoload 'diff-hl-flydiff-mode "diff-hl-flydiff" nil t)
+(autoload 'diff-hl-next-hunk "diff-hl" nil t)
+(autoload 'diff-hl-previous-hunk "diff-hl" nil t)
+
+(global-set-key (kbd "<C-M-S-down>") 'diff-hl-next-hunk)
+(global-set-key (kbd "<C-M-S-up>") 'diff-hl-previous-hunk)
+
 ;; (diff-hl-flydiff-mode 1)
 ;; (add-hook 'prog-mode-hook 'turn-on-diff-hl-mode)
 ;; (add-hook 'vc-dir-mode-hook 'turn-on-diff-hl-mode)
@@ -1567,11 +1574,11 @@
 (doom-modeline-def-segment misc-info-for-all
   "Mode line construct for miscellaneous information.
 By default, this shows the information specified by `global-mode-string'."
-  '(" " mode-line-misc-info))
+  '("" mode-line-misc-info))
 
 (doom-modeline-def-modeline 'main-misc-for-all
-  '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position parrot selection-info)
-  '(misc-info-for-all persp-name lsp irc mu4e github debug fancy-battery minor-modes input-method buffer-encoding major-mode process vcs checker))
+  '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position word-count parrot selection-info)
+  '(objed-state misc-info-for-all persp-name battery grip irc mu4e github debug lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
 
 (defun doom-modeline-set-main-misc-for-all-modeline (&optional default)
   "Set main mode-line.
@@ -1803,6 +1810,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (define-key c-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
   (define-key c++-mode-map (kbd "<S-f12>") 'ccls-call-hierarchy)
 
+  ;; (setq ccls-sem-highlight-method 'font-lock)
+  ;; alternatively, (setq ccls-sem-highlight-method 'overlay)
+
+  ;; For rainbow semantic highlighting
+  ;; (ccls-use-default-rainbow-sem-highlight)
+  
   (defun ccls/callee () (interactive) (lsp-ui-peek-find-custom "$ccls/call" '(:callee t)))
   (defun ccls/caller () (interactive) (lsp-ui-peek-find-custom "$ccls/call"))
   (defun ccls/vars (kind) (lsp-ui-peek-find-custom "$ccls/vars" `(:kind ,kind)))
@@ -1852,6 +1865,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (fset 'ccls-tree--make-prefix 'ccls-tree--make-prefix-fset)
   (define-key ccls-tree-mode-map (kbd "SPC") 'ccls-tree-press)
   (define-key ccls-tree-mode-map [mouse-1] 'ignore )
+  (define-key ccls-tree-mode-map [mouse-2] 'ccls-tree-press )
   (define-key ccls-tree-mode-map [mouse-3] 'ccls-tree-toggle-expand)
   (define-key ccls-tree-mode-map (kbd "n") (lambda () "" (interactive)
                                                (forward-line 1)
@@ -1885,6 +1899,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
                                       (setq lsp--workspaces (make-hash-table :test #'equal))))
   (define-key cquery-tree-mode-map (kbd "SPC") 'cquery-tree-press)
   (define-key cquery-tree-mode-map [mouse-1] 'ignore )
+  (define-key cquery-tree-mode-map [mouse-2] 'cquery-tree-press )
   (define-key cquery-tree-mode-map [mouse-3] 'cquery-tree-toggle-expand )
   (define-key cquery-tree-mode-map (kbd "n") (lambda () "" (interactive)
                                                (forward-line 1)
@@ -1982,6 +1997,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq highlight-indent-guides-character ?\|)
   ;; (setq highlight-indent-guides-delay 0.7)
   )
+
+(autoload 'indent-guide-global-mode "indent-guide" nil t)
 
 ;; kotlin mode 跟java转换的一种语言
 (autoload 'kotlin-mode "kotlin-mode" nil t)
@@ -2325,8 +2342,8 @@ If FULL is t, copy full file name."
 (defun set-c-word-mode ()
   ""
   (interactive)
-  (require 'cc-mode)
-  (set-syntax-table c++-mode-syntax-table)
+  ;; (require 'cc-mode) 
+  ;; (set-syntax-table c++-mode-syntax-table) ;;以上这两句会影响c++-mode的语法高亮，比如注释无法正常高亮
   ;; (modify-syntax-entry ?- ".")			;-作为标点符号，起到分隔单词作用
   (modify-syntax-entry ?& ".")
   (modify-syntax-entry ?$ ".")
@@ -2805,7 +2822,7 @@ If less than or equal to zero, there is no limit."
           (lambda ()
             (abbrev-mode -1)))
 
-(dolist (hook '(c-mode-hook c++-mode-hook));c-mode-common-hook不只是c 和c++,java也算
+(dolist (hook '(c-mode-hook c++-mode-hook));c-mode-common-hook 不只是c 和c++,java也算
   (add-hook hook
             (lambda()
               (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
@@ -2859,6 +2876,7 @@ If less than or equal to zero, there is no limit."
             (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
             (define-key dired-mode-map (kbd "M-s") 'er/expand-region)
             (define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
+            (define-key dired-mode-map "z" 'vc-update)
             ;; dired中用默认打开方式打开文件
             (define-key dired-mode-map (kbd "&") (lambda () "" (interactive)
                                                    (if (eq system-type 'windows-nt)
@@ -2916,13 +2934,11 @@ If less than or equal to zero, there is no limit."
 (dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook))
   (add-hook hook
             (lambda()
-              (require 'cc-mode)
               (setq truncate-lines t)
-              (set-syntax-table c++-mode-syntax-table)
-              (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
+              (set-c-word-mode)
               )))
 ;; 设置单词边界
-(dolist (hook '(nxml-mode-hook yaml-mode-hook org-mode-hook cquery-tree-mode-hook ag-mode-hook eshell-mode-hook))
+(dolist (hook '(nxml-mode-hook yaml-mode-hook org-mode-hook))
   (add-hook hook
             (lambda()
               (set-c-word-mode))))
@@ -2946,6 +2962,7 @@ If less than or equal to zero, there is no limit."
           (lambda () "DOCSTRING" (interactive)
             ;; (iimage-mode t)
             (require 'htmlize)
+            (auto-fill-mode t)
             (org-redisplay-inline-images)
             ;; (require 'org-download)
             (define-key org-mode-map [(control tab)] nil)
