@@ -113,6 +113,11 @@ ll
 ln -s build/compile_commands.json
 ..
 ln -s build/compile_commands.json
- ninja -t compdb rule_names... > compile_commands.json
- ninja -t compdb rule_names... > compile_commands.json
+ninja -t compdb rule_names... > compile_commands.json
+ninja -t compdb rule_names... > compile_commands.json
 ll
+cd ..
+git pull
+make
+ccls --version
+ccls --help

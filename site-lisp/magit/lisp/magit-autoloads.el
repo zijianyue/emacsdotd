@@ -1432,6 +1432,11 @@ Show log for all branches matching PATTERN and `HEAD'.
 
 \(fn PATTERN &optional ARGS FILES)" t nil)
 
+(autoload 'magit-log-matching-tags "magit-log" "\
+Show log for all tags matching PATTERN and `HEAD'.
+
+\(fn PATTERN &optional ARGS FILES)" t nil)
+
 (autoload 'magit-log-all-branches "magit-log" "\
 Show log for all local and remote branches and `HEAD'.
 
@@ -2269,12 +2274,25 @@ prefix arguments:
 
 \(fn &optional DIRECTORY CACHE)" t nil)
 
+(defalias 'magit 'magit-status "\
+An alias for `magit-status' for better discoverability.
+
+Instead of invoking this alias for `magit-status' using
+\"M-x magit RET\", you should bind a key to `magit-status'
+and read the info node `(magit)Getting Started', which
+also contains other useful hints.")
+
+(autoload 'magit-status-here "magit-status" "\
+Like `magit-status' but with non-nil `magit-status-goto-file-position'.
+
+\(fn)" t nil)
+
 (autoload 'magit-status-setup-buffer "magit-status" "\
 
 
 \(fn &optional DIRECTORY)" nil nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-status" '("magit")))
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-status" '("magit-")))
 
 ;;;***
 
@@ -2589,6 +2607,11 @@ Checkout BRANCH in a new worktree at PATH.
 Create a new BRANCH and check it out in a new worktree at PATH.
 
 \(fn PATH BRANCH START-POINT &optional FORCE)" t nil)
+
+(autoload 'magit-worktree-move "magit-worktree" "\
+Move WORKTREE to PATH.
+
+\(fn WORKTREE PATH)" t nil)
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "magit-worktree" '("magit-")))
 

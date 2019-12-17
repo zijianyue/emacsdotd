@@ -25,7 +25,6 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/meghanada-emacs"))
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
@@ -101,7 +100,7 @@
   (setenv "MSYS" "C:\\MinGW\\msys\\1.0\\bin") ;需要装wget命令，wget访问github需要加--no-check-certificate参数
   (setenv "MINGW" "C:\\MinGW\\bin")
   ;; (setenv "PUTTY" "C:\\Program Files\\PuTTY")
-  (setenv "LLVM" "G:\\llvm-release\\bin")
+  (setenv "LLVM" "d:\\llvm-build\\bin")
   (setenv "CMAKE" "C:\\Program Files\\CMake\\bin")
   (setenv "GTAGSBIN" "c:\\gtags\\bin")
   ;; (setenv "PYTHON" "C:\\Python27")		;用27的话ycmd可以使用semantic补全
