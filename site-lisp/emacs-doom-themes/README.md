@@ -33,6 +33,7 @@ DOOM Themes is an opinionated UI plugin and pack of themes extracted from my
     - [X] `doom-fairy-floss`: a candy colored Sublime theme by [sailorhg] (thanks to [ema2159])
     - [X] `doom-gruvbox`: adapted from Mohretz's [Gruvbox][gruvbox] (thanks to [JongW])
     - [X] `doom-Iosvkem`: adapted from [Iosvkem][Iosvkem] (thanks to [neutaaaaan])
+    - [X] `doom-laserwave`: an clean 80's synthwave / outrun theme inspired by VS Code's [laserwave][laserwave] (thanks to [hyakt])
     - [X] `doom-molokai`: based on Textmate's monokai
 	- [X] `doom-moonlight` ported from VS Code's [Moonlight Theme] (thanks to [Brettm12345])
     - [X] `doom-nord`: dark variant of [Nord][nord] (thanks to [fuxialexander])
@@ -193,3 +194,5 @@ pointers. Additional theme and plugin support requests are welcome too.
 [wiki]: https://github.com/hlissner/emacs-doom-themes/wiki
 [Wilmersdorf]: https://github.com/ianpan870102/wilmersdorf-emacs-theme
 [ztlevi]: https://github.com/ztlevi
+[laserwave]: https://github.com/Jaredk3nt/laserwave
+[hyakt]: https://github.com/hyakt

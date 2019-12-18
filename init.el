@@ -31,6 +31,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/ztree"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -1795,7 +1796,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; ccls
 (with-eval-after-load 'ccls
-  ;; (setq ccls-executable "C:\\gtags\\bin\\ccls.exe")
+  (setq ccls-executable "D:\\software\\ccls\\build\\MinSizeRel\\ccls.exe")
   ;; (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
   ;; (setq ccls-args '("--log-file=d:/ccls.log"))
   ;; Use t for true, :json-false for false, :json-null for null.
@@ -2173,7 +2174,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; multiple scratch buffers 创建一个跟当前buffer mode一样的scratch buffer
 (autoload 'scratch "scratch" nil t)
 
-
+;; 比较目录
+(autoload 'ztree-diff "ztree" nil t)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;

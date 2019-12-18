@@ -2,13 +2,17 @@
 
 ;; ----- ido-last-directory-list -----
 (
+ ("d:/Emacs27/i686/share/emacs/" . "site-lisp/")
+ ("d:/Emacs27/i686/share/" . "emacs/")
+ ("d:/Emacs27/i686/" . "share/")
+ ("d:/Emacs27/" . "i686/")
  ("d:/software/" . "cquery/")
  ("c:/Users/gezijian/" . "Downloads/")
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" . "org/")
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" . "site-lisp/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" . "lisp/")
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" . "magit-/")
  ("c:/Users/gezijian/AppData/Roaming/" . ".emacs.d/")
- ("d:/" . "software/")
+ ("d:/" . "Emacs27/")
  ("c:/emacs/share/emacs/26.2/" . "site-lisp/")
  ("c:/emacs/share/emacs/" . "26.2/")
  ("c:/emacs/share/" . "emacs/")
@@ -18,6 +22,8 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/doom-modeline/"
  "d:/software/cquery/"
  "d:/software/ccls/src/"
@@ -32,8 +38,6 @@
  "d:/study/"
  "c:/Users/gezijian/Desktop/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/org/"
- "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
- "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/"
@@ -51,6 +55,26 @@
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("d:/Emacs27/i686/share/emacs/site-lisp/" (23977 62703 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
+
+ ("d:/Emacs27/i686/share/emacs/" (23977 56705 0 0) "site-lisp/" "27.0.50/" "../" "./")
+
+ ("d:/Emacs27/i686/share/" (23977 56714 0 0) "xml/" "vala/" "thumbnailers/" "p11-kit/" "metainfo/" "man/" "locale/" "licenses/" "libthai/" "info/" "icons/" "gtk-doc/" "graphite2/" "gir-1.0/" "gettext-0.19.8/" "gettext/" "fontconfig/" "emacs/" "doc/" "applications/" "aclocal/" "../" "./")
+
+ ("d:/Emacs27/i686/" (23977 56690 0 0) "share/" "libexec/" "lib/" "include/" "etc/" "bin/" "../" "./")
+
+ ("d:/Emacs27/" (23977 56714 0 0) "Uninstall.exe" "i686/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/" (23985 29622 0 0) "迅雷X/" "迅雷/" "youku/" "yk_temp/" "WinRAR/" "WB.CFG" "vs_installershell/" "vstelemetry/" "Visual Studio Setup/" "Visual Studio Code/" "VipSocksData/" "utForpc/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "TabNine/" "SSTap Beta/" "Scooter Software/" "RussianFishingLLC/" "Psiphon3/" "PPLive/" "pcu_data/" "pcdn/" "org.pdown.gui.DownApplication/" "NuGet/" "npm-cache/" "npm/" "Notepad++/" "Mozilla/" "miniconfig/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "JetBrains/" "install_com_add/" "Google/" "Code/" "byteexec/" "BitComet/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "Apple Computer/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".TabNine/" ".stardict/" ".sdcv_history" ".gitconfig" ".emacs.d/" ".cache/" ".bashrc" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (24006 11147 0 0) "ztree/" "treemacs/" "swiper/" "snails/" "rg.el/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-treemacs/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "emacs-ccls/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (24006 11291 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/emacs-doom-themes/" (23989 39413 0 0) "themes/" "test/" "README.md" "Makefile" "LICENSE" "doom-themes.el" "doom-themes-ext-visual-bell.el" "doom-themes-ext-treemacs.el" "doom-themes-ext-org.el" "doom-themes-ext-neotree.el" "doom-themes-base.el" "Cask" ".travis.yml" ".gitignore" ".git/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-java/" (23977 55960 0 0) "README.md" "lsp-jt.el" "lsp-java.el" "lsp-java-boot.el" "LICENSE" "install/" "images/" "icons/" "features/" "Cask" ".travis.yml" ".gitignore" ".github/" ".git/" "../" "./")
+
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/doom-modeline/" (23989 39514 0 0) "_config.yml" "test/" "README.md" "LICENSE" "doom-modeline.el" "doom-modeline-segments.el" "doom-modeline-env.el" "doom-modeline-core.el" "Cask" ".travis.yml" ".gitignore" ".github/" ".git/" "../" "./")
 
  ("d:/software/cquery/" (23985 56590 0 0) "waf" "third_party/" "src/" "README.md" "publish.py" "LICENSE" "index_tests/" "e2e_test_runner.py" "e2e_tests/" "CMakeLists.txt" "cmake/" "clang_archive_hashes/" "build/" ".travis.yml" ".pep8" ".gitmodules" ".gitignore" ".github/" ".gitattributes" ".git/" ".clang-format" ".ccls-cache/" ".ccls" ".appveyor.yml" "../" "./")
@@ -62,8 +86,6 @@
  ("d:/software/ccls/src/" (23985 39297 0 0) "working_files.hh" "working_files.cc" "utils.hh" "utils.cc" "threaded_queue.hh" "test.hh" "test.cc" "serializer.hh" "serializer.cc" "sema_manager.hh" "sema_manager.cc" "query.hh" "query.cc" "project.hh" "project.cc" "position.hh" "position.cc" "platform_win.cc" "platform_posix.cc" "platform.hh" "pipeline.hh" "pipeline.cc" "message_handler.hh" "message_handler.cc" "messages/" "main.cc" "lsp.hh" "lsp.cc" "log.hh" "log.cc" "indexer.hh" "indexer.cc" "include_complete.hh" "include_complete.cc" "hierarchy.hh" "fuzzy_match.hh" "fuzzy_match.cc" "filesystem.hh" "filesystem.cc" "config.hh" "config.cc" "clang_tu.hh" "clang_tu.cc" "../" "./")
 
  ("d:/software/ccls/src/messages/" (23980 5404 0 0) "workspace.cc" "textDocument_signatureHelp.cc" "textDocument_rename.cc" "textDocument_references.cc" "textDocument_hover.cc" "textDocument_formatting.cc" "textDocument_foldingRange.cc" "textDocument_document.cc" "textDocument_did.cc" "textDocument_definition.cc" "textDocument_completion.cc" "textDocument_code.cc" "initialize.cc" "ccls_vars.cc" "ccls_reload.cc" "ccls_navigate.cc" "ccls_member.cc" "ccls_inheritance.cc" "ccls_info.cc" "ccls_call.cc" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (23985 30309 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
 
  ("d:/leetcode/" (23980 32632 0 0) "test.exe" "test.cpp" "mpps/" "incf/" "cfdg/" ".vscode/" ".log/" ".cquery_cached_index/" ".cquery" ".ccls-cache/" ".ccls" "../" "./")
 
@@ -87,8 +109,6 @@
 
  ("d:/leetcode/mpps/" (23980 4221 0 0) "../" "./")
 
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (23979 3450 0 0) "treemacs/" "swiper/" "snails/" "rg.el/" "multiple-cursors.el/" "magit/" "lsp-ui/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "emacs-ccls/" "doom-modeline/" "dired-hacks/" "company-tabnine/" "company-mode/" "centaur-tabs/" "aweshell-master/" "all-the-icons.el/" "../" "./")
-
  ("d:/software/lsp4xml/" (23974 34749 0 0) "travis-settings.xml" "README.md" "pom.xml" "org.eclipse.lsp4xml/" "NOTICE" "mvnw.cmd" "mvnw" "LICENSE" "images/" "extensions/" "deploySnapshot.sh" "deployRelease.sh" "demos/" "CHANGELOG.md" ".vscode/" ".travis.yml" ".mvn/" ".gitignore" ".git/" "../" "./")
 
  ("d:/software/msys64/home/gezijian/ccls/Release/" (23970 61820 0 0) "rules.ninja" "cmake_install.cmake" "CMakeFiles/" "CMakeCache.txt" "build.ninja" ".ninja_log" ".ninja_deps" "../" "./")
@@ -108,8 +128,6 @@
  ("c:/Users/gezijian/" (23923 33783 0 0) "「开始」菜单/" "Videos/" "Templates/" "SendTo/" "Searches/" "Saved Games/" "Recent/" "PUTTY.RND" "PrintHood/" "Pictures/" "OneDrive/" "ntuser.ini" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000002.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000001.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TM.blf" "ntuser.dat.LOG2" "ntuser.dat.LOG1" "NTUSER.DAT" "NetHood/" "My Documents/" "Music/" "MicrosoftEdgeBackups/" "Local Settings/" "Links/" "IntelGraphicsProfiles/" "Favorites/" "Downloads/" "Documents/" "Desktop/" "Cookies/" "Contacts/" "Application Data/" "AppData/" "ansel/" "3D Objects/" ".tooling/" ".tabnine/" ".sts4/" ".m2/" ".IdeaIC2019.2/" ".gradle/" ".gitconfig" ".firefly.conf" ".bash_history" ".android/" "../" "./")
 
  ("c:/Users/gezijian/AppData/" (23815 42620 0 0) "Roaming/" "LocalLow/" "Local/" "Flash Player/" "APlayerCodecs3.exe" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/" (23935 46272 0 0) "迅雷X/" "迅雷/" "WinRAR/" "WB.CFG" "VipSocksData/" "TortoiseGit/" "Tmon/" "thunderx/" "Tencent/" "TabNine/" "SSTap Beta/" "Scooter Software/" "RussianFishingLLC/" "Psiphon3/" "PPLive/" "org.pdown.gui.DownApplication/" "Notepad++/" "Mozilla/" "Microsoft/" "Macromedia/" "LocalDB.db" "Lantern/" "KuGou8/" "JetBrains/" "Google/" "byteexec/" "BCompare/" "BaiduYunKernel/" "BaiduYunGuanjia/" "baidu/" "Apple Computer/" "AndroidTbox/" "Adobe/" "4t Niagara Software/" ".TabNine/" ".stardict/" ".sdcv_history" ".gitconfig" ".emacs.d/" ".cache/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-ui/" (23928 64134 0 0) "README.md" "Makefile" "lsp-ui.el" "lsp-ui-sideline.el" "lsp-ui-peek.el" "lsp-ui-imenu.el" "lsp-ui-flycheck.el" "lsp-ui-doc.html" "lsp-ui-doc.el" "LICENSE" "images/" "Cask" ".gitignore" ".git/" "../" "./")
 

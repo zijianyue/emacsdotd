@@ -262,7 +262,8 @@ Uses `all-the-icons-material' to fetch the icon."
           (cond (buffer-read-only
                  (doom-modeline-buffer-file-state-icon
                   "lock" "🔒" "%1*" 'doom-modeline-warning))
-                ((and buffer-file-name (buffer-modified-p)
+                ((and buffer-file-name
+                      (buffer-modified-p)
                       doom-modeline-buffer-modification-icon)
                  (doom-modeline-buffer-file-state-icon
                   "save" "💾" "%1*" 'doom-modeline-buffer-modified))
@@ -287,7 +288,6 @@ Uses `all-the-icons-material' to fetch the icon."
 (advice-add #'undo-tree-undo-1 :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'undo-tree-redo-1 :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'fill-paragraph :after #'doom-modeline-update-buffer-file-state-icon)
-(advice-add #'generate-new-buffer :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'not-modified :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'narrow-to-region :after #'doom-modeline-update-buffer-file-state-icon)
 (advice-add #'widen :after #'doom-modeline-update-buffer-file-state-icon)
@@ -325,9 +325,8 @@ Uses `all-the-icons-material' to fetch the icon."
             (if buffer-file-name
                 (doom-modeline-buffer-file-name)
               (propertize "%b"
-                          'face (if (doom-modeline--active)
-                                    'doom-modeline-buffer-file
-                                  'mode-line-inactive)
+                          'face 'doom-modeline-buffer-file
+                          'mouse-face 'mode-line-highlight
                           'help-echo "Buffer name
 mouse-1: Previous buffer\nmouse-3: Next buffer"
                           'local-map mode-line-buffer-identification-keymap))))))
@@ -441,18 +440,20 @@ directory, the file name, and its state (modified, read-only or non-existent)."
 ;;
 
 (doom-modeline-def-segment buffer-encoding
-  "Displays the encoding and eol style of the buffer the same way Atom does."
+  "Displays the eol and the encoding style of the buffer the same way Atom does."
   (when doom-modeline-buffer-encoding
     (let ((face (if (doom-modeline--active) 'mode-line 'mode-line-inactive))
-          (mouse-face '(:box 0)))
+          (mouse-face 'mode-line-highlight))
       (concat
+       (doom-modeline-spc)
+
        ;; eol type
        (let ((eol (coding-system-eol-type buffer-file-coding-system)))
          (propertize
           (pcase eol
-            (0 " LF")
-            (1 " CRLF")
-            (2 " CR")
+            (0 "LF")
+            (1 "CRLF")
+            (2 "CR")
             (_ ""))
           'face face
           'mouse-face mouse-face
@@ -465,17 +466,22 @@ directory, the file name, and its state (modified, read-only or non-existent)."
           'local-map (let ((map (make-sparse-keymap)))
 		               (define-key map [mode-line mouse-1] 'mode-line-change-eol)
 		               map)))
-       ;; coding sytem
+
+       (doom-modeline-spc)
+
+       ;; coding system
        (propertize
         (let ((sys (coding-system-plist buffer-file-coding-system)))
           (cond ((memq (plist-get sys :category)
                        '(coding-category-undecided coding-category-utf-8))
-                 " UTF-8 ")
+                 "UTF-8")
                 (t (upcase (symbol-name (plist-get sys :name))))))
         'face face
         'mouse-face mouse-face
         'help-echo 'mode-line-mule-info-help-echo
-        'local-map mode-line-coding-system-map)))))
+        'local-map mode-line-coding-system-map)
+
+       (doom-modeline-spc)))))
 
 
 ;;
@@ -636,12 +642,15 @@ Uses `all-the-icons-octicon' to fetch the icon."
         (when (and vc-mode buffer-file-name)
           (let* ((backend (vc-backend buffer-file-name))
                  (state (vc-state buffer-file-name backend))
-                 (str (substring vc-mode (+ (if (eq backend 'Hg) 2 3) 2))))
+                 (str (if vc-display-status
+                          (substring vc-mode (+ (if (eq backend 'Hg) 2 3) 2))
+                        "")))
             (propertize (if (> (length str) doom-modeline-vcs-max-length)
                             (concat
                              (substring str 0 (- doom-modeline-vcs-max-length 3))
                              "...")
                           str)
+                        'mouse-face 'mode-line-highlight
                         'face (cond ((eq state 'needs-update)
                                      'doom-modeline-warning)
                                     ((memq state '(removed conflict unregistered))
@@ -652,27 +661,27 @@ Uses `all-the-icons-octicon' to fetch the icon."
 (advice-add #'vc-refresh-state :after #'doom-modeline-update-vcs-text)
 
 (doom-modeline-def-segment vcs
-  "Displays the current branch, colored based on its state."
-  (let ((active (doom-modeline--active)))
-    (when-let ((icon (or doom-modeline--vcs-icon (doom-modeline-update-vcs-icon)))
-               (text (or doom-modeline--vcs-text (doom-modeline-update-vcs-text))))
+"Displays the current branch, colored based on its state."
+(let ((active (doom-modeline--active)))
+  (when-let ((icon (or doom-modeline--vcs-icon (doom-modeline-update-vcs-icon)))
+             (text (or doom-modeline--vcs-text (doom-modeline-update-vcs-text))))
+    (concat
+     (doom-modeline-spc)
+     (propertize
       (concat
-       (doom-modeline-spc)
-       (propertize
-        (concat
-         (if active
-             icon
-           (propertize icon
-                       'face `(:inherit ,(get-text-property 0 'face icon)
-                               :inherit mode-line-inactive)))
-         (doom-modeline-vspc))
-        'mouse-face 'mode-line-highlight
-        'help-echo (get-text-property 1 'help-echo vc-mode)
-        'local-map (get-text-property 1 'local-map vc-mode))
        (if active
-           text
-         (propertize text 'face 'mode-line-inactive))
-       (doom-modeline-spc)))))
+           icon
+         (propertize icon
+                     'face `(:inherit ,(get-text-property 0 'face icon)
+                             :inherit mode-line-inactive)))
+       (doom-modeline-vspc))
+      'mouse-face 'mode-line-highlight
+      'help-echo (get-text-property 1 'help-echo vc-mode)
+      'local-map (get-text-property 1 'local-map vc-mode))
+     (if active
+         text
+       (propertize text 'face 'mode-line-inactive))
+     (doom-modeline-spc)))))
 
 
 ;;
@@ -722,7 +731,7 @@ mouse-2: Show help for minor mode")
                                            ('errored "Error")
                                            ('interrupted "Interrupted")
                                            ('suspicious "Suspicious")))
-                      'mouse-face '(:box 0)
+                      'mouse-face 'mode-line-highlight
                       'local-map (let ((map (make-sparse-keymap)))
                                    (define-key map [mode-line down-mouse-1]
                                      flycheck-mode-menu-map)
@@ -879,7 +888,7 @@ mouse-3: Next error"
 mouse-1: Display minor mode menu
 mouse-2: Show help for minor mode"
                                             (length running) (length known)))))
-             'mouse-face '(:box 0)
+             'mouse-face 'mode-line-highlight
              'local-map (let ((map (make-sparse-keymap)))
                           (define-key map [mode-line down-mouse-1]
                             flymake-menu)
@@ -1006,11 +1015,12 @@ mouse-1: List all problems%s"
                  icon
                (propertize icon 'face `(:inherit ,(get-text-property 0 'face icon)
                                         :inherit mode-line-inactive))))
-           (doom-modeline-vspc)
            (when text
-             (if active
-                 text
-               (propertize text 'face 'mode-line-inactive)))))
+             (concat
+              (doom-modeline-vspc)
+              (if active
+                  text
+                (propertize text 'face 'mode-line-inactive))))))
       "")))
 
 
@@ -1203,13 +1213,16 @@ Requires `anzu', also `evil-anzu' if using `evil-mode' for compatibility with
 
 (defsubst doom-modeline--buffer-size ()
   "Show buffer size."
-  (if (and buffer-file-name size-indication-mode)
-      (propertize " %I "
-                  'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
-                  'help-echo "Buffer size
+  (concat
+   (doom-modeline-spc)
+   (if (and buffer-file-name size-indication-mode)
+       (propertize "%I"
+                   'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
+                   'help-echo "Buffer size
 mouse-1: Display Line and Column Mode Menu"
-                  'mouse-face '(:box 0)
-                  'local-map mode-line-column-line-number-mode-map)))
+                   'mouse-face 'mode-line-highlight
+                   'local-map mode-line-column-line-number-mode-map))
+   (doom-modeline-spc)))
 
 (doom-modeline-def-segment matches
   "Displays: 1. the currently recording macro, 2. A current/total for the
@@ -1461,9 +1474,9 @@ See `mode-line-percent-position'.")
   (let ((active (doom-modeline--active))
         (lc '(line-number-mode
               (column-number-mode
-               (doom-modeline-column-zero-based " %l:%c" " %l:%C")
-               " %l")
-              (column-number-mode (doom-modeline-column-zero-based " :%c" " :%C")))))
+               (doom-modeline-column-zero-based "%l:%c" "%l:%C")
+               "%l")
+              (column-number-mode (doom-modeline-column-zero-based ":%c" ":%C")))))
     (if (and (bound-and-true-p nyan-mode)
              active
              (>= (window-width) nyan-minimum-window-width))
@@ -1474,21 +1487,20 @@ See `mode-line-percent-position'.")
                 (propertize (format-mode-line lc)
                             'help-echo "Buffer position\n\
 mouse-1: Display Line and Column Mode Menu"
-                            'mouse-face '(:box 0)
+                            'mouse-face 'mode-line-highlight
                             'local-map mode-line-column-line-number-mode-map))
-      (propertize
-       (concat (doom-modeline-spc)
-               (format-mode-line lc)
-               (if doom-modeline-percent-position
-                   (format-mode-line '(" " doom-modeline-percent-position "%%")))
-               (if (or line-number-mode
-                       column-number-mode doom-modeline-percent-position)
-                   (doom-modeline-spc)))
-       'face (if active 'mode-line 'mode-line-inactive)
-       'help-echo "Buffer position\n\
+      (concat (doom-modeline-spc)
+              (doom-modeline-spc)
+              (propertize (concat (format-mode-line lc)
+                                  (when doom-modeline-percent-position
+                                    (format-mode-line '(" " doom-modeline-percent-position "%%"))))
+                          'face (if active 'mode-line 'mode-line-inactive)
+                          'help-echo "Buffer position\n\
 mouse-1: Display Line and Column Mode Menu"
-       'mouse-face '(:box 0)
-       'local-map mode-line-column-line-number-mode-map))))
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map)
+              (when (or line-number-mode column-number-mode doom-modeline-percent-position)
+                (doom-modeline-spc))))))
 
 ;;
 ;; party parrot
@@ -1503,14 +1515,19 @@ mouse-1: Display Line and Column Mode Menu"
             (doom-modeline-spc))))
 
 ;;
-;; modals (evil, god, ryo and xah-fly-keys, etc.)
+;; modals (evil, overwrite, god, ryo and xah-fly-keys, etc.)
 ;;
 
 (defsubst doom-modeline--evil ()
   "The current evil state. Requires `evil-mode' to be enabled."
   (when (bound-and-true-p evil-local-mode)
-    (let ((tag (evil-state-property evil-state :tag t)))
-      (propertize tag 'face
+    (propertize (concat
+                 (doom-modeline-spc)
+                 (doom-modeline-icon
+                  'material
+                  (when doom-modeline-evil-state-icon "fiber_manual_record")
+                  "●"
+                  (string-trim (evil-state-property evil-state :tag t))
                   (if (doom-modeline--active)
                       (cond ((evil-normal-state-p) 'doom-modeline-evil-normal-state)
                             ((evil-emacs-state-p) 'doom-modeline-evil-emacs-state)
@@ -1518,42 +1535,76 @@ mouse-1: Display Line and Column Mode Menu"
                             ((evil-motion-state-p) 'doom-modeline-evil-motion-state)
                             ((evil-visual-state-p) 'doom-modeline-evil-visual-state)
                             ((evil-operator-state-p) 'doom-modeline-evil-operator-state)
-                            ((evil-replace-state-p) 'doom-modeline-evil-replace-state))
-                    'mode-line-inactive)))))
+                            ((evil-replace-state-p) 'doom-modeline-evil-replace-state)
+                            (t 'mode-line))
+                    'mode-line-inactive)
+                  :v-adjust -0.225)
+                 (doom-modeline-spc))
+                'help-echo (evil-state-property evil-state :name t))))
 
 (defsubst doom-modeline--overwrite ()
   "The current overwrite state. Requires `overwrite-mode' to be enabled."
   (when (and (bound-and-true-p overwrite-mode)
              (not (bound-and-true-p evil-local-mode)))
-    (propertize " <O> " 'face (if (doom-modeline--active)
-                                  'doom-modeline-urgent
-                                'mode-line-inactive))))
+    (propertize (concat
+                 (doom-modeline-spc)
+                 (doom-modeline-icon 'material "fiber_manual_record" "●" "<O>"
+                                     (if (doom-modeline--active)
+                                         'doom-modeline-urgent
+                                       'mode-line-inactive)
+                                     :v-adjust -0.225)
+                 (doom-modeline-spc))
+                'help-echo "Overwrite state")))
 
 (defsubst doom-modeline--god ()
   "The current god state. Requires `god-mode' to be enabled."
   (when (bound-and-true-p god-local-mode)
-    (propertize " <G> " 'face (if (doom-modeline--active)
-                                  'doom-modeline-evil-normal-state
-                                'mode-line-inactive))))
+    (propertize (concat
+                 (doom-modeline-spc)
+                 (doom-modeline-icon 'material "fiber_manual_record" "●" "<G>"
+                                     (if (doom-modeline--active)
+                                         'doom-modeline-evil-normal-state
+                                       'mode-line-inactive)
+                                     :v-adjust -0.225)
+                 (doom-modeline-spc))
+                'help-echo "God mode")))
 
 (defsubst doom-modeline--ryo ()
   "The current ryo-modal state. Requires `ryo-modal-mode' to be enabled."
   (when (bound-and-true-p ryo-modal-mode)
-    (propertize " <R> " 'face (if (doom-modeline--active)
-                                  'doom-modeline-evil-normal-state
-                                'mode-line-inactive))))
+    (propertize (concat
+                 (doom-modeline-spc)
+                 (doom-modeline-icon 'material "fiber_manual_record" "●" "<R>"
+                                     (if (doom-modeline--active)
+                                         'doom-modeline-evil-normal-state
+                                       'mode-line-inactive)
+                                     :v-adjust -0.225)
+                 (doom-modeline-spc))
+                'help-echo "Ryo modal")))
 
 (defsubst doom-modeline--xah-fly-keys ()
   "The current `xah-fly-keys' state."
   (when (boundp 'xah-fly-insert-state-q)
     (let ((active (doom-modeline--active)))
       (if xah-fly-insert-state-q
-          (propertize " <I> " 'face (if active
-                                        'doom-modeline-evil-insert-state
-                                      'mode-line-inactive))
-        (propertize " <C> " 'face (if active
-                                      'doom-modeline-evil-normal-state
-                                    'mode-line-inactive))))))
+          (propertize (concat
+                       (doom-modeline-spc)
+                       (doom-modeline-icon 'material "fiber_manual_record" "●" "<I>"
+                                           (if active
+                                               'doom-modeline-evil-insert-state
+                                             'mode-line-inactive)
+                                           :v-adjust -0.225)
+                       (doom-modeline-spc))
+                      'help-echo "Xah-fly insert state")
+        (propertize (concat
+                     (doom-modeline-spc)
+                     (doom-modeline-icon 'material "fiber_manual_record" "●" "<C>"
+                                         (if active
+                                             'doom-modeline-evil-normal-state
+                                           'mode-line-inactive)
+                                         :v-adjust -0.225)
+                     (doom-modeline-spc))
+                    'help-echo "Xah-fly normal state")))))
 
 (doom-modeline-def-segment modals
   "Displays modal editing states, including `evil', `overwrite', `god', `ryo' and `xha-fly-kyes', etc."
@@ -1580,14 +1631,13 @@ mouse-1: Display Line and Column Mode Menu"
   "The current objed state."
   (when (and doom-modeline--objed-active
              (doom-modeline--active))
-    (propertize
-     (format " %s(%s) "
-             (symbol-name objed--object)
-             (char-to-string (aref (symbol-name objed--obj-state) 0)))
-     'face 'doom-modeline-evil-emacs-state
-     'help-echo (format "Objed object: %s (%s)"
+    (propertize (format " %s(%s) "
                         (symbol-name objed--object)
-                        (symbol-name objed--obj-state)))))
+                        (char-to-string (aref (symbol-name objed--obj-state) 0)))
+                'face 'doom-modeline-evil-emacs-state
+                'help-echo (format "Objed object: %s (%s)"
+                                   (symbol-name objed--object)
+                                   (symbol-name objed--obj-state)))))
 
 
 ;;
@@ -1596,30 +1646,28 @@ mouse-1: Display Line and Column Mode Menu"
 
 (doom-modeline-def-segment input-method
   "The current input method."
-  (propertize
-   (cond
-    (current-input-method
-     (concat (doom-modeline-spc)
-             current-input-method-title
-             (doom-modeline-spc)))
-    ((and (bound-and-true-p evil-local-mode)
-          (bound-and-true-p evil-input-method))
-     (concat
-      (doom-modeline-spc)
-      (nth 3 (assoc default-input-method input-method-alist))
-      (doom-modeline-spc)))
-    (t ""))
-   'face (if (doom-modeline--active)
-             'doom-modeline-buffer-major-mode
-           'mode-line-inactive)
-   'help-echo (concat
-               "Current input method: "
-               current-input-method
-               "\n\
+  (propertize (cond (current-input-method
+                     (concat (doom-modeline-spc)
+                             current-input-method-title
+                             (doom-modeline-spc)))
+                    ((and (bound-and-true-p evil-local-mode)
+                          (bound-and-true-p evil-input-method))
+                     (concat
+                      (doom-modeline-spc)
+                      (nth 3 (assoc default-input-method input-method-alist))
+                      (doom-modeline-spc)))
+                    (t ""))
+              'face (if (doom-modeline--active)
+                        'doom-modeline-buffer-major-mode
+                      'mode-line-inactive)
+              'help-echo (concat
+                          "Current input method: "
+                          current-input-method
+                          "\n\
 mouse-2: Disable input method\n\
 mouse-3: Describe current input method")
-   'mouse-face 'mode-line-highlight
-   'local-map mode-line-input-method-map))
+              'mouse-face 'mode-line-highlight
+              'local-map mode-line-input-method-map))
 
 
 ;;
@@ -1680,7 +1728,7 @@ mouse-2: Quit server
 mouse-3: Reconnect to server")
                         "LSP Disconnected
 mouse-1: Reload to start server")
-                      'mouse-face '(:box 0)
+                      'mouse-face 'mode-line-highlight
                       'local-map (let ((map (make-sparse-keymap)))
                                    (if workspaces
                                        (progn
@@ -1714,12 +1762,11 @@ mouse-1: Reload to start server")
                                            (jsonrpc--request-continuations server))))
                      (`(,_id ,doing ,done-p ,detail) (and server (eglot--spinner server)))
                      (last-error (and server (jsonrpc-last-error server)))
-                     (face (cond
-                            (last-error 'doom-modeline-lsp-error)
-                            ((and doing (not done-p)) 'compilation-mode-line-run)
-                            ((and pending (cl-plusp pending)) 'doom-modeline-lsp-warning)
-                            (nick 'doom-modeline-lsp-success)
-                            (t 'mode-line)))
+                     (face (cond (last-error 'doom-modeline-lsp-error)
+                                 ((and doing (not done-p)) 'compilation-mode-line-run)
+                                 ((and pending (cl-plusp pending)) 'doom-modeline-lsp-warning)
+                                 (nick 'doom-modeline-lsp-success)
+                                 (t 'mode-line)))
                      (icon (doom-modeline-lsp-icon "EGLOT" face)))
           (propertize icon
                       'help-echo (cond
@@ -1737,24 +1784,23 @@ mouse-1: Display server events
 mouse-2: Quit server
 mouse-3: Reconnect to server" nick (eglot--major-mode server)))
                                   (t "EGLOT Disconnected"))
-                      'mouse-face '(:box 0)
+                      'mouse-face 'mode-line-highlight
                       'local-map (let ((map (make-sparse-keymap)))
-                                   (cond
-                                    (last-error
-                                     (define-key map [mode-line mouse-3]
-                                       #'eglot-clear-status))
-                                    ((and pending (cl-plusp pending))
-                                     (define-key map [mode-line mouse-3]
-                                       #'eglot-forget-pending-continuations))
-                                    (nick
-                                     (define-key map [mode-line C-mouse-1]
-                                       #'eglot-stderr-buffer)
-                                     (define-key map [mode-line mouse-1]
-                                       #'eglot-events-buffer)
-                                     (define-key map [mode-line mouse-2]
-                                       #'eglot-shutdown)
-                                     (define-key map [mode-line mouse-3]
-                                       #'eglot-reconnect)))
+                                   (cond (last-error
+                                          (define-key map [mode-line mouse-3]
+                                            #'eglot-clear-status))
+                                         ((and pending (cl-plusp pending))
+                                          (define-key map [mode-line mouse-3]
+                                            #'eglot-forget-pending-continuations))
+                                         (nick
+                                          (define-key map [mode-line C-mouse-1]
+                                            #'eglot-stderr-buffer)
+                                          (define-key map [mode-line mouse-1]
+                                            #'eglot-events-buffer)
+                                          (define-key map [mode-line mouse-2]
+                                            #'eglot-shutdown)
+                                          (define-key map [mode-line mouse-3]
+                                            #'eglot-reconnect)))
                                    map)))))
 (add-hook 'eglot--managed-mode-hook #'doom-modeline-update-eglot)
 
@@ -1860,7 +1906,7 @@ Example:
         'help-echo "Github Notifications
 mouse-1: Show notifications
 mouse-3: Fetch notifications"
-        'mouse-face '(:box 0)
+        'mouse-face 'mode-line-highlight
         'local-map (let ((map (make-sparse-keymap)))
                      (define-key map [mode-line mouse-1]
                        (lambda ()
@@ -1897,7 +1943,7 @@ mouse-1: Display debug hydra
 mouse-2: Display recent configurations
 mouse-3: Disconnect session"
                                    (dap-mode-line))
-                'mouse-face '(:box 0)
+                'mouse-face 'mode-line-highlight
                 'local-map (let ((map (make-sparse-keymap)))
                              (define-key map [mode-line mouse-1]
                                #'dap-hydra)
@@ -1917,7 +1963,7 @@ mouse-1: Show help
 mouse-2: Next
 mouse-3: Stop debugging"
                                    edebug-execution-mode)
-                'mouse-face '(:box 0)
+                'mouse-face 'mode-line-highlight
                 'local-map (let ((map (make-sparse-keymap)))
                              (define-key map [mode-line mouse-1]
                                #'edebug-help)
@@ -1933,16 +1979,16 @@ mouse-3: Stop debugging"
     (propertize (doom-modeline-debug-icon 'doom-modeline-urgent)
                 'help-echo "Debug on Error
 mouse-1: Toggle Debug on Error"
-                'mouse-face '(:box 0)
+                'mouse-face 'mode-line-highlight
                 'local-map (make-mode-line-mouse-map 'mouse-1 #'toggle-debug-on-error))))
 
 (defsubst doom-modeline--debug-on-quit ()
   "The current `debug-on-quit' state."
   (when debug-on-quit
-    (propertize (doom-modeline-debug-icon 'doom-modeline-buffer-path)
+    (propertize (doom-modeline-debug-icon 'doom-modeline-info)
                 'help-echo "Debug on Quit
 mouse-1: Toggle Debug on Quit"
-                'mouse-face '(:box 0)
+                'mouse-face 'mode-line-highlight
                 'local-map (make-mode-line-mouse-map 'mouse-1 #'toggle-debug-on-quit))))
 
 (doom-modeline-def-segment debug
@@ -2006,7 +2052,7 @@ mouse-1: Toggle Debug on Quit"
             (format "%d+" doom-modeline-number-limit)
           (number-to-string mu4e-alert-mode-line))
         'face '(:inherit (doom-modeline-warning doom-modeline-unread-number))))
-      'mouse-face '(:box 0)
+      'mouse-face 'mode-line-highlight
       'help-echo (if (= mu4e-alert-mode-line 1)
                      "You have an unread email"
                    (format "You have %s unread emails" mu4e-alert-mode-line)))
@@ -2375,7 +2421,7 @@ The cdr can also be a function that returns a name to use.")
 mouse-1: Open browser
 mouse-2: Stop preview"
                            grip-port)
-        'mouse-face '(:box 0)
+        'mouse-face 'mode-line-highlight
         'local-map (let ((map (make-sparse-keymap)))
                      (define-key map [mode-line mouse-1]
                        #'grip-browse-preview)

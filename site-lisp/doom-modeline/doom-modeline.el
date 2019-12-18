@@ -4,7 +4,7 @@
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; Homepage: https://github.com/seagle0128/doom-modeline
-;; Version: 2.7.0
+;; Version: 2.7.1
 ;; Package-Requires: ((emacs "25.1") (all-the-icons "1.0.0") (shrink-path "0.2.0") (dash "2.11.0"))
 ;; Keywords: faces mode-line
 
@@ -191,7 +191,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
 
 
 ;;
-;; Mode
+;; Minor mode
 ;;
 
 (defvar doom-modeline--old-format mode-line-format
@@ -200,8 +200,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
 
 (defvar doom-modeline-mode-map (make-sparse-keymap))
 
- ;; suppress warnings
-(declare-function battery-update 'battery)
+;; Suppress warnings
 (declare-function helm-display-mode-line 'helm)
 
 ;;;###autoload
@@ -213,12 +212,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
   :keymap doom-modeline-mode-map
   (if doom-modeline-mode
       (progn
-        (doom-modeline-refresh-bars)        ; create bars
-        (doom-modeline-set-main-modeline t) ; set default mode-line
+        (doom-modeline-refresh-bars)        ; Create bars
+        (doom-modeline-set-main-modeline t) ; Set default mode-line
         ;; These buffers are already created and don't get modelines
         (dolist (bname '("*scratch*" "*Messages*"))
-          (with-current-buffer bname
-            (doom-modeline-set-main-modeline)))
+          (if (buffer-live-p bname)
+              (with-current-buffer bname
+                (doom-modeline-set-main-modeline))))
         ;; Add hooks
         (add-hook 'Info-mode-hook #'doom-modeline-set-info-modeline)
         (add-hook 'dired-mode-hook #'doom-modeline-set-project-modeline)
@@ -234,6 +234,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
     (progn
       ;; Restore mode-line
       (setq-default mode-line-format doom-modeline--old-format)
+      (dolist (bname '("*scratch*" "*Messages*"))
+        (if (buffer-live-p bname)
+            (with-current-buffer bname
+              (setq mode-line-format doom-modeline--old-format))))
       ;; Remove hooks
       (remove-hook 'Info-mode-hook #'doom-modeline-set-info-modeline)
       (remove-hook 'dired-mode-hook #'doom-modeline-set-project-modeline)

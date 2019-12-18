@@ -990,7 +990,8 @@ Example:
   "Display documentation of Eieio CLASS, a symbol or a string."
   (advice-add 'cl--print-table :override #'helm-source--cl--print-table)
   (unwind-protect
-       (helm-describe-function class)
+       (let ((helm-describe-function-function 'describe-function))
+         (helm-describe-function class))
     (advice-remove 'cl--print-table #'helm-source--cl--print-table)))
 
 (defun helm-describe-function (func)
@@ -1027,10 +1028,21 @@ See `helm-elisp-show-help'."
               ;; When started from a help buffer,
               ;; Don't kill this buffer as it is helm-current-buffer.
               (unless (equal hbuf helm-current-buffer)
+                (kill-buffer hbuf)
                 (set-window-buffer (get-buffer-window hbuf)
-                                   helm-current-buffer)
-                (kill-buffer hbuf))
-              (helm-attrset 'help-running-p nil)))
+                                   ;; It is generally
+                                   ;; helm-current-buffer but it may
+                                   ;; be another buffer when helm have
+                                   ;; been started from a dedicated window.
+                                   (if helm--buffer-in-new-frame-p
+                                       helm-current-buffer
+                                     helm-persistent-action-window-buffer)))
+              (helm-attrset 'help-running-p nil))
+            ;; Force running update hook to may be delete
+            ;; helm-persistent-action-display-window, this is done in
+            ;; helm-persistent-action-display-window (the function). 
+            (unless helm--buffer-in-new-frame-p
+              (helm-update (regexp-quote (helm-get-selection)))))
            (t
             (if name
                 (funcall fun candidate name)

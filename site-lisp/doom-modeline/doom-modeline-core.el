@@ -198,9 +198,10 @@ Specify another one if you encounter the issue."
   :group'doom-modeline)
 
 (defcustom doom-modeline-icon (display-graphic-p)
-  "Whether display icons in mode-line.
+  "Whether display the icons in mode-line.
 
-It respects `all-the-icons-color-icons'."
+It respects `all-the-icons-color-icons'.
+While using the server mode in GUI, should set the value explicitly."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -238,7 +239,7 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-minor-modes (featurep 'minions)
-  "Whether display minor modes in mode-line."
+  "Whether display the minor modes in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -248,12 +249,12 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-buffer-encoding t
-  "Whether display buffer encoding."
+  "Whether display the buffer encoding."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-indent-info nil
-  "Whether display indentation information."
+  "Whether display the indentation information."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -273,21 +274,21 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-persp-name t
-  "Whether display perspective name.
+  "Whether display the perspective name.
 
 Non-nil to display in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-lsp t
-  "Whether display `lsp' state.
+  "Whether display the `lsp' state.
 
 Non-nil to display in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-github nil
-  "Whether display GitHub notifications/
+  "Whether display the GitHub notifications.
 
 It requires `ghub' and `async' packages."
   :type 'boolean
@@ -299,19 +300,24 @@ It requires `ghub' and `async' packages."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-env-version t
-  "Whether display environment version."
+  "Whether display the environment version."
+  :type 'boolean
+  :group 'doom-modeline)
+
+(defcustom doom-modeline-evil-state-icon t
+  "Whether display the `evil' state icon."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-mu4e t
-  "Whether display mu4e notifications.
+  "Whether display the mu4e notifications.
 
 It requires `mu4e-alert' package."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-irc t
-  "Whether display irc notifications.
+  "Whether display the irc notifications.
 
 It requires `circe' package."
   :type 'boolean
@@ -419,7 +425,7 @@ It requires `circe' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-emacs-state
-  '((t (:inherit doom-modeline-warning)))
+  '((t (:inherit (doom-modeline-highlight bold))))
   "Face for the Emacs state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
@@ -429,7 +435,7 @@ It requires `circe' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-motion-state
-  '((t :inherit doom-modeline-buffer-path))
+  '((t :inherit doom-modeline-buffer-file))
   "Face for the motion state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
@@ -439,12 +445,12 @@ It requires `circe' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-operator-state
-  '((t (:inherit doom-modeline-buffer-path)))
+  '((t (:inherit doom-modeline-buffer-file)))
   "Face for the operator state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-visual-state
-  '((t (:inherit doom-modeline-buffer-file)))
+  '((t (:inherit doom-modeline-warning)))
   "Face for the visual state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
@@ -596,6 +602,7 @@ It requires `circe' package."
 ;; Plugins
 ;;
 
+(defvar-local doom-modeline--size-hacked-p nil)
 (defun doom-modeline-redisplay (&rest _)
   "Call `redisplay' to trigger mode-line height calculations.
   Certain functions, including e.g. `fit-window-to-buffer', base
@@ -609,8 +616,9 @@ It requires `circe' package."
   This function is like `redisplay' with non-nil FORCE argument.
   It accepts an arbitrary number of arguments making it suitable
   as a `:before' advice for any function."
-  (redisplay t))
-
+  (unless doom-modeline--size-hacked-p
+    (setq doom-modeline--size-hacked-p t)
+    (redisplay t)))
 (advice-add #'fit-window-to-buffer :before #'doom-modeline-redisplay)
 (advice-add #'resize-temp-buffer-window :before #'doom-modeline-redisplay)
 
@@ -865,6 +873,7 @@ directory too."
                          (and (doom-modeline--active)
                               'doom-modeline-buffer-file))))
            (when face `(:inherit ,face))))))
+     'mouse-face 'mode-line-highlight
      'help-echo (concat buffer-file-truename
                         (unless (string= (file-name-nondirectory buffer-file-truename)
                                          (buffer-name))

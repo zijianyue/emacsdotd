@@ -158,14 +158,23 @@ WARNING: Setting this to nil is unsafe and can cause deletion of a whole tree."
   :type 'boolean)
 
 (defcustom helm-ff-skip-boring-files nil
-  "Non--nil to skip files matching regexps in
-`helm-boring-file-regexp-list'.
+  "Non--nil to skip boring files.
 
+I.e. the files matching regexps in `helm-boring-file-regexp-list'.
 This take effect in `helm-find-files' and file completion used by `helm-mode'
 i.e `helm-read-file-name'.
 Note that when non-nil this will slow down slightly `helm-find-files'."
   :group 'helm-files
   :type  'boolean)
+
+(defcustom helm-ff-skip-git-ignored-files nil
+  "Non--nil to skip git ignored files.
+
+This take effect only in `helm-find-files'.
+Check is not done on remote files.
+Note that when non-nil this will slow down slightly `helm-find-files'."
+  :group 'helm-files
+  :type 'boolean)
 
 (defcustom helm-ff-candidate-number-limit 5000
   "The `helm-candidate-number-limit' for `helm-find-files' and friends.
@@ -569,6 +578,8 @@ with Exiftran mandatory option is \"-i\"."
                                   '((C-backspace . helm-ff-run-toggle-auto-update)
                                     ([C-c DEL] . helm-ff-run-toggle-auto-update))
                                   nil 'helm-ff-delete-char-backward--exit-fn)
+    (when (fboundp 'tab-bar-mode)
+      (define-key map (kbd "C-c C-t")       'helm-ff-find-file-other-tab))
     map)
   "Keymap for `helm-find-files'.")
 
@@ -700,6 +711,9 @@ Don't set it directly, use instead `helm-ff-auto-update-initial-value'.")
    "Hardlink file(s) `M-H, C-u to follow'" 'helm-find-files-hardlink
    "Find file other window `C-c o'" 'helm-find-files-other-window
    "Find file other frame `C-c C-o'" 'find-file-other-frame
+   (lambda () (and (fboundp 'tab-bar-mode)
+                   "Find file other tab `C-c C-t'"))
+   'find-file-other-tab
    "Print File `C-c p, C-u to refresh'" 'helm-ff-print
    "Locate `C-x C-f, C-u to specify locate db'" 'helm-ff-locate)
   "Actions for `helm-find-files'."
@@ -767,8 +781,8 @@ Should not be used among other sources.")
     ;; directory.
     (when (file-directory-p fname)
       (helm-find-files-1 fname (if helm-ff-transformer-show-only-basename
-                                   (helm-basename presel)
-                                 presel)))))
+                                   (concat "^" (regexp-quote (helm-basename presel)))
+                                 (regexp-quote presel))))))
 
 (defun helm-ff-bookmark-set ()
   "Record `helm-find-files' session in bookmarks."
@@ -1003,7 +1017,7 @@ layout."
 
 (defvar eshell-command-aliases-list nil)
 (defvar helm-eshell-command-on-file-input-history nil)
-(defun helm-find-files-eshell-command-on-file-1 (&optional map)
+(cl-defun helm-find-files-eshell-command-on-file-1 (&optional map)
   "Run `eshell-command' on CANDIDATE or marked candidates.
 This is done possibly with an eshell alias, if no alias found, you can type in
 an eshell command.
@@ -1038,27 +1052,35 @@ working."
   (require 'em-alias) (eshell-read-aliases-list)
   (when (or eshell-command-aliases-list
             (y-or-n-p "No eshell aliases found, run eshell-command without alias anyway? "))
-    (let* ((cand-list (helm-marked-candidates))
+    (let* ((cand-list (helm-marked-candidates :with-wildcard t))
            (default-directory (or helm-ff-default-directory
                                   ;; If candidate is an url *-ff-default-directory is nil
                                   ;; so keep value of default-directory.
                                   default-directory))
-           (command (helm-comp-read
-                     "Command: "
-                     (cl-loop for (a c) in (eshell-read-aliases-list)
-                              ;; Positional arguments may be double
-                              ;; quoted (Issue #1881).
-                              when (string-match "[\"]?.*\\(\\$1\\|\\$\\*\\)[\"]?\\'" c)
-                              collect (propertize a 'help-echo c) into ls
-                              finally return (sort ls 'string<))
-                     :buffer "*helm eshell on file*"
-                     :name "Eshell command"
-                     :mode-line
-                     '("Eshell alias"
-                       "C-h m: Help, \\[universal-argument]: Insert output at point")
-                     :help-message 'helm-esh-help-message
-                     :input-history
-                     'helm-eshell-command-on-file-input-history))
+           helm-display-source-at-screen-top
+           (helm-actions-inherit-frame-settings t)
+           helm-use-frame-when-more-than-two-windows
+           (command (with-helm-display-marked-candidates
+                      helm-marked-buffer-name
+                      (helm-ff--count-and-collect-dups
+                       (mapcar 'helm-basename cand-list))
+                      (with-helm-current-buffer
+                        (helm-comp-read
+                         "Command: "
+                         (cl-loop for (a c) in (eshell-read-aliases-list)
+                                  ;; Positional arguments may be double
+                                  ;; quoted (Issue #1881).
+                                  when (string-match "[\"]?.*\\(\\$1\\|\\$\\*\\)[\"]?\\'" c)
+                                  collect (propertize a 'help-echo c) into ls
+                                  finally return (sort ls 'string<))
+                         :buffer "*helm eshell on file*"
+                         :name "Eshell command"
+                         :mode-line
+                         '("Eshell alias"
+                           "C-h m: Help, \\[universal-argument]: Insert output at point")
+                         :help-message 'helm-esh-help-message
+                         :input-history
+                         'helm-eshell-command-on-file-input-history))))
            (alias-value (car (assoc-default command eshell-command-aliases-list)))
            cmd-line)
       (if (or (equal helm-current-prefix-arg '(16))
@@ -1087,10 +1109,9 @@ working."
           ;; This wont work on remote files, because tramp handlers depends
           ;; on `default-directory' (limitation).
           (let ((mapfiles (mapconcat 'eshell-quote-argument cand-list " ")))
-            (if (string-match "'%s'\\|\"%s\"\\|%s" command)
+            (if (string-match "%s" command)
                 (setq cmd-line (format command mapfiles)) ; See [1]
-                (setq cmd-line (format "%s %s" command mapfiles)))
-            (helm-log "%S" cmd-line)
+              (setq cmd-line (format "%s %s" command mapfiles)))
             (eshell-command cmd-line))
 
           ;; Run eshell-command on EACH marked files.
@@ -1098,16 +1119,25 @@ working."
           ;; COMMAND on basename of each file, using
           ;; its basedir as `default-directory'.
           (cl-loop for f in cand-list
+                   for n from 1
                    for dir = (and (not (string-match helm--url-regexp f))
                                   (helm-basedir f))
-                   for file = (eshell-quote-argument
-                               (format "%s" (if (and dir (file-remote-p dir))
-                                                (helm-basename f) f)))
-                   for com = (if (string-match "'%s'\\|\"%s\"\\|%s" command)
+                   ;; We can use basename here as the command will run
+                   ;; under default-directory.
+                   ;; This allow running e.g. "tar czvf test.tar.gz
+                   ;; %s/*" without creating an archive expanding from /home.
+                   for file = (eshell-quote-argument (helm-basename f))
+                   ;; \@ => placeholder for file without extension.
+                   ;; \# => placeholder for incremental number.
+                   for fcmd = (replace-regexp-in-string
+                               "\\\\@" (regexp-quote (file-name-sans-extension file))
+                               (replace-regexp-in-string
+                                "\\\\#" (format "%03d" n) command))
+                   for com = (if (string-match "%s" fcmd)
                                  ;; [1] This allow to enter other args AFTER filename
                                  ;; i.e <command %s some_more_args>
-                                 (format command file)
-                                 (format "%s %s" command file))
+                                 (format fcmd file)
+                               (format "%s %s" fcmd file))
                    do (let ((default-directory (or dir default-directory)))
                         (eshell-command com)))))))
 
@@ -1445,7 +1475,8 @@ This doesn't replace inside the files, only modify filenames."
                     (unless (string= query "!")
                       (setq query (helm-read-answer (format
                                                      "Replace `%s' by `%s' [!,y,n,q]"
-                                                     old new)
+                                                     (helm-basename old)
+                                                     (helm-basename new))
                                                     '("y" "n" "!" "q"))))
                     (when (string= query "q")
                       (cl-return (message "Operation aborted")))
@@ -1567,6 +1598,9 @@ If MUST-MATCH is specified exit with
   (let ((sel   (helm-get-selection)))
     (cl-assert sel nil "Trying to exit with no candidates")
     (if (and (file-directory-p sel)
+             ;; Allows exiting with default action when a prefix arg
+             ;; is specified.
+             (null current-prefix-arg)
              (null helm-ff--RET-disabled)
              (not (string= "." (helm-basename sel))))
         (helm-execute-persistent-action)
@@ -2364,7 +2398,10 @@ purpose."
            (comps (cl-loop for (f . h) in (tramp-get-completion-function method)
                            append (cl-loop for e in (funcall f (car h))
                                            for host = (and (consp e) (cadr e))
-                                           when (and host (not (member host all-methods)))
+                                           ;; On emacs-27 host may be
+                                           ;; ("root" t) in sudo method.
+                                           when (and (stringp host)
+                                                     (not (member host all-methods)))
                                            collect (concat (or (car mh-method) "/")
                                                            method ":" host)))))
       (helm-fast-remove-dups
@@ -3010,16 +3047,25 @@ Return candidates prefixed with basename of `helm-input' first."
 (defun helm-ff-boring-file-p (file)
   ;; Prevent user doing silly thing like
   ;; adding the dotted files to boring regexps (#924).
-  (and (not (string-match "\\.$" file))
+  (and helm-ff-skip-boring-files
+       (not (string-match "\\.$" file))
        (string-match  helm-ff--boring-regexp file)))
+
+(defvar helm-ff--git-found-p nil)
+(defun helm-ff-git-ignored-p (file)
+  (and helm-ff-skip-git-ignored-files
+       (not (file-remote-p file))
+       (or helm-ff--git-found-p
+           (setq helm-ff--git-found-p (executable-find "git")))
+       (zerop (call-process "git" nil nil nil "check-ignore" "-q" file))))
 
 (defun helm-ff-filter-candidate-one-by-one (file)
   "`filter-one-by-one' Transformer function for `helm-source-find-files'."
   ;; Handle boring files
   (let ((basename (helm-basename file))
         dot)
-    (unless (and helm-ff-skip-boring-files
-                 (helm-ff-boring-file-p basename))
+    (unless (or (helm-ff-boring-file-p basename)
+                (helm-ff-git-ignored-p file))
 
       ;; Handle tramp files with minimal highlighting.
       (if (and (or (string-match-p helm-tramp-file-name-regexp helm-pattern)
@@ -3835,8 +3881,9 @@ is helm-source-find-files."
       (let* ((beg (and (use-region-p) (region-beginning)))
              (end (and (use-region-p) (region-end)))
              (str (and beg end (buffer-substring-no-properties beg end)))
-             (ffap (or (and helm-ff-guess-ffap-urls ffap-url-regexp
-                            (ffap-fixup-url (ffap-url-at-point)))
+             (ffap (or (helm-aand helm-ff-guess-ffap-urls ffap-url-regexp
+                                  (ffap-fixup-url (ffap-url-at-point))
+                                  (and (string-match ffap-url-regexp it) it))
                        (ffap-file-at-point))))
         ;; Workaround emacs bugs:
         ;; When the region is active and a file is detected
@@ -4339,6 +4386,14 @@ Called with two prefix arg open files in background without selecting them."
               ;; unspecified e.g user hit C-k foo RET.
               (t (find-file candidate)))))))
 
+(defun helm-ff-find-file-other-tab ()
+  "Run find file in other tab action from `helm-source-buffers-list'."
+  (interactive)
+  (cl-assert (fboundp 'tab-bar-mode) nil "Tab-bar-mode not available")
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'find-file-other-tab)))
+(put 'helm-ff-find-file-other-tab 'helm-only t)
+
 (defun helm-ff--mkdir (dir &optional helm-ff)
   (when (or (not confirm-nonexistent-file-or-buffer)
             (y-or-n-p (format "Create directory `%s'? "
@@ -4732,7 +4787,8 @@ This is the starting point for nearly all actions you can do on files."
                                 ((and (eq major-mode 'org-agenda-mode)
                                       org-directory
                                       (not smart-input))
-                                 (expand-file-name org-directory))
+                                 (file-name-as-directory
+                                  (expand-file-name org-directory)))
                                 ((and (eq major-mode 'dired-mode) smart-input)
                                  (file-name-directory smart-input))
                                 ((and (not (string= smart-input ""))

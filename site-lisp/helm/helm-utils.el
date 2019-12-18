@@ -27,6 +27,8 @@
 (declare-function markdown-show-subtree "outline.el")
 (declare-function outline-show-subtree "outline.el")
 (declare-function org-reveal "org.el")
+(declare-function tab-bar-tabs "tab-bar.el")
+(declare-function tab-bar-select-tab "tab-bar.el")
 (defvar org-directory)
 (defvar winner-boring-buffers)
 (defvar helm-show-completion-overlay)
@@ -268,7 +270,38 @@ If a prefix arg is given split windows vertically."
                  (and other-window initial-ow-fn))
       (if other-window
           (funcall initial-ow-fn (car buffers))
-        (switch-to-buffer (car buffers))))))
+        (helm-buffers-switch-to-buffer-or-tab (car buffers))))))
+
+(defun helm-buffers-switch-to-buffer-or-tab (buffer)
+  "Switch to BUFFER in its tab if some."
+  (if (and (fboundp 'tab-bar-mode)
+           helm-buffers-maybe-switch-to-tab)
+      (let* ((tab-bar-tab-name-function #'tab-bar-tab-name-all)
+             (tabs (tab-bar-tabs))
+             (tab-names (mapcar (lambda (tab)
+                                  (cdr (assq 'name tab)))
+                                tabs))
+             (bname (buffer-name (get-buffer buffer)))
+             (tab (helm-buffers--get-tab-from-name bname tabs)))
+        (if (helm-buffers--buffer-in-tab-p bname tab-names)
+            (progn
+              (tab-bar-switch-to-tab (alist-get 'name tab))
+              (select-window (get-buffer-window bname)))
+          (switch-to-buffer buffer)))
+    (switch-to-buffer buffer)))
+
+(defun helm-buffers--get-tab-from-name (tab-name tabs)
+  "Return tab from TABS when it contains TAB-NAME."
+  (cl-loop for tab in tabs
+           when (member tab-name (split-string (cdr (assq 'name tab)) ", " t))
+           return tab))
+
+(defun helm-buffers--buffer-in-tab-p (buffer-name tab-names)
+  "Check if BUFFER-NAME is in TAB-NAMES list."
+  (cl-loop for name in tab-names
+           ;; Buf names are separated with "," in TAB-NAMES
+           ;; e.g. '("tab-bar.el" "*scratch*, helm-buffers.el").
+           thereis (member buffer-name (split-string name ", " t))))
 
 (defun helm-window-default-split-fn (candidates &optional other-window-fn)
   "Split windows in one direction and balance them.
@@ -521,9 +554,12 @@ from its directory."
                                       (helm-basename f) f))))
              (helm-find-files-1 f))))
      (let* ((sel       (helm-get-selection))
-            (marker    (if (consp sel) (markerp (cdr sel))))
+            (marker    (and (consp sel) (markerp (cdr sel))))
             (grep-line (and (stringp sel)
                             (helm-grep-split-line sel)))
+            (occur-fname (helm-aand (numberp sel)
+                                    (helm-attr 'buffer-name)
+                                    (buffer-file-name (get-buffer it))))
             (bmk-name  (and (stringp sel)
                             (not grep-line)
                             (replace-regexp-in-string "\\`\\*" "" sel)))
@@ -561,9 +597,8 @@ from its directory."
          ((and grep-line (file-exists-p (car grep-line)))
           (expand-file-name (car grep-line)))
          ;; Occur.
-         (grep-line
-          (with-current-buffer (get-buffer (car grep-line))
-            (expand-file-name (or (buffer-file-name) default-directory))))
+         ((and occur-fname (file-exists-p occur-fname))
+          (expand-file-name occur-fname))
          ;; Package (installed).
          ((and pkg (package-installed-p pkg))
           (expand-file-name (package-desc-dir pkg)))
@@ -587,7 +622,8 @@ that is sorting is done against real value of candidate."
          (reg1  (concat "\\_<" qpattern "\\_>"))
          (reg2  (concat "\\_<" qpattern))
          (reg3  helm-pattern)
-         (split (helm-mm-split-pattern helm-pattern))
+         (split (helm-remove-if-match
+                 "\\`!" (helm-mm-split-pattern helm-pattern)))
          (str1  (if (consp s1) (cdr s1) s1))
          (str2  (if (consp s2) (cdr s2) s2))
          (score (lambda (str r1 r2 r3 lst)
@@ -597,10 +633,12 @@ that is sorting is done against real value of candidate."
                                    (string-match
                                     (concat "\\_<" (regexp-quote (car lst))) str)
                                    (cl-loop for r in (cdr lst)
-                                            always (string-match r str))) 4)
+                                            always (string-match r str)))
+                              4)
                              ((and (string-match " " qpattern)
                                    (cl-loop for r in lst
-                                            always (string-match r str))) 3)
+                                            always (string-match r str)))
+                              3)
                              ((string-match r2 str) 2)
                              ((string-match r3 str) 1)
                              (t 0)))))

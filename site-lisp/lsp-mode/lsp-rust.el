@@ -29,7 +29,7 @@
 (require 'dash)
 
 (defgroup lsp-rust nil
-  "LSP support for Rust, using Rust Language Server."
+  "LSP support for Rust, using Rust Language Server or rust-analyzer."
   :group 'lsp-mode
   :link '(url-link "https://github.com/rust-lang/rls")
   :package-version '(lsp-mode . "6.1"))
@@ -40,6 +40,13 @@
                  (symbol :tag 'rust-analyzer "rust-analyzer"))
   :group 'lsp-mode
   :package-version '(lsp-mode . "6.2"))
+
+;; RLS
+
+(defcustom lsp-rust-rls-server-command '("rls")
+  "Command to start RLS."
+  :type '(repeat string)
+  :package-version '(lsp-mode . "6.1"))
 
 (defcustom lsp-rust-library-directories '("~/.cargo/registry/src" "~/.rustup/toolchains")
   "List of directories which will be considered to be libraries."
@@ -290,11 +297,6 @@ PARAMS progress report notification data."
       (setq lsp-clients-rust-progress-string (format "%s - %s" title (or message "")))
       (lsp-log lsp-clients-rust-progress-string))))
 
-(defcustom lsp-rust-rls-server-command '("rls")
-  "Command to start RLS."
-  :type '(repeat string)
-  :package-version '(lsp-mode . "6.1"))
-
 (cl-defmethod lsp-execute-command
   (_server (command (eql rls.run)) params)
   (-let* (((&hash "env" "binary" "args" "cwd") (seq-first params))
@@ -328,6 +330,11 @@ PARAMS progress report notification data."
   :type '(repeat string)
   :package-version '(lsp-mode . "6.2"))
 
+(defcustom lsp-rust-analyzer-server-display-inlay-hints nil
+  "Show inlay hints."
+  :type 'boolean
+  :package-version '(lsp-mode . "6.3"))
+
 (defconst lsp-rust-notification-handlers
   '(("rust-analyzer/publishDecorations" . (lambda (_w _p)))))
 
@@ -342,18 +349,9 @@ PARAMS progress report notification data."
 (defun lsp-rust-uri-filename (text-document)
   (lsp--uri-to-path (gethash "uri" text-document)))
 
-(defun lsp-rust-apply-text-document-edit (edit)
-  "Like lsp--apply-text-document-edit, but it allows nil version."
-  (let* ((ident (gethash "textDocument" edit))
-         (filename (lsp-rust-uri-filename ident))
-         (version (gethash "version" ident)))
-    (with-current-buffer (find-file-noselect filename)
-      (when (or (not version) (= version (lsp--cur-file-version)))
-        (lsp--apply-text-edits (gethash "edits" edit))))))
-
 (defun lsp-rust-apply-source-change (data)
   (seq-doseq (it (-> data (ht-get "workspaceEdit") (ht-get "documentChanges")))
-    (lsp-rust-apply-text-document-edit it))
+    (lsp--apply-text-document-edit it))
   (-when-let (cursor-position (ht-get data "cursorPosition"))
     (let ((filename (lsp-rust-uri-filename (ht-get cursor-position "textDocument")))
           (position (ht-get cursor-position "position")))
@@ -361,7 +359,7 @@ PARAMS progress report notification data."
       (lsp-rust-goto-lsp-loc position))))
 
 (define-derived-mode lsp-rust-analyzer-syntax-tree-mode special-mode "Rust-Analyzer-Syntax-Tree"
-  "Mode for the rust-analyzer status buffer.")
+  "Mode for the rust-analyzer syntax tree buffer.")
 
 (defun lsp-rust-analyzer-syntax-tree ()
   "Display syntax tree for current buffer."
@@ -406,6 +404,16 @@ PARAMS progress report notification data."
           (pop-to-buffer buf)))
     (message "rust-analyzer not running.")))
 
+(defun lsp-rust-analyzer-join-lines ()
+  "Join selected lines into one, smartly fixing up whitespace and trailing commas."
+  (interactive)
+  (let* ((params (list :textDocument (lsp--text-document-identifier)
+                       :range (if (use-region-p)
+                                  (lsp--region-to-range (region-beginning) (region-end))
+                                (lsp--region-to-range (point) (point)))))
+         (result (lsp-send-request (lsp-make-request "rust-analyzer/joinLines" params))))
+    (lsp-rust-apply-source-change result)))
+
 (lsp-register-client
  (make-lsp-client
   :new-connection (lsp-stdio-connection (lambda () lsp-rust-analyzer-server-command))
@@ -423,6 +431,56 @@ PARAMS progress report notification data."
     (when (natnump (setf (lsp--client-priority (gethash server lsp-clients))
                          (* (lsp--client-priority (gethash server lsp-clients)) -1)))
       (message (format "Switched to server %s." server)))))
+
+;; inlay hints
+
+(defvar-local lsp-rust-analyzer-inlay-hints-timer nil)
+
+;; TODO: we should update only if the current buffer has changed
+(defun lsp-rust-analyzer-update-inlay-hints (buffer)
+  (if (and (lsp-rust-analyzer-initialized?)
+           (eq buffer (current-buffer)))
+      (lsp-request-async "rust-analyzer/inlayHints"
+                         (list :textDocument (lsp--text-document-identifier))
+                         (lambda (res)
+                           (remove-overlays (point-min) (point-max) 'lsp-rust-analyzer-inlay-hint t)
+                           (dolist (hint res)
+                             (-let* (((&hash "range" "label" "kind") hint)
+                                     ((beg . end) (lsp--range-to-region range))
+                                     (overlay (make-overlay beg end)))
+                               (overlay-put overlay 'lsp-rust-analyzer-inlay-hint t)
+                               (overlay-put overlay 'evaporate t)
+                               (overlay-put overlay 'after-string (propertize (concat ": " label)
+                                                                              'font-lock-face 'font-lock-comment-face)))))))
+  nil)
+
+(defun lsp-rust-analyzer-initialized? ()
+  (when-let ((workspace (lsp-find-workspace 'rust-analyzer (buffer-file-name))))
+   (eq 'initialized (lsp--workspace-status workspace))))
+
+(defun lsp-rust-analyzer-inlay-hints-change-handler (&rest rest)
+  (when lsp-rust-analyzer-inlay-hints-timer
+    (cancel-timer lsp-rust-analyzer-inlay-hints-timer))
+  (setq lsp-rust-analyzer-inlay-hints-timer
+        (run-with-idle-timer 0.1 nil #'lsp-rust-analyzer-update-inlay-hints (current-buffer))))
+
+(define-minor-mode lsp-rust-analyzer-inlay-hints-mode
+  "Mode for displaying inlay hints."
+  nil nil nil
+  (cond
+   (lsp-rust-analyzer-inlay-hints-mode
+    (lsp-rust-analyzer-update-inlay-hints (current-buffer))
+    (add-hook 'lsp-after-initialize-hook #'lsp-rust-analyzer-inlay-hints-change-handler nil t)
+    (add-hook 'after-change-functions #'lsp-rust-analyzer-inlay-hints-change-handler nil t))
+   (t
+    (remove-overlays (point-min) (point-max) 'lsp-rust-analyzer-inlay-hint t)
+    (remove-hook 'lsp-after-initialize-hook #'lsp-rust-analyzer-inlay-hints-change-handler t)
+    (remove-hook 'after-change-functions #'lsp-rust-analyzer-inlay-hints-change-handler t))))
+
+;; activate `lsp-rust-analyzer-inlay-hints-mode'
+(when lsp-rust-analyzer-server-display-inlay-hints
+ (add-hook 'rustic-mode-hook (lambda () (lsp-rust-analyzer-inlay-hints-mode)))
+ (add-hook 'rust-mode-hook (lambda () (lsp-rust-analyzer-inlay-hints-mode))))
 
 (provide 'lsp-rust)
 ;;; lsp-rust.el ends here

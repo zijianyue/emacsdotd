@@ -120,7 +120,9 @@
 (require 'server)
 (require 'with-editor)
 
-(eval-when-compile (require 'recentf))
+(eval-when-compile
+  (require 'recentf)
+  (require 'subr-x))
 
 ;;;; Declarations
 
@@ -673,9 +675,10 @@ With a numeric prefix ARG, go forward ARG comments."
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
   (interactive)
-  (--when-let (git-commit-buffer-message)
-    (unless (ring-member log-edit-comment-ring it)
-      (ring-insert log-edit-comment-ring it))))
+  (when-let ((message (git-commit-buffer-message)))
+    (when-let ((index (ring-member log-edit-comment-ring message)))
+      (ring-remove log-edit-comment-ring index))
+    (ring-insert log-edit-comment-ring message)))
 
 (defun git-commit-buffer-message ()
   (let ((flush (concat "^" comment-start))
