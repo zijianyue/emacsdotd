@@ -298,8 +298,8 @@ PARAMS progress report notification data."
       (lsp-log lsp-clients-rust-progress-string))))
 
 (cl-defmethod lsp-execute-command
-  (_server (command (eql rls.run)) params)
-  (-let* (((&hash "env" "binary" "args" "cwd") (seq-first params))
+  (_server (_command (eql rls.run)) params)
+  (-let* (((&hash "env" "binary" "args" "cwd") (lsp-seq-first params))
           (default-directory (or cwd (lsp-workspace-root) default-directory) ))
     (compile
      (format "%s %s %s"
@@ -333,7 +333,7 @@ PARAMS progress report notification data."
 (defcustom lsp-rust-analyzer-server-display-inlay-hints nil
   "Show inlay hints."
   :type 'boolean
-  :package-version '(lsp-mode . "6.3"))
+  :package-version '(lsp-mode . "6.2"))
 
 (defconst lsp-rust-notification-handlers
   '(("rust-analyzer/publishDecorations" . (lambda (_w _p)))))
@@ -343,7 +343,7 @@ PARAMS progress report notification data."
      (lambda (p) (lsp-rust-apply-source-change-command p)))))
 
 (defun lsp-rust-apply-source-change-command (p)
-  (let ((data (-> p (ht-get "arguments") (seq-first))))
+  (let ((data (lsp-seq-first (ht-get p "arguments"))))
     (lsp-rust-apply-source-change data)))
 
 (defun lsp-rust-uri-filename (text-document)
@@ -356,7 +356,7 @@ PARAMS progress report notification data."
     (let ((filename (lsp-rust-uri-filename (ht-get cursor-position "textDocument")))
           (position (ht-get cursor-position "position")))
       (find-file filename)
-      (lsp-rust-goto-lsp-loc position))))
+      (goto-char (lsp--position-to-point position)))))
 
 (define-derived-mode lsp-rust-analyzer-syntax-tree-mode special-mode "Rust-Analyzer-Syntax-Tree"
   "Mode for the rust-analyzer syntax tree buffer.")
@@ -445,20 +445,21 @@ PARAMS progress report notification data."
                          (lambda (res)
                            (remove-overlays (point-min) (point-max) 'lsp-rust-analyzer-inlay-hint t)
                            (dolist (hint res)
-                             (-let* (((&hash "range" "label" "kind") hint)
+                             (-let* (((&hash "range" "label") hint)
                                      ((beg . end) (lsp--range-to-region range))
                                      (overlay (make-overlay beg end)))
                                (overlay-put overlay 'lsp-rust-analyzer-inlay-hint t)
                                (overlay-put overlay 'evaporate t)
                                (overlay-put overlay 'after-string (propertize (concat ": " label)
-                                                                              'font-lock-face 'font-lock-comment-face)))))))
+                                                                              'font-lock-face 'font-lock-comment-face)))))
+                         :mode 'tick))
   nil)
 
 (defun lsp-rust-analyzer-initialized? ()
   (when-let ((workspace (lsp-find-workspace 'rust-analyzer (buffer-file-name))))
-   (eq 'initialized (lsp--workspace-status workspace))))
+    (eq 'initialized (lsp--workspace-status workspace))))
 
-(defun lsp-rust-analyzer-inlay-hints-change-handler (&rest rest)
+(defun lsp-rust-analyzer-inlay-hints-change-handler (&rest _rest)
   (when lsp-rust-analyzer-inlay-hints-timer
     (cancel-timer lsp-rust-analyzer-inlay-hints-timer))
   (setq lsp-rust-analyzer-inlay-hints-timer
@@ -479,8 +480,9 @@ PARAMS progress report notification data."
 
 ;; activate `lsp-rust-analyzer-inlay-hints-mode'
 (when lsp-rust-analyzer-server-display-inlay-hints
- (add-hook 'rustic-mode-hook (lambda () (lsp-rust-analyzer-inlay-hints-mode)))
- (add-hook 'rust-mode-hook (lambda () (lsp-rust-analyzer-inlay-hints-mode))))
+  (add-hook 'lsp-after-open-hook (lambda ()
+                                   (when (lsp-find-workspace 'rust-analyzer nil)
+                                     (lsp-rust-analyzer-inlay-hints-mode)))))
 
 (provide 'lsp-rust)
 ;;; lsp-rust.el ends here

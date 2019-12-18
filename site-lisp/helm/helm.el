@@ -1,5 +1,8 @@
 ;;; helm.el --- Emacs incremental and narrowing framework -*- lexical-binding: t -*-
 
+;; Version: 3.5.6
+;; URL: https://github.com/emacs-helm/helm
+
 ;; Copyright (C) 2007         Tamas Patrovics
 ;;               2008 ~ 2011  rubikitch <rubikitch@ruby-lang.org>
 ;;               2011 ~ 2019  Thierry Volpiatto <thierry.volpiatto@gmail.com>
@@ -34,6 +37,9 @@
 (require 'helm-lib)
 (require 'helm-multi-match)
 (require 'helm-source)
+
+;; Setup completion styles for helm-mode
+(helm--setup-completion-styles-alist)
 
 (declare-function helm-comp-read "helm-mode.el")
 (declare-function custom-unlispify-tag-name "cus-edit.el")
@@ -627,7 +633,7 @@ source name in this variable."
 
 Note that this also allow moving out of minibuffer when clicking
 outside of `helm-buffer', up to you to get back to helm by clicking
-back in `helm-buffer' of minibuffer."
+back in `helm-buffer' or minibuffer."
   :group 'helm
   :type 'boolean)
 
@@ -1123,6 +1129,58 @@ with a \"^\" beginning of line sign, in those cases each pattern
 separated with space should be a regexp and not a fuzzy pattern.  When
 using multi match patterns, each pattern starting with \"!\" is
 interpreted as a negation i.e. match everything but this.
+
+*** Completion-styles
+
+Helm generally fetch its candidates with the :candidates function
+up to `helm-candidate-number-limit' and then apply match functions
+to these candidates according to `helm-pattern'.
+But Helm allows matching candidates directly from the :candidates
+function using its own `completion-styles'.
+Helm provides 'helm completion style but also 'helm-flex completion style
+for Emacs<27 that don't have 'flex completion style, otherwise (emacs-27)
+'flex completion style is used to provide fuzzy aka flex completion.
+By default, like in Emacs vanilla, all completion commands
+\(e.g. `completion-at-point') using `completion-in-region' or
+`completing-read' use `completion-styles'.
+Some Helm native commands like `helm-M-x' do use `completion-styles'.
+Any helm sources can use `completion-styles' by using :match-dynamic slot
+and building their :candidates function with `helm-dynamic-completion'.
+Example:
+
+#+begin_src elisp
+
+    (helm :sources (helm-build-sync-source \"test\"
+                     :candidates (helm-dynamic-completion
+                                  '(foo bar baz foab)
+                                  'symbolp)
+                     :match-dynamic t)
+          :buffer \"*helm test*\")
+
+#+end_src
+
+By default Helm setup `completion-styles' and always add 'helm to it, however
+the flex completion styles are not added, this is up to the user if she want to
+have such completion to enable this.
+As specified above use 'flex for emacs-27 and 'helm-flex for emacs-26.
+Anyway, 'helm-flex is not provided in `completion-styles-alist' if 'flex is present.
+
+Finally Helm provide two user variables to control `completion-styles' usage:
+`helm-completion-style' and `helm-completion-syles-alist'.
+Both variables are customizable.
+The former allows retrieving previous Helm behavior if needed, by setting it to
+`helm' or `helm-fuzzy', default being `emacs' which allows dynamic completion
+and usage of `completion-styles', the second allows setting `helm-completion-style'
+per mode and also specify `completion-styles' per mode (see its docstring).
+
+Also for a better control of styles in native helm sources (not helmized by helm-mode)
+using :match-dynamic, `helm-dynamic-completion' provides a STYLES argument that allows
+specifying explicitely styles for this source.
+
+NOTE: Some old completion styles are not working fine with helm
+and are disabled by default in
+`helm-blacklist-completion-styles', they are anyway not useful in
+helm because 'helm style supersed these styles.
 
 ** Helm mode
 
@@ -3978,6 +4036,7 @@ CANDIDATE. Contiguous matches get a coefficient of 2."
                    candidate (helm-stringify candidate)))
          (pat-lookup (helm--collect-pairs-in-string pattern))
          (str-lookup (helm--collect-pairs-in-string cand))
+         (inter (cl-nintersection pat-lookup str-lookup :test 'equal))
          ;; Prefix
          (bonus (cond ((or (equal (car pat-lookup) (car str-lookup))
                            (equal (caar pat-lookup) (caar str-lookup)))
@@ -4003,9 +4062,7 @@ CANDIDATE. Contiguous matches get a coefficient of 2."
            ;; That's mean that "wiaaaki" will not take precedence
            ;; on "aaawiki" when matching on "wiki" even if "wiaaaki"
            ;; starts by "wi".
-           (* (length (cl-nintersection
-                       pat-lookup str-lookup :test 'equal))
-              2)))))
+           (* (length inter) 2)))))
 
 (defun helm-fuzzy-matching-default-sort-fn-1 (candidates &optional use-real basename preserve-tie-order)
   "The transformer for sorting candidates in fuzzy matching.
@@ -4140,6 +4197,55 @@ to the matching method in use."
 See `helm-fuzzy-default-highlight-match'."
   (cl-loop for c in candidates
            collect (funcall helm-fuzzy-matching-highlight-fn c)))
+
+
+;;; helm-flex style
+;;
+;; Provide the emacs-27 flex style for emacs<27.
+;; Reuse the flex scoring algorithm of flex style in emacs-27.
+(defun helm-flex--style-score (str regexp)
+  "Score STR candidate according to PATTERN.
+
+REGEXP should be generated from a pattern which is a list like
+\'(point \"f\" any \"o\" any \"b\" any) for \"fob\" as pattern.
+Such pattern is build with 
+`helm-completion--flex-transform-pattern' function.
+
+Function extracted from `completion-pcm--hilit-commonality' in
+emacs-27 to provide such scoring in emacs<27."
+  ;; Don't modify the string itself.
+  (setq str (copy-sequence str))
+  (unless (string-match regexp str)
+    (error "Internal error: %s does not match %s" regexp str))
+  (let* ((md (match-data))
+         (start (pop md))
+         (len (length str))
+         (score-numerator 0)
+         (score-denominator 0)
+         (last-b 0)
+         (update-score
+          (lambda (a b)
+            "Update score variables given match range (A B)."
+            (setq score-numerator (+ score-numerator (- b a)))
+            (unless (or (= a last-b)
+                        (zerop last-b)
+                        (= a (length str)))
+              (setq score-denominator (+ score-denominator
+                                         1
+                                         (expt (- a last-b 1)
+                                               (/ 1.0 3)))))
+            (setq last-b b))))
+    (funcall update-score start start)
+    (setq md (cdr md))
+    (while md
+      (funcall update-score start (pop md))
+      (setq start (pop md)))
+    (funcall update-score len len)
+    (unless (zerop (length str))
+      (put-text-property
+       0 1 'completion-score
+       (/ score-numerator (* len (1+ score-denominator)) 1.0) str)))
+    str)
 
 
 ;;; Matching candidates
@@ -4562,7 +4668,7 @@ respectively `helm-cand-num' and `helm-cur-source'."
       (when map
         (define-key map [mouse-1] 'helm-mouse-select-candidate)
         (define-key map [mouse-2] 'ignore)
-        (define-key map [mouse-3] 'helm-select-action)
+        (define-key map [mouse-3] 'helm-menu-select-action)
         (add-text-properties
          start end
          `(mouse-face highlight
@@ -4907,6 +5013,28 @@ If action buffer is selected, back to the helm buffer."
           (helm-display-mode-line (helm-get-current-source))
           (run-hooks 'helm-window-configuration-hook))))))
 (put 'helm-select-action 'helm-only t)
+
+(defun helm-menu-select-action (_event)
+  "Popup action menu from mouse-3."
+  (interactive "e")
+  (if (get-buffer-window helm-action-buffer 'visible)
+      (helm-select-action)
+    (let ((src (helm-get-current-source)))
+      (helm-aif (helm-get-actions-from-current-source src)
+          (progn
+            (setq helm-saved-current-source src)
+            (if (functionp it)
+                (message "Sole action: %s"
+                         (if (or (consp it)
+                                 (byte-code-function-p it))
+                             "Anonymous" it))
+              (setq helm-saved-action
+                    (x-popup-menu
+                     t (list "Available Actions"
+                             (cons "" it))))
+              (helm-maybe-exit-minibuffer))
+            (message "No Actions available"))))))
+(put 'helm-menu-select-action 'helm-only t)
 
 (defun helm--set-action-prompt (&optional restore)
   (with-selected-window (minibuffer-window)
@@ -5488,31 +5616,37 @@ don't exit and send message 'no match'."
       (let* ((src (helm-get-current-source))
              (empty-buffer-p (with-current-buffer helm-buffer
                                (eq (point-min) (point-max))))
-             (sel (helm-get-selection nil nil src))
              (unknown (and (not empty-buffer-p)
                            (string= (get-text-property
                                      0 'display
                                      (helm-get-selection nil 'withprop src))
                                     "[?]"))))
         (cond ((and (or empty-buffer-p unknown)
-                    (eq minibuffer-completion-confirm 'confirm))
+                    (memq minibuffer-completion-confirm
+                          '(confirm confirm-after-completion)))
                (setq helm-minibuffer-confirm-state
                      'confirm)
                (setq minibuffer-completion-confirm nil)
                (minibuffer-message " [confirm]"))
-              ((and (or empty-buffer-p
-                        (unless (if minibuffer-completing-file-name
-                                    (and minibuffer-completion-predicate
-                                         (funcall minibuffer-completion-predicate sel))
-                                  (and (stringp sel)
-                                       ;; SEL may be a cons cell when helm-comp-read
-                                       ;; is called directly with a collection composed
-                                       ;; of (display . real) and real is a cons cell.
-                                       (try-completion sel minibuffer-completion-table
-                                                       minibuffer-completion-predicate)))
-                          unknown))
+              ;; When require-match is strict (i.e. `t'), buffer
+              ;; should be either empty or in read-file-name have an
+              ;; unknown candidate ([?] prefix), if it's not the case
+              ;; fix it in helm-mode but not here. 
+              ((and (or empty-buffer-p unknown)
                     (eq minibuffer-completion-confirm t))
                (minibuffer-message " [No match]"))
+              (empty-buffer-p
+               ;; This is used when helm-buffer is totally empty,
+               ;; i.e. the [?] have not been added because must-match
+               ;; is used from outside helm-comp-read i.e. from a helm
+               ;; source built with :must-match.
+               (setq helm-saved-selection helm-pattern
+                     helm-saved-action (helm-get-default-action
+                                        (assoc-default
+                                         'action
+                                         (car (with-helm-buffer helm-sources))))
+                     helm-minibuffer-confirm-state nil)
+               (helm-exit-minibuffer))
               (t
                (setq helm-minibuffer-confirm-state nil)
                (helm-exit-minibuffer)))))))

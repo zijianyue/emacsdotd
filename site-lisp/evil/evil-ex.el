@@ -3,7 +3,7 @@
 ;; Author: Frank Fischer <frank fischer at mathematik.tu-chemnitz.de>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -56,7 +56,7 @@
      number)
     (command #'evil-ex-parse-command)
     (binding
-     "[~&*@<>=:]+\\|[[:alpha:]-]+\\|!")
+     "[~&*@<>=:]+\\|[[:alpha:]_]+\\|!")
     (emacs-binding
      "[[:alpha:]-][[:alnum:][:punct:]-]+")
     (bang
@@ -170,7 +170,7 @@ is appended to the line."
                 (let ((arg (prefix-numeric-value current-prefix-arg)))
                   (cond ((< arg 0) (setq arg (1+ arg)))
                         ((> arg 0) (setq arg (1- arg))))
-                  (if (= arg 0) '(".")
+                  (if (= arg 0) "."
                     (format ".,.%+d" arg)))))
               evil-ex-initial-input)))
       (and (> (length s) 0) s))))
@@ -228,7 +228,7 @@ This function registers several hooks that are used for the
 interactive actions during ex state."
   (add-hook 'post-command-hook #'evil-ex-abort)
   (add-hook 'after-change-functions #'evil-ex-update nil t)
-  (add-hook 'minibuffer-exit-hook #'evil-ex-teardown)
+  (add-hook 'minibuffer-exit-hook #'evil-ex-teardown nil t)
   (when evil-ex-previous-command
     (add-hook 'pre-command-hook #'evil-ex-remove-default))
   (remove-hook 'minibuffer-setup-hook #'evil-ex-setup)
@@ -248,7 +248,7 @@ interactive actions during ex state."
   "Deinitialize Ex minibuffer.
 Clean up everything set up by `evil-ex-setup'."
   (remove-hook 'post-command-hook #'evil-ex-abort)
-  (remove-hook 'minibuffer-exit-hook #'evil-ex-teardown)
+  (remove-hook 'minibuffer-exit-hook #'evil-ex-teardown t)
   (remove-hook 'after-change-functions #'evil-ex-update t)
   (when evil-ex-argument-handler
     (let ((runner (evil-ex-argument-handler-runner
@@ -379,15 +379,10 @@ in case of incomplete or unknown commands."
     (remove-text-properties (minibuffer-prompt-end) (point-max) '(face nil evil))))
 
 (defun evil-ex-command-completion-at-point ()
-  (let ((context (evil-ex-syntactic-context (1- (point)))))
-    (when (memq 'command context)
-      (let ((beg (or (get-text-property 0 'ex-index evil-ex-cmd)
-                     (point)))
-            (end (1+ (or (get-text-property (1- (length evil-ex-cmd))
-                                            'ex-index
-                                            evil-ex-cmd)
-                         (1- (point))))))
-        (list beg end (evil-ex-completion-table))))))
+  (let ((beg (or (get-text-property 0 'ex-index evil-ex-cmd)
+                 (point)))
+        (end (point)))
+    (list beg end (evil-ex-completion-table) :exclusive 'no)))
 
 (defun evil-ex-completion-table ()
   (cond
@@ -541,6 +536,7 @@ keywords and function:
   or 'update then ARG is the current value of this argument. If
   FLAG is 'stop then arg is nil."
   (declare (indent defun)
+           (doc-string 2)
            (debug (&define name
                            [&optional stringp]
                            [&rest [keywordp function-form]])))
@@ -645,29 +641,35 @@ works accordingly."
   "Replace special symbols in FILE-NAME.
 Replaces % by the current file-name,
 Replaces # by the alternate file-name in FILE-NAME."
-  (let ((current-fname (buffer-file-name))
+  (let ((remote (file-remote-p file-name))
+        (current-fname (buffer-file-name))
         (alternate-fname (and (other-buffer)
                               (buffer-file-name (other-buffer)))))
+    (setq file-name (or (file-remote-p file-name 'localname) file-name))
     (when current-fname
+      (setq current-fname (or (file-remote-p current-fname 'localname)
+                              current-fname))
       (setq file-name
             (replace-regexp-in-string "\\(^\\|[^\\\\]\\)\\(%\\)"
                                       current-fname file-name
                                       t t 2)))
     (when alternate-fname
+      (setq alternate-fname (or (file-remote-p alternate-fname 'localname)
+                                alternate-fname))
       (setq file-name
             (replace-regexp-in-string "\\(^\\|[^\\\\]\\)\\(#\\)"
                                       alternate-fname file-name
                                       t t 2)))
     (setq file-name
           (replace-regexp-in-string "\\\\\\([#%]\\)"
-                                    "\\1" file-name t)))
+                                    "\\1" file-name t))
+    (setq file-name (concat remote file-name)))
   file-name)
 
 (defun evil-ex-file-arg ()
   "Returns the current Ex argument as a file name.
 This function interprets special file names like # and %."
-  (unless (or (null evil-ex-argument)
-              (zerop (length evil-ex-argument)))
+  (unless (zerop (length evil-ex-argument))
     (evil-ex-replace-special-filenames evil-ex-argument)))
 
 (defun evil-ex-repeat (count)
@@ -845,13 +847,13 @@ START is the start symbol, which defaults to `expression'."
     (when result
       (setq command (car-safe result)
             string (cdr-safe result))
-      ;; check whether the parsed command is followed by a slash or
-      ;; number and the part before it is not a known ex binding
+      ;; check whether the parsed command is followed by a slash, dash
+      ;; or number and either the part before is NOT known to be a binding,
+      ;; or the complete string IS known to be a binding
       (when (and (> (length string) 0)
-                 (string-match-p "^[/[:digit:]]" string)
-                 (not (evil-ex-binding command t)))
-        ;; if this is the case, assume the slash or number and all
-        ;; following symbol characters form an (Emacs-)command
+                 (string-match-p "^[-/[:digit:]]" string)
+                 (or (evil-ex-binding (concat command string) t)
+                     (not (evil-ex-binding command t))))
         (setq result (evil-parser (concat command string)
                                   'emacs-binding
                                   evil-ex-grammar)

@@ -22,6 +22,7 @@
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/doom-modeline/"
@@ -42,7 +43,6 @@
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/libegit2/"
- "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/"
  "d:/jdee-server/"
 )
 
@@ -55,6 +55,8 @@
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (24058 17222 0 0) "README.md" "Makefile" "images/" "helm.el" "helm-x-files.el" "helm-utils.el" "helm-types.el" "helm-tags.el" "helm-sys.el" "helm-source.el" "helm-shell.el" "helm-semantic.el" "helm-ring.el" "helm-regexp.el" "helm-pkg.el" "helm-occur.el" "helm-net.el" "helm-multi-match.el" "helm-mode.el" "helm-misc.el" "helm-man.el" "helm-locate.el" "helm-lib.el" "helm-info.el" "helm-imenu.el" "helm-id-utils.el" "helm-help.el" "helm-grep.el" "helm-for-files.el" "helm-font.el" "helm-find.el" "helm-files.el" "helm-external.el" "helm-eval.el" "helm-eshell.el" "helm-elisp.el" "helm-elisp-package.el" "helm-easymenu.el" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.el" "helm-command.el" "helm-comint.el" "helm-color.el" "helm-buffers.el" "helm-bookmark.el" "helm-autoloads.el" "helm-adaptive.el" "emacs-helm.sh" "COPYING" "Cask" ".travis.yml" ".gitignore" ".github/" ".git/" "../" "./")
+
  ("d:/Emacs27/i686/share/emacs/site-lisp/" (23977 62703 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
 
  ("d:/Emacs27/i686/share/emacs/" (23977 56705 0 0) "site-lisp/" "27.0.50/" "../" "./")
@@ -134,8 +136,6 @@
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-tabnine/" (23914 39531 0 0) "screenshot.png" "screenshot-deep-5.png" "screenshot-deep-4.png" "screenshot-deep-3.png" "screenshot-deep-2.png" "screenshot-deep-1.png" "README.md" "melpa-recipe" "LICENSE" "fetch-binaries.sh" "company-tabnine.el" ".gitignore" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/" (23914 40477 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "magit-version.el" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm/" (23914 40155 0 0) "README.md" "Makefile" "images/" "helm.elc" "helm.el" "helm-x-files.elc" "helm-x-files.el" "helm-utils.elc" "helm-utils.el" "helm-types.elc" "helm-types.el" "helm-tags.elc" "helm-tags.el" "helm-sys.elc" "helm-sys.el" "helm-source.elc" "helm-source.el" "helm-shell.elc" "helm-shell.el" "helm-semantic.elc" "helm-semantic.el" "helm-ring.elc" "helm-ring.el" "helm-regexp.elc" "helm-regexp.el" "helm-pkg.el" "helm-occur.elc" "helm-occur.el" "helm-net.elc" "helm-net.el" "helm-multi-match.elc" "helm-multi-match.el" "helm-mode.elc" "helm-mode.el" "helm-misc.elc" "helm-misc.el" "helm-man.elc" "helm-man.el" "helm-locate.elc" "helm-locate.el" "helm-lib.elc" "helm-lib.el" "helm-info.elc" "helm-info.el" "helm-imenu.elc" "helm-imenu.el" "helm-id-utils.elc" "helm-id-utils.el" "helm-help.elc" "helm-help.el" "helm-grep.elc" "helm-grep.el" "helm-for-files.elc" "helm-for-files.el" "helm-font.elc" "helm-font.el" "helm-find.elc" "helm-find.el" "helm-files.elc" "helm-files.el" "helm-external.elc" "helm-external.el" "helm-eval.elc" "helm-eval.el" "helm-eshell.elc" "helm-eshell.el" "helm-elisp.elc" "helm-elisp.el" "helm-elisp-package.elc" "helm-elisp-package.el" "helm-easymenu.elc" "helm-easymenu.el" "helm-dabbrev.elc" "helm-dabbrev.el" "helm-core-pkg.el" "helm-config.elc" "helm-config.el" "helm-command.elc" "helm-command.el" "helm-comint.elc" "helm-comint.el" "helm-color.elc" "helm-color.el" "helm-buffers.elc" "helm-buffers.el" "helm-bookmark.elc" "helm-bookmark.el" "helm-autoloads.el" "helm-adaptive.elc" "helm-adaptive.el" "emacs-helm.sh" "COPYING" ".gitignore" ".github/" ".git/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit-/" (23902 47689 0 0) "t/" "RelNotes.org" "README.md" "Makefile" "lisp/" "LICENSE" "Documentation/" "default.mk" ".travis.yml" ".mailmap" ".gitignore" ".github/" ".git/" ".dir-locals.el" "../" "./")
 

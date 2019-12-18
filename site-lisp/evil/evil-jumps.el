@@ -2,7 +2,7 @@
 
 ;; Author: Bailey Ling <bling at live.ca>
 
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -230,7 +230,10 @@ POS defaults to point."
       (cl-loop repeat idx
                do (ring-remove target-list))
       (setf (evil-jumps-struct-idx struct) -1))
-    (evil--jumps-push)))
+    (save-excursion
+      (when pos
+        (goto-char pos))
+      (evil--jumps-push))))
 
 (defun evil--jump-backward (count)
   (let ((count (or count 1)))
@@ -253,7 +256,7 @@ POS defaults to point."
           (setq idx 0)
           (setf (evil-jumps-struct-idx struct) 0)
           (evil--jumps-push))
-          (evil--jumps-jump idx -1)))))
+        (evil--jumps-jump idx -1)))))
 
 (defun evil--jumps-window-configuration-hook (&rest args)
   (let* ((window-list (window-list-1 nil nil t))

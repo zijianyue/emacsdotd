@@ -123,7 +123,7 @@ determine the exact padding."
    ((line-number-current-line &override) :foreground orange)
 
    (font-lock-comment-face
-    :inherit 'fixed-pitch-serif-face
+    :inherit 'fixed-pitch-serif
     :slant 'italic
     :foreground comments
     :background (if doom-acario-light-comment-bg (doom-darken bg 0.05)))
@@ -246,12 +246,12 @@ determine the exact padding."
    ;; markdown-mode
    (markdown-markup-face :foreground base5)
    (markdown-header-face :inherit 'bold :foreground red)
-   (markdown-code-face :background (doom-lighten base3 0.05))
+   ((markdown-code-face &override) :background (doom-lighten base3 0.05))
 
    ;; org-mode
-   (org-block :background bg-alt)
-   (org-block-begin-line :background bg :slant 'italic :fg comments)
-   (org-quote :background base1)
+   ((org-block &override) :background bg-alt)
+   ((org-block-begin-line &override) :background bg :slant 'italic)
+   ((org-quote &override) :background base1)
 
    (org-hide :foreground hidden)
    (solaire-org-hide-face :foreground hidden))

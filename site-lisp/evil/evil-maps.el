@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -101,6 +101,10 @@
 (define-key evil-normal-state-map [escape] 'evil-force-normal-state)
 (define-key evil-normal-state-map [remap cua-paste-pop] 'evil-paste-pop)
 (define-key evil-normal-state-map [remap yank-pop] 'evil-paste-pop)
+
+(when (featurep 'tab-bar)
+  (define-key evil-normal-state-map "gt" 'tab-bar-switch-to-next-tab)
+  (define-key evil-normal-state-map "gT" 'tab-bar-switch-to-prev-tab))
 
 ;; go to last change
 (define-key evil-normal-state-map "g;" 'goto-last-change)
@@ -245,7 +249,6 @@
 (define-key evil-motion-state-map (kbd "C-6") 'evil-switch-to-windows-last-buffer)
 (define-key evil-motion-state-map "\C-]" 'evil-jump-to-tag)
 (define-key evil-motion-state-map (kbd "C-b") 'evil-scroll-page-up)
-(define-key evil-motion-state-map (kbd "C-d") 'evil-scroll-down)
 (define-key evil-motion-state-map (kbd "C-e") 'evil-scroll-line-down)
 (define-key evil-motion-state-map (kbd "C-f") 'evil-scroll-page-down)
 (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
@@ -329,6 +332,9 @@
 
 (when evil-want-C-u-scroll
   (define-key evil-motion-state-map (kbd "C-u") 'evil-scroll-up))
+
+(when evil-want-C-d-scroll
+  (define-key evil-motion-state-map (kbd "C-d") 'evil-scroll-down))
 
 ;;; Visual state
 
@@ -507,6 +513,11 @@ included in `evil-insert-state-bindings' by default."
 (evil-ex-define-cmd "sor[t]" 'evil-ex-sort)
 (evil-ex-define-cmd "res[ize]" 'evil-ex-resize)
 
+(when (featurep 'tab-bar)
+  (evil-ex-define-cmd "tabnew" 'tab-bar-new-tab)
+  (evil-ex-define-cmd "tabn[ext]" 'tab-bar-switch-to-next-tab)
+  (evil-ex-define-cmd "tabp[revious]" 'tab-bar-switch-to-prev-tab))
+
 ;; search command line
 (define-key evil-ex-search-keymap "\d" #'evil-ex-delete-backward-char)
 (define-key evil-ex-search-keymap "\C-r" 'evil-paste-from-register)
@@ -544,6 +555,7 @@ included in `evil-insert-state-bindings' by default."
 ;; evil-read-key
 (define-key evil-read-key-map (kbd "ESC") #'keyboard-quit)
 (define-key evil-read-key-map (kbd "C-]") #'keyboard-quit)
+(define-key evil-read-key-map (kbd "C-g") #'keyboard-quit)
 (define-key evil-read-key-map (kbd "C-q") #'evil-read-quoted-char)
 (define-key evil-read-key-map (kbd "C-v") #'evil-read-quoted-char)
 (define-key evil-read-key-map (kbd "C-k") #'evil-read-digraph-char)

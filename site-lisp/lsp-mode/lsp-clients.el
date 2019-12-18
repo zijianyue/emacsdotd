@@ -27,6 +27,7 @@
 (require 'lsp)
 (require 'dash)
 (require 'dash-functional)
+(require 'rx)
 (require 'lsp-pyls)
 (require 'lsp-rust)
 (require 'lsp-solargraph)
@@ -45,6 +46,10 @@
 (require 'lsp-vhdl)
 (require 'lsp-yaml)
 (require 'lsp-terraform)
+(require 'lsp-pwsh)
+(require 'lsp-csharp)
+(require 'lsp-json)
+(require 'lsp-verilog)
 
 ;;; Ada
 (defgroup lsp-ada nil
@@ -90,10 +95,33 @@
                   :server-id 'ada-ls))
 
 ;;; Bash
+(defgroup lsp-bash nil
+  "Settings for the Bash Language Server."
+  :group 'tools
+  :tag "Language Server"
+  :package-version '(lsp-mode . "6.2"))
+
+(defcustom lsp-bash-explainshell-endpoint nil
+  "The endpoint to use explainshell.com to answer 'onHover' queries.
+See instructions at https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode"
+  :type 'string
+  :risky t
+  :group 'lsp-bash
+  :package-version '(lsp-mode . "6.2"))
+
+(defcustom lsp-bash-highlight-parsing-errors nil
+  "Consider parsing errors in scripts as 'problems'."
+  :type 'boolean
+  :group 'lsp-bash
+  :package-version '(lsp-mode . "6.2"))
+
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection '("bash-language-server" "start"))
                   :major-modes '(sh-mode)
                   :priority -1
+                  :environment-fn (lambda ()
+                                    '(("EXPLAINSHELL_ENDPOINT" . lsp-bash-explainshell-endpoint)
+                                      ("HIGHLIGHT_PARSING_ERRORS" . lsp-bash-highlight-parsing-errors)))
                   :server-id 'bash-ls))
 
 ;;; Groovy
@@ -179,7 +207,7 @@ finding the executable with variable `exec-path'."
   :type '(repeat string))
 
 (defcustom lsp-clients-typescript-log-verbosity "info"
-  "The server log verbocity."
+  "The server log verbosity."
   :group 'lsp-typescript
   :type 'string)
 
@@ -411,13 +439,6 @@ finding the executable with `exec-path'."
                   :priority -1
                   :server-id 'clangd))
 
-(defun lsp-clients-register-clangd ()
-  (warn "This call is no longer needed. clangd is now automatically registered. Delete lsp-clients-register-clangd call from your config."))
-
-(make-obsolete 'lsp-clients-register-clangd
-               "This function is no longer needed, as clangd is now automatically registered."
-               "lsp-mode 6.1")
-
 ;; Elixir
 (defgroup lsp-elixir nil
   "LSP support for Elixir, using elixir-ls."
@@ -603,13 +624,25 @@ responsiveness at the cost of possibile stability issues."
 
 ;;; Angular
 (defcustom lsp-clients-angular-language-server-command
-  `("node"  ,(expand-file-name "~/.angular/extension/server/server.js") "--stdio")
+  '("node"
+    "/usr/lib/node_modules/@angular/language-server"
+    "--ngProbeLocations"
+    "/usr/lib/node_modules"
+    "--tsProbeLocations"
+    "/usr/lib/node_modules"
+    "--stdio")
   "The command that starts the angular language server."
   :group 'lsp-clients-angular
   :type '(choice
           (string :tag "Single string value")
           (repeat :tag "List of string values"
                   string)))
+
+(defun lsp-client--angular-start-loading (workspace params)
+  (lsp--info "Started loading project %s" params))
+
+(defun lsp-client--angular-finished-loading (workspace params)
+  (lsp--info "Finished loading project %s" params))
 
 (lsp-register-client
  (make-lsp-client :new-connection (lsp-stdio-connection
@@ -619,32 +652,10 @@ responsiveness at the cost of possibile stability issues."
                                         (lsp-workspace-root)
                                         (file-exists-p (f-join (lsp-workspace-root) "angular.json"))))
                   :priority -1
+                  :notification-handlers (ht ("angular-language-service/projectLoadingStart" #'lsp-client--angular-start-loading)
+                                             ("angular-language-service/projectLoadingFinish" #'lsp-client--angular-finished-loading))
                   :add-on? t
                   :server-id 'angular-ls))
-
-;;; C-sharp
-(defgroup lsp-csharp nil
-  "LSP support for C#, using the Omnisharp Language Server. Version 1.34.3 minimum required."
-  :group 'lsp-mode
-  :link '(url-link "https://github.com/OmniSharp/omnisharp-roslyn"))
-
-(defcustom lsp-clients-csharp-language-server-path
-  (expand-file-name "~/.omnisharp/omnisharp/omnisharp/OmniSharp.exe")
-  "The path to the OmnisSharp Roslyn language-server."
-  :group 'lsp-csharp
-  :type '(string :tag "Single string value"))
-
-(defun lsp-clients-csharp-language-server-command ()
-  (if (eq system-type 'windows-nt)
-      (list lsp-clients-csharp-language-server-path "-lsp")
-    (list "mono" lsp-clients-csharp-language-server-path "-lsp")))
-
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection
-                                   #'lsp-clients-csharp-language-server-command)
-                  :major-modes '(csharp-mode)
-                  :server-id 'csharp))
-
 
 
 ;; TeX
@@ -732,6 +743,42 @@ responsiveness at the cost of possibile stability issues."
                   :priority -1
                   :server-id 'emmy-lua
                   :notification-handlers (lsp-ht ("emmy/progressReport" #'ignore))))
+
+
+;; R
+(defgroup lsp-r nil
+  "LSP support for R."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/REditorSupport/languageserver"))
+
+(defcustom lsp-clients-r-server-command '("R" "--slave" "-e" "languageserver::run()")
+  "Command to start the R language server."
+  :group 'lsp-r
+  :risky t
+  :type '(repeat string))
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection lsp-clients-r-server-command)
+                  :major-modes '(ess-r-mode)
+                  :server-id 'lsp-r))
+
+
+;; Crystal
+(defgroup lsp-crystal nil
+  "LSP support for Crystal via scry."
+  :group 'lsp-mode
+  :link '(url-link "https://github.com/crystal-lang-tools/scry"))
+
+(defcustom lsp-clients-crystal-executable '("scry" "--stdio")
+  "Command to start the scry language server."
+  :group 'lsp-crystal
+  :risky t
+  :type 'file)
+
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection lsp-clients-crystal-executable)
+                  :major-modes '(crystal-mode)
+                  :server-id 'scry))
 
 (provide 'lsp-clients)
 ;;; lsp-clients.el ends here

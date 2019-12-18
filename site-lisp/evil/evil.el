@@ -55,7 +55,7 @@
 ;;      To get in touch, please use the bug tracker or the
 ;;      mailing list (see below).
 ;; Created: 2011-03-01
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 ;; Keywords: emulation, vim
 ;; URL: https://github.com/emacs-evil/evil
 ;;      Repository: https://github.com/emacs-evil/evil.git
@@ -140,6 +140,9 @@
 
 (when evil-want-integration
   (require 'evil-integration))
+
+(when evil-want-keybinding
+  (require 'evil-keybindings))
 
 (run-hooks 'evil-after-load-hook)
 

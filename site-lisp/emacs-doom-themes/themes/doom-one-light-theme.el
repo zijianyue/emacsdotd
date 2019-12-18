@@ -150,17 +150,16 @@ determine the exact padding."
    ;; markdown-mode
    (markdown-markup-face     :foreground base5)
    (markdown-header-face     :inherit 'bold :foreground red)
-   (markdown-code-face       :background base1)
+   ((markdown-code-face &override)       :background base1)
    (mmm-default-submode-face :background base1)
 
    ;; org-mode
-   (org-block            :background base1)
-   (org-block-begin-line :foreground fg :slant 'italic)
-   (org-level-1          :foreground red    :weight 'bold :height 1.2)
-   (org-level-2          :foreground orange :weight 'bold :height 1.1)
-   (org-level-3          :foreground violet :bold bold          :height 1.1)
-   (org-ellipsis         :underline nil :background bg     :foreground red)
-   (org-quote            :background base1)
+   ((outline-1 &override) :foreground red)
+   ((outline-2 &override) :foreground orange)
+   ((org-block &override) :background base1)
+   ((org-block-begin-line &override) :foreground fg :slant 'italic)
+   (org-ellipsis :underline nil :background bg     :foreground red)
+   ((org-quote &override) :background base1)
 
    ;; helm
    (helm-candidate-number :background blue :foreground bg)

@@ -54,6 +54,8 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
+;; For `magit-mode' from third-party `symbol-overlay'
+(defvar symbol-overlay-inhibit-map)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -377,11 +379,11 @@ starts complicating other things, then it will be removed."
 (defcustom magit-disable-line-numbers t
   "In Magit buffers, whether to disable modes that display line numbers.
 
-Some users who turn on `global-disable-line-numbers-mode' (or
+Some users who turn on `global-display-line-numbers-mode' (or
 `global-nlinum-mode' or `global-linum-mode') expect line numbers
-to be displayed everywhere except in Magit buffers.  Other users do
-not expect Magit buffers to be treated differently.  At least in
-theory users in the first group should not use the global mode,
+to be displayed everywhere except in Magit buffers.  Other users
+do not expect Magit buffers to be treated differently.  At least
+in theory users in the first group should not use the global mode,
 but that ship has sailed, thus this option."
   :package-version '(magit . "2.91.0")
   :group 'magit-miscellaneous
@@ -610,6 +612,7 @@ Magit is documented in info node `(magit)'."
   ;; not all magit plugins may be ready for that (see #3950).
   (setq-local font-lock-syntactic-face-function #'ignore)
   (setq show-trailing-whitespace nil)
+  (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
@@ -1530,6 +1533,15 @@ repository's Magit buffers."
   (setq magit--libgit-available-p eieio-unbound))
 
 ;;; Utilities
+
+(defun magit-toggle-verbose-refresh ()
+  "Toggle whether Magit refreshes buffers verbosely.
+Enabling this helps figuring out which sections are bottlenecks.
+The additional output can be found in the *Messages* buffer."
+  (interactive)
+  (setq magit-refresh-verbose (not magit-refresh-verbose))
+  (message "%s verbose refreshing"
+           (if magit-refresh-verbose "Enabled" "Disabled")))
 
 (defun magit-run-hook-with-benchmark (hook)
   (when hook

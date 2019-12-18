@@ -187,7 +187,7 @@ know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
 purpose."
   :package-version '(magit . "2.9.0")
-  :group 'magit-git-arguments
+  :group 'magit-commands
   :group 'magit-process
   :type '(repeat string))
 
@@ -1023,10 +1023,14 @@ are considered."
 (defun magit-module-no-worktree-p (module)
   (not (magit-module-worktree-p module)))
 
-(defun magit-ignore-submodules-p ()
-  (cl-find-if (lambda (arg)
-                (string-prefix-p "--ignore-submodules" arg))
-              magit-buffer-diff-args))
+(defun magit-ignore-submodules-p (&optional return-argument)
+  (or (cl-find-if (lambda (arg)
+                    (string-prefix-p "--ignore-submodules" arg))
+                  magit-buffer-diff-args)
+      (when-let ((value (magit-get "diff.ignoreSubmodules")))
+        (if return-argument
+            (concat "--ignore-submodules=" value)
+          (concat "diff.ignoreSubmodules=" value)))))
 
 ;;; Revisions and References
 

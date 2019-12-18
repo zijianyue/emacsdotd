@@ -97,53 +97,53 @@ the height of treemacs' icons must be taken into account."
   "Sort F1 and F2 alphabetically asc."
   (declare (pure t) (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (string-lessp ,f2 ,f1))))
+    (inline-quote (string-lessp ,f1 ,f2))))
 
 (define-inline treemacs--sort-alphabetic-desc (f1 f2)
   "Sort F1 and F2 alphabetically desc."
   (declare (pure t) (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (string-lessp ,f1 ,f2))))
+    (inline-quote (string-lessp ,f2 ,f1))))
 
 (define-inline treemacs--sort-alphabetic-case-insensitive-asc (f1 f2)
   "Sort F1 and F2 case insensitive alphabetically asc."
   (declare (pure t) (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (string-lessp (downcase ,f2) (downcase ,f1)))))
+    (inline-quote (string-lessp (downcase ,f1) (downcase ,f2)))))
 
 (define-inline treemacs--sort-alphabetic-case-insensitive-desc (f1 f2)
   "Sort F1 and F2 case insensitive alphabetically desc."
   (declare (pure t) (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (string-lessp (downcase ,f1) (downcase ,f2)))))
+    (inline-quote (string-lessp (downcase ,f2) (downcase ,f1)))))
 
 (define-inline treemacs--sort-size-asc (f1 f2)
   "Sort F1 and F2 by size asc."
   (declare (side-effect-free t))
   (inline-letevals (f1 f2)
     (inline-quote
-     (>= (nth 7 (file-attributes ,f1))
-         (nth 7 (file-attributes ,f2))))))
+     (< (nth 7 (file-attributes ,f1))
+        (nth 7 (file-attributes ,f2))))))
 
 (define-inline treemacs--sort-size-desc (f1 f2)
   "Sort F1 and F2 by size desc."
   (declare (side-effect-free t))
   (inline-letevals (f1 f2)
     (inline-quote
-     (< (nth 7 (file-attributes ,f1))
-        (nth 7 (file-attributes ,f2))))))
+     (>= (nth 7 (file-attributes ,f1))
+         (nth 7 (file-attributes ,f2))))))
 
 (define-inline treemacs--sort-mod-time-asc (f1 f2)
   "Sort F1 and F2 by modification time asc."
   (declare (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (file-newer-than-file-p ,f1 ,f2))))
+    (inline-quote (file-newer-than-file-p ,f2 ,f1))))
 
 (define-inline treemacs--sort-mod-time-desc (f1 f2)
   "Sort F1 and F2 by modification time desc."
   (declare (side-effect-free t))
   (inline-letevals (f1 f2)
-    (inline-quote (file-newer-than-file-p ,f2 ,f1))))
+    (inline-quote (file-newer-than-file-p ,f1 ,f2))))
 
 (define-inline treemacs--insert-root-separator ()
   "Insert a root-level separator at point, moving point after the separator."
@@ -187,7 +187,7 @@ DEPTH indicates how deep in the filetree the current button is."
     (inline-quote
      (list
       ,prefix
-      (propertize (file-name-nondirectory ,path)
+      (propertize (->> ,path file-name-nondirectory (funcall treemacs-directory-name-transformer))
                   'button '(t)
                   'category 'default-button
                   'help-echo nil
@@ -210,7 +210,7 @@ DEPTH indicates how deep in the filetree the current button is."
      (list
       ,prefix
       (treemacs-icon-for-file ,path)
-      (propertize (file-name-nondirectory ,path)
+      (propertize (->> ,path file-name-nondirectory (funcall treemacs-file-name-transformer))
                   'button '(t)
                   'category 'default-button
                   'help-echo nil
@@ -768,15 +768,15 @@ SORT-FUNCTION: Button -> Boolean."
          ;; at first dir that fits sort order
          (--when-let (--first (funcall sort-function path (treemacs-dom-node->key it)) dirs)
            (previous-button (or (treemacs-dom-node->position it)
-                                (treemacs-find-node (treemacs-dom-node->key it)))))
+                                (treemacs-find-file-node (treemacs-dom-node->key it)))))
          ;; after last dir
          (--when-let (-last-item dirs)
            (or (treemacs-dom-node->position it)
-               (treemacs-find-node (treemacs-dom-node->key it))))
+               (treemacs-find-file-node (treemacs-dom-node->key it))))
          ;; before first file
          (--when-let (car files)
            (previous-button (or (treemacs-dom-node->position it)
-                                (treemacs-find-node (treemacs-dom-node->key it)))))
+                                (treemacs-find-file-node (treemacs-dom-node->key it)))))
          ;; after parent
          parent-btn)
       ;; insert file ...
@@ -784,15 +784,15 @@ SORT-FUNCTION: Button -> Boolean."
        ;; at first file that fits sort order
        (--when-let (--first (funcall sort-function path (treemacs-dom-node->key it)) files)
          (previous-button (or (treemacs-dom-node->position it)
-                              (treemacs-find-node (treemacs-dom-node->key it)))) )
+                              (treemacs-find-file-node (treemacs-dom-node->key it)))) )
        ;; after last file
        (--when-let (-last-item files)
          (or (treemacs-dom-node->position it)
-             (treemacs-find-node (treemacs-dom-node->key it))) )
+             (treemacs-find-file-node (treemacs-dom-node->key it))) )
        ;; before first dir
        (--when-let (car dirs)
          (previous-button (or (treemacs-dom-node->position it)
-                              (treemacs-find-node (treemacs-dom-node->key it)))))
+                              (treemacs-find-file-node (treemacs-dom-node->key it)))))
        ;; after parent
        parent-btn))))
 
@@ -821,7 +821,7 @@ PARENT-PATH: File Path"
                  (treemacs-dom-node->insert-into-dom! new-dom-node)
                  (treemacs-dom-node->add-child! parent-dom-node new-dom-node))
                (when treemacs-git-mode
-                 (treemacs-do-update-single-file-git-state path :exclude-parents))))))))))
+                 (treemacs-do-update-single-file-git-state path :exclude-parents :override-status))))))))))
 
 (defun treemacs-insert-new-flattened-directory (path parent-btn parent-dom-node)
   "Insert PATH as new flattened directory under PARENT-BTN.
@@ -930,7 +930,7 @@ parents' git status can be updated."
                 (treemacs-project->refresh! project)
               (treemacs--refresh-dir (treemacs-dom-node->key node) project)))
         (dolist (change change-list)
-          (-let [(type . path) change]
+          (-let [(path . type) change]
             (pcase type
               ('deleted
                (treemacs-do-delete-single-node path project))

@@ -245,12 +245,12 @@ determine the exact padding."
    ;; markdown-mode
    (markdown-markup-face :foreground base5)
    (markdown-header-face :inherit 'bold :foreground red)
-   (markdown-code-face :background (doom-lighten base3 0.05))
+   ((markdown-code-face &override) :background (doom-lighten base3 0.05))
 
    ;; org-mode
-   (org-block :background bg-alt)
-   (org-block-begin-line :background bg :slant 'italic :fg comments)
-   (org-quote :background base1)
+   ((org-block &override) :background bg-alt)
+   ((org-block-begin-line &override) :background bg :foreground comments :slant 'italic)
+   ((org-quote &override) :background base1)
 
    (org-hide :foreground hidden)
    (solaire-org-hide-face :foreground hidden))

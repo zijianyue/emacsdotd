@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -25,13 +25,18 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This provides evil integration for various emacs modes.
+;; Additional keybindings (or default state) should go into evil-keybindings.el.
+
+;;; Code:
+
 (require 'evil-maps)
 (require 'evil-core)
 (require 'evil-macros)
 (require 'evil-types)
 (require 'evil-repeat)
-
-;;; Code:
 
 ;;; Evilize some commands
 
@@ -90,62 +95,11 @@
   (when (fboundp 'evil-repeat-abort)
     (evil-repeat-abort)))
 
-;; etags-select
-;; FIXME: probably etags-select should be recomended in docs
-(eval-after-load 'etags-select
-  '(progn
-     (define-key evil-motion-state-map "g]" 'etags-select-find-tag-at-point)))
-
-;;; Buffer-menu
-
-(evil-add-hjkl-bindings Buffer-menu-mode-map 'motion)
-
-;; dictionary.el
-
-(evil-add-hjkl-bindings dictionary-mode-map 'motion
-  "?" 'dictionary-help        ; "h"
-  "C-o" 'dictionary-previous) ; "l"
-
-;;; Dired
-
-(eval-after-load 'dired
-  '(progn
-     ;; use the standard Dired bindings as a base
-     (defvar dired-mode-map)
-     (evil-make-overriding-map dired-mode-map 'normal)
-     (evil-add-hjkl-bindings dired-mode-map 'normal
-       "J" 'dired-goto-file                   ; "j"
-       "K" 'dired-do-kill-lines               ; "k"
-       "r" 'dired-do-redisplay                ; "l"
-       ;; ":d", ":v", ":s", ":e"
-       ";" (lookup-key dired-mode-map ":"))))
-
 (eval-after-load 'wdired
   '(progn
      (add-hook 'wdired-mode-hook #'evil-change-to-initial-state)
      (defadvice wdired-change-to-dired-mode (after evil activate)
        (evil-change-to-initial-state nil t))))
-
-;;; ELP
-
-(eval-after-load 'elp
-  '(defadvice elp-results (after evil activate)
-     (evil-motion-state)))
-
-;;; ERT
-
-(evil-add-hjkl-bindings ert-results-mode-map 'motion)
-
-;;; Info
-
-(evil-add-hjkl-bindings Info-mode-map 'motion
-  "0" 'evil-digit-argument-or-evil-beginning-of-line
-  (kbd "\M-h") 'Info-help   ; "h"
-  "\C-t" 'Info-history-back ; "l"
-  "\C-o" 'Info-history-back
-  " " 'Info-scroll-up
-  "\C-]" 'Info-follow-nearest-node
-  (kbd "DEL") 'Info-scroll-down)
 
 ;;; Parentheses
 
@@ -183,29 +137,6 @@
                       show-paren-overlay-1))
           (let ((ov (and (boundp ov) (symbol-value ov))))
             (when (overlayp ov) (delete-overlay ov))))))))
-
-;;; Speedbar
-
-(evil-add-hjkl-bindings speedbar-key-map 'motion
-  "h" 'backward-char
-  "j" 'speedbar-next
-  "k" 'speedbar-prev
-  "l" 'forward-char
-  "i" 'speedbar-item-info
-  "r" 'speedbar-refresh
-  "u" 'speedbar-up-directory
-  "o" 'speedbar-toggle-line-expansion
-  (kbd "RET") 'speedbar-edit-line)
-
-;; Ibuffer
-(eval-after-load 'ibuffer
-  '(progn
-     (defvar ibuffer-mode-map)
-     (evil-make-overriding-map ibuffer-mode-map 'normal)
-     (evil-define-key 'normal ibuffer-mode-map
-       "j" 'evil-next-line
-       "k" 'evil-previous-line
-       "RET" 'ibuffer-visit-buffer)))
 
 ;;; Undo tree
 (when (and (require 'undo-tree nil t)
@@ -356,9 +287,9 @@ activated."
   (evil-with-state emacs ad-do-it))
 
 ;; ace-jump-mode
-(declare-function 'ace-jump-char-mode "ace-jump-mode")
-(declare-function 'ace-jump-word-mode "ace-jump-mode")
-(declare-function 'ace-jump-line-mode "ace-jump-mode")
+(declare-function ace-jump-char-mode "ext:ace-jump-mode")
+(declare-function ace-jump-word-mode "ext:ace-jump-mode")
+(declare-function ace-jump-line-mode "ext:ace-jump-mode")
 
 (defvar evil-ace-jump-active nil)
 
@@ -466,20 +397,20 @@ the mark and entering `recursive-edit'."
 (define-key evil-motion-state-map [remap ace-jump-word-mode] #'evil-ace-jump-word-mode)
 
 ;;; avy
-(declare-function 'avy-goto-word-or-subword-1 "avy")
-(declare-function 'avy-goto-line "avy")
-(declare-function 'avy-goto-char "avy")
-(declare-function 'avy-goto-char-2 "avy")
-(declare-function 'avy-goto-char-2-above "avy")
-(declare-function 'avy-goto-char-2-below "avy")
-(declare-function 'avy-goto-char-in-line "avy")
-(declare-function 'avy-goto-word-0 "avy")
-(declare-function 'avy-goto-word-1 "avy")
-(declare-function 'avy-goto-word-1-above "avy")
-(declare-function 'avy-goto-word-1-below "avy")
-(declare-function 'avy-goto-subword-0 "avy")
-(declare-function 'avy-goto-subword-1 "avy")
-(declare-function 'avy-goto-char-timer "avy")
+(declare-function avy-goto-word-or-subword-1 "ext:avy")
+(declare-function avy-goto-line "ext:avy")
+(declare-function avy-goto-char "ext:avy")
+(declare-function avy-goto-char-2 "ext:avy")
+(declare-function avy-goto-char-2-above "ext:avy")
+(declare-function avy-goto-char-2-below "ext:avy")
+(declare-function avy-goto-char-in-line "ext:avy")
+(declare-function avy-goto-word-0 "ext:avy")
+(declare-function avy-goto-word-1 "ext:avy")
+(declare-function avy-goto-word-1-above "ext:avy")
+(declare-function avy-goto-word-1-below "ext:avy")
+(declare-function avy-goto-subword-0 "ext:avy")
+(declare-function avy-goto-subword-1 "ext:avy")
+(declare-function avy-goto-char-timer "ext:avy")
 
 (defmacro evil-enclose-avy-for-motion (&rest body)
   "Enclose avy to make it suitable for motions.
@@ -556,27 +487,43 @@ Based on `evil-enclose-ace-jump-for-motion'."
   '(with-no-warnings
      (push 'evil-mode-cmhh mumamo-change-major-mode-no-nos)))
 
-;;; ag.el
-(eval-after-load 'ag
-  '(progn
-     (defvar ag-mode-map)
-     (add-to-list 'evil-motion-state-modes 'ag-mode)
-     (evil-add-hjkl-bindings ag-mode-map 'motion)))
-
 ;; visual-line-mode integration
 (when evil-respect-visual-line-mode
-  (let ((swaps '((evil-next-line . evil-next-visual-line)
-                 (evil-previous-line . evil-previous-visual-line)
-                 (evil-beginning-of-line . evil-beginning-of-visual-line)
-                 (evil-end-of-line . evil-end-of-visual-line))))
-    (dolist (swap swaps)
-      (define-key visual-line-mode-map (vector 'remap (car swap)) (cdr swap))
-      (define-key visual-line-mode-map (vector 'remap (cdr swap)) (car swap)))))
+  (evil-define-command evil-digit-argument-or-evil-beginning-of-visual-line ()
+    :digit-argument-redirection evil-beginning-of-visual-line
+    :keep-visual t
+    :repeat nil
+    (interactive)
+    (cond
+     (current-prefix-arg
+      (setq this-command #'digit-argument)
+      (call-interactively #'digit-argument))
+     (t
+      (let ((target (or (command-remapping #'evil-beginning-of-visual-line)
+                        #'evil-beginning-of-visual-line)))
+        (setq this-command 'evil-beginning-of-visual-line)
+        (call-interactively 'evil-beginning-of-visual-line)))))
+
+  (evil-define-minor-mode-key 'motion 'visual-line-mode
+    "j" 'evil-next-visual-line
+    "gj" 'evil-next-line
+    "k" 'evil-previous-visual-line
+    "gk" 'evil-previous-line
+    "0" 'evil-digit-argument-or-evil-beginning-of-visual-line
+    "g0" 'evil-beginning-of-line
+    "$" 'evil-end-of-visual-line
+    "g$" 'evil-end-of-line
+    "V" 'evil-visual-screen-line))
 
 ;;; abbrev.el
 (when evil-want-abbrev-expand-on-insert-exit
   (eval-after-load 'abbrev
     '(add-hook 'evil-insert-state-exit-hook 'expand-abbrev)))
+
+;;; ElDoc
+(eval-after-load 'eldoc
+  '(when (fboundp 'eldoc-add-command-completions)
+     (eldoc-add-command-completions "evil-window-")))
 
 (provide 'evil-integration)
 
