@@ -31,6 +31,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/markdown-mode"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -1121,6 +1122,8 @@
 ;; (add-hook 'vc-dir-mode-hook 'turn-on-diff-hl-mode)
 (eval-after-load "diff-hl"
   '(progn
+     (require 'diff-hl-margin)
+     (diff-hl-margin-mode t)
      (setq vc-git-diff-switches '("--histogram"))
      (defun diff-hl-changes-fset ()
        (let* ((file buffer-file-name)
