@@ -157,9 +157,19 @@ Also start the refresh timer if it's not started already."
          (treemacs--stop-watching ,path))
        (treemacs-run-in-every-buffer
         (--when-let (treemacs-find-in-dom ,location)
-          (let ((flag (cons ,type ,path)))
-            (unless (member flag (treemacs-dom-node->refresh-flag it))
-              (push flag (treemacs-dom-node->refresh-flag it)))))
+          (let ((current-flag (assoc ,path (treemacs-dom-node->refresh-flag it))))
+            (pcase (cdr current-flag)
+              (`nil
+               (push (cons ,path ,type) (treemacs-dom-node->refresh-flag it)))
+              ('created
+               (when (eq ,type 'deleted)
+                 (setf (cdr current-flag) 'deleted)))
+              ('deleted
+               (when (eq ,type 'created)
+                 (setf (cdr current-flag) 'created)))
+              ('changed
+               (when (eq ,type 'deleted)
+                 (setf (cdr current-flag) 'deleted))))))
         (unless treemacs--refresh-timer
           (setf treemacs--refresh-timer
                 (run-with-timer (/ treemacs-file-event-delay 1000) nil
@@ -179,10 +189,10 @@ file from caches if it has been deleted instead of waiting for file processing."
           (let ((old-name path)
                 (new-name (cl-fourth event)))
             (treemacs-run-in-every-buffer
-             (treemacs--on-rename old-name new-name))
-            (treemacs--set-refresh-flags (treemacs--nearest-parent-directory old-name) 'deleted old-name)
+             (treemacs--on-rename old-name new-name (with-no-warnings treemacs-filewatch-mode)))
+            (treemacs--set-refresh-flags (treemacs--parent old-name) 'deleted old-name)
             (when (--none? (funcall it (treemacs--filename new-name) new-name) treemacs-ignored-file-predicates)
-              (treemacs--set-refresh-flags (treemacs--nearest-parent-directory new-name) 'created new-name)))
+              (treemacs--set-refresh-flags (treemacs--parent new-name) 'created new-name)))
         (treemacs--set-refresh-flags (treemacs--parent path) event-type path)))))
 
 (define-inline treemacs--do-process-file-events ()
@@ -193,8 +203,8 @@ Extracted only so `treemacs--process-file-events' can decide when to call
    (treemacs-run-in-every-buffer
     (treemacs-save-position
      (-let [treemacs--no-messages (or treemacs-silent-refresh treemacs-silent-filewatch)]
-       (treemacs--recursive-refresh)))
-    (hl-line-highlight))))
+       (treemacs--recursive-refresh))
+     (hl-line-highlight)))))
 
 (defun treemacs--process-file-events ()
   "Process the file events that have been collected.
@@ -234,7 +244,7 @@ Reset the refresh flags of every buffer.
 Called when filewatch mode is disabled."
   (treemacs-run-in-every-buffer
    (treemacs--maphash treemacs-dom (_ node)
-     (treemacs-dom-node->reset-refresh-flag! node)))
+     (setf (treemacs-dom-node->refresh-flag node) nil)))
   (treemacs--maphash treemacs--filewatch-index (_ watch-info)
     (file-notify-rm-watch (cdr watch-info)))
   (ht-clear! treemacs--filewatch-index)

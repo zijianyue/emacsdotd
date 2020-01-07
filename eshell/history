@@ -1,8 +1,4 @@
 make
-gradlew :server:installDist
-git clone https://github.com/emacs-helm/helm.git
-cd helm
-make
 cd ..
 git clone https://github.com/abo-abo/swiper.git
 git clone https://github.com/emacs-lsp/lsp-ui.git
@@ -121,3 +117,12 @@ git pull
 make
 ccls --version
 ccls --help
+git clone https://github.com/emacs-lsp/lsp-treemacs.git
+make
+xb
+make
+..
+cd magit
+make
+git clone https://github.com/fourier/ztree.git
+git clone https://github.com/emacs-evil/evil.git

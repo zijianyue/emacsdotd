@@ -198,9 +198,10 @@ Specify another one if you encounter the issue."
   :group'doom-modeline)
 
 (defcustom doom-modeline-icon (display-graphic-p)
-  "Whether display icons in mode-line.
+  "Whether display the icons in mode-line.
 
-It respects `all-the-icons-color-icons'."
+It respects `all-the-icons-color-icons'.
+While using the server mode in GUI, should set the value explicitly."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -232,13 +233,13 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :type 'boolean
   :group 'doom-modeline)
 
-(defcustom doom-modeline-unicode-fallback t
+(defcustom doom-modeline-unicode-fallback nil
   "Whether to use unicode as a fallback (instead of ASCII) when not using icons."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-minor-modes (featurep 'minions)
-  "Whether display minor modes in mode-line."
+  "Whether display the minor modes in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -247,13 +248,20 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :type 'boolean
   :group 'doom-modeline)
 
+(defcustom doom-modeline-continuous-word-count-modes
+  '(markdown-mode gfm-mode org-mode)
+  "Major modes in which to display word count continuously.
+Respects `doom-modeline-enable-word-count'."
+  :type 'list
+  :group 'doom-modeline)
+
 (defcustom doom-modeline-buffer-encoding t
-  "Whether display buffer encoding."
+  "Whether display the buffer encoding."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-indent-info nil
-  "Whether display indentation information."
+  "Whether display the indentation information."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -273,21 +281,26 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-persp-name t
-  "Whether display perspective name.
+  "Whether display the perspective name.
 
 Non-nil to display in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
+(defcustom doom-modeline-display-default-persp-name nil
+  "If non nil the default perspective name is displayed in the mode-line."
+  :type 'boolean
+  :group 'doom-modeline)
+
 (defcustom doom-modeline-lsp t
-  "Whether display `lsp' state.
+  "Whether display the `lsp' state.
 
 Non-nil to display in mode-line."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-github nil
-  "Whether display GitHub notifications/
+  "Whether display the GitHub notifications.
 
 It requires `ghub' and `async' packages."
   :type 'boolean
@@ -299,21 +312,33 @@ It requires `ghub' and `async' packages."
   :group 'doom-modeline)
 
 (defcustom doom-modeline-env-version t
-  "Whether display environment version."
+  "Whether display the environment version."
+  :type 'boolean
+  :group 'doom-modeline)
+
+(defcustom doom-modeline-modal-icon t
+  "Whether display the modal state icon.
+
+Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-mu4e t
-  "Whether display mu4e notifications.
+  "Whether display the mu4e notifications.
 
 It requires `mu4e-alert' package."
   :type 'boolean
   :group 'doom-modeline)
 
 (defcustom doom-modeline-irc t
-  "Whether display irc notifications.
+  "Whether display the irc notifications.
 
-It requires `circe' package."
+It requires `circe' or `erc' package."
+  :type 'boolean
+  :group 'doom-modeline)
+
+(defcustom doom-modeline-irc-buffers nil
+  "Whether display the unread irc buffers."
   :type 'boolean
   :group 'doom-modeline)
 
@@ -383,6 +408,11 @@ It requires `circe' package."
   "Face for 'X out of Y' segments, such as `anzu', `evil-substitute' and`iedit', etc."
   :group 'doom-modeline-faces)
 
+(defface doom-modeline-host
+  '((t (:inherit italic)))
+  "Face for remote hosts in the modeline."
+  :group 'doom-modeline-faces)
+
 (defface doom-modeline-debug
   '((t (:inherit (font-lock-doc-face bold))))
   "Face for debug-level messages in the modeline. Used by `*checker'."
@@ -413,23 +443,23 @@ It requires `circe' package."
   "The face used for the left-most bar on the mode-line of an active window."
   :group 'doom-modeline-faces)
 
-(defface doom-modeline-inactive-bar
+(defface doom-modeline-bar-inactive
   `((t (:background ,(face-foreground 'mode-line-inactive))))
   "The face used for the left-most bar on the mode-line of an inactive window."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-emacs-state
-  '((t (:inherit doom-modeline-warning)))
+  '((t (:inherit (font-lock-builtin-face bold))))
   "Face for the Emacs state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-insert-state
-  '((t (:inherit doom-modeline-urgent)))
+  '((t (:inherit (font-lock-keyword-face bold))))
   "Face for the insert state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-motion-state
-  '((t :inherit doom-modeline-buffer-path))
+  '((t :inherit (font-lock-doc-face bold)))
   "Face for the motion state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
@@ -439,17 +469,17 @@ It requires `circe' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-operator-state
-  '((t (:inherit doom-modeline-buffer-path)))
+  '((t (:inherit doom-modeline-buffer-file)))
   "Face for the operator state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-visual-state
-  '((t (:inherit doom-modeline-buffer-file)))
+  '((t (:inherit doom-modeline-warning)))
   "Face for the visual state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-evil-replace-state
-  '((t (:inherit doom-modeline-buffer-modified)))
+  '((t (:inherit doom-modeline-urgent)))
   "Face for the replace state tag in evil state indicator."
   :group 'doom-modeline-faces)
 
@@ -464,18 +494,58 @@ It requires `circe' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-lsp-success
-  '((t (:inherit success)))
-  "Face for success state in LSP."
+  '((t (:inherit success :weight normal)))
+  "Face for LSP success state."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-lsp-warning
-  '((t (:inherit warning)))
-  "Face for warning state in LSP."
+  '((t (:inherit warning :weight normal)))
+  "Face for LSP warning state."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-lsp-error
-  '((t (:inherit error)))
-  "Face for error state in LSP."
+  '((t (:inherit error :weight normal)))
+  "Face for LSP error state."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-lsp-running
+  '((t (:inherit compilation-mode-line-run :weight normal)))
+  "Face for LSP running state."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-charging
+  '((t (:inherit success :weight normal)))
+  "Face for battery charging statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-full
+  '((t (:inherit success :weight normal)))
+  "Face for battery full statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-normal
+  '((t (:inherit mode-line :weight normal)))
+  "Face for battery normal statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-warning
+  '((t (:inherit warning :weight normal)))
+  "Face for battery warning statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-critical
+  '((t (:inherit error :weight normal)))
+  "Face for battery critical statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-battery-error
+  '((t (:inherit error :weight normal)))
+  "Face for battery error statues."
+  :group 'doom-modeline-faces)
+
+(defface doom-modeline-buffer-timemachine
+  '((t (:inherit (doom-modeline-buffer-file italic underline))))
+  "Face for battery error statues."
   :group 'doom-modeline-faces)
 
 
@@ -577,14 +647,14 @@ It requires `circe' package."
 
 (defun doom-modeline (key)
   "Return a mode-line configuration associated with KEY (a symbol).
-  Throws an error if it doesn't exist."
+Throws an error if it doesn't exist."
   (let ((fn (intern-soft (format "doom-modeline-format--%s" key))))
     (when (functionp fn)
       `(:eval (,fn)))))
 
 (defun doom-modeline-set-modeline (key &optional default)
   "Set the modeline format. Does nothing if the modeline KEY doesn't exist.
-  If DEFAULT is non-nil, set the default mode-line for all buffers."
+If DEFAULT is non-nil, set the default mode-line for all buffers."
   (when-let ((modeline (doom-modeline key)))
     (setf (if default
               (default-value 'mode-line-format)
@@ -596,6 +666,7 @@ It requires `circe' package."
 ;; Plugins
 ;;
 
+(defvar-local doom-modeline--size-hacked-p nil)
 (defun doom-modeline-redisplay (&rest _)
   "Call `redisplay' to trigger mode-line height calculations.
   Certain functions, including e.g. `fit-window-to-buffer', base
@@ -609,8 +680,9 @@ It requires `circe' package."
   This function is like `redisplay' with non-nil FORCE argument.
   It accepts an arbitrary number of arguments making it suitable
   as a `:before' advice for any function."
-  (redisplay t))
-
+  (unless doom-modeline--size-hacked-p
+    (setq doom-modeline--size-hacked-p t)
+    (redisplay t)))
 (advice-add #'fit-window-to-buffer :before #'doom-modeline-redisplay)
 (advice-add #'resize-temp-buffer-window :before #'doom-modeline-redisplay)
 
@@ -698,28 +770,44 @@ It requires `circe' package."
 (defun doom-modeline--font-height ()
   "Calculate the actual char height of the mode-line."
   (let ((height (face-attribute 'mode-line :height)))
-    (round (* 1.68 (cond ((integerp height) (/ height 10))
-                         ((floatp height) (* height (frame-char-height)))
-                         (t (frame-char-height)))))))
+    ;; WORKAROUND: Fix tall issue of 27 on Linux
+    ;; @see https://github.com/seagle0128/doom-modeline/issues/271
+    (round
+     (* (if (and (>= emacs-major-version 27)
+                 (eq system-type 'gnu/linux))
+            1.0
+          1.68)
+        (cond ((integerp height) (/ height 10))
+              ((floatp height) (* height (frame-char-height)))
+              (t (frame-char-height)))))))
+
+(defun doom-modeline-add-variable-watcher (symbol watch-function)
+  "Cause WATCH-FUNCTION to be called when SYMBOL is set if possible.
+
+See docs of `add-variable-watcher'."
+  (when (fboundp 'add-variable-watcher)
+    (add-variable-watcher symbol watch-function)))
 
 (defun doom-modeline-icon (icon-set icon-name unicode text face &rest args)
   "Display icon of ICON-NAME with FACE and ARGS in mode-line.
 
-  ICON-SET includes `octicon', `faicon', `material', `alltheicons' and `fileicon'.
-  UNICODE is the unicode char fallback. TEXT is the ASCII char fallback."
+ICON-SET includes `octicon', `faicon', `material', `alltheicons' and `fileicon'.
+UNICODE is the unicode char fallback. TEXT is the ASCII char fallback."
   (let ((face (or face 'mode-line)))
-    (or (when (and icon-name (not (string-empty-p icon-name)))
+    (or (when (and doom-modeline-icon
+                   icon-name
+                   (not (string-empty-p icon-name)))
           (pcase icon-set
             ('octicon
-             (apply #'doom-modeline-icon-octicon icon-name :face face args))
+             (apply #'all-the-icons-octicon icon-name :face face args))
             ('faicon
-             (apply #'doom-modeline-icon-faicon icon-name :face face args))
+             (apply #'all-the-icons-faicon icon-name :face face args))
             ('material
-             (apply #'doom-modeline-icon-material icon-name :face face args))
+             (apply #'all-the-icons-material icon-name :face face args))
             ('alltheicon
-             (apply #'doom-modeline-icon-alltheicon icon-name :face face args))
+             (apply #'all-the-icons-alltheicon icon-name :face face args))
             ('fileicon
-             (apply #'doom-modeline-icon-fileicon icon-name :face face args))))
+             (apply #'all-the-icons-fileicon icon-name :face face args))))
         (when (and doom-modeline-unicode-fallback
                    unicode
                    (not (string-empty-p unicode))
@@ -727,45 +815,10 @@ It requires `circe' package."
           (propertize unicode 'face face))
         (when text (propertize text 'face face)))))
 
-(defun doom-modeline-icon-octicon (icon-name &rest args)
-  "Display octicon with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-octicon icon-name args)))
-
-(defun doom-modeline-icon-faicon (icon-name &rest args)
-  "Display font awesome icon with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-faicon icon-name args)))
-
-(defun doom-modeline-icon-material (icon-name &rest args)
-  "Display material icon with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-material icon-name args)))
-
-(defun doom-modeline-icon-alltheicon (icon-name &rest args)
-  "Display alltheicon with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-alltheicon icon-name args)))
-
-(defun doom-modeline-icon-fileicon (icon-name &rest args)
-  "Display fileicon with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-fileicon icon-name args)))
-
-(defun doom-modeline-icon-for-mode (&rest args)
-  "Display icon for major mode with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-icon-for-mode args)))
-
-(defun doom-modeline-icon-for-file (&rest args)
-  "Display icon for major mode with ARGS."
-  (when doom-modeline-icon
-    (apply #'all-the-icons-icon-for-file args)))
-
 (defvar-local doom-modeline-project-root nil)
 (defun doom-modeline-project-root ()
   "Get the path to the root of your project.
-  Return `default-directory' if no project was found."
+Return `default-directory' if no project was found."
   (setq doom-modeline-project-root
         (or doom-modeline-project-root
             (pcase doom-modeline-project-detection
@@ -865,6 +918,7 @@ directory too."
                          (and (doom-modeline--active)
                               'doom-modeline-buffer-file))))
            (when face `(:inherit ,face))))))
+     'mouse-face 'mode-line-highlight
      'help-echo (concat buffer-file-truename
                         (unless (string= (file-name-nondirectory buffer-file-truename)
                                          (buffer-name))

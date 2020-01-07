@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.2.13
+;; Version: 1.3.0-snapshot
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -129,6 +129,9 @@
     ;; restore the proper value of `major-mode' in Fundamental buffers
     (when (eq major-mode 'turn-on-evil-mode)
       (setq major-mode 'fundamental-mode))
+    (when (minibufferp)
+      (setq-local evil-default-state 'insert)
+      (setq-local evil-echo-state nil))
     ;; The initial state is usually setup by `evil-initialize' when
     ;; the major-mode in a buffer changes. This preliminary
     ;; initialization is only for the case when `evil-local-mode' is
@@ -170,8 +173,7 @@
 (defun evil-initialize ()
   "Enable Evil in the current buffer, if appropriate.
 To enable Evil globally, do (evil-mode 1)."
-  ;; TODO: option for enabling vi keys in the minibuffer
-  (unless (minibufferp)
+  (unless (and (minibufferp) (not evil-want-minibuffer))
     (evil-local-mode 1)
     (evil-initialize-state)))
 
@@ -320,7 +322,7 @@ initially."
                              nil t (cons mode-alias checked-modes))))))))
 
 (defun evil-set-initial-state (mode state)
-  "Set the initial state for MODE to STATE.
+  "Set the initial state for major mode MODE to STATE.
 This is the state the buffer comes up in."
   (dolist (modes (evil-state-property t :modes))
     (setq modes (cdr-safe modes))
@@ -480,7 +482,7 @@ The initial value is that of `make-sparse-keymap'."
     (let ((mode (car entry))
           (map  (cdr entry)))
       (unless (and (keymapp (symbol-value map))
-                   (assq map (buffer-local-variables)))
+                   (local-variable-p map))
         (set map (make-sparse-keymap))))))
 
 (defun evil-make-overriding-map (keymap &optional state copy)
@@ -497,11 +499,15 @@ higher precedence. See also `evil-make-intercept-map'."
       (define-key copy key (or state 'all))
       (define-key keymap key copy))))
 
-(defun evil-make-intercept-map (keymap &optional state)
+(defun evil-make-intercept-map (keymap &optional state aux)
   "Give KEYMAP precedence over all Evil keymaps in STATE.
-If STATE is nil, give it precedence over all states.
-See also `evil-make-overriding-map'."
-  (let ((key [intercept-state]))
+If STATE is nil, give it precedence over all states. If AUX is non-nil, make the
+auxiliary keymap corresponding to KEYMAP in STATE an intercept keymap instead of
+KEYMAP itself. See also `evil-make-overriding-map'."
+  (let ((key [intercept-state])
+        (keymap (if aux
+                    (evil-get-auxiliary-keymap keymap state t t)
+                  keymap)))
     (define-key keymap key (or state 'all))))
 
 (defmacro evil-define-keymap (keymap doc &rest body)
@@ -520,6 +526,7 @@ may be specified before the body code:
 
 \(fn KEYMAP DOC [[KEY VAL]...] BODY...)"
   (declare (indent defun)
+           (doc-string 2)
            (debug (&define name
                            [&optional stringp]
                            [&rest [keywordp sexp]]
@@ -831,7 +838,9 @@ See also `evil-mode-for-keymap'."
   (let* ((state (or state evil-state))
          result)
     (dolist (map (current-active-maps))
-      (when (setq map (evil-intercept-keymap-p map state))
+      (when (setq map (or (evil-intercept-keymap-p map state)
+                          (evil-intercept-keymap-p
+                           (evil-get-auxiliary-keymap map state) state)))
         (push (cons (evil-mode-for-keymap map t) map) result)))
     (setq result (nreverse result))
     result))
@@ -962,6 +971,36 @@ A return value of t means all states."
       t)
      (t
       state))))
+
+(defun evil-send-leader ()
+  "Put symbol leader in `unread-command-events' to trigger any
+<leader> bindings."
+  (interactive)
+  (setq prefix-arg current-prefix-arg)
+  (push '(t . leader) unread-command-events))
+
+(defun evil-send-localleader ()
+  "Put symbol localleader in `unread-command-events' to trigger any
+<localleader> bindings."
+  (interactive)
+  (setq prefix-arg current-prefix-arg)
+  (push '(t. localleader) unread-command-events))
+
+(defun evil-set-leader (state key &optional localleader)
+  "Set KEY to trigger <leader> bindings in STATE.
+KEY should be in the form produced by `kbd'. STATE is one of
+`normal', `insert', `visual', `replace', `operator', `motion',
+`emacs', a list of one or more of these, or nil. nil means all of
+the above. If LOCAL is non-nil, set localleader instead."
+  (let* ((all-states '(normal insert visual replace operator motion emacs))
+         (states (cond ((listp state) state)
+                       ((member state all-states) (list state))
+                       ((null state) all-states)
+                       ;; Maybe throw error here
+                       (t (list state))))
+         (binding (if localleader 'evil-send-localleader 'evil-send-leader)))
+    (dolist (state states)
+      (evil-global-set-key state key binding))))
 
 (defmacro evil-define-key (state keymap key def &rest bindings)
   "Create a STATE binding from KEY to DEF for KEYMAP.
@@ -1181,6 +1220,7 @@ the local keymap will be `evil-test-state-local-map', and so on.
 
 \(fn STATE DOC [[KEY VAL]...] BODY...)"
   (declare (indent defun)
+           (doc-string 2)
            (debug (&define name
                            [&optional stringp]
                            [&rest [keywordp sexp]]

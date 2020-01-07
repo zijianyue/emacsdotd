@@ -148,15 +148,15 @@ determine the exact padding."
    ;; markdown-mode
    (markdown-markup-face :foreground base5)
    (markdown-header-face :inherit 'bold :foreground red)
-   (markdown-code-face :background (doom-lighten base3 0.05))
+   ((markdown-code-face &override) :background (doom-lighten base3 0.05))
 
    ;; outline (affects org-mode)
    ((outline-1 &override) :foreground blue :background nil)
 
    ;; org-mode
+   ((org-block &override) :background base1)
+   ((org-block-begin-line &override) :background base1 :foreground comments)
    (org-hide :foreground hidden)
-   (org-block :background base1)
-   (org-block-begin-line :background base1 :foreground comments)
    (solaire-org-hide-face :foreground hidden)
 
    ;; tooltip

@@ -238,7 +238,11 @@ Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server
 * `lsp-java-format-enabled` - Enable/disable default Java formatter
 * `lsp-java-save-actions-organize-imports ` - Enable/disable auto organize imports on save action
 * `lsp-java-import-exclusions` - Configure glob patterns for excluding folders
-* `lsp-java-content-provider-preferred` - Preferred content provider (a 3rd party decompiler id, usually)
+* `lsp-java-content-provider-preferred` - Preferred content provider (a 3rd party decompiler id, usually). We support https://github.com/dgileadi/vscode-java-decompiler. To enable it set add
+```
+(setq lsp-java-content-provider-preferred "fernflower")
+```
+to your config. Refer to https://github.com/dgileadi/vscode-java-decompiler for the rest of the supported settings. You may register custom `lsp-register-custom-settings` settings.
 * `lsp-java-autobuild-enabled` - Enable/disable the 'auto build'
 * `lsp-java-max-concurrent-builds` - Max simultaneous project builds
 * `lsp-java-completion-enabled` - Enable/disable code completion support
@@ -269,6 +273,7 @@ Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server
 * [lsp-ui](https://github.com/emacs-lsp/lsp-ui) : Flycheck, documentation and code actions support.
 * [company-lsp](https://github.com/tigersoldier/company-lsp) : LSP company backend.
 * [treemacs](https://github.com/Alexander-Miller/treemacs) : Project viewer.
+* [lsp-treemacs](https://github.com/emacs-lsp/lsp-treemacs) : `lsp-mode` GUI controls implemented using treemacs.
 ## FAQ
 * LSP Java is showing to many debug messages, how to stop that?
 Add the following configuration.
@@ -283,3 +288,7 @@ LSP UI by default sends current line bounds for action region which breaks force
 * LSP Java does not provide completion, go to definition for some of the files?
 
 When particular file is not part of imported project [Eclipse JDT Language Server](https://projects.eclipse.org/projects/eclipse.jdt.ls) could not calculate the current classpath.
+
+* How do I change the version of java used by LSP?
+
+Have a look at `~/.emacs.d/workspace/.metadata/.plugins/org.eclipse.jdt.launching/libraryInfos.xml`. If you updated your local java path and want LSP to use the new version, try removing the `~/.emacs.d/workspace/` directory and relaunch LSP. Also see [#114](https://github.com/emacs-lsp/lsp-java/issues/114).

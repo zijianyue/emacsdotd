@@ -74,9 +74,7 @@
   (lsp-request-async
    "workspace/executeCommand"
    (list :command "vscode.java.test.search.codelens"
-         :arguments (->> (buffer-file-name)
-                         lsp--path-to-uri
-                         vector))
+         :arguments (vector (lsp--buffer-uri)))
    (lambda (result)
      (let* ((lenses (-mapcat #'lsp-jt--process-test-lens result))
             (all-lenses (append
@@ -118,7 +116,7 @@
   (cond
    (lsp-jt-lens-mode
     (setq-local lsp-lens-backends (pushnew 'lsp-jt-lens-backend lsp-lens-backends))
-    (lsp--lens-refresh t))
+    (lsp-lens-refresh t))
    (t (setq-local lsp-lens-backends (delete 'lsp-jt-lens-backend lsp-lens-backends)))))
 
 (defun lsp-jt-search (root level full-name)
@@ -288,6 +286,16 @@
                (not (and (string= "testFinished" state)
                          (string= (gethash test-name test-state)
                                   "testFailed"))))
+      (when (string= "suiteTreeNode" state)
+        (setq test-name (concat (->> lsp-jt--last-result
+                                     (-keep (-lambda ((&alist 'name 'attributes (&alist 'name test-name)))
+                                              (when (string= name "suiteTreeStarted")
+                                                test-name)))
+                                     (cl-first))
+                                "#"
+                                test-name)))
+      (puthash test-name state test-state))
+    (when (string= "testSuiteFinished" state)
       (when (string= "suiteTreeNode" state)
         (setq test-name (concat (->> lsp-jt--last-result
                                      (-keep (-lambda ((&alist 'name 'attributes (&alist 'name test-name)))

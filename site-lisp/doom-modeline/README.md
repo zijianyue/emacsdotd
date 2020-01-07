@@ -41,20 +41,21 @@ The `doom-modeline` was designed for minimalism, and offers:
 - A window number segment for `ace-window`, `winum` and `window-numbering`
 - An indicator for modal editing state, including `evil`, `overwrite`, `god`, `ryo` and
   `xah-fly-keys`, etc.
-- An indicator for battery status
+- An indicator for `battery` status
 - An indicator for current input method
 - An indicator for debug state
 - An indicator for remote host
 - An indicator for LSP state with `lsp-mode` or `eglot`
 - An indicator for GitHub notifications
 - An indicator for unread emails with `mu4e-alert`
-- An indicator for irc notifications with `circe`
+- An indicator for IRC notifications with `circe`, `rcirc` or `erc`
 - An indicator for buffer position which is compatible with `nyan-mode`
-- An indicator for party parrot
+- An indicator for party `parrot`
 - An indicator for PDF page number with `pdf-tools`
 - An indicator for markdown/org preview with `grip`
-- Truncated file name, file icon, buffer state and project name in buffer information segment, which
-  is compatible with `project`, `find-file-in-project` and `projectile`.
+- Truncated file name, file icon, buffer state and project name in buffer
+  information segment, which is compatible with `project`, `projectile` and
+  `find-file-in-project`.
 - New mode-line for `Info-mode` buffers
 - New package mode-line for `paradox`
 - New mode-line for `helm` buffers
@@ -83,6 +84,12 @@ The `doom-modeline` was designed for minimalism, and offers:
 ![color_icon_elisp](https://user-images.githubusercontent.com/140797/50415381-9f568280-0855-11e9-9478-34a6dd614d96.png
 "Color Elisp icon")
 
+![evil_normal_state_icon](https://user-images.githubusercontent.com/140797/68990534-332aa600-088f-11ea-920f-20c9527a6466.png
+"Evil Normal State icon")
+
+![evil_insert_state_icon](https://user-images.githubusercontent.com/140797/68990540-4dfd1a80-088f-11ea-8e53-ab77af4c58c2.png
+"Evil Insert State icon")
+
 ![evil_normal_state](https://user-images.githubusercontent.com/140797/49694476-b8103880-fbc5-11e8-9c18-91f5e9258333.png
 "Evil Normal State")
 
@@ -107,8 +114,11 @@ The `doom-modeline` was designed for minimalism, and offers:
 ![nyan_parrot](https://user-images.githubusercontent.com/140797/51301061-da209480-1a68-11e9-9f64-905d889df9d6.png
 "Nyan and Parrot")
 
+![irc](https://user-images.githubusercontent.com/140797/69004814-20c67000-0954-11ea-8489-f5a527a80574.png
+"IRC Notifications")
+
 ![battery](https://user-images.githubusercontent.com/140797/53593622-ba35d200-3bcb-11e9-85b3-38d64d05c127.png
-"Fancy Battery")
+"Battery")
 
 ![package](https://user-images.githubusercontent.com/140797/57503916-e769d380-7324-11e9-906d-44c79f7408a3.png
 "Package")
@@ -182,41 +192,48 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;;   file-name => comint.el
 ;;   buffer-name => comint.el<2> (uniquify buffer name)
 ;;
-;; If you are expereicing the laggy issue, especially while editing remote files
+;; If you are experiencing the laggy issue, especially while editing remote files
 ;; with tramp, please try `file-name' style.
 ;; Please refer to https://github.com/bbatsov/projectile/issues/657.
 (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
 
-;; Whether display icons in mode-line. It respects `all-the-icons-color-icons'.
+;; Whether display icons in mode-line. Respects `all-the-icons-color-icons'.
+;; While using the server mode in GUI, should set the value explicitly.
 (setq doom-modeline-icon (display-graphic-p))
 
-;; Whether display the icon for `major-mode'. It respects `doom-modeline-icon'.
+;; Whether display the icon for `major-mode'. Respects `doom-modeline-icon'.
 (setq doom-modeline-major-mode-icon t)
 
 ;; Whether display the colorful icon for `major-mode'.
-;; It respects `doom-modeline-major-mode-icon'.
+;; Respects `doom-modeline-major-mode-icon'.
 (setq doom-modeline-major-mode-color-icon t)
 
 ;; Whether display the icon for the buffer state. It respects `doom-modeline-icon'.
 (setq doom-modeline-buffer-state-icon t)
 
 ;; Whether display the modification icon for the buffer.
-;; It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'.
+;; Respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'.
 (setq doom-modeline-buffer-modification-icon t)
 
 ;; Whether to use unicode as a fallback (instead of ASCII) when not using icons.
-(setq doom-modeline-unicode-fallback t)
+(setq doom-modeline-unicode-fallback nil)
 
-;; Whether display minor modes in mode-line.
+;; Whether display the minor modes in mode-line.
 (setq doom-modeline-minor-modes (featurep 'minions))
 
 ;; If non-nil, a word count will be added to the selection-info modeline segment.
 (setq doom-modeline-enable-word-count nil)
 
-;; Whether display buffer encoding.
+;; Major modes in which to display word count continuously.
+;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
+;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
+;; remove the modes from `doom-modeline-continuous-word-count-modes'.
+(setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+
+;; Whether display the buffer encoding.
 (setq doom-modeline-buffer-encoding t)
 
-;; Whether display indentation information.
+;; Whether display the indentation information.
 (setq doom-modeline-indent-info nil)
 
 ;; If non-nil, only display one number for checker information if applicable.
@@ -228,28 +245,35 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; The maximum displayed length of the branch name of version control.
 (setq doom-modeline-vcs-max-length 12)
 
-;; Whether display perspective name. Non-nil to display in mode-line.
+;; Whether display the perspective name. Non-nil to display in mode-line.
 (setq doom-modeline-persp-name t)
 
-;; Whether display `lsp' state. Non-nil to display in mode-line.
+;; If non nil the default perspective name is displayed in the mode-line.
+(setq doom-modeline-display-default-persp-name nil)
+
+;; Whether display the `lsp' state. Non-nil to display in mode-line.
 (setq doom-modeline-lsp t)
 
-;; Whether display GitHub notifications. It requires `ghub` package.
+;; Whether display the GitHub notifications. It requires `ghub' package.
 (setq doom-modeline-github nil)
 
 ;; The interval of checking GitHub.
 (setq doom-modeline-github-interval (* 30 60))
 
-;; Whether display mu4e notifications. It requires `mu4e-alert' package.
+;; Whether display the modal state icon.
+;; Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc.
+(setq doom-modeline-modal-icon t)
+
+;; Whether display the mu4e notifications. It requires `mu4e-alert' package.
 (setq doom-modeline-mu4e t)
 
-;; Whether display irc notifications. It requires `circe' package.
+;; Whether display the IRC notifications. It requires `circe' or `erc' package.
 (setq doom-modeline-irc t)
 
 ;; Function to stylize the irc buffer names.
 (setq doom-modeline-irc-stylize 'identity)
 
-;; Whether display environment version.
+;; Whether display the environment version.
 (setq doom-modeline-env-version t)
 ;; Or for individual languages
 (setq doom-modeline-env-enable-python t)
@@ -368,15 +392,18 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
    ```elisp
    ;; built-in `project' on 26+
    (setq doom-modeline-project-detection 'project)
-   ;; or `find-in-porject' if it's installed
+   ;; or `find-in-project' if it's installed
    (setq doom-modeline-project-detection 'ffip)
    ```
 
-   For more details, refer to [#209](https://github.com/seagle0128/doom-modeline/issues/209) and [#224](https://github.com/seagle0128/doom-modeline/issues/224).
+   For more details, refer to
+   [#209](https://github.com/seagle0128/doom-modeline/issues/209) and
+   [#224](https://github.com/seagle0128/doom-modeline/issues/224).
 
 ## Donate
 
-If you think it's helpful for you, please consider pay a cup of coffee for me. Thank you! :smile:
+If you think it's helpful for you, please consider paying a cup of coffee for
+me. Thank you! :smile:
 
 <img
 src="https://user-images.githubusercontent.com/140797/65818854-44204900-e248-11e9-9cc5-3e6339587cd8.png"
@@ -384,4 +411,15 @@ alt="Alipay" width="120"/>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <img
 src="https://user-images.githubusercontent.com/140797/65818844-366ac380-e248-11e9-931c-4bd872d0566b.png"
-alt="Wechat" width="120"/>
+alt="Wechat Pay" width="120"/>
+
+<a href="https://paypal.me/seagle0128" target="_blank">
+<img
+src="https://www.paypalobjects.com/digitalassets/c/website/marketing/apac/C2/logos-buttons/optimize/44_Grey_PayPal_Pill_Button.png"
+alt="PayPal" width="120" />
+</a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://www.buymeacoffee.com/s9giES1" target="_blank">
+<img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee"
+width="160"/>
+</a>
