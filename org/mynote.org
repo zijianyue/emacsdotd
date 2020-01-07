@@ -293,28 +293,29 @@ m-s-ret复制 1. [ ] xxx新建 c-c c-c完成
 
 (3) org文件头增加设置
 #+BEGIN_SRC latex
-  ,#+ATTR_LATEX: :environment cn-article
-  ,#+LATEX_CLASS: article
-  ,#+LATEX_CLASS_OPTIONS: [UTF8,a4paper]
-  ,#+LATEX_HEADER: \usepackage[BoldFont,SlantFont,CJKsetspaces,CJKchecksingle]{xeCJK}
-  ,#+LATEX_HEADER: \XeTeXlinebreaklocale "zh"
-  ,#+LATEX_HEADER: \XeTeXlinebreakskip = 0pt plus 1pt
-  ,#+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
-  ,#+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
-  ,#+LATEX_HEADER: \setmonofont{Courier New}
-  ,#+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
-  ,#+LATEX_HEADER: \setCJKmonofont{MingLiU}
-  ,#+LATEX_HEADER: \usepackage{listings}
+  #+ATTR_LATEX: :environment cn-article
+  #+LATEX_CLASS: article
+  #+LATEX_CLASS_OPTIONS: [UTF8,a4paper]
+  #+LATEX_HEADER: \usepackage[BoldFont,SlantFont,CJKsetspaces,CJKchecksingle]{xeCJK}
+  #+LATEX_HEADER: \XeTeXlinebreaklocale "zh"
+  #+LATEX_HEADER: \XeTeXlinebreakskip = 0pt plus 1pt
+  #+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
+  #+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
+  #+LATEX_HEADER: \setmonofont{Courier New}
+  #+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
+  #+LATEX_HEADER: \setCJKmonofont{MingLiU}
+  #+LATEX_HEADER: \usepackage{listings}
 
-  ,#+LATEX_HEADER: \tolerance=1000
-  ,#+LATEX_HEADER: \date{\today}
-  ,#+LATEX_HEADER: \title{Org导出中文PDF}
+  #+LATEX_HEADER: \tolerance=1000
+  #+LATEX_HEADER: \date{\today}
+  #+LATEX_HEADER: \title{Org导出中文PDF}
 #+END_SRC
 
 (4) org文件保存成utf-8
 (5) org-download-image-dir用默认设置，也就是图片要保存到org文件当前目录下，否则导出pdf会失败
 
-
+PDF导出不好用，用HTML导出后粘贴到word里或者转换成pdf
+***  <2019-12-27 周五 14:46>
 *** org中输入代码段
 快捷键 <s TAB
 s	#+BEGIN_SRC ... #+END_SRC 
@@ -346,6 +347,9 @@ I	#+INCLUDE: line
 #+END_SRC
 
 <q TAB是输入一段引用
+
+相关变量org-structure-template-alist 方法 org-insert-structure-template（27才有的命令）
+
 *** helm列出所有标题命令 <2019-03-29 周五 15:39>
 helm-org-in-buffer-headings
 
@@ -387,10 +391,18 @@ cd build
 cmake .. -G Ninja  -DSYSTEM_CLANG=ON -DCMAKE_CXX_FLAGS=-D__STDC_FORMAT_MACROS -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 cmake --build  .
 
-如果有z3的错误 -DLLVM_WITH_Z3=off
+如果有z3的错误
 #+BEGIN_QUOTE
 ninja: error: '/mingw64/lib/libz3.dll.a', needed by 'ccls.exe', missing and no known rule to make it
 #+END_QUOTE
+
+#+BEGIN_QUOTE
+Open "./Release/build.ninja", search for "libz3", you would find two occurrences.
+
+Change "/lib/libz3.dll.a" to an absolute path, then the ninja -C Release works.
+G$:/msys64/mingw64/lib/libz3.dll.a
+#+END_QUOTE
+
 PS. msys64的代理设置g:\msys64\home\g00280886\.bashrc中添加
 export http_proxy=http://user:pwd@url:port
 export https_proxy=http://user:pwd@url:port
@@ -481,7 +493,9 @@ cmake --build .
 “Add Entry” and specify your LLVM path in CMAKE_PREFIX_PATH
 然后点击configure
 2.2 点Generate生成sln，点Open Project后，切到Release，在ALL_BUILD工程上右键点生成，这时ccls.exe已经生成了，不必再生成INSTALL
-
+编译出来的ccls.exe需要依赖VC的库才能运行，
+https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+或者命令行 PS G:\llvm8-rc2\llvm-project-llvmorg-8.0.0-rc2\llvm\build> msbuild .\ALL_BUILD.vcxproj -m:6 -p:Configuration=MinSizeRel
 ** lsp-java <2019-01-15 周二 11:19>
 要在C:\Users\g00280886\.m2目录下放私服的settings.xml
 
@@ -543,7 +557,9 @@ Server = http://mirrors.ustc.edu.cn/msys2/mingw/x86_64/
 # /etc/pacman.d/mirrorlist.msys
 Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/msys/$arch/
 Server = http://mirrors.ustc.edu.cn/msys2/msys/$arch/
-
+3. emax64打开后可能mode-line无法正常显示图标，这时需要把libXpm-nox4.dll放到emax64的bin目录下，该文件可以从正式发布的
+   emacs的bin目录下获取，用emax64主要就是它编译时带了image-magic的支持，但是到27以后的版本，官方不再依赖image-magic，自
+   带图片绽放功能（使用系统API）
 *** TODO 长行性能<2019-02-25 周一 14:38>
 ** magit <2019-01-28 周一 10:15>
 *** magit部分提交修改
@@ -630,6 +646,8 @@ push的时候如果遇到 binary hook报错就上isource去工程设置里把Ena
 ``` python
 code
 ```
+
+*** 预览模式 markdown-live-preview-mode <2020-01-07 周二 12:00>
 ** 通过node npm命令安装bash-language-server报tree-sitter unable to verify the first certificate <2019-03-18 周一 16:09>
 要增加以下环境变量
 set NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -940,6 +958,18 @@ os.chmod( filename, stat.S_IWRITE )
 997重叠I/O操作在进行中。
 998内存分配访问无效。
 999错误运行页内操作。
+** pip安装和升级
+# install command line tools
+$ xcode-select --install
+ 
+# if pip not installed
+$ sudo easy_install pip
+ 
+# show current pip version
+$ pip --version
+ 
+# upgrade pip
+$ sudo pip install --upgrade pip
 * Intellij <2019-03-20 周三 16:10>
 ** 怎么避免  import java.utils.* <2019-03-20 周三 16:11>
 Intellij Idea  工具在java文件中怎么避免  import java.utils.* 这样的导入方式,不推崇导入 *这样的做法
@@ -964,21 +994,6 @@ Intellij Idea  工具在java文件中怎么避免  import java.utils.* 这样的
 ** llvm IR三种格式
 LLVM IR主要有三种格式：一种是在内存中的编译中间语言；一种是硬盘上存储的二进制中间语言（以.bc结尾），最后一种是可读的中间格式（以.ll结尾）。这三种中间格式是完全相等的。
 ** 流程（Pass）
-* python 
-** 有用的网址
-PEP 索引的网址是： http://python.org/dev/peps.
-** pip安装和升级
-# install command line tools
-$ xcode-select --install
- 
-# if pip not installed
-$ sudo easy_install pip
- 
-# show current pip version
-$ pip --version
- 
-# upgrade pip
-$ sudo pip install --upgrade pip
 * MAC使用
 ** 截屏
 如果是截取全屏，用 shift+command+3 就可以快速截取整个屏幕，截图自动保存在桌面，文件名为截取时间，格式为png
@@ -1075,3 +1090,13 @@ AOP 当中的概念：
 命令：
 
 du -h  --max-depth=1
+* LEETCODE <2019-10-28 周一 16:57>
+** 动态背包 <2019-10-28 周一 16:57>
+01背包的状态转换方程 f[i,j] = Max{ f[i-1,j-Wi]+Pi( j >= Wi ),  f[i-1,j] }
+f[i,j]表示在前i件物品中选择若干件放在承重为 j 的背包中，可以取得的最大价值。
+Pi表示第i件物品的价值。
+Wi是第i件物品的重量
+决策：为了背包中物品总价值最大化，第 i件物品应该放入背包中吗 ？
+
+https://blog.csdn.net/mu399/article/details/7722810
+
