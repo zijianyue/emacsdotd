@@ -606,6 +606,7 @@
      ;; 智能补全 tabnine ,exe的下载用company-tabnine-install-binary，
      ;; 如果下不下来可以通过IJ的Plugin安装tabnine插件后，搜到TabNine.exe并将整个.tabnine文件夹移到\Roaming目录下
      (require 'company-tabnine)
+     (global-set-key (kbd "<C-S-return>") 'company-tabnine)
      ;; (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
      ;; (setq company-idle-delay 0)
@@ -949,7 +950,7 @@
 (global-set-key (kbd "<C-M-f6>") 'helm-ls-git-ls)
 (global-set-key (kbd "C-S-g")  (lambda () "" (interactive)
                                       (helm-grep-do-git-grep t))) ;默认是搜当前目录，加上c-u是搜整个repo
-(global-set-key (kbd "C-S-f") 'helm-do-grep-ag-project) ; 后台改成用rg了 <C-down> and <C-up> 上下移动预览，即helm-follow-mode
+(global-set-key (kbd "C-S-f") 'helm-do-grep-ag) ; 后台改成用rg了，c-u可以过滤文件后缀，可以用m-spc多选，要想匹配整词需要修改helm-grep-ag-command <C-down> and <C-up> 上下移动预览，即helm-follow-mode
 (global-set-key (kbd "C-S-b") 'helm-multi-swoop-all) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode helm-ag-buffers是类似的
 
 (autoload 'helm-grep-do-git-grep "helm-grep" nil t)
@@ -980,13 +981,13 @@
 (global-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
 (eval-after-load "helm-grep"
   '(progn
-     (defun helm-do-grep-ag-project (arg)
-       "搜索整个工程"
-       (interactive "P")
+     (require 'helm-config)             ;不加这句就会报找不到helm-comp-read方法
+     (defadvice helm-do-grep-ag (around helm-do-grep-ag-ar compile activate)
        (require 'helm-ag)
        (require 'helm-files)
        (setq helm-ff-default-directory (helm-ag--project-root))
-       (helm-grep-ag helm-ff-default-directory arg))))
+       (helm-grep-ag helm-ff-default-directory arg))
+     ))
 
 (eval-after-load "helm-gtags"
   '(progn
