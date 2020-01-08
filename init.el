@@ -33,6 +33,9 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/markdown-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/ztree"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/Emacs-wgrep"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/diff-hl"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/vlfi"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -404,6 +407,8 @@
  '(helm-ff-skip-boring-files t)
  '(helm-for-files-preferred-list
    '(helm-source-buffers-list helm-source-recentf helm-source-bookmarks))
+ '(helm-grep-ag-command
+   "rg --color=always --smart-case --no-heading --line-number %s %s %s")
  '(helm-grep-file-path-style 'relative)
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 104857600)
@@ -582,6 +587,7 @@
 ;; stl(解析vector map等)
 (setq stl-base-dir-14 "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include")
 (setq vs-dir "c:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/include")
+;; (setq vs-dir "g:/vs2017/vc/tools/msvc/14.15.26726/include")
 
 
 ;; 设置成c++文件类型
@@ -855,8 +861,7 @@
 (autoload 'helm-ag-this-file "helm-ag" nil t)
 (autoload 'helm-ag-project-root "helm-ag" nil t)
 (autoload 'helm-ag-buffers "helm-ag" nil t)
-(global-set-key (kbd "C-S-f") 'helm-ag-project-root) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode
-(global-set-key (kbd "C-S-b") 'helm-ag-buffers) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode
+
 
 (autoload 'helm-org-in-buffer-headings "helm-config" nil t) ;在org-mode中找标题很方便
 
@@ -932,6 +937,7 @@
      (define-key helm-read-file-map (kbd "<C-backspace>") 'backward-kill-word)
      ))
 
+;; helm各种搜索
 (global-set-key (kbd "<C-f10>") 'helm-locate)
 ;; (global-set-key (kbd "<f9>") 'helm-occur)
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
@@ -943,8 +949,11 @@
 (global-set-key (kbd "<C-M-f6>") 'helm-ls-git-ls)
 (global-set-key (kbd "C-S-g")  (lambda () "" (interactive)
                                       (helm-grep-do-git-grep t))) ;默认是搜当前目录，加上c-u是搜整个repo
+(global-set-key (kbd "C-S-f") 'helm-do-grep-ag-project) ; 后台改成用rg了 <C-down> and <C-up> 上下移动预览，即helm-follow-mode
+(global-set-key (kbd "C-S-b") 'helm-multi-swoop-all) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode helm-ag-buffers是类似的
 
 (autoload 'helm-grep-do-git-grep "helm-grep" nil t)
+(autoload 'helm-do-grep-ag-project "helm-grep" nil t)
 (autoload 'helm-ls-git-ls "helm-ls-git" nil t)
 (autoload 'helm-swoop "helm-swoop" nil t)
 (autoload 'helm-swoop-from-isearch "helm-swoop" nil t)
@@ -969,6 +978,15 @@
 (global-set-key (kbd "<f5>") 'helm-gtags-update-tags) ;c-u 全局刷新 ，c-u c-u 创建
 (global-set-key (kbd "C-\\") 'helm-gtags-dwim)
 (global-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
+(eval-after-load "helm-grep"
+  '(progn
+     (defun helm-do-grep-ag-project (arg)
+       "搜索整个工程"
+       (interactive "P")
+       (require 'helm-ag)
+       (require 'helm-files)
+       (setq helm-ff-default-directory (helm-ag--project-root))
+       (helm-grep-ag helm-ff-default-directory arg))))
 
 (eval-after-load "helm-gtags"
   '(progn
@@ -1211,7 +1229,7 @@
 
 (global-set-key (kbd "<M-f9>") 'ag-this-file)
 (global-set-key (kbd "<C-f9>") 'my-ag)
-;; (global-set-key (kbd "C-S-f") 'ag-project) ;counsel-git-grep 也好用，projectile-ag完全等价， helm-ag-project-root
+;; (global-set-key (kbd "C-S-f") 'ag-project) ;counsel-git-grep 也好用，projectile-ag完全等价， helm-ag-project-root helm-projectile-rg-at-point
 ;; (global-set-key (kbd "<S-f6>") 'vc-git-grep) ;速度最快,区分大小写
 (global-set-key (kbd "<S-f9>") 'ag-dired)
 ;; C-c C-k 停止ag-dired
@@ -1686,7 +1704,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (global-set-key (kbd "<f1>") 'lsp-ui-peek-find-definitions)
   (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
   (global-set-key (kbd "<C-f12>") 'lsp-execute-code-action)
-  (global-set-key (kbd "<C-M-b>") 'lsp-find-implementation)
+  (global-set-key (kbd "C-M-b") 'lsp-find-implementation)
   (global-set-key (kbd "<f12>") 'xref-find-references)
   (global-set-key (kbd "M-.") 'lsp-find-definition)
 
@@ -1947,10 +1965,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "<M-f6>") 'treemacs-select-window)
 (autoload 'treemacs "treemacs" nil t)
 (autoload 'treemacs-select-window "treemacs" nil t)
-(setq treemacs--icon-size 16)
 
 (with-eval-after-load 'treemacs
   (require 'treemacs-icons-dired)
+  (treemacs-resize-icons 16)              ;for emacs27
   ;; (require 'treemacs-magit)
   (treemacs-git-mode 'deferred)
   (if (memq system-type '(windows-nt ms-dos))
@@ -2888,8 +2906,6 @@ If less than or equal to zero, there is no limit."
             ;;   (dired-collapse-mode 1))
                                         ;在盘符根目录下使用会报权限错误导致根目录打不开
             (dired-filter-group-mode 1)
-            ;; (require 'all-the-icons-dired)
-            ;; (all-the-icons-dired-mode)
             (require 'treemacs-icons-dired)
             (treemacs-icons-dired-mode 1)
             (define-key dired-mode-map (kbd "`") 'dired-filter-group-toggle-header)
