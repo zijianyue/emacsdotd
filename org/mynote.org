@@ -72,9 +72,6 @@ Successfully rebased and updated refs/heads/oss.
 git push --force
 ** magit里解决完文件冲突后要stage一下，才能resolve <2019-02-14 周四 16:28>
 
-** 添加remote fork url <2019-03-07 周四 13:25>
-git remote add fork ssh://git@source.huawei.com:2222/NCE-IP/IPTunnelService.git
-
 ** git proxy密码特殊字符转义，比如.gitconfig里就要用 <2019-03-19 周二 19:10>
  ! --> %21    # --> %23    $ --> %24    & --> %26    ' --> %27
  ( --> %28    ) --> %29    * --> %2A    + --> %2B    , --> %2C
@@ -970,15 +967,7 @@ $ pip --version
  
 # upgrade pip
 $ sudo pip install --upgrade pip
-* Intellij <2019-03-20 周三 16:10>
-** 怎么避免  import java.utils.* <2019-03-20 周三 16:11>
-Intellij Idea  工具在java文件中怎么避免  import java.utils.* 这样的导入方式,不推崇导入 *这样的做法
 
-       settings 》Code Style 》Java   
-       class count to use import with '*'      设置500
-       Names count to use static import with '*'   设置500
-
-      设置多少大家自己来设置
 * 编译器学习
 
 [[file:编译器部门要求/screenshot_2018-07-24_11-41-25.png]]
