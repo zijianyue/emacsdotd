@@ -28,7 +28,7 @@
 ;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
+;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/markdown-mode"))
@@ -905,7 +905,7 @@
   (ido-mode nil))
 
 (with-eval-after-load 'helm
-  ;; helm-mode中删除文件M-D注意是大D，或者C-c d删除但是不离开helm
+  ;; helm-mode中删除文件或者删除buffer，M-D注意是大D，或者C-c d删除但是不离开helm
   ;; (helm-mode 1)
   ;; helm-browse-project 或者helm-ls-git-ls或者c-x c-f后c-x c-d可以查看当前目录下所有git文件
   (require 'helm-ls-git)
@@ -914,7 +914,9 @@
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
   (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
   (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-  (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;默认是M-D, M-spc是mark, M-a是全选， M-m是toggle mark
+  (define-key helm-map (kbd "<M-left>")  'helm-previous-source)
+  (define-key helm-map (kbd "<M-right>")  'helm-next-source)
+  ;; (define-key helm-map (kbd "<f12>") 'helm-buffer-run-kill-buffers) ;默认是M-D, M-spc是mark, M-a是全选， M-m是toggle mark
   ;; helm-locate设置 C-x c l
   (when (memq system-type '(windows-nt ms-dos))
     (setq helm-locate-command "es %s -sort run-count %s") ;增加排序功能
@@ -944,7 +946,7 @@
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
-(global-set-key (kbd "<C-apps>") 'helm-for-files)
+(global-set-key (kbd "<C-apps>") 'helm-for-files) ;C-o M-o是切换上下source，helm-next-source helm-previous-source
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
 (global-set-key (kbd "<C-M-f6>") 'helm-ls-git-ls)
@@ -1057,7 +1059,7 @@
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
-;; markdown mode (markdown-live-preview-mode 直接在emacs里预览)
+;; markdown mode (markdown-live-preview-mode 直接在emacs里预览) 用的外部命令可以用markdown.exe或者pandoc，但是pandoc的话得先把环境改成UTF-8才好使
 (autoload 'markdown-mode "markdown-mode"
   "Major mode for editing Markdown files" t)
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
@@ -1207,19 +1209,75 @@
 (autoload 'rg "rg" nil t)               ;搜索的结果按s保存，然后rg-list-searches可以列出所有结果，里面有搜索的关键字,目录
 (autoload 'rg-project "rg" nil t)       ;代替ag-project
 (autoload 'rg-dwim "rg" nil t)       ;直接在project搜索光标下的symbol，并且不用指定类型
-;; 搜索模式如下
-(defun rg-rerun-toggle-word ()
-  ""
-  (interactive)
-  (rg-rerun-toggle-flag "-w"))
-(with-eval-after-load 'rg
-  (define-key rg-mode-map "o" 'rg-rerun-toggle-word))
-;;     (define-key map "c" 'rg-rerun-toggle-case)
-;;     (define-key map "i" 'rg-rerun-toggle-ignore)
-;;     (define-key map "r" 'rg-rerun-change-regexp)
-;;     (define-key map "t" 'rg-rerun-change-literal)
-(global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
+(autoload 'rg-menu "rg" nil t)
 
+(with-eval-after-load 'rg
+  ;; 重定义以下两个方法，不要默认只搜索当前文件类型
+  (rg-define-search rg-dwim-project-dir
+                    "Search for thing at point in files matching the current file
+under the project root directory."
+                    :query point
+                    :format literal
+                    :dir project)
+
+  (rg-define-search rg-dwim-current-dir
+                    "Search for thing at point in files matching the current file
+under the current directory."
+                    :query point
+                    :format literal
+                    :dir current)
+
+  ;; rg搜索完后自动保存结果，为防止重复还要加上序号
+  (defvar rg-search-cnt 0 "search cnt")
+  (dolist (command '(rg-run))           ;rg-rerun的无法重命令
+    (eval
+     `(defadvice ,command (after rg-run-af activate)
+        (rg-save-search-as-name (format "%s %d" pattern (setq rg-search-cnt (1+ rg-search-cnt))))
+        )))
+  )
+
+;; 增加功能，重排按键
+(with-eval-after-load 'rg-result
+  (defun rg-rerun-toggle-word ()
+    "Rerun last search with toggled '--word-regexp' flag."
+    (interactive)
+    (rg-rerun-toggle-flag "--word-regexp"))
+  (define-key rg-mode-map "w" 'rg-rerun-toggle-word)
+  (define-key rg-mode-map "p" 'rg-deprecated-key-change-to-wgrep)
+  (define-key rg-mode-map "r" 'rg-rerun-change-regexp))
+
+;; 增加标题栏项目word
+(with-eval-after-load 'rg-header
+  (defun rg-create-header-line-fset (search full-command)
+    "Create the header line for SEARCH.
+If FULL-COMMAND specifies if the full command line search was done."
+    (let ((itemspace "  "))
+      (setq header-line-format
+            (if full-command
+                (list (rg-header-render-label "command line") "no refinement")
+              (list
+               (rg-header-render-label `((rg-search-literal ,search)
+                                         ("literal" rg-literal-face)
+                                         ("regexp" rg-regexp-face)))
+               `(:eval (rg-search-pattern ,search)) itemspace
+               (rg-header-render-label "files")
+               `(:eval (rg-search-files ,search)) itemspace
+               (rg-header-render-label "case")
+               (rg-header-render-toggle
+                `(not (member "-i" (rg-search-toggle-flags ,search)))) itemspace
+               (rg-header-render-label "ign")
+               (rg-header-render-toggle
+                `(not (member "--no-ignore" (rg-search-toggle-flags ,search)))) itemspace
+               (rg-header-render-label "word")
+               (rg-header-render-toggle
+                `(member "--word-regexp" (rg-search-toggle-flags ,search))) itemspace
+               (rg-header-render-label "hits")
+               '(:eval (format "%d" rg-hit-count)))))))
+  (fset 'rg-create-header-line 'rg-create-header-line-fset))
+
+(global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
+(global-set-key (kbd "<C-M-f9>") 'rg-menu)  ;交互式搜索，最方便的定制化搜索，可以指定上下文行数，是否检索压缩文件，是否搜索整个词等，注意搜索当前目录走的是rg-dwim-current-dir，默认搜的是当前文件类型（已被我改掉）
+;; define-transient-command rg-menu 的定义中序号是3和4的就能显示5和6的，即认为不常用的，默认不显示，按c-x l进入专家模式修改level，magit的菜单也是这样用的
 
 ;; fast silver searcher
 (autoload 'my-ag "ag" nil t)
@@ -1417,6 +1475,7 @@
 (require 'anzu)
 (global-anzu-mode +1)
 (setq anzu-search-threshold 200) ;;防止大文件搜索时很卡
+;; 要替换当前光标下的词，可以选用<F8>即isearch搜索当前词(或者c-s c-w)后再起m-%
 (global-set-key (kbd "M-%") 'anzu-query-replace)
 (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 
@@ -2165,6 +2224,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-c C-b") 'web-beautify-js)
 (global-set-key (kbd "C-c C-h") 'web-beautify-html)
 
+;; js-beautify转换时内部是UTF-8输入输出，所以要先把环境切成UTF-8避免乱码
+(eval-after-load "web-beautify"
+  '(progn
+     (defadvice web-beautify-js (around web-beautify-js-ar compile activate)
+       (setq org-lang current-language-environment)
+       (set-language-environment 'UTF-8)
+       ad-do-it
+       (set-language-environment org-lang))))
 
 ;; smartparens
 (autoload 'smartparens-mode "smartparens-config" nil  t)
@@ -2872,7 +2939,7 @@ If less than or equal to zero, there is no limit."
             ;; (hs-minor-mode 1)
             (company-mode 1)
             (eldoc-mode 1)
-            (setq-local company-backends (push '(company-tabnine :with company-yasnippet) company-backends))
+            ;; (setq-local company-backends (push '(company-tabnine :with company-yasnippet) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
 
@@ -3020,7 +3087,7 @@ If less than or equal to zero, there is no limit."
 ;; 搜索光标下的单词
 (global-set-key (kbd "<f8>") 'isearch-forward-symbol-at-point)
 ;; (global-set-key (kbd "<M-f8>") 'highlight-symbol-at-point) ;高亮光标下的单词
-(global-set-key (kbd "<C-M-f8>") 'unhighlight-regexp)        ;删除高亮，c-0全删
+(global-set-key (kbd "<C-S-f8>") 'unhighlight-regexp)        ;删除高亮，c-0全删
 (global-set-key (kbd "<M-S-f8>") 'highlight-regexp)
 
 ;;使用find递归查找文件
@@ -3179,7 +3246,9 @@ If less than or equal to zero, there is no limit."
  '(color-rg-font-lock-header-line-edit-mode ((t (:foreground "goldenrod4" :weight bold))))
  '(color-rg-font-lock-header-line-keyword ((t (:foreground "DarkGoldenrod4" :weight bold))))
  '(epe-pipeline-time-face ((t (:foreground "dodger blue"))))
- '(helm-ls-git-modified-not-staged-face ((t (:foreground "medium blue"))))
+ '(helm-ls-git-added-copied-face ((t (:foreground "forest green"))))
+ '(helm-ls-git-added-modified-face ((t (:foreground "medium blue"))))
+ '(helm-ls-git-modified-not-staged-face ((t (:foreground "navy"))))
  '(helm-moccur-buffer ((t (:foreground "dark green" :underline t))))
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))

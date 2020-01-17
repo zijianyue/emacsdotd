@@ -261,7 +261,6 @@ c-l刷新即可
 安装imagemagick，并勾选convert
 通过org-download插件截图，配置org-download截图方法为imagemagick/convert
 先用其他截图工具把截图保存到剪贴板后，用org-download-screenshot功能把截图放到org文件中
-[[file:data/9d/672d37-da36-4d09-9713-4b5de0d2559a/screenshot_2017-12-20_11-52-21.png]]
 
 *** org-mode导出html后换行变空格的解决办法
 在org文件开头加
@@ -968,21 +967,6 @@ $ pip --version
 # upgrade pip
 $ sudo pip install --upgrade pip
 
-* 编译器学习
-
-[[file:编译器部门要求/screenshot_2018-07-24_11-41-25.png]]
-** 编译器处理流程
-1.预处理(Prepreocess): import, macro, 预处理指令...
-2.词法分析:(Lexical Analysis):将预处理过的代码文本转化成Toke流
-3.语法分析:(Semantic Analysis):验证语法是否正确,生成语意节点,组合成抽象语法树.(AST)
-4.静态分析:(static Analysis):类型检查,找出非语法错误.
-5.代码生成:(CodeGen-IR):生成 LLVM-JR(汇编)
-** llvm三阶段
-
-[[file:编译器学习/screenshot_2018-09-07_16-51-04.png]]
-** llvm IR三种格式
-LLVM IR主要有三种格式：一种是在内存中的编译中间语言；一种是硬盘上存储的二进制中间语言（以.bc结尾），最后一种是可读的中间格式（以.ll结尾）。这三种中间格式是完全相等的。
-** 流程（Pass）
 * MAC使用
 ** 截屏
 如果是截取全屏，用 shift+command+3 就可以快速截取整个屏幕，截图自动保存在桌面，文件名为截取时间，格式为png
