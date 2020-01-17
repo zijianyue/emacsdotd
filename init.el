@@ -508,7 +508,6 @@
  '(recentf-auto-cleanup 600)
  '(regexp-search-ring-max 50)
  '(rg-custom-type-aliases nil)
- '(rg-show-header nil)
  '(save-place t nil (saveplace))
  '(semantic-c-dependency-system-include-path
    '("G:/vs2017/VC/Tools/MSVC/14.15.26726/ATLMFC/include" "G:/vs2017/VC/Tools/MSVC/14.15.26726/include" "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6.1/include/um" "C:/Program Files (x86)/Windows Kits/10/include/10.0.17134.0/ucrt"))
@@ -1212,12 +1211,24 @@
 (autoload 'rg-menu "rg" nil t)
 
 (with-eval-after-load 'rg
+
+  ;; 示例
+  ;; (rg-define-search search-everything-at-home
+  ;;                   "Search files including hidden in home directory"
+  ;;                   :query ask
+  ;;                   :format literal
+  ;;                   :files "everything"
+  ;;                   :flags ("--hidden")
+  ;;                   :dir (getenv "HOME")
+  ;;                   :menu ("Search" "h" "Home"))
+  
   ;; 重定义以下两个方法，不要默认只搜索当前文件类型
   (rg-define-search rg-dwim-project-dir
                     "Search for thing at point in files matching the current file
 under the project root directory."
                     :query point
                     :format literal
+                    :files "everything"
                     :dir project)
 
   (rg-define-search rg-dwim-current-dir
@@ -1225,6 +1236,7 @@ under the project root directory."
 under the current directory."
                     :query point
                     :format literal
+                    :files "everything"
                     :dir current)
 
   ;; rg搜索完后自动保存结果，为防止重复还要加上序号
