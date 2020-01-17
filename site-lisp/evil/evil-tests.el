@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.3.0-snapshot
+;; Version: 1.13.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -204,6 +204,8 @@ with `M-x evil-tests-run'"))
           local-mode (evil-state-property state :local)
           local-keymap (evil-state-property state :local-keymap t)
           tag (evil-state-property state :tag t))
+    (when (functionp tag)
+      (setq tag (funcall tag)))
     (ert-info ("Update `evil-state'")
       (should (eq evil-state state)))
     (ert-info ("Ensure `evil-local-mode' is enabled")
@@ -1931,6 +1933,28 @@ ine3 line3      line3 l\n")))
     (evil-test-buffer
       "abc def\n[k]l\n"
       (should-error (execute-kbd-macro (concat "i" (kbd "C-w"))))
+      "abc def\n[k]l\n")))
+
+(ert-deftest evil-test-delete-back-to-indentation ()
+  "Test `evil-delete-back-to-indentation' in insert state."
+  :tags '(evil)
+  (let ((evil-backspace-join-lines t))
+    (evil-test-buffer
+      "abc def\n   ghi j[k]l\n"
+      ("i" (call-interactively #'evil-delete-back-to-indentation))
+      "abc def\n   [k]l\n"
+      (execute-kbd-macro (concat (kbd "C-o") "2h"))
+      "abc def\n [ ] kl\n"
+      (call-interactively #'evil-delete-back-to-indentation)
+      "abc def\n[ ] kl\n"
+      (call-interactively #'evil-delete-back-to-indentation)
+      "abc def[ ] kl\n"))
+  (let (evil-backspace-join-lines)
+    (evil-test-buffer
+      "abc def\n[k]l\n"
+      (should-error
+       (progn (execute-kbd-macro "i")
+              (call-interactively #'evil-delete-back-to-indentation)))
       "abc def\n[k]l\n")))
 
 (ert-deftest evil-test-change ()
@@ -7578,6 +7602,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-ex ()
   "Test command line window for ex commands"
+  (skip-unless (not noninteractive))
   (let (evil-ex-history)
     (evil-test-buffer
       "[f]oo foo foo"
@@ -7598,6 +7623,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-recursive ()
   "Test that recursive command windows shouldn't be allowed"
+  (skip-unless (not noninteractive))
   (let ((evil-command-window-height 0))
     (evil-test-buffer
       "[f]oo foo foo"
@@ -7607,6 +7633,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-noop ()
   "Test that executing a blank command does nothing"
+  (skip-unless (not noninteractive))
   (evil-test-buffer
     "[f]oo foo foo"
     ("q:")
@@ -7616,6 +7643,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-multiple ()
   "Test that multiple command line windows can't be visible at the same time"
+  (skip-unless (not noninteractive))
   (let ((evil-command-window-height 0))
     (evil-test-buffer
       "[f]oo foo foo"
@@ -7636,6 +7664,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-search-history ()
   "Test command window with forward and backward search history"
+  (skip-unless (not noninteractive))
   (let ((evil-search-module 'isearch))
     (evil-test-buffer
       "[f]oo bar baz qux one two three four"
@@ -7666,6 +7695,7 @@ maybe we need one line more with some text\n")
 
 (ert-deftest evil-test-command-window-search-word ()
   "Test command window history when searching for word under cursor"
+  (skip-unless (not noninteractive))
   (let ((evil-search-module 'isearch))
     (evil-test-buffer
       "[f]oo bar foo bar foo"
@@ -8240,20 +8270,30 @@ maybe we need one line more with some text\n")
   :tags '(evil abbrev)
   (ert-info ("Test abbrev expansion on insert state exit")
     (define-abbrev-table 'global-abbrev-table
-      '(("undef" "undefined"))) ;; add global abbrev
+      '(("undef" "undefined")))         ; add global abbrev
+    (evil-test-buffer
+      "foo unde[f] bar"
+      (abbrev-mode)
+      ("a" [escape])
+      "foo undefine[d] bar")            ; 'undef' should be expanded
     (evil-test-buffer
       "foo unde[f] bar"
       ("a" [escape])
-      "foo undefine[d] bar") ;; 'undef' should be expanded
+      "foo unde[f] bar")                ; 'undef' shouldn't be expanded,
+                                        ; abbrev-mode is not enabled
     (evil-test-buffer
       "fo[o] undef bar"
+      (abbrev-mode)
       ("a" [escape])
-      "fo[o] undef bar") ;; 'foo' shouldn't be expanded, it's not an abbrev
-    (kill-all-abbrevs) ;; remove abbrevs
+      "fo[o] undef bar")                ; 'foo' shouldn't be expanded,
+                                        ; it's not an abbrev
+    (kill-all-abbrevs)                  ; remove all abbrevs
     (evil-test-buffer
       "foo unde[f] bar"
+      (abbrev-mode)
       ("a" [escape])
-      "foo unde[f] bar") ;; 'undef' is not an abbrev, shouldn't be expanded
+      "foo unde[f] bar")                ; 'undef' shouldn't be expanded,
+                                        ; it's not an abbrev
     (setq abbrevs-changed nil)))
 
 (ert-deftest evil-test-text-object-macro ()

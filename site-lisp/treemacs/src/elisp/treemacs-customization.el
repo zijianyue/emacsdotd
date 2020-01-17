@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Alexander Miller
+;; Copyright (C) 2020 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;; Customize interface definitions.
@@ -723,6 +723,13 @@ Valid values are
 (defcustom treemacs-create-project-functions nil
   "Hooks to run whenever a project is created.
 Will be called with the new project as the sole argument."
+  :type 'hook
+  :group 'treemacs-hooks)
+
+(defcustom treemacs-create-file-functions nil
+  "Hooks to run whenever a file or directory is created.
+Applies only when using `treemacs-create-file' or `treemacs-create-dir'.
+Will be called with the created file's or dir's path as the sole argument."
   :type 'hook
   :group 'treemacs-hooks)
 

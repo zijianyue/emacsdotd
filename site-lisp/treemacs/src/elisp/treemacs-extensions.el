@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Alexander Miller
+;; Copyright (C) 2020 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;; API required for writing extensions for/with treemacs.
@@ -205,7 +205,6 @@ node for quick retrieval later."
                        'button '(t)
                        'category 'default-button
                        ,@(when face `((quote face) ,face))
-                       'help-echo nil
                        :custom t
                        :state ,state
                        :parent node
@@ -547,8 +546,6 @@ rules apply for QUERY-FUNCTION, RENDER-ACTION and ROOT-KEY-FORM."
   (let ((treemacs-fringe-indicator-mode nil)
         (treemacs--in-this-buffer t))
     (treemacs-mode))
-  (when treemacs-fringe-indicator-mode
-    (treemacs--enable-fringe-indicator))
   (setq-local treemacs--in-this-buffer :extension))
 
 (provide 'treemacs-extensions)

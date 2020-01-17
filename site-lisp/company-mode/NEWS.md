@@ -2,6 +2,15 @@
 
 ## Next
 
+* `company-indent-or-complete-common` is better compatible with
+  `indent-for-tab-command`
+  ([comment](https://github.com/company-mode/company-mode/issues/94#issuecomment-571265393)).
+
+## 2020-01-03 (0.9.11)
+
+* New value for option `company-show-numbers` to show numbers on the left.
+* `company-gtags` has some minor fixes.
+* Face definitions have moved to a separate group: `company-faces`.
 * `company-capf`'s `:exit-function` handling has been improved
   ([#935](https://github.com/company-mode/company-mode/issues/935)).
 * New user option `company-clang-use-compile-flags-txt`

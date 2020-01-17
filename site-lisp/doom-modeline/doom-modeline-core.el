@@ -87,13 +87,16 @@ It returns a file name which can be used directly as argument of
     ("alert" . "\xf02d")
     ("git-branch" . "\xf020")
 
-    ;; checker: flycheck/flymake
+    ;; checker
     ("do_not_disturb_alt" . "\xe611")
     ("check" . "\xe5ca")
     ("access_time" . "\xe192")
     ("sim_card_alert" . "\xe624")
     ("pause" . "\xe034")
     ("priority_high" . "\xe645")
+
+    ;; Minions
+    ("gear" . "\xf02f")
 
     ;; Persp
     ("aspect_ratio" . "\xe85b")
@@ -110,10 +113,10 @@ It returns a file name which can be used directly as argument of
     ;; debug
     ("bug" . "\xf188")
 
-    ;; mu4e
+    ;; Mail
     ("email" . "\xe0be")
 
-    ;; irc
+    ;; IRC
     ("message" . "\xe0c9")
 
     ;; Battery
@@ -238,7 +241,7 @@ It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'."
   :type 'boolean
   :group 'doom-modeline)
 
-(defcustom doom-modeline-minor-modes (featurep 'minions)
+(defcustom doom-modeline-minor-modes nil
   "Whether display the minor modes in mode-line."
   :type 'boolean
   :group 'doom-modeline)
@@ -323,11 +326,25 @@ Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc."
   :type 'boolean
   :group 'doom-modeline)
 
-(defcustom doom-modeline-mu4e t
+(defcustom doom-modeline-mu4e nil
   "Whether display the mu4e notifications.
 
 It requires `mu4e-alert' package."
   :type 'boolean
+  :group 'doom-modeline)
+
+(defcustom doom-modeline-gnus nil
+  "Wheter to display notifications from gnus
+
+It requires `gnus' to be setup"
+  :type 'boolean
+  :group 'doom-modeline)
+
+(defcustom doom-modeline-gnus-timer 2
+  "The wait time in minutes before gnus fetches mail
+
+if nil, don't set up a hook"
+  :type 'integer
   :group 'doom-modeline)
 
 (defcustom doom-modeline-irc t
@@ -379,7 +396,7 @@ It requires `circe' or `erc' package."
   :group 'doom-modeline-faces)
 
 (defface doom-modeline-buffer-minor-mode
-  '((t (:inherit (mode-line-buffer-id bold))))
+  '((t (:inherit font-lock-doc-face)))
   "Face used for the minor-modes segment in the mode-line."
   :group 'doom-modeline-faces)
 
@@ -666,21 +683,28 @@ If DEFAULT is non-nil, set the default mode-line for all buffers."
 ;; Plugins
 ;;
 
+;; FIXME #183: Force to caculate mode-line height
+;; @see https://github.com/seagle0128/doom-modeline/issues/183
 (defvar-local doom-modeline--size-hacked-p nil)
 (defun doom-modeline-redisplay (&rest _)
   "Call `redisplay' to trigger mode-line height calculations.
-  Certain functions, including e.g. `fit-window-to-buffer', base
-  their size calculations on values which are incorrect if the
-  mode-line has a height different from that of the `default' face
-  and certain other calculations have not yet taken place for the
-  window in question.
-  These calculations can be triggered by calling `redisplay'
-  explicitly at the appropriate time and this functions purpose
-  is to make it easier to do so.
-  This function is like `redisplay' with non-nil FORCE argument.
-  It accepts an arbitrary number of arguments making it suitable
-  as a `:before' advice for any function."
-  (unless doom-modeline--size-hacked-p
+
+Certain functions, including e.g. `fit-window-to-buffer', base
+their size calculations on values which are incorrect if the
+mode-line has a height different from that of the `default' face
+and certain other calculations have not yet taken place for the
+window in question.
+
+These calculations can be triggered by calling `redisplay'
+explicitly at the appropriate time and this functions purpose
+is to make it easier to do so.
+
+This function is like `redisplay' with non-nil FORCE argument.
+It accepts an arbitrary number of arguments making it suitable
+as a `:before' advice for any function.  If the current buffer
+has no mode-line or this function has already been calle in it,
+then this function does nothing."
+  (when (and mode-line-format (not doom-modeline--size-hacked-p))
     (setq doom-modeline--size-hacked-p t)
     (redisplay t)))
 (advice-add #'fit-window-to-buffer :before #'doom-modeline-redisplay)

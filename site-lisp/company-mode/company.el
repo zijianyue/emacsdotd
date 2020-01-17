@@ -1,11 +1,11 @@
 ;;; company.el --- Modular text completion framework  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2009-2019  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2020  Free Software Foundation, Inc.
 
 ;; Author: Nikolaj Schumacher
 ;; Maintainer: Dmitry Gutov <dgutov@yandex.ru>
 ;; URL: http://company-mode.github.io/
-;; Version: 0.9.10
+;; Version: 0.9.11
 ;; Keywords: abbrev, convenience, matching
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -79,10 +79,15 @@ attention to case differences."
                                     string start-pos nil ignore-case)))))))
 
 (defgroup company nil
-  "Extensible inline text completion mechanism"
+  "Extensible inline text completion mechanism."
   :group 'abbrev
   :group 'convenience
   :group 'matching)
+
+(defgroup company-faces nil
+  "Faces used by Company."
+  :group 'company
+  :group 'faces)
 
 (defface company-tooltip
   '((default :foreground "black")
@@ -179,6 +184,10 @@ attention to case differences."
   '((((background dark)) (:foreground "firebrick1"))
     (((background light)) (:background "firebrick4")))
   "Face used for the common part of completions in the echo area.")
+
+;; Too lazy to re-add :group to all defcustoms down below.
+(setcdr (assoc load-file-name custom-current-group-alist)
+        'company)
 
 (defun company-frontends-set (variable value)
   ;; Uniquify.
@@ -632,13 +641,13 @@ commands in the `company-' namespace, abort completion."
 (defcustom company-show-numbers nil
   "If enabled, show quick-access numbers for the first ten candidates."
   :type '(choice (const :tag "off" nil)
-                 (const :tag "on" t)))
+                 (const :tag "left" 'left)
+                 (const :tag "on" 't)))
 
 (defcustom company-show-numbers-function #'company--show-numbers
-  "Function called to get custom quick-access numbers for the first then candidates.
+  "Function called to get quick-access numbers for the first ten candidates.
 
-If nil falls back to default function that generates 1...8, 9, 0. The function get
-the number of candidates (from 1 to 10 means 1st to 10th candidate) and should
+The function receives the candidate number (starting from 1) and should
 return a string prefixed with one space."
   :type 'function)
 
@@ -2162,9 +2171,9 @@ With ARG, move by that many elements."
               (current-prefix-arg arg))
           (call-interactively 'company-select-next))))))
 
-(defun company-indent-or-complete-common ()
+(defun company-indent-or-complete-common (arg)
   "Indent the current line or region, or complete the common part."
-  (interactive)
+  (interactive "P")
   (cond
    ((use-region-p)
     (indent-region (region-beginning) (region-end)))
@@ -2174,7 +2183,7 @@ With ARG, move by that many elements."
    ((let ((old-point (point))
           (old-tick (buffer-chars-modified-tick))
           (tab-always-indent t))
-      (call-interactively #'indent-for-tab-command)
+      (indent-for-tab-command arg)
       (when (and (eq old-point (point))
                  (eq old-tick (buffer-chars-modified-tick)))
         (company-complete-common))))))
@@ -2545,6 +2554,7 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
                        right)))
     (setq width (+ width margin (length right)))
 
+    ;; TODO: Use add-face-text-property in Emacs 24.4
     (font-lock-append-text-property 0 width 'mouse-face
                                     'company-tooltip-mouse
                                     line)
@@ -2727,8 +2737,6 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
     (let ((str (concat (when nl " \n")
                        (mapconcat 'identity (nreverse new) "\n")
                        "\n")))
-      ;; Use add-face-text-property in Emacs 24.4
-      (font-lock-append-text-property 0 (length str) 'face 'default str)
       (when nl (put-text-property 0 1 'cursor t str))
       str)))
 
@@ -2810,17 +2818,20 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
         (let* ((item (pop items))
                (str (car item))
                (annotation (cdr item))
-               (right (company-space-string company-tooltip-margin))
+               (margin (company-space-string company-tooltip-margin))
+               (left margin)
+               (right margin)
                (width width))
           (when (< numbered 10)
             (cl-decf width 2)
             (cl-incf numbered)
-            (setq right (concat (funcall company-show-numbers-function numbered) right)))
+            (setf (if (eq company-show-numbers 'left) left right)
+                  (concat (funcall company-show-numbers-function numbered)
+                          margin)))
           (push (concat
                  (company-fill-propertize str annotation
                                           width (equal i selection)
-                                          (company-space-string
-                                           company-tooltip-margin)
+                                          left
                                           right)
                  (when scrollbar-bounds
                    (company--scrollbar i scrollbar-bounds)))
@@ -2928,8 +2939,9 @@ Returns a negative number if the tooltip should be displayed above point."
   (when company-pseudo-tooltip-overlay
     (let* ((ov company-pseudo-tooltip-overlay)
            (disp (overlay-get ov 'company-display)))
-      ;; Beat outline's folding overlays, at least.
-      (overlay-put ov 'priority 1)
+      ;; Beat outline's folding overlays.
+      ;; And Flymake (53). And Flycheck (110).
+      (overlay-put ov 'priority 111)
       ;; No (extra) prefix for the first line.
       (overlay-put ov 'line-prefix "")
       ;; `display' is better
@@ -2939,6 +2951,7 @@ Returns a negative number if the tooltip should be displayed above point."
           (overlay-put ov 'display disp)
         (overlay-put ov 'after-string disp)
         (overlay-put ov 'invisible t))
+      (overlay-put ov 'face 'default)
       (overlay-put ov 'window (selected-window)))))
 
 (defun company-pseudo-tooltip-guard ()
