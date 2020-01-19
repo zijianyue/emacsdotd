@@ -24,11 +24,8 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/nyan-mode"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/smartparens"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
-;; (add-to-list 'load-path (concat user-emacs-directory "site-lisp/snails"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/markdown-mode"))
@@ -59,17 +56,17 @@
 (set-face-attribute
  ;; 'default nil :font "source code pro" :weight 'normal :height 140) ;ultra-light
  ;; 'default nil :font "inconsolata 14")
- 'default nil :font "Consolas 11")
+ 'default nil :font "Consolas 10")
 
 ;; 新开的窗口保持字体
-(add-to-list 'default-frame-alist '(font . "Consolas 11"))
+(add-to-list 'default-frame-alist '(font . "Consolas 10"))
 
 ;;Chinese Font
 (dolist (charset '(kana han symbol cjk-misc bopomofo))
   (set-fontset-font (frame-parameter nil 'font)
                     charset
                     ;; (font-spec :family "Heiti SC" :size 14)));mac中Heiti SC能中英文等高
-                    (font-spec :family "新宋体" :size 16)));mac中Heiti SC能中英文等高
+                    (font-spec :family "新宋体" :size 14)));mac中Heiti SC能中英文等高
 
 ;; 获取site-lisp路径
 (defvar site-lisp-directory nil)
@@ -442,6 +439,7 @@
  '(ivy-height 25)
  '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
+ '(line-spacing 0.15)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook '(lsp-hover))
  '(lsp-enable-indentation nil)
@@ -1744,7 +1742,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'python-mode-hook 'lsp)
   ;; (add-hook 'js-mode-hook 'lsp)
   (add-hook 'sh-mode-hook 'lsp)
-  (add-hook 'kotlin-mode-hook 'lsp)
+  ;; (add-hook 'kotlin-mode-hook 'lsp)
   (add-hook 'nxml-mode-hook 'lsp)
   (add-hook 'js-mode-hook 'lsp)
 
@@ -2199,6 +2197,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'vimish-fold "vimish-fold" nil t)
 (global-set-key (kbd "C-.") 'vimish-fold)
 (global-set-key (kbd "C->") 'vimish-fold-delete)
+(with-eval-after-load 'vimish-fold
+  (define-key vimish-fold-folded-keymap (kbd "<left-fringe> <mouse-1>") #'vimish-fold-unfold)
+  (define-key vimish-fold-unfolded-keymap (kbd "<left-fringe> <mouse-1>") #'vimish-fold-refold)
+  )
 
 ;; 符号高亮
 (autoload 'symbol-overlay-put "symbol-overlay" nil t)
@@ -2218,9 +2220,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'purpose-toggle-window-buffer-dedicated "window-purpose"nil t) ;该窗口不会被占
 (global-set-key (kbd "<M-S-f10>") 'purpose-mode)                         ;该窗口用于某一类buffer
 (global-set-key (kbd "<C-S-f10>") 'purpose-toggle-window-buffer-dedicated)
-
-;; nyan
-;; (autoload 'nyan-mode "nyan-mode" nil t)
 
 ;; find-file
 (autoload 'find-file-in-project "find-file-in-project" nil t)
@@ -2277,8 +2276,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'properties-mode "properties-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.properties$" . properties-mode))
 
-;; 搜索
-(autoload 'snails "snails" nil t)
 ;; multiple scratch buffers 创建一个跟当前buffer mode一样的scratch buffer
 (autoload 'scratch "scratch" nil t)
 
