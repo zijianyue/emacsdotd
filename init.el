@@ -431,6 +431,7 @@
  '(imenu-list-idle-update-delay 1.5)
  '(imenu-max-item-length 120)
  '(imenu-max-items 1000)
+ '(indent-guide-recursive t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
  '(isearch-allow-scroll t)
@@ -439,7 +440,7 @@
  '(ivy-height 25)
  '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
- '(line-spacing 0.15)
+ '(line-spacing 0.2)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook '(lsp-hover))
  '(lsp-enable-indentation nil)
@@ -953,6 +954,7 @@
 (global-set-key (kbd "C-S-b") 'helm-multi-swoop-all) ;<C-down> and <C-up> 上下移动预览，即helm-follow-mode helm-ag-buffers是类似的
 
 (autoload 'helm-grep-do-git-grep "helm-grep" nil t)
+(autoload 'helm-do-grep-ag "helm-grep" nil t)
 (autoload 'helm-do-grep-ag-project "helm-grep" nil t)
 (autoload 'helm-ls-git-ls "helm-ls-git" nil t)
 (autoload 'helm-swoop "helm-swoop" nil t)
@@ -985,7 +987,7 @@
        (require 'helm-ag)
        (require 'helm-files)
        (setq helm-ff-default-directory (helm-ag--project-root))
-       (helm-grep-ag helm-ff-default-directory arg))
+       (helm-grep-ag (expand-file-name helm-ff-default-directory) arg))
      ))
 
 (eval-after-load "helm-gtags"
@@ -1660,7 +1662,7 @@ By default, this shows the information specified by `global-mode-string'."
 
 (doom-modeline-def-modeline 'main-misc-for-all
   '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position word-count parrot selection-info)
-  '(objed-state misc-info-for-all persp-name battery grip irc mu4e github debug lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
+  '(objed-state misc-info-for-all persp-name battery grip irc mu4e gnus github debug lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
 
 (defun doom-modeline-set-main-misc-for-all-modeline (&optional default)
   "Set main mode-line.
@@ -2080,7 +2082,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (setq highlight-indent-guides-delay 0.7)
   )
 
-(autoload 'indent-guide-global-mode "indent-guide" nil t)
+;; (autoload 'indent-guide-global-mode "indent-guide" nil t)
 
 ;; kotlin mode 跟java转换的一种语言
 (autoload 'kotlin-mode "kotlin-mode" nil t)
