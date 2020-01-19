@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.3.0-snapshot
+;; Version: 1.13.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -422,7 +422,7 @@ MOTION defaults to the current motion."
 
 (defun evil-declare-motion (command)
   "Declare COMMAND to be a movement function.
-This ensures that it behaves correctly in Visual state."
+This ensures that it behaves correctly in visual state."
   (evil-add-command-properties command :keep-visual t :repeat 'motion))
 
 (defun evil-declare-repeat (command)
@@ -438,7 +438,8 @@ This ensures that it behaves correctly in Visual state."
   (evil-add-command-properties command :repeat 'ignore))
 
 (defun evil-declare-change-repeat (command)
-  "Declare COMMAND to be repeatable by buffer changes."
+  "Declare COMMAND to be repeatable by buffer changes rather than
+keystrokes."
   (evil-add-command-properties command :repeat 'change))
 
 (defun evil-declare-insert-at-point-repeat (command)
@@ -555,6 +556,8 @@ Translates it according to the input method."
             (progn
               (define-key new-global-map [menu-bar]
                 (lookup-key global-map [menu-bar]))
+              (define-key new-global-map [tab-bar]
+                (lookup-key global-map [tab-bar]))
               (define-key new-global-map [tool-bar]
                 (lookup-key global-map [tool-bar]))
               (add-to-list 'new-global-map
@@ -868,14 +871,18 @@ Inhibits echo area messages, mode line updates and cursor changes."
      ,@body))
 
 (defvar evil-cached-header-line-height nil
-  "Cached height of the header line.")
+  "Cached height of the header line.
+Used for fallback implementation on older Emacsen.")
 
 (defun evil-header-line-height ()
   "Return the height of the header line.
-If there is no header line, return nil."
+If there is no header line, return 0.
+Used as a fallback implementation of `window-header-line-height' on
+older Emacsen."
   (let ((posn (posn-at-x-y 0 0)))
-    (when (eq (posn-area posn) 'header-line)
-      (cdr (posn-object-width-height posn)))))
+    (or (when (eq (posn-area posn) 'header-line)
+          (cdr (posn-object-width-height posn)))
+        0)))
 
 (defun evil-posn-x-y (position)
   "Return the x and y coordinates in POSITION.
@@ -892,9 +899,10 @@ Learned from mozc.el."
   (let ((xy (posn-x-y position)))
     (when header-line-format
       (setcdr xy (+ (cdr xy)
-                    (or evil-cached-header-line-height
-                        (setq evil-cached-header-line-height (evil-header-line-height))
-                        0))))
+                    (or (and (fboundp 'window-header-line-height)
+                             (window-header-line-height))
+                        evil-cached-header-line-height
+                        (setq evil-cached-header-line-height (evil-header-line-height))))))
     xy))
 
 (defun evil-count-lines (beg end)

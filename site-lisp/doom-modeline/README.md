@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/seagle0128/doom-modeline.svg?branch=master)](https://travis-ci.org/seagle0128/doom-modeline)
 [![MELPA](https://melpa.org/packages/doom-modeline-badge.svg)](https://melpa.org/#/doom-modeline)
 [![MELPA Stable](https://stable.melpa.org/packages/doom-modeline-badge.svg)](https://stable.melpa.org/#/doom-modeline)
-[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](LICENSE)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -47,7 +47,7 @@ The `doom-modeline` was designed for minimalism, and offers:
 - An indicator for remote host
 - An indicator for LSP state with `lsp-mode` or `eglot`
 - An indicator for GitHub notifications
-- An indicator for unread emails with `mu4e-alert`
+- An indicator for unread emails with `mu4e-alert` and `gnus`
 - An indicator for IRC notifications with `circe`, `rcirc` or `erc`
 - An indicator for buffer position which is compatible with `nyan-mode`
 - An indicator for party `parrot`
@@ -219,7 +219,7 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 (setq doom-modeline-unicode-fallback nil)
 
 ;; Whether display the minor modes in mode-line.
-(setq doom-modeline-minor-modes (featurep 'minions))
+(setq doom-modeline-minor-modes nil)
 
 ;; If non-nil, a word count will be added to the selection-info modeline segment.
 (setq doom-modeline-enable-word-count nil)
@@ -265,7 +265,13 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 (setq doom-modeline-modal-icon t)
 
 ;; Whether display the mu4e notifications. It requires `mu4e-alert' package.
-(setq doom-modeline-mu4e t)
+(setq doom-modeline-mu4e nil)
+
+;; Whether display the gnus notifications.
+(setq doom-modeline-gnus t)
+
+;; Wheter gnus should automatically be updated and how often (set to nil to disable)
+(setq doom-modeline-gnus-timer 2)
 
 ;; Whether display the IRC notifications. It requires `circe' or `erc' package.
 (setq doom-modeline-irc t)

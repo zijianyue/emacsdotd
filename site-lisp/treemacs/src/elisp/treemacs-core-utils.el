@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Alexander Miller
+;; Copyright (C) 2020 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;; General implementation details.
@@ -49,10 +49,11 @@
   treemacs-get-local-window
   treemacs-get-local-buffer
   treemacs-get-local-buffer-create
+  treemacs-scope-shelf->buffer
   treemacs-current-visibility
   treemacs--select-visible-window
   treemacs--remove-buffer-after-kill
-  treemacs--all-scopes-and-buffers)
+  treemacs--scope-store)
 
 (treemacs-import-functions-from "treemacs-rendering"
   treemacs-do-delete-single-node
@@ -575,7 +576,8 @@ IS-FILE?: Bool"
             (unless (f-exists? dir)
               (make-directory dir t))
             (f-touch path-to-create))
-        (make-directory path-to-create t)))
+        (make-directory path-to-create t))
+      (run-hook-with-args 'treemacs-create-file-functions path-to-create))
      (-when-let (project (treemacs--find-project-for-path path-to-create))
        (-when-let* ((created-under (treemacs--parent path-to-create))
                     (created-under-pos (treemacs-find-visible-node created-under)))

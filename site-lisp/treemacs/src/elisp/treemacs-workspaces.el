@@ -1,6 +1,6 @@
 ;;; treemacs.el --- A tree style file viewer package -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Alexander Miller
+;; Copyright (C) 2020 Alexander Miller
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;; Everything about creating, (re)moving, (re)naming and otherwise editing
@@ -94,8 +94,14 @@ not buffer-local values.
 This function can be used with `setf'."
   (declare (side-effect-free t))
   (inline-quote
-   (frame-parameter (selected-frame) 'treemacs-workspace)))
-(gv-define-setter treemacs-current-workspace (val) `(set-frame-parameter (selected-frame) 'treemacs-workspace ,val))
+   (-when-let (shelf (treemacs-current-scope-shelf))
+     (treemacs-scope-shelf->workspace shelf))))
+(gv-define-setter treemacs-current-workspace (val)
+  `(let ((shelf (treemacs-current-scope-shelf)))
+     (unless shelf
+       (setf shelf (make-treemacs-scope-shelf))
+       (push (cons (treemacs-current-scope) shelf) treemacs--buffer-storage))
+     (setf (treemacs-scope-shelf->workspace shelf) ,val)))
 
 (define-inline treemacs--find-workspace (&optional path)
   "Find the right workspace the given PATH.
@@ -107,7 +113,7 @@ PATH: String"
      (setf (treemacs-current-workspace)
            (or (--first (treemacs-is-path ,path :in-workspace it)
                         treemacs--workspaces)
-            (car treemacs--workspaces))))))
+               (car treemacs--workspaces))))))
 
 (define-inline treemacs--find-project-for-buffer (&optional buffer-file)
   "In the current workspace find the project current buffer's file falls under.
@@ -396,6 +402,9 @@ Return values may be as follows:
 * If the project for the given path already exists:
   - the symbol `duplicate-project'
   - the project the PATH falls into
+* If a project under given path already exists:
+  - the symbol `includes-project'
+  - the project the PATH contains
 * If a project for the given name already exists:
   - the symbol `duplicate-name'
   - the project with the duplicate name
@@ -417,6 +426,9 @@ NAME: String"
      (setq path (-> path (file-truename) (treemacs--canonical-path)))
      (-when-let (project (treemacs--find-project-for-path path))
        (treemacs-return `(duplicate-project ,project)))
+     (-when-let (project (--first (treemacs-is-path (treemacs-project->path it) :in path)
+                                  (treemacs-workspace->projects (treemacs-current-workspace))))
+       (treemacs-return `(includes-project ,project)))
      (let* ((name (or name (read-string "Project Name: " (treemacs--filename path))))
             (project (make-treemacs-project :name name :path path :path-status path-status)))
        (treemacs-return-if (treemacs--is-name-invalid? name)
