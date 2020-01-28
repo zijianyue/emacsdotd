@@ -31,11 +31,14 @@ DOOM Themes is an opinionated UI plugin and pack of themes extracted from my
   - [X] `doom-acario-light`: an original light theme (thanks to [gagbo])
   - [X] `doom-city-lights`: based on Atom's [City lights][city-lights] (thanks to [fuxialexander])
   - [X] `doom-challenger-deep`: based on Vim's [Challenger deep][challenger-deep] theme (thanks to [fuxialexander])
+  - [X] `doom-dark+` ported from VS Code's [Dark+][dark+] theme (thanks to [ema2159])
   - [X] `doom-dracula`: an implementation of [Dracula][dracula] theme (thanks to [fuxialexander])
   - [X] `doom-fairy-floss`: a candy colored Sublime theme by [sailorhg] (thanks to [ema2159])
-  - [X] `doom-gruvbox`: adapted from Mohretz's [Gruvbox][gruvbox] (thanks to [JongW])
+  - [X] `doom-gruvbox`: adapted from Morhetz's [Gruvbox][gruvbox] (thanks to [JongW])
+  - [X] `doom-horizon`: ported from VS Code's [Horizon][horizon] (thanks to [karetsu])
   - [X] `doom-Iosvkem`: adapted from [Iosvkem][Iosvkem] (thanks to [neutaaaaan])
-  - [X] `doom-laserwave`: an clean 80's synthwave / outrun theme inspired by VS Code's [laserwave][laserwave] (thanks to [hyakt])
+  - [X] `doom-laserwave`: a clean 80's synthwave / outrun theme inspired by VS Code's [laserwave][laserwave] (thanks to [hyakt])
+  - [X] `doom-manegarm`: an original autumn-inspired dark theme (thanks to [kenranunderscore])
   - [X] `doom-molokai`: based on Textmate's monokai
   - [X] `doom-moonlight` ported from VS Code's [Moonlight Theme] (thanks to [Brettm12345])
   - [X] `doom-nord`: dark variant of [Nord][nord] (thanks to [fuxialexander])
@@ -180,6 +183,7 @@ pointers. Additional theme and plugin support requests are welcome too.
 [Brettm12345]: https://github.com/Brettm12345
 [challenger-deep]: https://github.com/challenger-deep-theme/vim
 [city-lights]: http://citylights.xyz/
+[dark+]: https://github.com/microsoft/vscode/blob/master/extensions/theme-defaults/themes/dark_plus.json
 [daylerees]: http://daylerees.github.io/
 [defphil]: https://github.com/defphil
 [dracula]: https://draculatheme.com/
@@ -189,12 +193,15 @@ pointers. Additional theme and plugin support requests are welcome too.
 [fuxialexander]: https://github.com/fuxialexander
 [gagbo]: https://github.com/gagbo 
 [gruvbox]: https://github.com/morhetz/gruvbox
+[horizon]: https://github.com/jolaleye/horizon-theme-vscode
 [hlinum]: https://melpa.org/#/hlinum
 [issues]: https://github.com/hlissner/emacs-doom-themes/issues
 [Iosvkem]: https://github.com/neutaaaaan/iosvkem
 [juanwolf]: https://github.com/juanwolf
 [JongW]: https://github.com/JongW
 [jwintz]: https://github.com/jwintz
+[karetsu]: https://github.com/kenranunderscore
+[kenranunderscore]: https://github.com/kenranunderscore
 [Material Themes]: https://github.com/equinusocio/vsc-material-theme
 [Moonlight Theme]: https://github.com/atomiks/moonlight-vscode-theme
 [mode-line]: https://github.com/hlissner/.emacs.d/blob/master/modules/ui/doom-modeline/config.el

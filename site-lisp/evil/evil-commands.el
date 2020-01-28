@@ -1,4 +1,4 @@
-;;; evil-commands.el --- Evil commands and operators
+;;; evil-commands.el --- Evil commands and operators -*- lexical-binding: t -*-
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
@@ -34,6 +34,8 @@
 (require 'flyspell)
 (require 'cl-lib)
 (require 'reveal)
+
+(declare-function imenu--in-alist "imenu")
 
 ;;; Motions
 
@@ -1477,7 +1479,7 @@ be joined with the previous line if and only if
 `evil-backspace-join-lines'."
   (interactive "p")
   (if (or evil-backspace-join-lines (not (bolp)))
-      (delete-char -1)
+      (call-interactively 'delete-backward-char)
     (user-error "Beginning of line")))
 
 (evil-define-command evil-delete-backward-word ()
@@ -2737,7 +2739,7 @@ The search is unbounded, i.e., the pattern is not wrapped in
   (let (ientry ipos)
     (when (fboundp 'imenu--make-index-alist)
       (ignore-errors (setq ientry (imenu--make-index-alist)))
-      (setq ientry (assoc string ientry))
+      (setq ientry (imenu--in-alist string ientry))
       (setq ipos (cdr ientry))
       (when (and (markerp ipos)
                  (eq (marker-buffer ipos) (current-buffer)))

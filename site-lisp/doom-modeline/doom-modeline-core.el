@@ -1,6 +1,6 @@
 ;;; doom-modeline-core.el --- The core libraries for doom-modeline -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2019 Vincent Zhang
+;; Copyright (C) 2018-2020 Vincent Zhang
 
 ;; This file is not part of GNU Emacs.
 
@@ -798,7 +798,7 @@ then this function does nothing."
     ;; @see https://github.com/seagle0128/doom-modeline/issues/271
     (round
      (* (if (and (>= emacs-major-version 27)
-                 (eq system-type 'gnu/linux))
+                 (not (eq system-type 'darwin)))
             1.0
           1.68)
         (cond ((integerp height) (/ height 10))

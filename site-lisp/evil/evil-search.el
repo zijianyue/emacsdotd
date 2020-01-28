@@ -1,4 +1,4 @@
-;;; evil-search.el --- Search and substitute
+;;; evil-search.el --- Search and substitute -*- lexical-binding: t -*-
 
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
@@ -778,7 +778,7 @@ This function does nothing if `evil-ex-search-interactive' or
     (with-current-buffer (or evil-ex-current-buffer (current-buffer))
       (unless (evil-ex-hl-active-p 'evil-ex-search)
         (evil-ex-make-hl 'evil-ex-search
-                         :win (minibuffer-selected-window)))
+                         :win (or (minibuffer-selected-window) (selected-window))))
       (if pattern
           (evil-ex-hl-change 'evil-ex-search pattern)))))
 
@@ -1042,6 +1042,16 @@ any error conditions."
   (evil-ex-search-stop-session)
   (evil-ex-delete-hl 'evil-ex-search)
   (abort-recursive-edit))
+
+(defun evil-ex-search-command-window ()
+  "Start command window with search history and current minibuffer content."
+  (interactive)
+  (let ((current (minibuffer-contents))
+        (config (current-window-configuration)))
+    (select-window (minibuffer-selected-window) t)
+    (evil-command-window (cons current evil-ex-search-history)
+                         (evil-search-prompt (eq evil-ex-search-direction 'forward))
+                         (apply-partially 'evil-ex-command-window-execute config))))
 
 (defun evil-ex-search-goto-offset (offset)
   "Move point according to search OFFSET and set `evil-this-type' accordingly.
