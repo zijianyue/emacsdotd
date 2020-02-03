@@ -73,7 +73,7 @@
 (if (eq system-type 'darwin)
     ;; (setq site-lisp-directory "/Applications/Emacs.app/Contents/Resources/site-lisp")
     (setq site-lisp-directory "/usr/local/share/emacs/site-lisp")
-  (setq site-lisp-directory (expand-file-name (concat data-directory "../site-lisp"))))
+  (setq site-lisp-directory (expand-file-name (concat invocation-directory "../share/emacs/site-lisp"))))
 
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "/site-lisp/emacs-doom-themes/themes"))
 ;;-----------------------------------------------------------设置-----------------------------------------------------------;;
