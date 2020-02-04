@@ -14,7 +14,7 @@
  ("c:/Users/gezijian/AppData/Roaming/" . ".emacs.d/")
  ("d:/" . "Emacs27/")
  ("c:/emacs/share/emacs/26.2/" . "site-lisp/")
- ("c:/emacs/share/emacs/" . "26.2/")
+ ("c:/emacs/share/emacs/" . "site-lisp/")
  ("c:/emacs/share/" . "emacs/")
  ("c:/emacs/" . "share/")
  ("c:/" . "emacs/")
@@ -55,7 +55,15 @@
 
 ;; ----- ido-dir-file-cache -----
 (
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (24112 31309 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".git/" ".cache/" "../" "./")
+ ("c:/emacs/share/emacs/" (24121 38479 0 0) "site-lisp-2/" "site-lisp/" "26.2/" "../" "./")
+
+ ("c:/emacs/share/emacs/site-lisp/" (24120 2197 0 0) "yasnippet.el" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "Emacs-wgrep/" "dll&reg/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" "../" "./")
+
+ ("c:/emacs/share/emacs/26.2/" (23749 50651 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
+
+ ("c:/emacs/share/emacs/26.2/site-lisp/" (24121 38393 0 0) "subdirs.el" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (24121 37480 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".gitignore" ".git/" ".cache/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit/lisp/" (24058 17750 0 0) "with-editor.el" "treepy.el" "transient.el" "Makefile" "magit.elc" "magit.el" "magit-worktree.elc" "magit-worktree.el" "magit-wip.elc" "magit-wip.el" "magit-utils.elc" "magit-utils.el" "magit-transient.elc" "magit-transient.el" "magit-tag.elc" "magit-tag.el" "magit-subtree.elc" "magit-subtree.el" "magit-submodule.elc" "magit-submodule.el" "magit-status.elc" "magit-status.el" "magit-stash.elc" "magit-stash.el" "magit-sequence.elc" "magit-sequence.el" "magit-section.elc" "magit-section.el" "magit-reset.elc" "magit-reset.el" "magit-repos.elc" "magit-repos.el" "magit-remote.elc" "magit-remote.el" "magit-refs.elc" "magit-refs.el" "magit-reflog.elc" "magit-reflog.el" "magit-push.elc" "magit-push.el" "magit-pull.elc" "magit-pull.el" "magit-process.elc" "magit-process.el" "magit-popup.el" "magit-pkg.el" "magit-patch.elc" "magit-patch.el" "magit-obsolete.elc" "magit-obsolete.el" "magit-notes.elc" "magit-notes.el" "magit-mode.elc" "magit-mode.el" "magit-merge.elc" "magit-merge.el" "magit-margin.elc" "magit-margin.el" "magit-log.elc" "magit-log.el" "magit-libgit.elc" "magit-libgit.el" "magit-imenu.elc" "magit-imenu.el" "magit-gitignore.elc" "magit-gitignore.el" "magit-git.elc" "magit-git.el" "magit-files.elc" "magit-files.el" "magit-fetch.elc" "magit-fetch.el" "magit-extras.elc" "magit-extras.el" "magit-ediff.elc" "magit-ediff.el" "magit-diff.elc" "magit-diff.el" "magit-core.elc" "magit-core.el" "magit-commit.elc" "magit-commit.el" "magit-clone.elc" "magit-clone.el" "magit-branch.elc" "magit-branch.el" "magit-bookmark.elc" "magit-bookmark.el" "magit-blame.elc" "magit-blame.el" "magit-bisect.elc" "magit-bisect.el" "magit-autorevert.elc" "magit-autorevert.el" "magit-autoloads.el" "magit-apply.elc" "magit-apply.el" "lv.el" "graphql.el" "git-rebase.elc" "git-rebase.el" "git-commit.elc" "git-commit.el" "ghub.el" "ghub-graphql.el" "dash.el" "dash-functional.el" "../" "./")
 
@@ -119,8 +127,6 @@
 
  ("d:/jdee-server/" (23929 4376 0 0) "target/" "src/" "pom.xml" "jdee-server.iml" "GTAGS" "GRTAGS" "GPATH" ".settings/" ".project" ".idea/" ".gitignore" ".git/" ".classpath" "../" "./")
 
- ("c:/emacs/share/emacs/26.2/site-lisp/" (23942 15543 0 0) "yasnippet.el" "vlfi/" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "markdown-mode.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "emacs-ycmd/" "Emacs-wgrep/" "dll&reg/" "diminish.el" "diff-hl-master/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" ".git/" "../" "./")
-
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/rg.el/" (23947 34251 0 0) "wgrep-rg.el" "tools/" "test/" "screenshot.png" "rgel.info" "rg.el" "rg-result.el" "rg-menu.el" "rg-info-hack.el" "rg-ibuffer.el" "rg-history.el" "rg-header.el" "README.md" "Makefile" "LICENSE" "docs/" "Cask" ".travis.yml" ".gitignore" ".git/" ".ert-runner" "../" "./")
 
  ("d:/study/" (23942 15010 0 0) "Web/" "../" "./")
@@ -146,12 +152,6 @@
  ("d:/kotlin/" (23902 38305 0 0) "TROUBLESHOOTING.md" "TODO.md" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "LICENSE.txt" "images/" "Icon128.png" "grammars/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "EDITORS.md" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
 
  ("d:/KotlinLanguageServer-/" (23780 8470 0 0) "vscode-extension-src/" "tsconfig.json" "TROUBLESHOOTING.md" "TODO.md" "syntaxes/" "shared/" "settings.gradle" "server/" "scripts/" "README.md" "package.json" "package-lock.json" "LICENSE.txt" "images/" "Icon128.png" "grammar/" "gradlew.bat" "gradlew" "gradle.properties" "gradle/" "CHANGELOG.md" "BUILDING.md" "build.gradle" "build/" ".vscodeignore" ".vscode/" ".travis.yml" ".gradle/" ".gitignore" ".git/" ".editorconfig" "../" "./")
-
- ("c:/emacs/share/emacs/26.2/" (23734 64157 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
-
- ("c:/emacs/share/emacs/" (23734 64150 0 0) "site-lisp/" "26.2/" "../" "./")
-
- ("c:/emacs/share/emacs/site-lisp/" (23734 64150 0 0) "subdirs.el" "../" "./")
 
  ("c:/emacs/share/" (23734 64264 0 0) "metainfo/" "man/" "licenses/" "info/" "ImageMagick-7/" "icons/" "emacs/" "doc/" "applications/" "../" "./")
 

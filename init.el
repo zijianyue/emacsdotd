@@ -275,6 +275,9 @@
 ;; mac上的键盘换位
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
+;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
+;; (setq w32-pass-lwindow-to-system nil)
+;; (setq w32-lwindow-modifier 'super) ; Left Windows key
 ;; hi lock颜色不要hi-black-hb
 (with-eval-after-load 'hi-lock
   ;; (unless (featurep 'swiper)
@@ -416,6 +419,7 @@
  '(helm-gtags-fuzzy-match t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-update-interval-second 3)
+ '(helm-locate-command "es %s -sort run-count -r %s")
  '(helm-mode-fuzzy-match t)
  '(helm-rg-hidden t)
  '(helm-rg-smart-case t)
@@ -1758,7 +1762,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'js-mode-hook 'lsp-deferred)
 
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
-
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
   ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
   ;;   (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
