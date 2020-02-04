@@ -681,6 +681,9 @@ StrictHostKeyChecking no
 
 ** 不好用的功能 <2019-01-25 Fri 22:20>
 
+*** helm-locate调用es命令无法搜到.class文件 <2020-02-04 周二 21:28>
+
+*** lsp-json不好用，打开json文件起了lsp还是无法使用lsp的功能 <2020-02-04 周二 23:09>
 ** 安装brew install emacs-mac后的提示记录 <2019-01-27 Sun 23:16>
 This is YAMAMOTO Mitsuharu's "Mac port" addition to
 GNU Emacs 26. This provides a native GUI support for Mac OS X

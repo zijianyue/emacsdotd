@@ -313,8 +313,11 @@
  '(cc-search-directories '("." "/usr/include" "/usr/local/include/*" "../*"))
  '(ccls-sem-macro-faces [font-lock-warning-face])
  '(ccls-tree-initial-levels 1)
+ '(centaur-tabs-backward-tab-text " <")
  '(centaur-tabs-close-button " X")
  '(centaur-tabs-cycle-scope 'tabs)
+ '(centaur-tabs-forward-tab-text " >")
+ '(centaur-tabs-show-navigation-buttons t)
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
@@ -1719,7 +1722,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 (autoload 'projectile-mode "projectile" nil t)
 (global-set-key (kbd "C-S-t") 'projectile-toggle-between-implementation-and-test);切换src和test文件，得先projectile-mode
-(autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
+
+(defun lsp-deferred ()
+  "异步运行lsp."
+  (interactive)
+  (require 'lsp-mode)
+  (lsp-deferred))
+;; (autoload 'lsp "lsp-mode" nil t)        ;not lsp-mode but lsp
+
 (autoload 'helm-lsp-workspace-symbol "helm-lsp" nil t)
 
 ;; lsp默认支持js-mode不支持json-mode,flycheck默认支持json-mode
@@ -1738,15 +1748,14 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix lsp-treemacs-symbols-list
   (require 'lsp-origami)
   (projectile-mode)
-  (add-hook 'java-mode-hook 'lsp)
-  (add-hook 'c-mode-hook 'lsp)
-  (add-hook 'c++-mode-hook 'lsp)
-  (add-hook 'python-mode-hook 'lsp)
-  ;; (add-hook 'js-mode-hook 'lsp)
-  (add-hook 'sh-mode-hook 'lsp)
-  ;; (add-hook 'kotlin-mode-hook 'lsp)
-  (add-hook 'nxml-mode-hook 'lsp)
-  (add-hook 'js-mode-hook 'lsp)
+  (add-hook 'java-mode-hook 'lsp-deferred)
+  (add-hook 'c-mode-hook 'lsp-deferred)
+  (add-hook 'c++-mode-hook 'lsp-deferred)
+  (add-hook 'python-mode-hook 'lsp-deferred)
+  (add-hook 'sh-mode-hook 'lsp-deferred)
+  ;; (add-hook 'kotlin-mode-hook 'lsp-deferred)
+  (add-hook 'nxml-mode-hook 'lsp-deferred)
+  (add-hook 'js-mode-hook 'lsp-deferred)
 
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
 
@@ -1815,16 +1824,16 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (fset 'lsp--symbol-to-hierarchical-imenu-elem 'lsp--symbol-to-hierarchical-imenu-elem-fset)
 
   ;; java-script 追加json-mode
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "javascript-typescript-stdio")
-                    :major-modes '(json-mode)
-                    :priority -3
-                    :server-id 'jsts-ls))
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "typescript-language-server")
-                    :major-modes '(json-mode)
-                    :priority -2
-                    :server-id 'ts-ls))
+  ;; (lsp-register-client
+  ;;  (make-lsp-client :new-connection (lsp-stdio-connection "javascript-typescript-stdio")
+  ;;                   :major-modes '(json-mode)
+  ;;                   :priority -3
+  ;;                   :server-id 'jsts-ls))
+  ;; (lsp-register-client
+  ;;  (make-lsp-client :new-connection (lsp-stdio-connection "typescript-language-server")
+  ;;                   :major-modes '(json-mode)
+  ;;                   :priority -2
+  ;;                   :server-id 'ts-ls))
 
   ;; kotlin
   (lsp-register-client

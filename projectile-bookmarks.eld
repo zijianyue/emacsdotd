@@ -1,1 +1,1 @@
-("~/.emacs.d/" "c:/" "d:/software/ccls/" "d:/software/cquery/" "d:/software/ccls/third_party/rapidjson/" "~/.emacs.d/site-lisp/emacs-ccls/" "c:/emacs/share/emacs/26.2/site-lisp/" "~/.emacs.d/site-lisp/lsp-java/" "d:/jdee-server/" "d:/kotlin/" "~/.emacs.d/site-lisp/lsp-mode/")
+("~/.emacs.d/" "~/.emacs.d/site-lisp/lsp-mode/" "d:/jdee-server/" "c:/" "d:/software/ccls/" "d:/software/cquery/" "d:/software/ccls/third_party/rapidjson/" "~/.emacs.d/site-lisp/emacs-ccls/" "c:/emacs/share/emacs/26.2/site-lisp/" "~/.emacs.d/site-lisp/lsp-java/" "d:/kotlin/")
