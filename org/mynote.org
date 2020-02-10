@@ -24,7 +24,7 @@ key2: 346F6F5877E4BB4F39D44A29B28CCF5B467C5D35F00B988B06546CA2127299B9C124AE847E
 ** git避免输入用户名密码
 HOME目录下创建.git-credentials
 
-内容是 https://zijianyue:gzjsy1314@github.com
+内容是 https://name:pwd@github.com
 
 然后进入shell
 
@@ -649,6 +649,12 @@ code
 set NODE_TLS_REJECT_UNAUTHORIZED=0
 ** npm卸载命令 <2019-03-18 周一 16:40>
 npm uninstall typescript -g
+全删除
+For Windows Users - If you want to remove all the node modules installed at once:
+
+Open powershell
+Go inside node_modules folder (cd node_modules)
+Run this command - "npm uninstall (Get-ChildItem).Name"
 ** pdf-tools 研究
 
 ** MAC版本使用注意 <2019-01-25 Fri 13:56>
@@ -681,9 +687,14 @@ StrictHostKeyChecking no
 
 ** 不好用的功能 <2019-01-25 Fri 22:20>
 
-*** helm-locate调用es命令无法搜到.class文件 <2020-02-04 周二 21:28>
-
-*** lsp-json不好用，打开json文件起了lsp还是无法使用lsp的功能 <2020-02-04 周二 23:09>
+*** DONE helm-locate调用es命令无法搜到.class文件 <2020-02-04 周二 21:28>
+CLOSED: [2020-02-05 周三 19:22]
+helm-boring-file-regexp-list
+*** DONE lsp-json不好用，打开json文件起了lsp还是无法使用lsp的功能 <2020-02-04 周二 23:09>
+CLOSED: [2020-02-05 周三 16:18]
+要安装这个版本才好用 npm i -g vscode-json-languageserver@1.2.1
+这个ls开启后，新增的json文件需要重新加载后才能正常
+*** TODO lsp-java跳转定义后的文件名全小写 <2020-02-05 周三 16:41>
 ** 安装brew install emacs-mac后的提示记录 <2019-01-27 Sun 23:16>
 This is YAMAMOTO Mitsuharu's "Mac port" addition to
 GNU Emacs 26. This provides a native GUI support for Mac OS X
@@ -755,11 +766,11 @@ m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start�
 PEP 索引的网址是： http://python.org/dev/peps.
 ** pip带proxy
 在CMD命令行输入：
-set http_proxy=http://g00280886:gzj2hzt;@szxmwg17-ga:8080
-set https_proxy=http://g00280886:gzj2hzt;@szxmwg17-ga:8080
+set http_proxy=http://name:pwd@url:8080
+set https_proxy=http://name:pwd@url:8080
 
-export http_proxy=http://g00280886:gzj2hzt;@szxmwg17-ga:8080
-export https_proxy=http://g00280886:gzj2hzt;@szxmwg17-ga:8080
+export http_proxy=http://name:pwd@url:8080
+export https_proxy=http://name:pwd@url:8080
 bash里面set改成export
 然后
 pip install python-language-server[all]==0.20.0
