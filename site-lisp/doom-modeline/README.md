@@ -181,6 +181,7 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; Determines the style used by `doom-modeline-buffer-file-name'.
 ;;
 ;; Given ~/Projects/FOSS/emacs/lisp/comint.el
+;;   auto => emacs/lisp/comint.el (in a project) or comint.el
 ;;   truncate-upto-project => ~/P/F/emacs/lisp/comint.el
 ;;   truncate-from-project => ~/Projects/FOSS/emacs/l/comint.el
 ;;   truncate-with-project => emacs/l/comint.el
@@ -195,9 +196,9 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; If you are experiencing the laggy issue, especially while editing remote files
 ;; with tramp, please try `file-name' style.
 ;; Please refer to https://github.com/bbatsov/projectile/issues/657.
-(setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
+(setq doom-modeline-buffer-file-name-style 'auto)
 
-;; Whether display icons in mode-line. Respects `all-the-icons-color-icons'.
+;; Whether display icons in the mode-line. Respects `all-the-icons-color-icons'.
 ;; While using the server mode in GUI, should set the value explicitly.
 (setq doom-modeline-icon (display-graphic-p))
 
@@ -218,7 +219,7 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; Whether to use unicode as a fallback (instead of ASCII) when not using icons.
 (setq doom-modeline-unicode-fallback nil)
 
-;; Whether display the minor modes in mode-line.
+;; Whether display the minor modes in the mode-line.
 (setq doom-modeline-minor-modes nil)
 
 ;; If non-nil, a word count will be added to the selection-info modeline segment.
@@ -245,13 +246,13 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 ;; The maximum displayed length of the branch name of version control.
 (setq doom-modeline-vcs-max-length 12)
 
-;; Whether display the perspective name. Non-nil to display in mode-line.
+;; Whether display the perspective name. Non-nil to display in the mode-line.
 (setq doom-modeline-persp-name t)
 
 ;; If non nil the default perspective name is displayed in the mode-line.
 (setq doom-modeline-display-default-persp-name nil)
 
-;; Whether display the `lsp' state. Non-nil to display in mode-line.
+;; Whether display the `lsp' state. Non-nil to display in the mode-line.
 (setq doom-modeline-lsp t)
 
 ;; Whether display the GitHub notifications. It requires `ghub' package.
@@ -316,7 +317,7 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
    (setq inhibit-compacting-font-caches t)
    ```
 
-1. A ridiculous path is displayed on mode-line while visiting a symbolink.
+1. A ridiculous path is displayed on the mode-line while visiting a symbolink.
 
     It's the default behaviors of Vanilla Emacs. If you want to display the real
     names, please put this into your init file.
@@ -327,10 +328,6 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 
     If the file is controlled by vc, refer to the documentation of
     `vc-follow-symlinks`.
-
-1. Can I add my mode-line segments myself? How to do that?
-
-   Of course. Just add the segments into `global-mode-string`.
 
 1. Why doesn't change of branch reflect in modeline?
 
@@ -344,48 +341,50 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
      - [Maybe provide an alternative to VC's mode-line
        information](https://github.com/magit/magit/issues/2687)
 
-1. How can I define my own mode-line?
+1. Can I add my mode-line segments myself? How to do that?
+   How can I define my own mode-line?
 
-   Use `doom-modeline-def-modeline` to define your own mode-line and set it as
-   default.
+   There are two methods.
+   - If the information is simple, just add to `mode-line-misc-info` or `global-mode-string`.
 
-   For example:
-   - Define your custom doom-modeline
+   - Use `doom-modeline-def-modeline` to define your own mode-line and set it as
+     default.
 
-   ```emacs-lisp
-   (doom-modeline-def-modeline 'my-simple-line
-     '(bar matches buffer-info remote-host buffer-position parrot selection-info)
-     '(misc-info minor-modes input-method buffer-encoding major-mode process vcs checker))
-   ```
+     For example:
 
-   - Set it to default using the `doom-modeline-mode-hook`:
+       ```emacs-lisp
+       ;; Define your custom doom-modeline
+       (doom-modeline-def-modeline 'my-simple-line
+         '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+         '(misc-info minor-modes input-method buffer-encoding major-mode process vcs checker))
 
-   ```emacs-lisp
-   (defun setup-custom-doom-modeline ()
-     (doom-modeline-set-modeline 'my-simple-line 'default))
+       ;; Add to `doom-modeline-mode-hook` or other hooks
+       (defun setup-custom-doom-modeline ()
+          (doom-modeline-set-modeline 'my-simple-line 'default))
+       (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
+       ```
 
-   (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
-   ```
-
-1. How to specify font size in modeline?
+1. How to specify font family in modeline?
 
     For example:
 
     ``` emacs-lisp
     (setq doom-modeline-height 1)
-    (set-face-attribute 'mode-line nil :height 100)
-    (set-face-attribute 'mode-line-inactive nil :height 100)
+    (set-face-attribute 'mode-line nil :family "Noto Sans" :height 100)
+    (set-face-attribute 'mode-line-inactive nil :family "Noto Sans" :height 100)
     ```
 
     or
 
     ```emacs-lisp
     (custom-set-faces
-      '(mode-line ((t (:height 0.9))))
-      '(mode-line-inactive ((t (:height 0.9)))))
+      '(mode-line ((t (:family "Noto Sans" :height 0.9))))
+      '(mode-line-inactive ((t (:family "Noto Sans" :height 0.9)))))
     ```
 
-    Please refer to [#189](https://github.com/seagle0128/doom-modeline/issues/189).
+    Please refer to
+    [#189](https://github.com/seagle0128/doom-modeline/issues/189) and
+    [#301](https://github.com/seagle0128/doom-modeline/issues/301).
 
 1. How to disable symbolic links expanding in mode-line?
 

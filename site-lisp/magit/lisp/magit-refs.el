@@ -1,6 +1,6 @@
 ;;; magit-refs.el --- listing references  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
+;; Copyright (C) 2010-2020  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -355,14 +355,13 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (cond
      ((eq current-transient-command 'magit-show-refs)
       (setq args (transient-args 'magit-show-refs)))
-     ((eq major-mode 'magit-show-refs-mode)
+     ((eq major-mode 'magit-refs-mode)
       (setq args magit-buffer-arguments))
      ((and (memq magit-prefix-use-buffer-arguments '(always selected))
            (when-let ((buffer (magit-get-mode-buffer
                                'magit-refs-mode nil
-                               (or (eq magit-prefix-use-buffer-arguments
-                                       'selected)
-                                   'all))))
+                               (eq magit-prefix-use-buffer-arguments
+                                   'selected))))
              (setq args (buffer-local-value 'magit-buffer-arguments buffer))
              t)))
      (t

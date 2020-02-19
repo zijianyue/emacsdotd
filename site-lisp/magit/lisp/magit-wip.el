@@ -1,6 +1,6 @@
 ;;; magit-wip.el --- commit snapshots to work-in-progress refs  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
+;; Copyright (C) 2010-2020  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -283,7 +283,11 @@ commit message."
          (parent (magit-wip-get-parent ref wipref))
          (tree (magit-with-temp-index parent "--reset"
                  (if files
-                     (magit-call-git "add" "--" files)
+                     ;; Note: `update-index' is used instead of `add'
+                     ;; because `add' will fail if a file is already
+                     ;; deleted in the temporary index.
+                     (magit-call-git "update-index" "--add" "--remove"
+                                     "--" files)
                    (magit-with-toplevel
                      (magit-call-git "add" "-u" ".")))
                  (magit-git-string "write-tree"))))
@@ -349,7 +353,8 @@ commit message."
 (defun magit--wip-ref (namespace &optional ref)
   (concat magit-wip-namespace namespace
           (or (and ref (string-prefix-p "refs/" ref) ref)
-              (when-let ((branch (or ref (magit-get-current-branch))))
+              (when-let ((branch (and (not (equal ref "HEAD"))
+                                      (or ref (magit-get-current-branch)))))
                 (concat "refs/heads/" branch))
               "HEAD")))
 

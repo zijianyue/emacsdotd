@@ -1,6 +1,6 @@
 ;;; magit-log.el --- inspect Git history  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
+;; Copyright (C) 2010-2020  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -124,7 +124,7 @@ This option only controls whether the committer date is displayed
 instead of the author date.  Whether some date is displayed in
 the margin and whether the margin is displayed at all is
 controlled by other options."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-log
   :group 'magit-margin
   :type 'boolean)
@@ -155,7 +155,7 @@ This is useful if you use really long branch names."
 This is used by the command `magit-log-trace-definition'.
 You should prefer `magit-which-function' over `which-function'
 because the latter may make use of Imenu's outdated cache."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-log
   :type '(choice (function-item magit-which-function)
                  (function-item which-function)
@@ -357,7 +357,7 @@ the upstream isn't ahead of the current branch) show."
      ((and (memq use-buffer-args '(always selected))
            (when-let ((buffer (magit-get-mode-buffer
                                mode nil
-                               (or (eq use-buffer-args 'selected) 'all))))
+                               (eq use-buffer-args 'selected))))
              (setq args  (buffer-local-value 'magit-buffer-log-args buffer))
              (setq files (buffer-local-value 'magit-buffer-log-files buffer))
              t)))
@@ -938,9 +938,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
         (unless (magit-file-tracked-p (car files))
           (setq args (cons "--full-history" args)))
       (setq args (remove "--follow" args)))
-    (when (--any-p (string-match-p
-                    (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
-                   args)
+    (when (and (car magit-log-remove-graph-args)
+               (--any-p (string-match-p
+                         (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
+                        args))
       (setq args (remove "--graph" args)))
     (unless (member "--graph" args)
       (setq args (remove "--color" args)))
@@ -1109,6 +1110,8 @@ Do not add this to a hook variable."
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
   (let ((magit-log-count 0))
+    (when (looking-at "^\\.\\.\\.")
+      (magit-delete-line))
     (magit-wash-sequence (apply-partially 'magit-log-wash-rev style
                                           (magit-abbrev-length)))
     (if (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
@@ -1256,7 +1259,7 @@ Do not add this to a hook variable."
                 (forward-line -1)
                 (looking-at "[-_/|\\*o<>. ]*"))
               (setq graph (match-string 0))
-              (unless (string-match-p "[/\\]" graph)
+              (unless (string-match-p "[/\\.]" graph)
                 (insert graph ?\n))))))))
   t)
 
@@ -1289,6 +1292,8 @@ exists mostly for backward compatibility reasons."
     (forward-line -1)
     (magit-section-forward)))
 
+(add-hook 'magit-section-movement-hook #'magit-log-maybe-show-more-commits)
+
 (defvar magit--update-revision-buffer nil)
 
 (defun magit-log-maybe-update-revision-buffer (&optional _)
@@ -1296,6 +1301,8 @@ exists mostly for backward compatibility reasons."
 If there is no revision buffer in the same frame, then do nothing."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit--maybe-update-revision-buffer)))
+
+(add-hook 'magit-section-movement-hook #'magit-log-maybe-update-revision-buffer)
 
 (defun magit--maybe-update-revision-buffer ()
   (when-let ((commit (magit-section-value-if 'commit))
