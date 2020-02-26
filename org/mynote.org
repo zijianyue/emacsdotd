@@ -70,6 +70,21 @@ Successfully rebased and updated refs/heads/oss.
 这样就完成了git commit message的修改，然后强制push一下就搞定了。
 
 git push --force
+
+*** rebase其他功能的含义 <2020-02-06 周四 21:16>
+选择pick操作，git会应用这个补丁，以同样的提交信息（commit message）保存提交
+
+选择reword操作，git会应用这个补丁，但需要重新编辑提交信息
+
+选择edit操作，git会应用这个补丁，但会因为amending而终止
+
+选择squash操作，git会应用这个补丁，但会与之前的提交合并
+
+选择fixup操作，git会应用这个补丁，但会丢掉提交日志
+
+比如合并squash的使用，要把时间最早的commit pick，然后下面的都标记为squash，然后合并时需要改一下log，最后git push origin
+master --force提交，切记不要先pull再push
+
 ** magit里解决完文件冲突后要stage一下，才能resolve <2019-02-14 周四 16:28>
 
 ** git proxy密码特殊字符转义，比如.gitconfig里就要用 <2019-03-19 周二 19:10>
@@ -557,6 +572,7 @@ Server = http://mirrors.ustc.edu.cn/msys2/msys/$arch/
    emacs的bin目录下获取，用emax64主要就是它编译时带了image-magic的支持，但是到27以后的版本，官方不再依赖image-magic，自
    带图片绽放功能（使用系统API）
 *** TODO 长行性能<2019-02-25 周一 14:38>
+*** TODO 正确搜索properties文件，不受多字节影响  <2020-02-24 周一 20:07>
 ** magit <2019-01-28 周一 10:15>
 *** magit部分提交修改
 用tab展开修改，假如有多个hunk，在要提交的hunk上stage（s键），如果失败可能是无法单独提交该hunk
@@ -761,6 +777,7 @@ C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe -g 是生成debug的符号�
 m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start开始调试 quit结束调试
 运行exe shell中 ./ab.exe
 
+** maven编译报各种目录无法删除是由于装了tabnine，它在后台索引造成的 <2020-01-20 周一 21:06>
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.

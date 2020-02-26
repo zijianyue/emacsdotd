@@ -15,13 +15,11 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/multiple-cursors.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-ui"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/swiper"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/doom-modeline"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/helm"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-mode"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-purpose"))
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp/aweshell"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/centaur-tabs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
@@ -33,6 +31,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/Emacs-wgrep"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/diff-hl"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/vlfi"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/eglot"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -361,7 +360,7 @@
  '(flycheck-indication-mode 'right-fringe)
  '(flycheck-navigation-minimum-level 'error)
  '(frame-resize-pixelwise t)
- '(gc-cons-threshold 8000000)
+ '(gc-cons-threshold 32000000)
  '(git-commit-fill-column 200)
  '(git-commit-style-convention-checks nil)
  '(git-commit-summary-max-length 200)
@@ -453,13 +452,10 @@
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-symbol-highlighting nil)
- '(lsp-file-watch-ignored
-   '("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "[/\\\\]\\deployment\\target"))
  '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods '(kind position))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
- '(lsp-java-max-concurrent-builds 4)
  '(lsp-java-progress-reports-enabled nil)
  '(lsp-java-save-action-organize-imports nil)
  '(lsp-java-update-build-configuration 'interactive)
@@ -1535,7 +1531,16 @@ If FULL-COMMAND specifies if the full command line search was done."
 (setq centaur-tabs-set-modified-marker t)
 (setq centaur-tabs-modified-marker "*")
 ;; (setq centaur-tabs-height 18)
-
+(setq centaur-tabs-label-fixed-length 50)
+(defun centaur-tabs-truncate-string-fset (len s &optional ellipsis)
+  "超过len长前面省略，用...代替，如果不够len长，就用实际长度"
+  (declare (pure t) (side-effect-free t))
+  (unless ellipsis
+    (setq ellipsis "..."))
+  (if (> (length s) len)
+      (format "%s%s" ellipsis (substring s (+ (- (length s) len) (length ellipsis)) (length s)))
+    s))
+(fset 'centaur-tabs-truncate-string 'centaur-tabs-truncate-string-fset)
 ;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
 ;; (defun tabbar-gzj-inhgibit-function ()
 ;;   ""
@@ -2296,6 +2301,17 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 比较目录
 (autoload 'ztree-diff "ztree" nil t)
+
+;; eglot
+(autoload 'eglot "eglot" nil t)
+(with-eval-after-load 'eglot
+  (global-company-mode t)
+  (yas-global-mode t)
+  (global-diff-hl-mode)
+  (global-set-key (kbd "C-M-b") 'eglot-find-implementation)
+  ;; 默认的m-. c-m-. m-?都支持 即 xref-find-definitions xref-find-apropos xref-find-references
+  )
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3277,4 +3293,5 @@ If less than or equal to zero, there is no limit."
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
+ '(tab-line ((t (:inherit variable-pitch :background "grey85" :foreground "black" :height 0.95))))
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
