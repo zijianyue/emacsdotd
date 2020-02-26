@@ -363,6 +363,8 @@ I	#+INCLUDE: line
 
 相关变量org-structure-template-alist 方法 org-insert-structure-template（27才有的命令）
 
+注意这个功能在27以后变成使用C-c C-,来触发org-insert-structure-template
+
 *** helm列出所有标题命令 <2019-03-29 周五 15:39>
 helm-org-in-buffer-headings
 
