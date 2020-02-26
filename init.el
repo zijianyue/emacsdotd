@@ -32,6 +32,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/diff-hl"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/vlfi"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/eglot"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/groovy-emacs-modes"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -383,6 +384,8 @@
  '(helm-ag-insert-at-point (quote symbol))
  '(helm-allow-mouse t)
  '(helm-autoresize-mode t)
+ '(helm-boring-file-regexp-list
+   '("\\.o$" "~$" "\\.bin$" "\\.bak$" "\\.obj$" "\\.map$" "\\.ico$" "\\.pif$" "\\.lnk$" "\\.a$" "\\.ln$" "\\.blg$" "\\.bbl$" "\\.dll$" "\\.drv$" "\\.vxd$" "\\.386$" "\\.elc$" "\\.lof$" "\\.glo$" "\\.idx$" "\\.lot$" "\\.svn\\(/\\|$\\)" "\\.hg\\(/\\|$\\)" "\\.git\\(/\\|$\\)" "\\.bzr\\(/\\|$\\)" "CVS\\(/\\|$\\)" "_darcs\\(/\\|$\\)" "_MTN\\(/\\|$\\)" "\\.fmt$" "\\.tfm$" "\\.fas$" "\\.lib$" "\\.mem$" "\\.x86f$" "\\.sparcf$" "\\.dfsl$" "\\.pfsl$" "\\.d64fsl$" "\\.p64fsl$" "\\.lx64fsl$" "\\.lx32fsl$" "\\.dx64fsl$" "\\.dx32fsl$" "\\.fx64fsl$" "\\.fx32fsl$" "\\.sx64fsl$" "\\.sx32fsl$" "\\.wx64fsl$" "\\.wx32fsl$" "\\.fasl$" "\\.ufsl$" "\\.fsl$" "\\.dxl$" "\\.lo$" "\\.la$" "\\.gmo$" "\\.mo$" "\\.toc$" "\\.aux$" "\\.cp$" "\\.fn$" "\\.ky$" "\\.pg$" "\\.tp$" "\\.vr$" "\\.cps$" "\\.fns$" "\\.kys$" "\\.pgs$" "\\.tps$" "\\.vrs$" "\\.pyc$" "\\.pyo$"))
  '(helm-buffer-max-length 40)
  '(helm-case-fold-search t)
  '(helm-completing-read-handlers-alist
@@ -419,6 +422,8 @@
  '(helm-grep-ag-command
    "rg --color=always --smart-case --no-heading --line-number -Fz %s %s %s")
  '(helm-grep-file-path-style (quote relative))
+ '(helm-grep-ignored-files
+   '(".#*" "*.o" "*~" "*.bin" "*.bak" "*.obj" "*.map" "*.ico" "*.pif" "*.lnk" "*.a" "*.ln" "*.blg" "*.bbl" "*.dll" "*.drv" "*.vxd" "*.386" "*.elc" "*.lof" "*.glo" "*.idx" "*.lot" "*.fmt" "*.tfm" "*.fas" "*.lib" "*.mem" "*.x86f" "*.sparcf" "*.dfsl" "*.pfsl" "*.d64fsl" "*.p64fsl" "*.lx64fsl" "*.lx32fsl" "*.dx64fsl" "*.dx32fsl" "*.fx64fsl" "*.fx32fsl" "*.sx64fsl" "*.sx32fsl" "*.wx64fsl" "*.wx32fsl" "*.fasl" "*.ufsl" "*.fsl" "*.dxl" "*.lo" "*.la" "*.gmo" "*.mo" "*.toc" "*.aux" "*.cp" "*.fn" "*.ky" "*.pg" "*.tp" "*.vr" "*.cps" "*.fns" "*.kys" "*.pgs" "*.tps" "*.vrs" "*.pyc" "*.pyo"))
  '(helm-gtags-auto-update t)
  '(helm-gtags-cache-max-result-size 104857600)
  '(helm-gtags-cache-select-result t)
@@ -460,9 +465,6 @@
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-symbol-highlighting nil)
- '(lsp-file-watch-ignored
-   (quote
-    ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "[/\\\\]\\deployment\\target")))
  '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods (quote (kind position)))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
@@ -474,6 +476,7 @@
    (quote
     ("-noverify" "-Xmx3G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication")))
  '(lsp-response-timeout 20)
+ '(lsp-treemacs-sync-mode t)
  '(lsp-ui-doc-include-signature t)
  '(lsp-ui-doc-use-webkit t)
  '(lsp-ui-peek-always-show t)
@@ -1782,7 +1785,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (add-hook 'kotlin-mode-hook 'lsp-deferred)
   (add-hook 'nxml-mode-hook 'lsp-deferred)
   (add-hook 'js-mode-hook 'lsp-deferred)
-
+  (add-hook 'json-mode-hook 'lsp-deferred)
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
   ;; (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
@@ -1810,7 +1813,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (global-set-key (kbd "C-M-.") 'helm-lsp-workspace-symbol)
 
   (global-set-key (kbd "<f1>") 'lsp-ui-peek-find-definitions)
-  (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
+  ;; (global-set-key (kbd "<S-f1>") 'lsp-describe-thing-at-point) ;可以替代lsp-ui-doc
+  (global-set-key (kbd "<S-f1>") 'lsp-ui-doc-glance)
   (global-set-key (kbd "<C-f12>") 'lsp-execute-code-action)
   (global-set-key (kbd "C-M-b") 'lsp-find-implementation)
   (global-set-key (kbd "<f12>") 'xref-find-references)
@@ -1873,10 +1877,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; lsp-java的Treemacs和Classpath browsing功能需要用Eclipse Che Language Server
   ;; lsp-java-jdt-download-url - JDT JS download url. Use http://download.eclipse.org/che/che-ls-jdt/snapshots/che-jdt-language-server-latest.tar.gz if you want to use Eclipse Che JDT LS.
   (with-eval-after-load 'lsp-java
-    (setq lsp-ui-imenu-enable t)
     ;; (defun lsp--fix-path-casing (path)
     ;;   ""
     ;;   path)
+    (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
     ;; (require 'lsp-java-boot)
@@ -2333,6 +2337,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; 默认的m-. c-m-. m-?都支持 即 xref-find-definitions xref-find-apropos xref-find-references
   )
 
+;; groovy mode
+(autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
+(add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
+(add-hook 'groovy-mode-hook
+          '(lambda ()
+             (require 'groovy-electric)
+             (groovy-electric-mode)))
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2985,6 +2996,7 @@ If less than or equal to zero, there is no limit."
             ;; (prefer-coding-system 'utf-8) ;这个会改变shell的编码
             (modify-syntax-entry ?_ "w")    ;_ 当成单词的一部分
             (modify-syntax-entry ?- "w")    ;_ 当成单词的一部分
+            (setq add-log-current-defun-function nil) ;这个函数在java文件里用的是[c-cpp-define-name c-defun-name],无法识别java的函数所以改为nil,不然emacs27的which-func-mode在java里只显示类名
             ;; (setq-local company-idle-delay 0)
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
@@ -3071,7 +3083,7 @@ If less than or equal to zero, there is no limit."
 ;; telnet登录主机后，export LANG=zh_CN.GBK 或 export LC_ALL=en_US.ISO-8859-1 这个管用 ,export LC_CTYPE=zh_CN.GB2312
 
 ;; gtags symref 的结果都设置为C语法，主要为了highlight-symbol能正确
-(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook))
+(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook json-mode-hook))
   (add-hook hook
             (lambda()
               (setq truncate-lines t)
@@ -3314,5 +3326,5 @@ If less than or equal to zero, there is no limit."
  '(helm-xref-file-name ((t (:foreground "dark cyan"))))
  '(lsp-ui-sideline-code-action ((t (:foreground "firebrick"))))
  '(neo-vc-default-face ((t (:foreground "dark gray"))))
- '(tab-line ((t (:inherit variable-pitch :background "grey85" :foreground "black" :height 0.95))))
+ '(tab-line ((t (:inherit variable-pitch :background "grey85" :foreground "black" :height 0.95))) t)
  '(taglist-tag-type ((t (:foreground "dark salmon" :height 1.0)))))
