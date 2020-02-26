@@ -463,8 +463,6 @@
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-symbol-highlighting nil)
- '(lsp-file-watch-ignored
-   '("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "[/\\\\]\\deployment\\target"))
  '(lsp-file-watch-threshold nil)
  '(lsp-imenu-sort-methods '(kind position))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
@@ -2994,7 +2992,6 @@ If less than or equal to zero, there is no limit."
             (modify-syntax-entry ?- "w")    ;_ 当成单词的一部分
             (setq add-log-current-defun-function nil) ;这个函数在java文件里用的是[c-cpp-define-name c-defun-name],无法识别java的函数所以改为nil,不然emacs27的which-func-mode在java里只显示类名
             ;; (setq-local company-idle-delay 0)
-            (setq add-log-current-defun-function nil) ;防止emacs27在java文件中which-func-mode只能显示类名
             (font-lock-add-keywords nil
                                     '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
                                        1  font-lock-function-name-face keep))
