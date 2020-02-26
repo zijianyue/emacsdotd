@@ -348,7 +348,6 @@
  '(dired-listing-switches "-alh")
  '(dired-recursive-copies 'always)
  '(dired-recursive-deletes 'always)
- '(display-fill-column-indicator t)
  '(display-line-numbers-width-start t)
  '(ediff-split-window-function 'split-window-horizontally)
  '(electric-indent-mode t)
@@ -816,7 +815,9 @@
 
 ;; 显示列竖线
 (autoload 'fci-mode "fill-column-indicator" "" t)
-(global-set-key (kbd "C-:") 'fci-mode)
+(if (< 26 emacs-major-version)
+    (global-set-key (kbd "C-:") 'global-display-fill-column-indicator-mode)
+  (global-set-key (kbd "C-:") 'fci-mode))
 (setq fci-rule-column 120)
 
 (eval-after-load "fill-column-indicator"
