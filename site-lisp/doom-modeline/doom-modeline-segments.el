@@ -137,6 +137,7 @@
 (declare-function evil-state-property 'evil-common)
 (declare-function evil-visual-state-p 'evil-states)
 (declare-function eyebrowse--get 'eyebrowse)
+(declare-function face-remap-remove-relative 'face-remap)
 (declare-function fancy-narrow-active-p 'fancy-narrow)
 (declare-function flycheck-buffer 'flycheck)
 (declare-function flycheck-count-errors 'flycheck)
@@ -229,7 +230,7 @@ buffer where knowing the current project directory is important."
   "Update file icon in mode-line."
   (setq doom-modeline--buffer-file-icon
         (when (and doom-modeline-icon doom-modeline-major-mode-icon)
-          (let* ((icon (all-the-icons-icon-for-buffer)))
+          (let ((icon (all-the-icons-icon-for-buffer)))
             (propertize (if (symbolp icon)
                             (doom-modeline-icon 'faicon "file-o"
                                                 :face 'all-the-icons-dsilver
@@ -322,15 +323,6 @@ mouse-1: Previous buffer\nmouse-3: Next buffer"
 (advice-add #'org-edit-src-save :after #'doom-modeline-update-buffer-file-name)
 (advice-add #'symbol-overlay-rename :after #'doom-modeline-update-buffer-file-name)
 
-(with-no-warnings
-  (if (boundp 'after-focus-change-function)
-      (add-function
-       :after after-focus-change-function
-       (lambda ()
-         (when (frame-focus-state)
-           (doom-modeline-update-buffer-file-name))))
-    (add-hook 'focus-in-hook #'doom-modeline-update-buffer-file-name t)))
-
 (doom-modeline-add-variable-watcher
  'doom-modeline-buffer-file-name-style
  (lambda (_sym val op _where)
@@ -340,18 +332,6 @@ mouse-1: Previous buffer\nmouse-3: Next buffer"
        (with-current-buffer buf
          (when buffer-file-name
            (doom-modeline-update-buffer-file-name)))))))
-
-;; Optimize: just update the face of the buffer name in `after-change-functions', since
-;; `doom-modeline--buffer-file-name' may consume lots of CPU if it's called too frequently.
-(defun doom-modeline-update-buffer-file-name-face (&rest _)
-  "Update the face of buffer file name in mode-line."
-  (when (and buffer-file-name
-             doom-modeline--buffer-file-name
-             (buffer-modified-p))
-    (setq doom-modeline--buffer-file-name
-          (propertize doom-modeline--buffer-file-name
-                      'face 'doom-modeline-buffer-modified))))
-(add-hook 'after-change-functions #'doom-modeline-update-buffer-file-name-face)
 
 (defsubst doom-modeline--buffer-mode-icon ()
   "The icon of the current major mode."
@@ -379,11 +359,27 @@ mouse-1: Previous buffer\nmouse-3: Next buffer"
 
 (defsubst doom-modeline--buffer-name ()
   "The current buffer name."
-  (when-let ((name (or doom-modeline--buffer-file-name
-                       (doom-modeline-update-buffer-file-name))))
-    (if (doom-modeline--active)
-        name
-      (propertize name 'face 'mode-line-inactive))))
+  ;; Only display the buffer name if the window is small, but doesn't need to
+  ;; respect file-name style.
+  (if (and (not (eq doom-modeline-buffer-file-name-style 'file-name))
+           doom-modeline--limited-width-p)
+      (propertize "%b"
+                  'face (cond ((and buffer-file-name (buffer-modified-p))
+                               'doom-modeline-buffer-modified)
+                              ((doom-modeline--active) 'doom-modeline-buffer-file)
+                              (t 'mode-line-inactive))
+                  'mouse-face 'mode-line-highlight
+                  'help-echo "Buffer name
+mouse-1: Previous buffer\nmouse-3: Next buffer"
+                  'local-map mode-line-buffer-identification-keymap)
+    (when-let ((name (or doom-modeline--buffer-file-name
+                         (doom-modeline-update-buffer-file-name))))
+      (if (doom-modeline--active)
+          ;; Check if the buffer is modified
+          (if (and buffer-file-name (buffer-modified-p))
+              (propertize name 'face 'doom-modeline-buffer-modified)
+            name)
+        (propertize name 'face 'mode-line-inactive)))))
 
 (doom-modeline-def-segment buffer-info
   "Combined information about the current buffer, including the current working
@@ -997,8 +993,8 @@ mouse-1: List all problems%s"
           (if icon (doom-modeline-vspc) (doom-modeline-spc))
           (if active
               text
-            (propertize text 'face 'mode-line-inactive))
-          (doom-modeline-spc)))))))
+            (propertize text 'face 'mode-line-inactive))))
+       (doom-modeline-spc)))))
 
 
 ;;
@@ -1274,10 +1270,11 @@ of active `multiple-cursors'."
   (let ((width (or width doom-modeline-bar-width))
         (height (max (or height doom-modeline-height)
                      (doom-modeline--font-height))))
-    (setq doom-modeline--bar-active
-          (doom-modeline--make-xpm 'doom-modeline-bar width height)
-          doom-modeline--bar-inactive
-          (doom-modeline--make-xpm 'doom-modeline-bar-inactive width height))))
+    (when (and (numberp width) (numberp height))
+      (setq doom-modeline--bar-active
+            (doom-modeline--make-xpm 'doom-modeline-bar width height)
+            doom-modeline--bar-inactive
+            (doom-modeline--make-xpm 'doom-modeline-bar-inactive width height)))))
 
 (doom-modeline-add-variable-watcher
  'doom-modeline-height
@@ -1378,6 +1375,7 @@ Requires `eyebrowse-mode' to be enabled."
   (setq doom-modeline--persp-name
         ;; Support `persp-mode', while not support `perspective'
         (when (and doom-modeline-persp-name
+                   (not doom-modeline--limited-width-p)
                    (bound-and-true-p persp-mode)
                    (fboundp 'safe-persp-name)
                    (fboundp 'get-current-persp))
@@ -1876,6 +1874,7 @@ Example:
   "The GitHub notifications."
   (when (and doom-modeline-github
              (doom-modeline--active)
+             (numberp doom-modeline--github-notification-number)
              (> doom-modeline--github-notification-number 0))
     (concat
      (doom-modeline-spc)
@@ -1886,7 +1885,7 @@ Example:
                            :v-adjust -0.0575)
        (doom-modeline-vspc)
        (propertize
-        (if (> doom-modeline--github-notification-number  doom-modeline-number-limit)
+        (if (> doom-modeline--github-notification-number doom-modeline-number-limit)
             (format "%d+" doom-modeline-number-limit)
           (number-to-string doom-modeline--github-notification-number))
         'face '(:inherit (doom-modeline-unread-number doom-modeline-warning))))
@@ -1926,7 +1925,6 @@ mouse-3: Fetch notifications"
 (defun doom-modeline--normal-visual (&rest _)
   "Restore the face of mode-line."
   (when doom-modeline--debug-cookie
-    (require 'face-remap)
     (face-remap-remove-relative doom-modeline--debug-cookie)
     (force-mode-line-update)))
 
@@ -2144,6 +2142,7 @@ mouse-1: Toggle Debug on Quit"
              doom-modeline-gnus
              doom-modeline--gnus-started
              ;; Don't display if the unread mails count is zero
+             (numberp doom-modeline--gnus-unread-mail)
              (> doom-modeline--gnus-unread-mail 0))
     (concat
      (doom-modeline-spc)

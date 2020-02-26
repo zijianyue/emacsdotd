@@ -1,5 +1,3 @@
-mvnw.cmd clean verify
-mvn.cmd clean verify
 cd lsp4xml
 mvn.cmd clean verify
 d:
@@ -126,3 +124,5 @@ ipconfig /flushdns
 make
 cd magit
 make
+ag --version
+ag --help

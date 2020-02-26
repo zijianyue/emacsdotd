@@ -146,8 +146,8 @@ In `init.el`,
 
 ``` emacs-lisp
 (use-package doom-modeline
-      :ensure t
-      :hook (after-init . doom-modeline-mode))
+  :ensure t
+  :init (doom-modeline-mode 1))
 ```
 
 This package requires the fonts included with `all-the-icons` to be installed.
@@ -168,6 +168,10 @@ Run `M-x customize-group RET doom-modeline RET` or set the variables.
 
 ;; How wide the mode-line bar should be. It's only respected in GUI.
 (setq doom-modeline-bar-width 3)
+
+;; The limit of the window width.
+;; If `window-width' is smaller than the limit, some information won't be displayed.
+(setq doom-modeline-window-width-limit fill-column
 
 ;; How to detect the project root.
 ;; The default priority of detection is `ffip' > `projectile' > `project'.
