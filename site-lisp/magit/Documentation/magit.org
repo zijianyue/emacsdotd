@@ -2,13 +2,13 @@
 :PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2015-2019
+#+DATE: 2015-2020
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Magit: (magit).
 #+TEXINFO_DIR_DESC: Using Git from Emacs with Magit.
-#+SUBTITLE: for version 2.90.1 (v2.90.1-850-g6b0d1af12+1)
+#+SUBTITLE: for version 2.90.1 (v2.90.1-900-g14c70a5ac+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:3 toc:2
@@ -25,10 +25,10 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+TEXINFO: @noindent
-This manual is for Magit version 2.90.1 (v2.90.1-850-g6b0d1af12+1).
+This manual is for Magit version 2.90.1 (v2.90.1-900-g14c70a5ac+1).
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -450,8 +450,7 @@ buffers whose major-modes derive from ~magit-mode~.
   itself can be used here, in which case the display actions have to
   be specified by adding them to ~display-buffer-alist~ instead.
 
-  To learn about display actions, see [[info:elisp#Choosing a Window for
-  Display]].
+  To learn about display actions, see [[info:elisp#Choosing Window]].
 
 - Function: magit-display-buffer-traditional buffer
 
@@ -922,6 +921,16 @@ the following commands.
 The above commands all call the hook ~magit-section-movement-hook~.
 Any of the functions listed below can be used as members of this hook.
 
+You might want to remove some of the functions that Magit adds using
+~add-hook~.  In doing so you have to make sure you do not attempt to
+remove function that haven't even been added yet, for example:
+
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'magit-diff
+    (remove-hook 'magit-section-movement-hook
+                 'magit-hunk-set-window-start))
+#+END_SRC
+
 - Variable: magit-section-movement-hook
 
   This hook is run by all of the above movement commands, after
@@ -931,7 +940,9 @@ Any of the functions listed below can be used as members of this hook.
 
   This hook function ensures that the beginning of the current section
   is visible, provided it is a ~hunk~ section.  Otherwise, it does
-  nothing.  This function is a member of the hook's default value.
+  nothing.
+
+  Loading ~magit-diff~ adds this function to the hook.
 
 - Function: magit-section-set-window-start
 
@@ -944,15 +955,17 @@ Any of the functions listed below can be used as members of this hook.
 
   This hook function only has an effect in log buffers, and ~point~ is
   on the "show more" section.  If that is the case, then it doubles
-  the number of commits that are being shown.  This function is a
-  member of the hook's default value.
+  the number of commits that are being shown.
+
+  Loading ~magit-log~ adds this function to the hook.
 
 - Function: magit-log-maybe-update-revision-buffer
 
   When moving inside a log buffer, then this function updates the
   revision buffer, provided it is already being displayed in another
-  window of the same frame.  This function is a member of the hook's
-  default value.
+  window of the same frame.
+
+  Loading ~magit-log~ adds this function to the hook.
 
 - Function: magit-log-maybe-update-blob-buffer
 
@@ -1068,7 +1081,7 @@ useful.  But your mileage may vary.
 
 When a buffer is first created then some sections are shown expanded
 while others are not.  This is hard coded.  When a buffer is refreshed
-then the previous visibility is preserved. The initial visibility of
+then the previous visibility is preserved.  The initial visibility of
 certain sections can also be overwritten using the hook
 ~magit-section-set-visibility-hook~.
 
@@ -4476,7 +4489,7 @@ changes alongside those that have already been committed.
   determined in the previous step.
 
   Both formats, if non-nil and after removing %N, are then expanded
-  using `git show --format=FORMAT ...' inside TOPLEVEL.
+  using ~git show --format=FORMAT ...~ inside TOPLEVEL.
 
   The expansion of POINT-FORMAT is inserted at point, and the
   expansion of EOB-FORMAT is inserted at the end of the buffer (if the
@@ -4490,6 +4503,10 @@ such headers and provides some commands to insert such headers.
 - User Option: git-commit-known-pseudo-headers
 
   A list of Git pseudo headers to be highlighted.
+
+- Key: C-c C-i, git-commit-insert-pseudo-header
+
+  Insert a commit message pseudo header.
 
 - Key: C-c C-a, git-commit-ack
 
@@ -4516,7 +4533,7 @@ such headers and provides some commands to insert such headers.
   Insert a header mentioning the person who reported the issue being
   fixed by the commit.
 
-- Key: C-c C-i, git-commit-suggested
+- Key: C-c M-i, git-commit-suggested
 
   Insert a header mentioning the person who suggested the change.
 
@@ -4886,7 +4903,7 @@ The variables are described in [[*Branch Git Variables]].
   to trigger interpretation as a regexp are "*" and "^".  Some
   other characters which you might expect to be invalid, actually
   are not, e.g. ".+$" are all perfectly valid.  More precisely,
-  if `git check-ref-format --branch STRING' exits with a non-zero
+  if ~git check-ref-format --branch STRING~ exits with a non-zero
   status, then treat STRING as a regexp.
 
   Assuming the chosen branch matches these conditions you would end
@@ -5361,18 +5378,17 @@ Remotes]].
 
   This command rebases the current branch onto its push-remote.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the push-remote is
-  not configured, then configure it before rebasing.  With a prefix
-  argument let the user change the push-remote before rebasing onto
-  it.
+  With a prefix argument or when the push-remote is either not
+  configured or unusable, then let the user first configure the
+  push-remote.
 
 - Key: r u, magit-rebase-onto-upstream
 
   This command rebases the current branch onto its upstream branch.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the upstream is
-  not configured, then configure it before rebasing.  With a prefix
-  argument let the user change the upstream before rebasing onto it.
+  With a prefix argument or when the upstream is either not
+  configured or unusable, then let the user first configure
+  the upstream.
 
 - Key: r e, magit-rebase-branch
 
@@ -6203,28 +6219,6 @@ These variables can be set from the transient prefix command
   ~--tags~, then all tags are fetched.  If this variable has no value,
   then only tags are fetched that are reachable from fetched branches.
 
-- User Option: magit-remote-set-if-missing
-
-  This option controls whether missing remotes are configured before
-  fetching, pulling, pushing and rebasing.
-
-  When ~nil~, then commands such as ~magit-pull-from-upstream~ and
-  ~magit-rebase-onto-uptream~ are not available as suffix commands if
-  the push-remote or upstream is not configured.
-
-  When ~non-nil~, then these commands are always available in their
-  respective transient, but if the required configuration is missing,
-  then they do appear in a way that indicates that this is the case.
-  If the user invokes such a command, then it asks for the necessary
-  configuration, stores the configuration, and only then performs the
-  action.
-
-  This option also affects whether the argument ~--set-upstream~ is
-  available in ~magit-push~.  If the value is ~non-nil~, then that
-  argument would be redundant.  But note that changing the value of
-  this option does not take affect immediately, the argument will only
-  be added or removed after restarting Emacs.
-
 ** Fetching
 
 Also see [[man:git-fetch]] For information about the upstream and the
@@ -6238,20 +6232,24 @@ push-remote, see [[*The Two Remotes]].
 
 - Key: f p, magit-fetch-from-pushremote
 
-  This command fetches from the push-remote of the current branch.
+  This command fetches from the current push-remote.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the push-remote is
-  not configured, then configure it before fetching.  With a prefix
-  argument let the user change the push-remote before fetching from
-  it.
+  With a prefix argument or when the push-remote is either not
+  configured or unusable, then let the user first configure the
+  push-remote.
 
 - Key: f u, magit-fetch-from-upstream
 
   This command fetch from the upstream of the current branch.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the upstream is
-  not configured, then configure it before fetching.  With a prefix
-  argument let the user change the upstream before fetching from it.
+  If the upstream is configured for the current branch and names
+  an existing remote, then use that.  Otherwise try to use another
+  remote: If only a single remote is configured, then use that.
+  Otherwise if a remote named "origin" exists, then use that.
+
+  If no remote can be determined, then this command is not available
+  from the ~magit-fetch~ transient prefix and invoking it directly
+  results in an error.
 
 - Key: f e, magit-fetch-other
 
@@ -6305,17 +6303,17 @@ push-remote, see [[*The Two Remotes]].
 
   This command pulls from the push-remote of the current branch.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the push-remote is
-  not configured, then configure it before pulling.  With a prefix
-  argument let the user change the push-remote before pulling from it.
+  With a prefix argument or when the push-remote is either not
+  configured or unusable, then let the user first configure the
+  push-remote.
 
 - Key: F u, magit-pull-from-upstream
 
   This command pulls from the upstream of the current branch.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the upstream is
-  not configured, then configure it before pulling.  With a prefix
-  argument let the user change the upstream before pulling from it.
+  With a prefix argument or when the upstream is either not
+  configured or unusable, then let the user first configure
+  the upstream.
 
 - Key: F e, magit-pull-branch
 
@@ -6336,17 +6334,17 @@ push-remote, see [[*The Two Remotes]].
 
   This command pushes the current branch to its push-remote.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the push-remote is
-  not configured, then configure it before pushing.  With a prefix
-  argument let the user change the push-remote before pushing to it.
+  With a prefix argument or when the push-remote is either not
+  configured or unusable, then let the user first configure the
+  push-remote.
 
 - Key: P u, magit-push-current-to-upstream
 
   This command pushes the current branch to its upstream branch.
 
-  When ~magit-remote-set-if-missing~ is non-nil and the upstream is
-  not configured, then configure it before pushing.  With a prefix
-  argument let the user change the upstream before pushing to it.
+  With a prefix argument or when the upstream is either not
+  configured or unusable, then let the user first configure
+  the upstream.
 
 - Key: P e, magit-push-current
 
@@ -8419,7 +8417,7 @@ also affects the diffs displayed inside Magit.
 
 *** How does branching and pushing work?
 
-Please see [[*Branching]] and http://emacsair.me/2016/01/17/magit-2.4
+Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
 
 *** Can Magit be used as ~ediff-version-control-package~?
 
@@ -8743,7 +8741,7 @@ Please also see the [[*FAQ]].
 :END:
 
 #+BEGIN_QUOTE
-Copyright (C) 2015-2019 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-2020 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
