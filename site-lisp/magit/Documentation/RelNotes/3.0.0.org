@@ -324,6 +324,10 @@
 
 - Added new command ~magit-push-notes-ref~.  dff0bca6f
 
+- The ~--irreversible-delete~ diff argument is supported now, but isn't
+  available from the diff transients by default.  To enable it use
+  "C-x l" in those transients.  #4056
+
 ** Fixes since v2.90.0
 
 - Bumped the minimal required version of ~git-commit~ to the correct
@@ -362,6 +366,9 @@
 - ~magit-log-trace-definition~ didn't account for Git treating "-"
   differently from e.g. "_", leading to false-positives like
   "foo-suffix" being considered a match for "foo".
+
+- ~magit-log-trace-definition~ didn't do the escaping that Git expects
+  for function names with colons.  #4051
 
 - A regression in ~magit-log-move-to-parent~ prevented it from doing its
   job.  #3682
@@ -447,6 +454,10 @@
 - A regression in v2.90.0 led to ~magit-wip-mode~ committing to "<wip
   prefix>/refs/heads/HEAD" rather than "<wip prefix>/HEAD" when on a
   detached head.
+
+- Modifying a file, marking it with a "skip-worktree" or "assume
+  unchanged" bit, and then modifying it again triggered a failure in
+  ~magit-wip-commit-worktree~.  #4037
 
 - Various bug fixes to
   ~magit-branch-delete~ (3e73ff19d),

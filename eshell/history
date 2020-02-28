@@ -1,5 +1,3 @@
-cd lsp4xml
-mvn.cmd clean verify
 d:
 cd d:
 cd d:
@@ -126,3 +124,5 @@ cd magit
 make
 ag --version
 ag --help
+ag --version
+make

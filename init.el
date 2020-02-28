@@ -320,10 +320,13 @@
  '(cc-search-directories '("." "/usr/include" "/usr/local/include/*" "../*"))
  '(ccls-sem-macro-faces [font-lock-warning-face])
  '(ccls-tree-initial-levels 1)
- '(centaur-tabs-backward-tab-text " <")
- '(centaur-tabs-close-button " X")
+ '(centaur-tabs-backward-tab-text " < ")
+ '(centaur-tabs-close-button "x ")
  '(centaur-tabs-cycle-scope 'tabs)
- '(centaur-tabs-forward-tab-text " >")
+ '(centaur-tabs-forward-tab-text " > ")
+ '(centaur-tabs-modified-marker " *")
+ '(centaur-tabs-set-close-button nil)
+ '(centaur-tabs-set-left-close-button t)
  '(centaur-tabs-show-navigation-buttons t)
  '(column-number-mode t)
  '(company-dabbrev-downcase nil)
@@ -1878,7 +1881,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    ;; (require 'lsp-java-boot)
+    (require 'lsp-java-boot)
 
     ;; to enable the lenses
     ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
