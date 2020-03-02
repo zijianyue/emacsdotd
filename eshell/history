@@ -1,11 +1,3 @@
-d:
-cd d:
-cd d:
-cd d:/
-cd software/ccls
-cmake -H. -BRelease -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl
-ccls --version
-ccls --help
 ..
 ..
 cd cquery/
@@ -126,3 +118,11 @@ ag --version
 ag --help
 ag --version
 make
+ping raw.githubusercontent.com
+raw.githubusercontent.com:443
+ping raw.githubusercontent.com:443
+ping --help
+telnet --version
+telnet raw.githubusercontent.com:443
+telnet 151.101.108.133 443
+ping 151.101.108.133

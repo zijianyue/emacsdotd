@@ -2,6 +2,11 @@
 
 ;; ----- ido-last-directory-list -----
 (
+ ("c:/Program Files/Emacs/x86_64/share/emacs/" . "site-lisp/")
+ ("c:/Program Files/Emacs/x86_64/share/" . "emacs/")
+ ("c:/Program Files/Emacs/x86_64/" . "share/")
+ ("c:/Program Files/Emacs/" . "x86_64/")
+ ("c:/Program Files/" . "Emacs/")
  ("c:/Users/" . "gezijian/")
  ("c:/Windows/System32/drivers/" . "etc/")
  ("c:/Windows/System32/" . "drivers/")
@@ -21,11 +26,12 @@
  ("c:/emacs/share/emacs/" . "site-lisp/")
  ("c:/emacs/share/" . "emacs/")
  ("c:/emacs/" . "share/")
- ("c:/" . "Users/")
+ ("c:/" . "emacs/")
 )
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Program Files/Emacs/x86_64/share/emacs/site-lisp/"
  "d:/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/"
  "c:/Windows/System32/drivers/etc/"
@@ -66,15 +72,23 @@
 
 ;; ----- ido-dir-file-cache -----
 (
- ("c:/Program Files/" (24143 61779 0 0) "WinRAR/" "WindowsPowerShell/" "WindowsApps/" "Windows Sidebar/" "Windows Security/" "Windows Portable Devices/" "Windows Photo Viewer/" "Windows Packet Filter/" "windows nt/" "Windows Multimedia Platform/" "Windows Media Player/" "Windows Mail/" "Windows Defender/" "UNP/" "Unlocker/" "Uninstall Information/" "TortoiseGit/" "TAP-Windows/" "Rockstar Games/" "Reference Assemblies/" "NVIDIA Corporation/" "Notepad++/" "nodejs/" "MSBuild/" "Microsoft Synchronization Services/" "Microsoft SQL Server Compact Edition/" "Microsoft SQL Server/" "mcafee.com/" "mcafee/" "Lenovo/" "Kionix/" "Killer Networking/" "JetBrains/" "Java/" "internet explorer/" "Intel/" "Git LFS/" "Git/" "Everything/" "Emacs/" "DIFX/" "desktop.ini" "Dell/" "DAUM/" "Common Files/" "CMake/" "Bonjour/" "Beyond Compare 4/" "Bandizip/" "AWAgent/" "Array Networks/" "Araxis/" "Application Verifier/" "Alienware/" "7-Zip/" "../" "./")
+ ("c:/emacs/share/emacs/site-lisp/" (24153 16765 0 0) "yasnippet.el" "yaml-mode.el" "yafolding.el" "web-beautify.el" "vimish-fold.el" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "scratch.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "properties-mode.el" "projectile.el" "powerline/" "origami/" "org-download.el" "nlinum.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "imenu-list.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck.el" "find-file-in-project.el" "fill-column-indicator.el" "dll&reg/" "counsel-gtags.el" "clipmon.wav" "clipmon.el" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" ".git/" "../" "./")
+
+ ("c:/emacs/share/emacs/" (24142 23092 0 0) "site-lisp/" "26.2/" "../" "./")
+
+ ("c:/Program Files/Emacs/x86_64/share/emacs/site-lisp/" (24150 11556 0 0) "yasnippet.el" "yaml-mode.el" "yafolding.el" "web-beautify.el" "vimish-fold.el" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "scratch.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "properties-mode.el" "projectile.el" "powerline/" "org-download.el" "nlinum.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "imenu-list.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck.el" "find-file-in-project.el" "fill-column-indicator.el" "dll&reg/" "counsel-gtags.el" "clipmon.wav" "clipmon.el" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" ".git/" "../" "./")
+
+ ("c:/Program Files/Emacs/x86_64/share/emacs/" (24150 11554 0 0) "site-lisp/" "27.0.60/" "../" "./")
+
+ ("c:/Program Files/" (24146 41235 0 0) "WinRAR/" "WindowsPowerShell/" "WindowsApps/" "Windows Sidebar/" "Windows Security/" "Windows Portable Devices/" "Windows Photo Viewer/" "Windows Packet Filter/" "windows nt/" "Windows Multimedia Platform/" "Windows Media Player/" "Windows Mail/" "Windows Defender/" "UNP/" "Unlocker/" "Uninstall Information/" "TortoiseGit/" "TAP-Windows/" "Rockstar Games/" "Reimage/" "Reference Assemblies/" "NVIDIA Corporation/" "Notepad++/" "nodejs/" "MSBuild/" "Microsoft Synchronization Services/" "Microsoft SQL Server Compact Edition/" "Microsoft SQL Server/" "mcafee.com/" "mcafee/" "Lenovo/" "Kionix/" "Killer Networking/" "JetBrains/" "Java/" "internet explorer/" "Intel/" "Git LFS/" "Git/" "Everything/" "Emacs/" "DIFX/" "desktop.ini" "Dell/" "DAUM/" "Common Files/" "CMake/" "Bonjour/" "Beyond Compare 4/" "Bandizip/" "AWAgent/" "Array Networks/" "Araxis/" "Application Verifier/" "Alienware/" "7-Zip/" "../" "./")
+
+ ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (24153 16696 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".gitignore" ".git/" ".cache/" "../" "./")
 
  ("c:/Program Files/Emacs/" (24051 37823 0 0) "x86_64/" "Uninstall.exe" "../" "./")
 
  ("c:/Program Files/Emacs/x86_64/" (24051 37811 0 0) "share/" "libexec/" "lib/" "include/" "etc/" "bin/" "../" "./")
 
  ("c:/Program Files/Emacs/x86_64/share/" (24051 37823 0 0) "xml/" "vala/" "thumbnailers/" "p11-kit/" "metainfo/" "man/" "locale/" "licenses/" "libthai/" "info/" "icons/" "gtk-doc/" "graphite2/" "gir-1.0/" "gettext-0.19.8/" "gettext/" "fontconfig/" "emacs/" "doc/" "applications/" "aclocal/" "../" "./")
-
- ("c:/Program Files/Emacs/x86_64/share/emacs/" (24142 23154 0 0) "site-lisp/" "27.0.60/" "27.0.50/" "../" "./")
 
  ("c:/Program Files/Emacs/x86_64/share/emacs/27.0.60/" (24120 143 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
 
@@ -97,8 +111,6 @@
  ("c:/Users/gezijian/" (24136 3273 0 0) "「开始」菜单/" "Videos/" "Templates/" "source/" "SendTo/" "Searches/" "Saved Games/" "Recent/" "PUTTY.RND" "PrintHood/" "Pictures/" "OneDrive/" "ntuser.ini" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000002.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TMContainer00000000000000000001.regtrans-ms" "NTUSER.DAT{b04cc350-4b21-11e9-b918-2079188d6431}.TM.blf" "ntuser.dat.LOG2" "ntuser.dat.LOG1" "NTUSER.DAT" "NetHood/" "My Documents/" "Music/" "MicrosoftEdgeBackups/" "Local Settings/" "Links/" "IntelGraphicsProfiles/" "Favorites/" "Downloads/" "Documents/" "Desktop/" "Cookies/" "Contacts/" "cache/" "Application Data/" "Apple/" "AppData/" "ansel/" "3D Objects/" ".vscode/" ".tooling/" ".tabnine/" ".sts4/" ".ssh/" ".m2/" ".lsp4xml/" ".lightsocks.json" ".IdeaIC2019.3/" ".IdeaIC2019.2/" ".gradle/" ".gitconfig" ".firefly.conf" ".config/" ".bash_history" ".android/" "../" "./")
 
  ("d:/software/" (24136 9720 0 0) "爱思助手7.0.lnk" "YouTube Video Downloader - 16.2.2/" "WVPN_1.0.0_win64.exe" "with-simulated-input/" "pushpin/" "MobaXterm_Portable_v12.4/" "llvm/" "ImageMagick-7.0.8-61-portable-Q16-x64/" "Grand Theft Auto V/" "FirefoxFQ/" "fg773/" "F1.2018/" "cquery/" "chromego-master/" "chromego/" "ccls/" "BitComet/" "apache-maven-3.6.1/" "../" "./")
-
- ("c:/Users/gezijian/AppData/Roaming/.emacs.d/" (24140 9468 0 0) "url/" "transient/" "srecode/" "snippets/" "site-lisp/" "server/" "recentf" "projectile-bookmarks.eld" "org.eclipse.lsp4xml-0.3.0-uber.jar" "org/" "init.el" "ido.last" "eshell/" "elpa/" "bookmarks" "auto-save-list/" ".stardict/" ".lsp-session-v1" ".gitmodules" ".gitignore" ".git/" ".cache/" "../" "./")
 
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/" (24141 17600 0 0) "ztree/" "vlfi/" "treemacs/" "swiper/" "rg.el/" "multiple-cursors.el/" "markdown-mode/" "magit/" "lsp-treemacs/" "lsp-mode/" "lsp-java/" "libgit/" "helm/" "expand-region.el/" "evil/" "emacs-purpose/" "emacs-neotree/" "emacs-doom-themes/" "emacs-ccls/" "doom-modeline/" "dired-hacks/" "diff-hl/" "company-tabnine/" "company-mode/" "centaur-tabs/" "all-the-icons.el/" "../" "./")
 
@@ -127,10 +139,6 @@
  ("c:/Users/gezijian/AppData/" (24122 15354 0 0) "Roaming/" "LocalLow/" "Local/" "Flash Player/" "../" "./")
 
  ("d:/jdee-server/src/main/java/jde/juci/" (24122 32008 0 0) "WrappedRuntimeException.java" "Symbol.java" "Quoted.java" "package.html" "NoMoreResultsException.java" "Logger.java" "LispWriter.java" "ElispError.java" "Cons.java" "ConnectionUnavailableException.java" "ConnectionImpl.java" "ConnectionFactory.java" "Connection.java" "../" "./")
-
- ("c:/emacs/share/emacs/" (24121 38479 0 0) "site-lisp-2/" "site-lisp/" "26.2/" "../" "./")
-
- ("c:/emacs/share/emacs/site-lisp/" (24120 2197 0 0) "yasnippet.el" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "README.md" "projectile.el" "powerline/" "posframe.el" "origami.el-master/" "org-download.el" "nlinum.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "ivy-posframe.el" "imenu-list.el" "htmlize.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck-31/" "fill-column-indicator.el" "exec-path-from-shell.el" "Emacs-wgrep/" "dll&reg/" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" "ace-jump-mode.el" "../" "./")
 
  ("c:/emacs/share/emacs/26.2/" (23749 50651 0 0) "site-lisp/" "README.W32" "lisp/" "etc/" "../" "./")
 
