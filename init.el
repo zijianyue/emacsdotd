@@ -251,7 +251,7 @@
 ;; 有长行的文件除了打开truncate-lines，还可以用find-file-literally打开文件提高性能
 ;; (set-default 'truncate-lines t)
 ;; (setq truncate-partial-width-windows nil) ;; 左右分屏时折行
-;; (if (eq 25 emacs-major-version)
+;; (if (< 24 emacs-major-version)
 ;;  (horizontal-scroll-bar-mode 1))
 
 ;; 自动横移跟随水平滚动条切换
@@ -1274,8 +1274,8 @@ under the current directory."
     (interactive)
     (rg-rerun-toggle-flag "--word-regexp"))
   (define-key rg-mode-map "w" 'rg-rerun-toggle-word)
-  (define-key rg-mode-map "p" 'rg-deprecated-key-change-to-wgrep)
-  (define-key rg-mode-map "r" 'rg-rerun-change-regexp))
+  (define-key rg-mode-map "p" 'rg-deprecated-key-change-to-wgrep) ;e r都可以
+  (define-key rg-mode-map "x" 'rg-rerun-change-regexp))
 
 ;; 增加标题栏项目word
 (with-eval-after-load 'rg-header
@@ -1615,7 +1615,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 ;;                           'tabbar-selected
 ;;                         'tabbar-unselected))
 ;;            (close-button
-;;             (propertize "[Ⅹ]"
+;;             (propertize "[x]"
 ;;                         'tabbar-tab tab
 ;;                         'local-map (tabbar-make-tab-keymap tab)
 ;;                         'tabbar-action 'close-tab
@@ -2324,6 +2324,10 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 比较目录
 (autoload 'ztree-diff "ztree" nil t)
+(with-eval-after-load 'ztree
+  ;; (setq ztree-draw-unicode-lines t) ;;影响速度
+  (setq-default ztree-diff-filter-list '("coverage-report" "target" "\\.pyc" "^\\."))
+  )
 
 ;; eglot
 (autoload 'eglot "eglot" nil t)
@@ -3081,7 +3085,7 @@ If less than or equal to zero, there is no limit."
 ;; telnet登录主机后，export LANG=zh_CN.GBK 或 export LC_ALL=en_US.ISO-8859-1 这个管用 ,export LC_CTYPE=zh_CN.GB2312
 
 ;; gtags symref 的结果都设置为C语法，主要为了highlight-symbol能正确
-(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook json-mode-hook))
+(dolist (hook '(gtags-select-mode-hook semantic-symref-results-mode-hook ag-mode-hook occur-mode-hook imenu-list-major-mode-hook eshell-mode-hook treemacs-mode-hook cquery-tree-mode-hook ccls-tree-mode-hook helm-update-hook json-mode-hook ztree-mode))
   (add-hook hook
             (lambda()
               (setq truncate-lines t)
@@ -3117,6 +3121,8 @@ If less than or equal to zero, there is no limit."
             ;; (require 'org-download)
             (define-key org-mode-map [(control tab)] nil)
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
+            (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
+            ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)
             ))
 (setq org-export-with-sub-superscripts '{}) ;设置让 Org Mode 在默认情况下，不转义 _ 字符,这样就会用 {} 来转义了
