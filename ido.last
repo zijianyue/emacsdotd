@@ -27,11 +27,12 @@
  ("c:/emacs/share/emacs/" . "site-lisp/")
  ("c:/emacs/share/" . "emacs/")
  ("c:/emacs/" . "share/")
- ("c:/" . "gtags/")
+ ("c:/" . "Program Files/")
 )
 
 ;; ----- ido-work-directory-list -----
 (
+ "c:/Program Files/Emacs/x86_64/share/emacs/"
  "c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/ztree/"
  "d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/corext/dom/"
  "d:/software/"
@@ -75,6 +76,10 @@
 
 ;; ----- ido-dir-file-cache -----
 (
+ ("c:/Program Files/" (24155 25492 0 0) "WinRAR/" "WindowsPowerShell/" "WindowsApps/" "Windows Sidebar/" "Windows Security/" "Windows Portable Devices/" "Windows Photo Viewer/" "Windows Packet Filter/" "windows nt/" "Windows Multimedia Platform/" "Windows Media Player/" "Windows Mail/" "Windows Defender/" "UNP/" "Unlocker/" "Uninstall Information/" "TortoiseGit/" "TAP-Windows/" "Rockstar Games/" "Reference Assemblies/" "NVIDIA Corporation/" "Notepad++/" "nodejs/" "MSBuild/" "Microsoft Synchronization Services/" "Microsoft SQL Server Compact Edition/" "Microsoft SQL Server/" "mcafee.com/" "mcafee/" "Lenovo/" "Kionix/" "Killer Networking/" "JetBrains/" "Java/" "internet explorer/" "Intel/" "Git LFS/" "Git/" "Everything/" "Emacs/" "DIFX/" "desktop.ini" "Dell/" "DAUM/" "Common Files/" "CMake/" "Bonjour/" "Beyond Compare 4/" "Bandizip/" "AWAgent/" "Array Networks/" "Araxis/" "Application Verifier/" "Alienware/" "7-Zip/" "../" "./")
+
+ ("c:/emacs/share/emacs/" (24162 27319 0 0) "site-lisp3/" "site-lisp/" "26.2/" "../" "./")
+
  ("c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/ztree/" (24162 16926 0 0) "ztree.el" "ztree-view.el" "ztree-util.el" "ztree-dir.el" "ztree-diff.el" "ztree-diff-model.el" "README.md" ".git/" "../" "./")
 
  ("c:/gtags/bin/" (24150 38841 0 0) "_rg.ps1" "sdcv.exe" "rg.exe" "ninja.exe" "markdown.exe" "libglib-2.0-0.dll" "intl.dll" "htags.exe" "htags-server" "gtags.exe" "gtags-cscope.exe" "gozilla.exe" "globash" "global.exe" "gecoless.cmd" "geco.cmd" "es.exe" "cli.c" "ANSI32.dll" "ag.exe" "../" "./")
@@ -147,11 +152,7 @@
 
  ("c:/emacs/share/emacs/site-lisp/" (24153 16765 0 0) "yasnippet.el" "yaml-mode.el" "yafolding.el" "web-beautify.el" "vimish-fold.el" "taglist.el" "tabbar/" "symbol-overlay.el" "subdirs.el" "scratch.el" "redo+.el" "recent-jump.el" "recent-jump-small.el" "properties-mode.el" "projectile.el" "powerline/" "origami/" "org-download.el" "nlinum.el" "lua-mode.el" "lsp/" "libs/" "kotlin-mode.el" "imenu-list.el" "highlight-indent-guides.el" "helm/" "gtags.el" "flycheck.el" "find-file-in-project.el" "fill-column-indicator.el" "dll&reg/" "counsel-gtags.el" "clipmon.wav" "clipmon.el" "bm.el" "avy.el" "anzu.el" "ag.el" "ace-window.el" ".git/" "../" "./")
 
- ("c:/emacs/share/emacs/" (24142 23092 0 0) "site-lisp/" "26.2/" "../" "./")
-
  ("c:/Program Files/Emacs/x86_64/share/emacs/" (24150 11554 0 0) "site-lisp/" "27.0.60/" "../" "./")
-
- ("c:/Program Files/" (24146 41235 0 0) "WinRAR/" "WindowsPowerShell/" "WindowsApps/" "Windows Sidebar/" "Windows Security/" "Windows Portable Devices/" "Windows Photo Viewer/" "Windows Packet Filter/" "windows nt/" "Windows Multimedia Platform/" "Windows Media Player/" "Windows Mail/" "Windows Defender/" "UNP/" "Unlocker/" "Uninstall Information/" "TortoiseGit/" "TAP-Windows/" "Rockstar Games/" "Reimage/" "Reference Assemblies/" "NVIDIA Corporation/" "Notepad++/" "nodejs/" "MSBuild/" "Microsoft Synchronization Services/" "Microsoft SQL Server Compact Edition/" "Microsoft SQL Server/" "mcafee.com/" "mcafee/" "Lenovo/" "Kionix/" "Killer Networking/" "JetBrains/" "Java/" "internet explorer/" "Intel/" "Git LFS/" "Git/" "Everything/" "Emacs/" "DIFX/" "desktop.ini" "Dell/" "DAUM/" "Common Files/" "CMake/" "Bonjour/" "Beyond Compare 4/" "Bandizip/" "AWAgent/" "Array Networks/" "Araxis/" "Application Verifier/" "Alienware/" "7-Zip/" "../" "./")
 
  ("c:/Program Files/Emacs/" (24051 37823 0 0) "x86_64/" "Uninstall.exe" "../" "./")
 

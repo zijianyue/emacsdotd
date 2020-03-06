@@ -1,14 +1,3 @@
-ll
-cd ..
-git pull
-make
-ccls --version
-ccls --help
-git clone https://github.com/emacs-lsp/lsp-treemacs.git
-make
-xb
-make
-..
 cd magit
 make
 git clone https://github.com/fourier/ztree.git
@@ -126,3 +115,14 @@ diff -q --strip-trailing-cr d:\software\eclipse.jdt.ls\org.eclipse.jdt.ls.core\s
 diff -q --strip-trailing-cr d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/corext/dom/TypeBindingVisitor.java d:/software/e19606f8314fde9c827a51aab97d7d5f938cadc8/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/corext/dom/TypeBindingVisitor.java
 diff -q d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/corext/dom/TypeBindingVisitor.java d:/software/e19606f8314fde9c827a51aab97d7d5f938cadc8/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/corext/dom/TypeBindingVisitor.java
 ag --version
+which make
+whereis make
+whereis make
+make
+which make
+make
+which make
+whereis make
+make
+whereis make
+make
