@@ -320,10 +320,10 @@
  '(cc-search-directories '("." "/usr/include" "/usr/local/include/*" "../*"))
  '(ccls-sem-macro-faces [font-lock-warning-face])
  '(ccls-tree-initial-levels 1)
- '(centaur-tabs-backward-tab-text " < ")
- '(centaur-tabs-close-button "x ")
+ '(centaur-tabs-backward-tab-text "< ")
+ '(centaur-tabs-close-button "x")
  '(centaur-tabs-cycle-scope 'tabs)
- '(centaur-tabs-forward-tab-text " > ")
+ '(centaur-tabs-forward-tab-text " >")
  '(centaur-tabs-modified-marker " *")
  '(centaur-tabs-set-close-button nil)
  '(centaur-tabs-set-left-close-button t)
@@ -346,6 +346,7 @@
    '("e1ecb0536abec692b5a5e845067d75273fe36f24d01210bf0aa5842f2a7e029f" "e47c0abe03e0484ddadf2ae57d32b0f29f0b2ddfe7ec810bd6d558765d9a6a6c" "2d1fe7c9007a5b76cea4395b0fc664d0c1cfd34bb4f1860300347cdad67fb2f9" "b753c0d7872e154cd395c3d311456c71749dd3f1395e96f34a329cedd9209307" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
+ '(diff-command "C:\\\\Program Files\\\\Git\\\\usr\\\\bin\\\\diff.exe")
  '(diff-hl-flydiff-delay 4)
  '(dired-dwim-target t)
  '(dired-listing-switches "-alh")
@@ -984,7 +985,7 @@
 (define-key isearch-mode-map (kbd "<f9>") 'helm-swoop-from-isearch)
 (setq helm-swoop-split-with-multiple-windows t)
 
-(global-set-key (kbd "C-c j") 'helm-ag-this-file)
+(global-set-key (kbd "C-c j") 'helm-ag-this-file) ;helm-do-ag-this-file 是直接执行不用确认，还有helm-ag-buffers 对应的helm-do-ag-buffers
 (global-set-key (kbd "M-X") 'helm-M-x)
 (global-set-key (kbd "C-x f") 'helm-find-files)
 
@@ -2326,7 +2327,12 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (autoload 'ztree-diff "ztree" nil t)
 (with-eval-after-load 'ztree
   ;; (setq ztree-draw-unicode-lines t) ;;影响速度
+  (setq-default ztree-diff-consider-file-size nil)
+  (setq-default ztree-diff-additional-options '("--strip-trailing-cr"))
   (setq-default ztree-diff-filter-list '("coverage-report" "target" "\\.pyc" "^\\."))
+  (define-key ztree-mode-map (kbd "f") 'ztree-perform-action)
+  (define-key ztree-mode-map (kbd "n") 'ztree-next-line)
+  (define-key ztree-mode-map (kbd "p") 'ztree-previous-line)
   )
 
 ;; eglot
