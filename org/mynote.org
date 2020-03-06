@@ -782,6 +782,11 @@ m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start�
 运行exe shell中 ./ab.exe
 
 ** maven编译报各种目录无法删除是由于装了tabnine，它在后台索引造成的 <2020-01-20 周一 21:06>
+
+** 高级调试方法：给指定函数加断点 <2020-03-06 周五 23:32>
+(debug-on-entry 'set-mouse-position) 来设置当Emacs调用 set-mouse-position 函数的时候弹出堆栈，方便开发者定位Emacs运行时
+的函数调用堆栈。
+(cancel-debug-on-entry 'set-mouse-position) 取消运行时调试。
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
