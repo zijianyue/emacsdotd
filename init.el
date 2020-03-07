@@ -346,17 +346,19 @@
    '("e1ecb0536abec692b5a5e845067d75273fe36f24d01210bf0aa5842f2a7e029f" "e47c0abe03e0484ddadf2ae57d32b0f29f0b2ddfe7ec810bd6d558765d9a6a6c" "2d1fe7c9007a5b76cea4395b0fc664d0c1cfd34bb4f1860300347cdad67fb2f9" "b753c0d7872e154cd395c3d311456c71749dd3f1395e96f34a329cedd9209307" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "b54826e5d9978d59f9e0a169bbd4739dd927eead3ef65f56786621b53c031a7c" "b0407354e87ea56fd708e8b2c0f72eb5beda2b7888a75acc62d711d75ab9f755" "49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" default))
  '(delete-by-moving-to-trash t)
  '(delete-selection-mode t)
- '(diff-command "C:\\\\Program Files\\\\Git\\\\usr\\\\bin\\\\diff.exe")
+ '(diff-command "C:/Progra~1/Git/usr/bin/diff.exe")
  '(diff-hl-flydiff-delay 4)
+ '(diff-switches "-u --strip-trailing-cr")
  '(dired-dwim-target t)
  '(dired-listing-switches "-alh")
  '(dired-recursive-copies 'always)
  '(dired-recursive-deletes 'always)
  '(display-line-numbers-width-start t)
- '(ediff-cmp-program "C:/Program Files/Git/usr/bin/cmp.exe")
- '(ediff-custom-diff-program "C:/Program Files/Git/usr/bin/diff.exe")
- '(ediff-diff-program "C:/Program Files/Git/usr/bin/diff.exe")
- '(ediff-diff3-program "C:/Program Files/Git/usr/bin/diff3.exe")
+ '(ediff-cmp-program "C:/Progra~1/Git/usr/bin/cmp.exe")
+ '(ediff-custom-diff-program "C:/Progra~1/Git/usr/bin/diff.exe")
+ '(ediff-diff-options "--binary --strip-trailing-cr")
+ '(ediff-diff-program "C:/Progra~1/Git/usr/bin/diff.exe")
+ '(ediff-diff3-program "C:/Progra~1/Git/usr/bin/diff3.exe")
  '(ediff-split-window-function 'split-window-horizontally)
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
  '(electric-indent-mode t)
@@ -512,6 +514,8 @@
  '(nxml-child-indent 4)
  '(org-default-notes-file "~/.emacs.d/.notes")
  '(org-directory "~/.emacs.d/org")
+ '(org-download-image-dir "./org_download_images")
+ '(org-download-image-org-width 500)
  '(org-download-screenshot-method "convert clipboard: %s")
  '(org-image-actual-width '(500))
  '(org-imenu-depth 4)
@@ -1555,7 +1559,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 (setq centaur-tabs-set-modified-marker t)
 (setq centaur-tabs-modified-marker "*")
 ;; (setq centaur-tabs-height 18)
-(setq centaur-tabs-label-fixed-length 50)
+(setq centaur-tabs-label-fixed-length 45)
 (defun centaur-tabs-truncate-string-fset (len s &optional ellipsis)
   "超过len长前面省略，用...代替，如果不够len长，就用实际长度"
   (declare (pure t) (side-effect-free t))
@@ -1708,30 +1712,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (fset 'doom-modeline-set-main-modeline 'doom-modeline-set-main-misc-for-all-modeline)
 (doom-modeline-mode 1)
 
-;; org screenshort，得装image magick
+;; org screenshort，得装image magick 另外org文件里第一级标题不要带时间戳，会影响org-download以一级标题创建目录
 (autoload 'org-download-screenshot "org-download" nil t)
 (global-set-key (kbd "<C-f11>") 'org-download-screenshot)
-
-(eval-after-load "org-download"
-  '(progn
-     (defun org-download-insert-link-fset (link filename)
-       (if (looking-back "^[ \t]+" (line-beginning-position))
-           (delete-region (match-beginning 0) (match-end 0))
-         (newline))
-       (insert
-        (concat
-         ;; (funcall org-download-annotate-function link)
-         ;; "\n"
-         (if (= org-download-image-html-width 0)
-             ""
-           (format "#+attr_html: :width %dpx\n" org-download-image-html-width))
-         (if (= org-download-image-latex-width 0)
-             ""
-           (format "#+attr_latex: :width %dcm\n" org-download-image-latex-width))
-         (format org-download-link-format (file-relative-name filename (file-name-directory (buffer-name))))))
-       (org-display-inline-images))
-     (fset 'org-download-insert-link 'org-download-insert-link-fset)
-     ))
 
 ;; org agenda
 (setq org-agenda-files (list "f:\\org\\task.org"))

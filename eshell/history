@@ -1,16 +1,3 @@
-cd magit
-make
-git clone https://github.com/fourier/ztree.git
-cd helm/
-make
-make
-cd ../magit
-make
-cd ..
-git clone https://github.com/emacs-evil/evil.git
-git clone https://github.com/dgutov/diff-hl.git
-git clone https://github.com/dgutov/diff-hl.git
-git clone https://github.com/dgutov/diff-hl.git
 ..
 ..
 ..
@@ -126,3 +113,16 @@ whereis make
 make
 whereis make
 make
+make
+make
+which diff
+whereis diff
+where diff
+C:/Progra~1/Git/usr/bin/diff.exe --version
+diff --version
+C:\MinGW\msys\1.0\bin\diff.exe --version
+C:\cygwin\bin\diff.exe --version
+C:\cygwin\bin\diff.exe --version
+C:/cygwin/bin/diff.exe --version
+diff --help
+diff --version
