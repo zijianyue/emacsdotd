@@ -115,7 +115,6 @@
   (setenv "MAVEN_HOME" "D:\\software\\apache-maven-3.6.1\\bin")
   (setenv "IMAGE_MAGICk" "D:\\software\\ImageMagick-7.0.8-61-portable-Q16-x64")
   (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
-  (setenv "GITBIN" "C:\\Program Files\\Git\\usr\\bin") ;可以替代msys，除了没有make
   )
 
 (when (eq system-type 'darwin)
@@ -147,8 +146,6 @@
          path-separator
          (getenv "GITCMD")
          path-separator
-         ;; (getenv "GITBIN")
-         ;; path-separator
          (getenv "PYTHON3")
          ;; path-separator
          ;; (getenv "PYTHON")
@@ -185,7 +182,6 @@
 
 (add-to-list 'exec-path (getenv "JAVABIN"))
 (add-to-list 'exec-path (getenv "GITCMD"))
-;; (add-to-list 'exec-path (getenv "GITBIN"))
 (add-to-list 'exec-path (getenv "IMAGE_MAGICk") t)
 (add-to-list 'exec-path (getenv "PYTHON3") t)
 (add-to-list 'exec-path (getenv "MINGW") t)
@@ -829,8 +825,8 @@
 ;; 显示列竖线
 (autoload 'fci-mode "fill-column-indicator" "" t)
 (if (< 26 emacs-major-version)
-    (global-set-key (kbd "C-:") 'global-display-fill-column-indicator-mode)
-  (global-set-key (kbd "C-:") 'fci-mode))
+    (global-set-key (kbd "C-|") 'global-display-fill-column-indicator-mode)
+  (global-set-key (kbd "C-|") 'fci-mode))
 (setq fci-rule-column 120)
 
 (eval-after-load "fill-column-indicator"
@@ -2311,7 +2307,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; multiple scratch buffers 创建一个跟当前buffer mode一样的scratch buffer
 (autoload 'scratch "scratch" nil t)
 
-;; 比较目录
+;; 比较目录，比较文件的核心函数是ztree-diff-model-files-equal
+(global-set-key (kbd "C-M-;") 'ztree-diff)
 (autoload 'ztree-diff "ztree" nil t)
 (with-eval-after-load 'ztree
   ;; (setq ztree-draw-unicode-lines t) ;;影响速度
@@ -3240,6 +3237,8 @@ If less than or equal to zero, there is no limit."
 ;; (global-set-key (kbd "<C-S-f5>") 'lgrep)
 ;; diff
 (global-set-key (kbd "C-;") 'ediff-buffers)
+(global-set-key (kbd "C-:") 'ediff-files)
+
 ;; vc-dir
 (eval-after-load "vc-dir"
   '(progn
