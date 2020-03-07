@@ -648,7 +648,8 @@ Changes take effect only when a new session is started."
                                         (nim-mode . "nim")
                                         (dhall-mode . "dhall")
                                         (cmake-mode . "cmake")
-                                        (gdscript-mode . "gdscript"))
+                                        (gdscript-mode . "gdscript")
+                                        (d-mode . "d"))
   "Language id configuration.")
 
 (defvar lsp--last-active-workspaces nil
@@ -4101,6 +4102,9 @@ Also, additional data to attached to each candidate can be passed via PLIST."
                                  (if (consp tail) (setcdr tail nil))
                                  it))))
                   (-flatten-n 1)
+                  (-sort (-on #'> (lambda (o)
+                                    (or (get-text-property 0 'completion-score o)
+                                        0))))
                   ;; TODO: pass additional function to sort the candidates
                   (-map (-partial #'get-text-property 0 'lsp-completion-item)))
            lsp-items)))
@@ -4168,8 +4172,8 @@ Also, additional data to attached to each candidate can be passed via PLIST."
        (lambda (_probe _pred action)
          (cond
           ((eq action 'metadata)
-           `(metadata ((category . lsp-capf)
-                       (display-sort-function . #'identity))))
+           `(metadata (category . lsp-capf)
+                      (display-sort-function . identity)))
           ((eq (car-safe action) 'boundaries) nil)
           ;; retrieve candidates
           (done? result)

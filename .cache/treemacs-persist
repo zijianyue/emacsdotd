@@ -13,3 +13,5 @@
  - path :: d:/software/cquery
 ** eclipse.jdt.ls
  - path :: d:/software/eclipse.jdt.ls
+** jdee-server
+ - path :: d:/software/jdee-server
