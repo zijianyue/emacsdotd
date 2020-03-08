@@ -16,3 +16,9 @@
 [submodule "site-lisp/lsp-treemacs"]
 	path = site-lisp/lsp-treemacs
 	url = https://github.com/emacs-lsp/lsp-treemacs.git
+[submodule "site-lisp/expand-region.el"]
+	path = site-lisp/expand-region.el
+	url = git@github.com:magnars/expand-region.el.git
+[submodule "site-lisp/diff-hl"]
+	path = site-lisp/diff-hl
+	url = git@github.com:dgutov/diff-hl.git
