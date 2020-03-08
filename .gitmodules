@@ -55,3 +55,6 @@
 [submodule "site-lisp/emacs-doom-themes"]
 	path = site-lisp/emacs-doom-themes
 	url = git@github.com:hlissner/emacs-doom-themes.git
+[submodule "site-lisp/lsp-mode"]
+	path = site-lisp/lsp-mode
+	url = git@github.com:emacs-lsp/lsp-mode.git
