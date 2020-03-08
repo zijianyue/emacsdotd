@@ -58,3 +58,6 @@
 [submodule "site-lisp/lsp-mode"]
 	path = site-lisp/lsp-mode
 	url = git@github.com:emacs-lsp/lsp-mode.git
+[submodule "site-lisp/lsp-java"]
+	path = site-lisp/lsp-java
+	url = git@github.com:emacs-lsp/lsp-java.git
