@@ -2351,24 +2351,31 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   )
 ;; ibuffer分组
 (setq ibuffer-saved-filter-groups
-      '(("Default"
-         ("Hidden(g则不显示此分组)"  (name . "^ "))
-         ("Helm"  (or (name . "^\\*helm\\|^\\*ac-mode-")))
-         ("Woman"  (name . "^\\*WoMan.*\\*$"))
-         ("Compile"  (name . "^*.*compil[ea].*$"))
-         ("Gtalk"  (or (name . "^\\*.*jabber") (name . "*fsm-debug*")))
-         ("ERC"  (mode . erc-mode))
-         ("Custom"  (mode . Custom-mode))
-         ("Shell"  (mode . shell-mode))
-         ("Mail" (or (mode . mew-summary-mode) (mode . mew-draft-mode)(mode . mew-message-mode)))
-         ("VC"  (or (name . "*magit-") (name . "^\\*vc")(mode . diff-mode) (mode . vc-dir-mode)))
-         ("Magit "  (name . "*magit:"))
-         ("Emacs"  (name . "^\\*.*$"))
-         ("Dired"  (mode . dired-mode))
-         ("Go"  (mode . go-mode))
-         ("Python"  (mode . python-mode))
-         ("EL"  (mode . emacs-lisp-mode))
-         )))
+      (quote (("gzjgroup"
+               ("lldpd" (and (filename . ".*/src/xxxxx-path.*")
+                             (not (mode . dired-mode))))
+               ("dired" (mode . dired-mode))
+               ("tmp" (filename . "/tmp/.*"))
+               ("shell-script" (mode . sh-mode))
+               ("elisp" (or
+                         (name . "^\\*scratch\\*$")
+                         (name . "^\\*Messages\\*$")
+                         (mode . emacs-lisp-mode)
+                         (mode . xah-elisp-mode)))
+               ("w3m" (or
+                       (mode . w3m-mode)))
+               ("python" (mode . python-mode))
+               ("magit" (or
+                         (mode . magit-status-mode)
+                         (mode . magit-process-mode)
+                         (mode . magit-diff-mode)
+                         (mode . magit-revision-mode)
+                         (mode . magit-log-mode)))
+               ("org" (mode . org-mode))))))
+(add-hook 'ibuffer-mode-hook
+          (lambda ()
+            (ibuffer-switch-to-saved-filter-groups "gzjgroup")))
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3144,6 +3151,7 @@ If less than or equal to zero, there is no limit."
             ;; (require 'org-download)
             (define-key org-mode-map [(control tab)] nil)
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
+            (define-key org-mode-map (kbd "C-e") 'move-end-of-line)                   ;这个才能真正跳到行尾
             (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
             ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)

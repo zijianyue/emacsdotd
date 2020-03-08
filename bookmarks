@@ -2,7 +2,12 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("xunlei"
+(("site-lisp27"
+ (filename . "c:/Program Files/Emacs/x86_64/share/emacs/site-lisp/")
+ (front-context-string . "dll&reg\n  -rw-rw")
+ (rear-context-string . "2-26 16:32:35   ")
+ (position . 721))
+("xunlei"
  (filename . "d:/迅雷下载/")
  (front-context-string . "Java编程思想(第4版).pd")
  (rear-context-string . "1-29 16:25:51   ")

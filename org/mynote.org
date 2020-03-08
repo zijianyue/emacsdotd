@@ -791,6 +791,8 @@ m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start�
 ** 查看进程的命令 <2020-03-08 周日 14:56>
 proced
 list-processes
+** ibuffer使用方法，包括创建分组 <2020-03-08 周日 15:53>
+https://blog.csdn.net/wdkirchhoff/article/details/43193869
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
