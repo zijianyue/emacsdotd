@@ -31,3 +31,15 @@
 [submodule "site-lisp/multiple-cursors.el"]
 	path = site-lisp/multiple-cursors.el
 	url = git@github.com:magnars/multiple-cursors.el.git
+[submodule "site-lisp/rg.el"]
+	path = site-lisp/rg.el
+	url = git@github.com:dajva/rg.el.git
+[submodule "site-lisp/swiper"]
+	path = site-lisp/swiper
+	url = git@github.com:abo-abo/swiper.git
+[submodule "site-lisp/vlfi"]
+	path = site-lisp/vlfi
+	url = git@github.com:m00natic/vlfi.git
+[submodule "site-lisp/ztree"]
+	path = site-lisp/ztree
+	url = git@github.com:fourier/ztree.git
