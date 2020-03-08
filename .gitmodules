@@ -28,3 +28,6 @@
 [submodule "site-lisp/lsp-ui"]
 	path = site-lisp/lsp-ui
 	url = git@github.com:emacs-lsp/lsp-ui.git
+[submodule "site-lisp/multiple-cursors.el"]
+	path = site-lisp/multiple-cursors.el
+	url = git@github.com:magnars/multiple-cursors.el.git
