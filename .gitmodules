@@ -22,3 +22,9 @@
 [submodule "site-lisp/diff-hl"]
 	path = site-lisp/diff-hl
 	url = git@github.com:dgutov/diff-hl.git
+[submodule "site-lisp/markdown-mode"]
+	path = site-lisp/markdown-mode
+	url = git@github.com:jrblevin/markdown-mode.git
+[submodule "site-lisp/lsp-ui"]
+	path = site-lisp/lsp-ui
+	url = git@github.com:emacs-lsp/lsp-ui.git
