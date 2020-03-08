@@ -52,3 +52,6 @@
 [submodule "site-lisp/doom-modeline"]
 	path = site-lisp/doom-modeline
 	url = git@github.com:seagle0128/doom-modeline.git
+[submodule "site-lisp/emacs-doom-themes"]
+	path = site-lisp/emacs-doom-themes
+	url = git@github.com:hlissner/emacs-doom-themes.git
