@@ -61,3 +61,6 @@
 [submodule "site-lisp/lsp-java"]
 	path = site-lisp/lsp-java
 	url = git@github.com:emacs-lsp/lsp-java.git
+[submodule "site-lisp/treemacs"]
+	path = site-lisp/treemacs
+	url = git@github.com:Alexander-Miller/treemacs.git
