@@ -65,6 +65,12 @@
 |`npm install -g vscode-css-languageserver-bin`
 |
 
+|D
+|https://github.com/d-language-server/dls[dls]
+|Built-in
+|`dub fetch dls; dub run dls:bootstrap`
+|
+
 |Dart
 |https://github.com/natebosch/dart_language_server[dart_language_server]
 |<<lsp-dart,Built-in>>
@@ -179,6 +185,12 @@
 |<<lsp-kotlin,Built-in>>
 |https://github.com/fwcd/KotlinLanguageServer[kotlin-language-server]
 |
+
+|Nim
+|https://github.com/PMunch/nimlsp[nimlsp]
+|Built-in
+|`nimble install nimlsp`
+|No
 
 |Ocaml
 |https://github.com/freebroccolo/ocaml-language-server[ocaml-language-server]

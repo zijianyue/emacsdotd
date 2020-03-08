@@ -1461,6 +1461,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 (global-set-key (kbd "C-x t g") 'magit-blame-addition)
 (global-set-key (kbd "C-x t l") 'magit-log-buffer-file)
+;;magit-gitignore 按键是i 或者 I，这功能隐藏了
 
 ;; 避免时区差8小时
 (eval-after-load "magit"
