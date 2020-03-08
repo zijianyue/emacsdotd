@@ -1,8 +1,6 @@
-d:/software/cquery
 d:/software/ccls/src
 d:/software/ccls
 d:/
-c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit
 d:/jdee-server/src/main/java/jde/juci
 d:/jdee-server/src/main/java/jde
@@ -16,8 +14,6 @@ c:/Users/gezijian/AppData/Roaming/.emacs.d
 d:/
 d:/software
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-ui
-c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm
-c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit
 c:/emacs/share/emacs/site-lisp
 c:/Users/gezijian/AppData/Roaming/.emacs.d/org
@@ -27,7 +23,9 @@ d:/jdee-server/src/main/java/jde/juci
 d:/software
 d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers
 d:/
-c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-mode
 c:/Users/gezijian/AppData/Roaming/.emacs.d
 d:/
+c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm
+c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp
+c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit

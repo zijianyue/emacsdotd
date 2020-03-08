@@ -1457,6 +1457,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 (autoload 'magit-blame-addition "magit" nil t)
 (autoload 'magit-log-buffer-file "magit" nil t)
 (autoload 'magit-clone "magit" nil t)   ;加上C-u可以指定clone方式，比如shallow就是浅clone，即--depth=1
+(advice-add #'magit-version :override #'ignore) ;浅克隆的代码编译出来会报“Cannot determine Magit’s version”错误，加上这句规避
 
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
