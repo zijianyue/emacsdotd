@@ -43,3 +43,6 @@
 [submodule "site-lisp/ztree"]
 	path = site-lisp/ztree
 	url = git@github.com:fourier/ztree.git
+[submodule "site-lisp/all-the-icons.el"]
+	path = site-lisp/all-the-icons.el
+	url = git@github.com:domtronn/all-the-icons.el.git
