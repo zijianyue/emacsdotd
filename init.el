@@ -513,6 +513,7 @@
  '(org-image-actual-width '(500))
  '(org-imenu-depth 4)
  '(org-log-done 'time)
+ '(org-special-ctrl-a/e 'reversed)
  '(org-src-fontify-natively t)
  '(org-support-shift-select t)
  '(package-selected-packages '(json-mode))
@@ -3152,7 +3153,7 @@ If less than or equal to zero, there is no limit."
             ;; (require 'org-download)
             (define-key org-mode-map [(control tab)] nil)
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
-            (define-key org-mode-map (kbd "C-e") 'move-end-of-line)                   ;这个才能真正跳到行尾
+            (define-key org-mode-map (kbd "C-e") 'end-of-visual-line)                   ;这个才能真正跳到行尾， <end>键用于org-end-of-line
             (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
             ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)
