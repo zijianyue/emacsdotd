@@ -1,6 +1,3 @@
-d:/software/ccls/src
-d:/software/ccls
-d:/
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit
 d:/jdee-server/src/main/java/jde/juci
 d:/jdee-server/src/main/java/jde
@@ -10,7 +7,6 @@ d:/jdee-server
 d:/jdee-server/src/main/java/jde/juci
 c:/emacs/share/emacs
 c:/Windows/System32/drivers/etc
-c:/Users/gezijian/AppData/Roaming/.emacs.d
 d:/
 d:/software
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/lsp-ui
@@ -24,10 +20,14 @@ d:/software
 d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers
 d:/
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/company-mode
-c:/Users/gezijian/AppData/Roaming/.emacs.d
 d:/
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/helm
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp
 c:/Users/gezijian/AppData/Roaming/.emacs.d/site-lisp/magit
 d:/github_clone
 d:/
+c:/Users/gezijian/AppData/Roaming
+c:/Users/gezijian/AppData
+c:/Users/gezijian/AppData/Roaming
+c:/Users/gezijian/AppData/Roaming/.emacs.d
+c:/Users/gezijian/AppData/Roaming
