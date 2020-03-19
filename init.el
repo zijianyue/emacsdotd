@@ -24,6 +24,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/rg.el"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-hacks"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-tabnine"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/company-box"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-ccls"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/lsp-treemacs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/markdown-mode"))
@@ -322,6 +323,8 @@
  '(centaur-tabs-modified-marker "●")
  '(centaur-tabs-show-navigation-buttons t)
  '(column-number-mode t)
+ '(company-box-icons-alist 'company-box-icons-icons-in-terminal)
+ '(company-box-max-candidates 10)
  '(company-dabbrev-downcase nil)
  '(company-dabbrev-ignore-case t)
  '(company-dabbrev-other-buffers t)
@@ -600,6 +603,7 @@
 (autoload 'er/expand-region "expand-region" nil t)
 (global-set-key (kbd "M-s") 'er/expand-region)
 
+
 ;; undo redo
 (require 'redo+)
 (setq undo-no-redo t)
@@ -653,8 +657,47 @@
      (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
      (advice-add #'company-tabnine :around #'my-company-tabnine)
 
+     ;; 图形化补全
      ;; (require 'company-box)
+     ;; (require 'icons-in-terminal)
      ;; (add-hook 'company-mode-hook 'company-box-mode)
+     ;; company-box相关配置begin
+     (setq company-box-icons-unknown 'fa_question_circle)
+     (setq company-box-icons-elisp
+           '((fa_tag :face font-lock-function-name-face) ;; Function
+             (fa_cog :face font-lock-variable-name-face) ;; Variable
+             (fa_cube :face font-lock-constant-face) ;; Feature
+             (md_color_lens :face font-lock-doc-face))) ;; Face
+     (setq company-box-icons-yasnippet 'fa_bookmark)
+     (setq company-box-icons-lsp
+           '((1 . fa_text_height) ;; Text
+             (2 . (fa_tags :face font-lock-function-name-face)) ;; Method
+             (3 . (fa_tag :face font-lock-function-name-face)) ;; Function
+             (4 . (fa_tag :face font-lock-function-name-face)) ;; Constructor
+             (5 . (fa_cog :foreground "#FF9800")) ;; Field
+             (6 . (fa_cog :foreground "#FF9800")) ;; Variable
+             (7 . (fa_cube :foreground "#7C4DFF")) ;; Class
+             (8 . (fa_cube :foreground "#7C4DFF")) ;; Interface
+             (9 . (fa_cube :foreground "#7C4DFF")) ;; Module
+             (10 . (fa_cog :foreground "#FF9800")) ;; Property
+             (11 . md_settings_system_daydream) ;; Unit
+             (12 . (fa_cog :foreground "#FF9800")) ;; Value
+             (13 . (md_storage :face font-lock-type-face)) ;; Enum
+             (14 . (md_closed_caption :foreground "#009688")) ;; Keyword
+             (15 . md_closed_caption) ;; Snippet
+             (16 . (md_color_lens :face font-lock-doc-face)) ;; Color
+             (17 . fa_file_text_o) ;; File
+             (18 . md_refresh) ;; Reference
+             (19 . fa_folder_open) ;; Folder
+             (20 . (md_closed_caption :foreground "#009688")) ;; EnumMember
+             (21 . (fa_square :face font-lock-constant-face)) ;; Constant
+             (22 . (fa_cube :face font-lock-type-face)) ;; Struct
+             (23 . fa_calendar) ;; Event
+             (24 . fa_square_o) ;; Operator
+             (25 . fa_arrows)) ;; TypeParameter
+           )
+     ;; company-box相关配置end
+
      (setq company-async-timeout 15)
      (global-set-key (kbd "<S-return>") 'company-complete)
 
@@ -3062,7 +3105,7 @@ If less than or equal to zero, there is no limit."
             ;; (hs-minor-mode 1)
             (company-mode 1)
             (eldoc-mode 1)
-            ;; (setq-local company-backends (push '(company-tabnine :with company-yasnippet) company-backends))
+            (setq-local company-backends (push '(company-capf :with company-yasnippet) company-backends))
             (define-key emacs-lisp-mode-map (kbd "M-.") 'xref-find-definitions)
             ))
 
