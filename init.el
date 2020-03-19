@@ -630,6 +630,8 @@
      ;; 如果下不下来可以通过IJ的Plugin安装tabnine插件后，搜到TabNine.exe并将整个.tabnine文件夹移到\Roaming目录下
      (require 'company-tabnine)
      (global-set-key (kbd "<C-S-return>") 'company-tabnine)
+     (require 'company-statistics)
+     (company-statistics-mode)
      ;; (add-to-list 'company-backends #'company-tabnine)
      ;; Trigger completion immediately.
      ;; (setq company-idle-delay 0)
@@ -676,6 +678,18 @@
 ;;yasnippet 手动开启通过 yas-global-mode，会自动加载资源，如果执行yas-minor-mode，还需要执行yas-reload-all加载资源
 (autoload 'yas-global-mode "yasnippet" nil t)
 (autoload 'yas-minor-mode "yasnippet" nil t)
+;; 点之后不要触发
+(defun company-yasnippet/disable-after-dot (fun command &optional arg &rest _ignore)
+  (if (eq command 'prefix)
+      (let ((prefix (funcall fun 'prefix)))
+        (when (and prefix (not
+                           (eq
+                            (char-before (- (point) (length prefix)))
+                            ?.)))
+          prefix))
+    (funcall fun command arg)))
+
+(advice-add #'company-yasnippet :around #'company-yasnippet/disable-after-dot)
 
 ;; 前进、后退
 (require 'recent-jump-small)
@@ -1775,8 +1789,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
   ;; (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
-  ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
-  ;;   (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
+  (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
+    (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
 
 
   (yas-global-mode t)
