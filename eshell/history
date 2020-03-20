@@ -1,57 +1,3 @@
-ping github.com
-ipconfig /flushdns
-ping github.com
-ipconfig /flushdns
-ping github.com
-ipconfig /flushdns
-ping github.com
-ipconfig /flushdns
-ping github.com
-ping github.com -t
-ping ipaddress.com
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ping github.com
-ping github.com -t
-ping github.com -t
-ipconfig /flushdns
-ipconfig /flushdns
-ping github.com -t
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ipconfig /flushdns
-ssh -T git@github.com
-ssh -T git@github.com
-ssh -T git@github.com
-ssh -T git@github.com
-ssh -T git@github.com
-ssh -T git@github.com
-ssh -T git@github.com
-which ssh-agent
-ssh-agent -l
-git clone git@github.com:DarwinAwardWinner/with-simulated-input.git
-git pull
-ipconfig /flushdns
-make
-cd magit
-make
-ag --version
-ag --help
-ag --version
 make
 ping raw.githubusercontent.com
 raw.githubusercontent.com:443
@@ -126,3 +72,57 @@ ipconfig /flushdns
 ipconfig /flushdns
 ipconfig /flushdns
 ipconfig /flushdns
+git config --global http.proxy socks5://127.0.0.1:3080
+git config --global -e
+..
+ls
+git clone --depth 1 https://github.com/seagle0128/.emacs.d.git ~/.emacs.d-centaur
+git clone --depth 1 https://github.com/seagle0128/.emacs.d.git ~/.emacs.d-centaur
+ls
+ll
+ll
+dir
+pwc
+pw
+pc
+pcw
+pwd
+ll
+ls
+cd ..
+ls
+cd Roaming/
+ls
+ll
+which ls
+cd ..
+ls -alh
+ls h
+ls
+ls
+ll
+ll h
+ll -h
+ls h
+ls
+ls l
+git config --global http.proxy 127.0.0.1:8087
+git config --global http.sslverify false
+git clone https://github.com/MatthewZMD/.emacs.d.git
+git clone https://github.com/MatthewZMD/.emacs.d.git
+git help clone
+git clone https://github.com/MatthewZMD/.emacs.d.git --progress
+git clone git@github.com:emacs-evil/evil.git --progress
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+..
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
