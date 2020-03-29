@@ -1493,8 +1493,8 @@ If FULL-COMMAND specifies if the full command line search was done."
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
   (setenv "SSH_ASKPASS" "git-gui--askpass")
-  ;; (setenv "GIT_SSH" "c:/Program Files/PuTTY/plink.exe") ;遇到弹出POTENTIAL SECURITY BREACH!告警就没法用了
-  (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定，用这个有什么需要点的提示能弹出来，不像plink没法点
+  ;; (setenv "GIT_SSH" "c:/Progra~1/PuTTY/plink.exe") ;遇到弹出POTENTIAL SECURITY BREACH!告警就没法用了
+  ;; (setenv "GIT_SSH" "C:/Progra~1/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定，用这个有什么需要点的提示能弹出来，不像plink没法点
   )
 
 ;; 要想保存密码不用每次输入得修改.git-credentials和.gitconfig
@@ -1536,7 +1536,8 @@ If FULL-COMMAND specifies if the full command line search was done."
      (require 'ssh-agency)  ;自动加载ssh private key ,Customize ssh-agency-keys so ssh-agency will find your keys automatically from now on.
      ;; (add-hook 'magit-credential-hook 'ssh-agency-ensure) ;; ssh-agency里面已经有这个配置
      ;; 记得配置ssh-agency-keys指向id_rsa文件，这比pageant方便，pageant每次开机还要手动启动并加载ppk文件
-
+     ;; 另外GIT_SSH就不能用plink了,不配GIT_SSH就行，然后提示yes/no/finger时输入yes
+     
      ;; 提高性能
      ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
      ;; (remove-hook 'server-switch-hook 'magit-commit-diff) ;提交时不显示差异，如需显示敲c-c c-d
