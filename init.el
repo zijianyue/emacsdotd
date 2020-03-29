@@ -1489,6 +1489,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 ;; magit 确保ssh的ppk正确，换电脑的话要重新生成密钥，尽量用git自带的puttygen转换ppk和pageant加载ppk，不用单独装个putty
 ;; 调整tortoisegit的settings中的network选项，将tortoisegitplink.exe改成git安装目录的下bin\ssh.exe如果先前用ssh-keygen.exe配置好了git下的ssh话，改完就能直接用
 ;; bash中git clone可能不好用就把环境变量中msys的bin目录改成git的bin，但是又影响make命令的使用，所以还是用magit-clone
+;; https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
   (setenv "SSH_ASKPASS" "git-gui--askpass")
@@ -1531,6 +1532,10 @@ If FULL-COMMAND specifies if the full command line search was done."
      (defadvice magit-blame-format-time-string (before magit-blame-format-time-strin-bef activate)
        ""
        (setq tz 0))
+
+     (require 'ssh-agency)  ;自动加载ssh private key ,Customize ssh-agency-keys so ssh-agency will find your keys automatically from now on.
+     ;; (add-hook 'magit-credential-hook 'ssh-agency-ensure) ;; ssh-agency里面已经有这个配置
+     ;; 记得配置ssh-agency-keys指向id_rsa文件，这比pageant方便，pageant每次开机还要手动启动并加载ppk文件
 
      ;; 提高性能
      ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
@@ -2437,6 +2442,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
           (lambda ()
             (ibuffer-switch-to-saved-filter-groups "gzjgroup")))
 
+;; ssh-agency
+(with-eval-after-load 'ssh-agency
+  (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa")))
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3161,8 +3169,15 @@ If less than or equal to zero, there is no limit."
             (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
             ;; (yas-minor-mode 1)
             (company-mode -1)
+            (require 'ssh-agency)  ;自动加载ssh private key
+            (ssh-agency-ensure)
             ))
 
+(add-hook 'eshell-mode-hook
+          (lambda () "DOCSTRING" (interactive)
+            (require 'ssh-agency)  ;自动加载ssh private key
+            (ssh-agency-ensure)
+            ))
 ;; python
 (add-hook 'python-mode-hook
           (lambda () "" (interactive)

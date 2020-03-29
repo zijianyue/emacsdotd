@@ -1,12 +1,3 @@
-make
-ping raw.githubusercontent.com
-raw.githubusercontent.com:443
-ping raw.githubusercontent.com:443
-ping --help
-telnet --version
-telnet raw.githubusercontent.com:443
-telnet 151.101.108.133 443
-ping 151.101.108.133
 diff --help
 diff d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers/InvisibleProjectImporter.java d:/software/e19606f8314fde9c827a51aab97d7d5f938cadc8/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers/InvisibleProjectImporter.java
 diff d:/software/eclipse.jdt.ls/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers/InvisibleProjectImporter.java d:/software/e19606f8314fde9c827a51aab97d7d5f938cadc8/org.eclipse.jdt.ls.core/src/org/eclipse/jdt/ls/core/internal/managers/InvisibleProjectImporter.java -q
@@ -126,3 +117,12 @@ git submodule foreach git pull
 git submodule foreach git pull
 git submodule foreach git pull
 git submodule foreach git pull
+git submodule foreach git pull
+git submodule foreach git pull
+ssh-agent
+ssh -T git@github.com
+ssh -T git@github.com
+ssh -T git@github.com
+git submodule foreach git pull
+ssh-agent
+ssh-agent
