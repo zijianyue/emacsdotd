@@ -1536,6 +1536,7 @@ If FULL-COMMAND specifies if the full command line search was done."
      (require 'ssh-agency)  ;自动加载ssh private key ,Customize ssh-agency-keys so ssh-agency will find your keys automatically from now on.
      ;; (add-hook 'magit-credential-hook 'ssh-agency-ensure) ;; ssh-agency里面已经有这个配置
      ;; 记得配置ssh-agency-keys指向id_rsa文件，这比pageant方便，pageant每次开机还要手动启动并加载ppk文件
+     ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
      ;; 另外GIT_SSH就不能用plink了,不配GIT_SSH就行，然后提示yes/no/finger时输入yes
      
      ;; 提高性能
@@ -2444,8 +2445,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
             (ibuffer-switch-to-saved-filter-groups "gzjgroup")))
 
 ;; ssh-agency
-(with-eval-after-load 'ssh-agency
-  (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa")))
+;; (with-eval-after-load 'ssh-agency
+;; (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa"))) ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3176,7 +3177,7 @@ If less than or equal to zero, there is no limit."
 
 (add-hook 'eshell-mode-hook
           (lambda () "DOCSTRING" (interactive)
-            (require 'ssh-agency)  ;自动加载ssh private key
+            (require 'ssh-agency)  ;自动加载ssh private key , ssh -vT git@github.com用于定位shell中git走ssh不通的问题
             (ssh-agency-ensure)
             ))
 ;; python
