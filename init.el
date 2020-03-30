@@ -1489,11 +1489,12 @@ If FULL-COMMAND specifies if the full command line search was done."
 ;; magit 确保ssh的ppk正确，换电脑的话要重新生成密钥，尽量用git自带的puttygen转换ppk和pageant加载ppk，不用单独装个putty
 ;; 调整tortoisegit的settings中的network选项，将tortoisegitplink.exe改成git安装目录的下bin\ssh.exe如果先前用ssh-keygen.exe配置好了git下的ssh话，改完就能直接用
 ;; bash中git clone可能不好用就把环境变量中msys的bin目录改成git的bin，但是又影响make命令的使用，所以还是用magit-clone
+;; https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows
 (when (memq system-type '(windows-nt ms-dos))
   (setenv "GIT_ASKPASS" "git-gui--askpass") ;解决git push不提示密码的问题
   (setenv "SSH_ASKPASS" "git-gui--askpass")
-  ;; (setenv "GIT_SSH" "c:/Program Files/PuTTY/plink.exe") ;遇到弹出POTENTIAL SECURITY BREACH!告警就没法用了
-  (setenv "GIT_SSH" "C:/Program Files/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定，用这个有什么需要点的提示能弹出来，不像plink没法点
+  ;; (setenv "GIT_SSH" "c:/Progra~1/PuTTY/plink.exe") ;遇到弹出POTENTIAL SECURITY BREACH!告警就没法用了
+  ;; (setenv "GIT_SSH" "C:/Progra~1/TortoiseGit/bin/TortoiseGitPlink.exe");这个安装git for windows时有选项也可以指定，用这个有什么需要点的提示能弹出来，不像plink没法点
   )
 
 ;; 要想保存密码不用每次输入得修改.git-credentials和.gitconfig
@@ -1532,6 +1533,12 @@ If FULL-COMMAND specifies if the full command line search was done."
        ""
        (setq tz 0))
 
+     (require 'ssh-agency)  ;自动加载ssh private key ,Customize ssh-agency-keys so ssh-agency will find your keys automatically from now on.
+     ;; (add-hook 'magit-credential-hook 'ssh-agency-ensure) ;; ssh-agency里面已经有这个配置
+     ;; 记得配置ssh-agency-keys指向id_rsa文件，这比pageant方便，pageant每次开机还要手动启动并加载ppk文件
+     ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
+     ;; 另外GIT_SSH就不能用plink了,不配GIT_SSH就行，然后提示yes/no/finger时输入yes
+     
      ;; 提高性能
      ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
      ;; (remove-hook 'server-switch-hook 'magit-commit-diff) ;提交时不显示差异，如需显示敲c-c c-d
@@ -2451,6 +2458,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; vdiff
 (autoload 'vdiff-buffers "vdiff" nil t)
 ;; vdiff-hydra/body
+;; ssh-agency
+;; (with-eval-after-load 'ssh-agency
+;; (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa"))) ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3175,8 +3185,15 @@ If less than or equal to zero, there is no limit."
             (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
             ;; (yas-minor-mode 1)
             (company-mode -1)
+            (require 'ssh-agency)  ;自动加载ssh private key
+            (ssh-agency-ensure)
             ))
 
+(add-hook 'eshell-mode-hook
+          (lambda () "DOCSTRING" (interactive)
+            (require 'ssh-agency)  ;自动加载ssh private key , ssh -vT git@github.com用于定位shell中git走ssh不通的问题
+            (ssh-agency-ensure)
+            ))
 ;; python
 (add-hook 'python-mode-hook
           (lambda () "" (interactive)

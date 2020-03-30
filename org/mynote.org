@@ -1163,3 +1163,8 @@ Wi是第i件物品的重量
 https://blog.csdn.net/mu399/article/details/7722810
 * WIN10
 ** 截图快捷键 win键+shift+s <2020-03-08 周日 15:21>
+** WMI Provider Host CPU 高解决办法 <2020-03-27 周五 13:13>
+https://www.howtogeek.com/332838/what-is-the-wmi-provider-host-wmiprvse.exe-and-why-is-it-using-so-much-cpu/
+先到事件查看器 Applications and Service Logs\Microsoft\Windows\WMI-Activity\Operational 位置查看日志
+通过错误日志中的ClientProcessId 找到出导致WMI CPU高的进程PID，再到任务管理器中找出该进程
+比如本机的进程相关的服务是Dell Data Vault Collector和  AWCCSERVICE这两个都停止并改为手动启动后解决
