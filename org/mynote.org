@@ -87,6 +87,9 @@ master --force提交，切记不要先pull再push
 
 ** magit里解决完文件冲突后要stage一下，才能resolve <2019-02-14 周四 16:28>
 
+** 设置fork url <2019-03-07 周四 13:25>
+git remote set-url fork URL
+
 ** git proxy密码特殊字符转义，比如.gitconfig里就要用 <2019-03-19 周二 19:10>
  ! --> %21    # --> %23    $ --> %24    & --> %26    ' --> %27
  ( --> %28    ) --> %29    * --> %2A    + --> %2B    , --> %2C
@@ -379,6 +382,8 @@ helm-org-in-buffer-headings
 
 *** 将标题作为链接插入到内容中的方法 <2019-10-23 周三 22:53>
 先在目录标题处执行org-store-link，然后在要插入链接的位置执行org-insert-link，在提示中会出现刚才保存的标题作为链接可以插入了
+
+*** 刚打开一个org文件可以先跳到最后一行m->，然后tab键展开 <2020-03-09 周一 10:29>
 
 ** 指定某目录下的.h文件都按c++ mode显示
 目录下创建.dir-locals.el，内容：
@@ -797,11 +802,11 @@ https://blog.csdn.net/wdkirchhoff/article/details/43193869
 PEP 索引的网址是： http://python.org/dev/peps.
 ** pip带proxy
 在CMD命令行输入：
-set http_proxy=http://name:pwd@url:8080
-set https_proxy=http://name:pwd@url:8080
+set http_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
+set https_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
 
-export http_proxy=http://name:pwd@url:8080
-export https_proxy=http://name:pwd@url:8080
+export http_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
+export https_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
 bash里面set改成export
 然后
 pip install python-language-server[all]==0.20.0
@@ -998,6 +1003,33 @@ os.chmod( filename, stat.S_IWRITE )
 997重叠I/O操作在进行中。
 998内存分配访问无效。
 999错误运行页内操作。
+* Intellij <2019-03-20 周三 16:10>
+** 怎么避免  import java.utils.* <2019-03-20 周三 16:11>
+Intellij Idea  工具在java文件中怎么避免  import java.utils.* 这样的导入方式,不推崇导入 *这样的做法
+
+       settings 》Code Style 》Java   
+       class count to use import with '*'      设置500
+       Names count to use static import with '*'   设置500
+
+      设置多少大家自己来设置
+* 编译器学习
+
+[[file:编译器部门要求/screenshot_2018-07-24_11-41-25.png]]
+** 编译器处理流程
+1.预处理(Prepreocess): import, macro, 预处理指令...
+2.词法分析:(Lexical Analysis):将预处理过的代码文本转化成Toke流
+3.语法分析:(Semantic Analysis):验证语法是否正确,生成语意节点,组合成抽象语法树.(AST)
+4.静态分析:(static Analysis):类型检查,找出非语法错误.
+5.代码生成:(CodeGen-IR):生成 LLVM-JR(汇编)
+** llvm三阶段
+
+[[file:编译器学习/screenshot_2018-09-07_16-51-04.png]]
+** llvm IR三种格式
+LLVM IR主要有三种格式：一种是在内存中的编译中间语言；一种是硬盘上存储的二进制中间语言（以.bc结尾），最后一种是可读的中间格式（以.ll结尾）。这三种中间格式是完全相等的。
+** 流程（Pass）
+* python 
+** 有用的网址
+PEP 索引的网址是： http://python.org/dev/peps.
 ** pip安装和升级
 # install command line tools
 $ xcode-select --install
@@ -1038,6 +1070,19 @@ defaults write com.apple.finder AppleShowAllFiles -bool false
 
 重启Finder：窗口左上角的苹果标志-->强制退出-->Finder-->重新启动
 * JAVA
+** maven 的setting.xml
+建立maven项目会需要去仓库下载一些相关的依赖包。maven默认的中央仓库是英国，所以我们把中央仓库改为maven阿里云中央仓库。
+
+修改maven根目录下的conf文件夹中的setting.xml文件，内容如下：
+  <localRepository>/Users/shangri-la/.m2/repository</localRepository>
+ <mirrors>
+    <mirror>
+      <id>alimaven</id>
+      <name>aliyun maven</name>
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+      <mirrorOf>central</mirrorOf>        
+    </mirror>
+  </mirrors>
 ** spring <2019-09-11 周三 22:59>
 ***  <2019-09-11 周三 23:03>IOC方式：
 对象的生命周期由Spring来管理，直接从Spring那里去获取一个对象。 IOC是反转控制 (Inversion Of Control)的缩写，就像控制权从本来在自己手里，交给了Spring。

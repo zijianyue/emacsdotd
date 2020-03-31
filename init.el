@@ -215,7 +215,7 @@
                          ("melpa" . "http://melpa.org/packages/")
                          ("melpa-stable" . "http://stable.melpa.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")))
-
+(add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
 
 ;; mini buffer 的大小保持不变
 ;; (setq resize-mini-windows nil)
@@ -1373,7 +1373,7 @@ If FULL-COMMAND specifies if the full command line search was done."
   (fset 'rg-create-header-line 'rg-create-header-line-fset))
 
 (global-set-key (kbd "<C-f5>") 'rg-project) ;counsel-git-grep 也好用，projectile-ag完全等价
-(global-set-key (kbd "<C-M-f9>") 'rg-menu)  ;交互式搜索，最方便的定制化搜索，可以指定上下文行数，是否检索压缩文件，是否搜索整个词等，注意搜索当前目录走的是rg-dwim-current-dir，默认搜的是当前文件类型（已被我改掉）
+(global-set-key (kbd "<C-M-f9>") 'rg-menu)  ;交互式搜索，最方便的定制化搜索，可以指定上下文行数，是否检索压缩文件，是否搜索整个词等，注意搜索当前目录走的是rg-dwim-current-dir，默认搜的是当前文件类型（已被我改掉）。搜索结果要用origami-mode来折叠显示
 ;; define-transient-command rg-menu 的定义中序号是3和4的就能显示5和6的，即认为不常用的，默认不显示，按c-x l进入专家模式修改level，magit的菜单也是这样用的
 
 ;; fast silver searcher
@@ -1525,7 +1525,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 (global-set-key (kbd "C-x t g") 'magit-blame-addition)
 (global-set-key (kbd "C-x t l") 'magit-log-buffer-file)
-;;magit-gitignore 按键是i 或者 I，这功能隐藏了
+;;magit-gitignore 按键是i 或者 I，这功能隐藏了，还有magit-file-untrack 带c-u可以把已经track的给ignore 按键K,magit合并冲突，默认ret打开文件smerge会启动，或者在冲突文件上按e启动ediff，但是要批量的处理冲突没有找到相应的功能
 
 ;; 避免时区差8小时
 (eval-after-load "magit"
@@ -2193,6 +2193,13 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; 折叠
 (autoload 'origami-mode "origami" nil t)
+
+(add-hook 'origami-mode-hook
+          (lambda ()
+            (local-set-key (kbd "M-[") 'origami-toggle-node)
+            (local-set-key (kbd "M-{") 'origami-toggle-all-nodes)))
+
+
 ;; (add-hook 'prog-mode-hook
 ;;           (lambda () (origami-mode)))
 
@@ -2344,26 +2351,30 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; ibuffer分组
 (setq ibuffer-saved-filter-groups
       (quote (("gzjgroup"
-               ("lldpd" (and (filename . ".*/src/xxxxx-path.*")
-                             (not (mode . dired-mode))))
-               ("dired" (mode . dired-mode))
-               ("tmp" (filename . "/tmp/.*"))
+               ("org" (mode . org-mode))
+               ("logs" (filename ."\\.log$"))
                ("shell-script" (mode . sh-mode))
                ("elisp" (or
                          (name . "^\\*scratch\\*$")
-                         (name . "^\\*Messages\\*$")
+                         ;; (name . "^\\*Messages\\*$")
                          (mode . emacs-lisp-mode)
                          (mode . xah-elisp-mode)))
-               ("w3m" (or
-                       (mode . w3m-mode)))
                ("python" (mode . python-mode))
+               ("dired" (mode . dired-mode))
                ("magit" (or
                          (mode . magit-status-mode)
                          (mode . magit-process-mode)
                          (mode . magit-diff-mode)
                          (mode . magit-revision-mode)
                          (mode . magit-log-mode)))
-               ("org" (mode . org-mode))))))
+               ("helm" (mode . helm-major-mode))
+               ("RG" (mode . rg-mode))
+               ("System" (name ."^\\*.*\\*$"))
+               ("tmp" (or
+                       (filename . "/tmp/.*")
+                       (filename . "/.cache/.*")
+                       (name . ".*\\~$")))
+               ))))
 (add-hook 'ibuffer-mode-hook
           (lambda ()
             (ibuffer-switch-to-saved-filter-groups "gzjgroup")))
@@ -2371,6 +2382,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; UNICODE字符全显示
 ;; (require 'unicode-fonts)
 ;; (unicode-fonts-setup)
+;; vdiff
+(autoload 'vdiff-buffers "vdiff" nil t)
+;; vdiff-hydra/body
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3157,6 +3171,10 @@ If less than or equal to zero, there is no limit."
             (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
             ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)
+            ))
+(add-hook 'rg-mode-hook
+          (lambda () "" (interactive)
+            (origami-mode t)
             ))
 (setq org-export-with-sub-superscripts '{}) ;设置让 Org Mode 在默认情况下，不转义 _ 字符,这样就会用 {} 来转义了
 ;; (setq-default org-use-sub-superscripts nil) ;禁用下划线转义
