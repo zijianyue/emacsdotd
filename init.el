@@ -317,9 +317,9 @@
  '(cc-search-directories '("." "/usr/include" "/usr/local/include/*" "../*"))
  '(ccls-sem-macro-faces [font-lock-warning-face])
  '(ccls-tree-initial-levels 1)
- '(centaur-tabs-backward-tab-text " ⇦ ")
+ '(centaur-tabs-backward-tab-text " < ")
  '(centaur-tabs-cycle-scope 'tabs)
- '(centaur-tabs-forward-tab-text " ⇨ ")
+ '(centaur-tabs-forward-tab-text " > ")
  '(centaur-tabs-modified-marker "●")
  '(centaur-tabs-show-navigation-buttons t)
  '(column-number-mode t)
@@ -463,7 +463,7 @@
  '(ivy-height 25)
  '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
- '(line-spacing 0.2)
+ '(line-spacing 0.25)
  '(ls-lisp-dirs-first t)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook '(lsp-hover))
@@ -559,6 +559,7 @@
  '(treemacs-tag-follow-cleanup nil)
  '(treemacs-width 50)
  '(undo-outer-limit 20000000)
+ '(unicode-fonts-existence-checks 'none)
  '(uniquify-buffer-name-style 'post-forward-angle-brackets nil (uniquify))
  '(user-full-name "gezijian")
  '(vc-handled-backends '(Git SVN))
@@ -1602,9 +1603,6 @@ If FULL-COMMAND specifies if the full command line search was done."
 (global-set-key (kbd "<C-tab>") 'tabbar-forward-tab)
 (global-set-key (kbd "<C-S-tab>") 'tabbar-backward-tab)
 
-;; (require 'aquamacs-tabbar)
-;; (tabbar-mode)
-
 ;; centaur-tabs
 (require 'centaur-tabs)
 (centaur-tabs-mode t)
@@ -1632,108 +1630,34 @@ If FULL-COMMAND specifies if the full command line search was done."
       (format "%s%s" ellipsis (substring s (+ (- (length s) len) (length ellipsis)) (length s)))
     s))
 (fset 'centaur-tabs-truncate-string 'centaur-tabs-truncate-string-fset)
-;; 过滤掉某些buffer功能在aquamacs-tabbar中未使用，加上
-;; (defun tabbar-gzj-inhgibit-function ()
-;;   ""
-;;   (uninterested-buffer (current-buffer)))
-;; ;; (add-to-list 'tabbar-inhibit-functions 'tabbar-gzj-inhibit-function)
-;; (with-eval-after-load 'tabbar
-;;   (setq tabbar-inhibit-functions 'tabbar-gzj-inhibit-function))
-;; (with-eval-after-load 'tabbar-window
-;;   (defun tabbar-line-fset ()
-;;     "Return the header line templates that represent the tab bar.
-;; Inhibit display of the tab bar in current window if any of the
-;; `tabbar-inhibit-functions' return non-nil."
-;;     (cond
-;;      ((run-hook-with-args-until-success 'tabbar-inhibit-functions)
-;;       ;; Don't show the tab bar.
-;;       (setq header-line-format nil))
-;;      ((tabbar-current-tabset t)
-;;       ;; When available, use a cached tab bar value, else recompute it.
-;;       (or (tabbar-template tabbar-current-tabset)
-;;           (tabbar-line-format tabbar-current-tabset)))))
-;;   (fset 'tabbar-line 'tabbar-line-fset))
+;; 过滤buffer
+(defun centaur-tabs-hide-tab-fset (x)
+  "Do no to show buffer X in tabs."
+  (let ((name (format "%s" x)))
+    (or
+     ;; Current window is not dedicated window.
+     (window-dedicated-p (selected-window))
 
-;; 防止undo后标签颜色不恢复
-;; (defadvice undo(after undo-after activate)
-;;   ;;   (on-modifying-buffer) ;; tabbar
-;;   (tabbar-update-if-changes-undone)       ; aquamacs-tabbar
-;;   )
-;; (defadvice redo(after redo-after activate)
-;;   ;;   (on-modifying-buffer)  ;; tabbar
-;;   (tabbar-window-update-tabsets-when-idle)
-;;   )
-;; (add-hook 'after-revert-hook 'on-modifying-buffer)
-;; (add-hook 'after-revert-hook 'tabbar-window-update-tabsets-when-idle)
-;; (define-key special-event-map [iconify-frame] 'ignore)
-;; (defadvice iconify-frame (after leave-hidden-frame
-;;                                 (&rest args) disable compile)
-;;   (aquamacs-handle-frame-iconified (car args)))
-
-;; 重新定义以下函数，关闭按钮不显示图片（windows上显示效果差）
-;; (when (memq system-type '(windows-nt ms-dos))
-;;   (setq tabbar-use-images nil)
-;;   (defsubst tabbar-line-tab (tab)
-;;     "Return the display representation of tab TAB.
-;; That is, a propertized string used as an `header-line-format' template
-;; element.
-;; Call `tabbar-tab-label-function' to obtain a label for TAB."
-;;     (let* ((selected-p (tabbar-selected-p tab (tabbar-current-tabset)))
-;;            (close-button-image (tabbar-find-image tabbar-close-tab-button))
-;;            (mouse-face (if selected-p
-;;                            'tabbar-selected-highlight
-;;                          'tabbar-unselected-highlight))
-
-;;            (text-face (if selected-p
-;;                           'tabbar-selected
-;;                         'tabbar-unselected))
-;;            (close-button
-;;             (propertize "[x]"
-;;                         'tabbar-tab tab
-;;                         'local-map (tabbar-make-tab-keymap tab)
-;;                         'tabbar-action 'close-tab
-;;                         ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
-;;                         'mouse-face mouse-face
-;;                         'face text-face
-;;                         'pointer 'arrow
-;;                         ;; 'display (tabbar-normalize-image close-button-image 0 'nomask)
-;;                         ))
-
-;;            (display-label
-;;             (propertize (if tabbar-tab-label-function
-;;                             (funcall tabbar-tab-label-function tab)
-;;                           tab)
-;;                         'tabbar-tab tab
-;;                         'local-map (tabbar-make-tab-keymap tab)
-;;                         ;;	  'help-echo 'tabbar-help-on-tab ;; no help echo: it's redundant
-;;                         'mouse-face mouse-face
-;;                         'face (cond ((and selected-p
-;;                                           (buffer-modified-p (tabbar-tab-value tab)))
-;;                                      'tabbar-selected-modified)
-;;                                     ((and (not selected-p)
-;;                                           (buffer-modified-p (tabbar-tab-value tab)))
-;;                                      'tabbar-unselected-modified)
-;;                                     ((and selected-p
-;;                                           (not (buffer-modified-p (tabbar-tab-value tab))))
-;;                                      'tabbar-selected)
-;;                                     (t 'tabbar-unselected))
-;;                         'pointer 'arrow))
-;;            (key-label
-;;             (if (and tabbar-show-key-bindings (boundp 'tabbar-line-tabs) tabbar-line-tabs)
-;;                 (let* ((mm (member tab tabbar-line-tabs) )
-;;                        ;; calc position (i.e., like position from cl-seq)
-;;                        (index (if mm (- (length tabbar-line-tabs) (length mm)))))
-;;                   (if (and index (fboundp (tabbar-key-command (+ 1 index))))
-;;                       (propertize
-;;                        (get (tabbar-key-command (+ 1 index)) 'label)
-;;                                         ;(format "%s" (+ 1 index))
-;;                        'mouse-face mouse-face
-;;                        ;; same mouse-face leads to joint mouse activation for all elements
-;;                        'face (list 'tabbar-key-binding text-face) ;; does not work
-;;                        )
-;;                     "")
-;;                   ) "")))
-;;       (concat close-button display-label key-label tabbar-separator-value))))
+     ;; Buffer name not match below blacklist.
+     (string-prefix-p "*epc" name)
+     (string-prefix-p "*helm" name)
+     (string-prefix-p "*Compile-Log*" name)
+     (string-prefix-p "*lsp" name)
+     (string-prefix-p "*company" name)
+     (string-prefix-p "*Flycheck" name)
+     (string-prefix-p "*tramp" name)
+     (string-prefix-p " *Mini" name)
+     (string-prefix-p "*help" name)
+     (string-prefix-p "*straight" name)
+     (string-prefix-p " *temp" name)
+     (string-prefix-p "*Help" name)
+     (string-prefix-p "*Completions*" name)
+     
+     ;; Is not magit buffer.
+     (and (string-prefix-p "magit" name)
+	      (not (file-name-extension name)))
+     )))
+(fset 'centaur-tabs-hide-tab 'centaur-tabs-hide-tab-fset)
 
 ;; imenu list
 (autoload 'imenu-list-smart-toggle "imenu-list" nil t)
@@ -2444,9 +2368,9 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
           (lambda ()
             (ibuffer-switch-to-saved-filter-groups "gzjgroup")))
 
-;; ssh-agency
-;; (with-eval-after-load 'ssh-agency
-;; (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa"))) ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
+;; UNICODE字符全显示
+;; (require 'unicode-fonts)
+;; (unicode-fonts-setup)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
