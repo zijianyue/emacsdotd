@@ -286,6 +286,28 @@
   (setq hi-lock-face-defaults '(;; "swiper-match-face-2" "swiper-match-face-3" "swiper-match-face-4" "swiper-match-face-1"
                                 ;; "ivy-minibuffer-match-face-4" "ivy-minibuffer-match-face-3" "ivy-minibuffer-match-face-2" "ivy-minibuffer-match-face-1"
                                 "hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b")))
+;; describe-coding-system 来查看当前编码
+;; 设置为中文简体语言环境
+(set-language-environment 'Chinese-GB)
+;; set coding config, last is highest priority.
+(prefer-coding-system 'cp950)
+(prefer-coding-system 'gb2312)
+(prefer-coding-system 'cp936)
+(prefer-coding-system 'gb18030)
+(prefer-coding-system 'utf-16)
+(prefer-coding-system 'utf-8)
+;; 解决 Shell Mode(cmd) 下中文乱码问题
+(defun change-shell-mode-coding ()
+  (progn
+    (set-terminal-coding-system 'gbk)
+    (set-keyboard-coding-system 'gbk)
+    (set-selection-coding-system 'gbk)
+    (set-buffer-file-coding-system 'gbk)
+    (set-file-name-coding-system 'gbk)
+    (modify-coding-system-alist 'process "*" 'gbk)
+    (setq-local default-process-coding-system '(gbk . gbk)) ;这句主要给eshell用，eshell里不能用set-buffer-process-coding-system
+    (set-buffer-process-coding-system 'gbk 'gbk)
+    ))
 
 ;; 长行性能提升
 (setq-default bidi-display-reordering nil)
@@ -463,7 +485,7 @@
  '(ivy-height 25)
  '(ivy-use-virtual-buffers t)
  '(large-file-warning-threshold 40000000)
- '(line-spacing 0.2)
+ '(line-spacing 0.25)
  '(ls-lisp-dirs-first t)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook '(lsp-hover))
@@ -481,6 +503,7 @@
  '(lsp-java-vmargs
    '("-noverify" "-Xmx3G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication"))
  '(lsp-response-timeout 20)
+ '(lsp-semantic-highlighting :deferred)
  '(lsp-treemacs-sync-mode t)
  '(lsp-ui-doc-include-signature t)
  '(lsp-ui-doc-use-webkit t)
@@ -563,7 +586,7 @@
  '(user-full-name "gezijian")
  '(vc-handled-backends '(Git SVN))
  '(vc-svn-program "C:\\Program Files\\TortoiseSVN\\bin\\svn")
- '(vlf-batch-size 50000000)
+ '(vlf-batch-size 100000000)
  '(which-function-mode t)
  '(whitespace-line-column 120)
  '(winner-mode t)
@@ -602,7 +625,6 @@
 ;; 选中单位
 (autoload 'er/expand-region "expand-region" nil t)
 (global-set-key (kbd "M-s") 'er/expand-region)
-
 
 ;; undo redo
 (require 'redo+)
@@ -658,8 +680,8 @@
      (advice-add #'company-tabnine :around #'my-company-tabnine)
 
      ;; 图形化补全
-     ;; (require 'company-box)
-     ;; (require 'icons-in-terminal)
+     (require 'company-box)
+     (require 'icons-in-terminal)
      ;; (add-hook 'company-mode-hook 'company-box-mode)
      ;; company-box相关配置begin
      (setq company-box-icons-unknown 'fa_question_circle)
@@ -1823,7 +1845,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'ccls)
   (require 'lsp-java)
   (require 'helm-lsp)
-  ;; (require 'helm-xref)
+  ;; (require 'helm-xref) ;; 在emacs27不可用
   (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix lsp-treemacs-symbols-list
   (require 'lsp-origami)
   (projectile-mode)
@@ -2458,9 +2480,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; vdiff
 (autoload 'vdiff-buffers "vdiff" nil t)
 ;; vdiff-hydra/body
-;; ssh-agency
-;; (with-eval-after-load 'ssh-agency
-;; (add-to-list 'ssh-agency-keys (expand-file-name "~/../../.ssh/id_rsa"))) ;; 这个还是把id_rsa移到~/.ssh目录下，否则 在eshell里不好用
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3115,10 +3134,10 @@ If less than or equal to zero, there is no limit."
             (modify-syntax-entry ?- "w")    ;_ 当成单词的一部分
             (setq add-log-current-defun-function nil) ;这个函数在java文件里用的是[c-cpp-define-name c-defun-name],无法识别java的函数所以改为nil,不然emacs27的which-func-mode在java里只显示类名
             ;; (setq-local company-idle-delay 0)
-            (font-lock-add-keywords nil
-                                    '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
-                                       1  font-lock-function-name-face keep))
-                                    1)
+            ;; (font-lock-add-keywords nil
+            ;;                         '(("\\(\\_<\\(\\w\\|\\s_\\)+\\_>\\)[    ]*("
+            ;;                            1  font-lock-function-name-face keep))
+            ;;                         1)
             (c-set-style "javagzj")  ))
 
 (add-hook 'emacs-lisp-mode-hook
@@ -3179,6 +3198,7 @@ If less than or equal to zero, there is no limit."
 (add-hook 'shell-mode-hook
           (lambda () "DOCSTRING" (interactive)
             ;; (set-buffer-process-coding-system 'utf-8 'utf-8) ;防止shell乱码
+            (change-shell-mode-coding)
             (define-key comint-mode-map (kbd "M-.") 'comint-previous-matching-input-from-input)
             (define-key comint-mode-map (kbd "M-,") 'comint-next-matching-input-from-input)
             (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
@@ -3191,6 +3211,7 @@ If less than or equal to zero, there is no limit."
 
 (add-hook 'eshell-mode-hook
           (lambda () "DOCSTRING" (interactive)
+            (change-shell-mode-coding)
             (require 'ssh-agency)  ;自动加载ssh private key , ssh -vT git@github.com用于定位shell中git走ssh不通的问题
             (ssh-agency-ensure)
             ))
@@ -3245,6 +3266,7 @@ If less than or equal to zero, there is no limit."
             (define-key org-mode-map (kbd "<f5>") 'org-redisplay-inline-images)
             (define-key org-mode-map (kbd "C-e") 'end-of-visual-line)                   ;这个才能真正跳到行尾， <end>键用于org-end-of-line
             (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
+            ;; org-mark-ring-goto 跳回上个位置 C-c & 对应的push命令是‘org-mark-ring-push’ with C-c %
             ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)
             ))
