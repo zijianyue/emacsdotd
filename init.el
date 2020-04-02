@@ -277,8 +277,24 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 ;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
-;; (setq w32-pass-lwindow-to-system nil)
-;; (setq w32-lwindow-modifier 'super) ; Left Windows key
+(setq w32-pass-lwindow-to-system nil)
+(setq w32-lwindow-modifier 'super) ; Left Windows key,在win10要配合w32-register-hot-key使用
+;; (w32-register-hot-key [s-])        ; 这样就会拦截所有s-的按键了
+(w32-register-hot-key [s-f])
+(w32-register-hot-key [s-a])
+(w32-register-hot-key [s-c])
+(w32-register-hot-key [s-x])
+(w32-register-hot-key [s-v])
+(w32-register-hot-key [s-w])
+(w32-register-hot-key [s-s])
+(w32-register-hot-key [s-q])
+(w32-register-hot-key [s-n])
+(w32-register-hot-key [s-y])
+
+
+;; 阻止右边windows键
+;; (setq w32-pass-rwindow-to-system nil)
+;; (setq w32-rwindow-modifier 'super)
 ;; hi lock颜色不要hi-black-hb
 (with-eval-after-load 'hi-lock
   ;; (unless (featurep 'swiper)
@@ -286,6 +302,7 @@
   (setq hi-lock-face-defaults '(;; "swiper-match-face-2" "swiper-match-face-3" "swiper-match-face-4" "swiper-match-face-1"
                                 ;; "ivy-minibuffer-match-face-4" "ivy-minibuffer-match-face-3" "ivy-minibuffer-match-face-2" "ivy-minibuffer-match-face-1"
                                 "hi-green" "hi-blue" "hi-pink" "hi-yellow" "hi-black-b" "hi-blue-b" "hi-red-b" "hi-green-b")))
+
 ;; describe-coding-system 来查看当前编码
 ;; 设置为中文简体语言环境
 (set-language-environment 'Chinese-GB)
@@ -1050,7 +1067,8 @@
 ;; (global-set-key (kbd "<f9>") 'helm-occur)
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
-(global-set-key (kbd "<apps>") 'helm-semantic-or-imenu)
+(global-set-key (kbd "<apps>") 'helm-semantic-or-imenu) ;这个键在realforce键盘上需要用fn+rwin触发，所以用MapKeyboard 2.1.zip改键，链接https://www.jianguoyun.com/p/DWGQFJoQ7qW5Bxj4keMB
+;; 但是由于realforce的app键是fn+rwin键触发的，将它俩互换后rwin键只能用于触发windows开始按钮，不能当组合键用。（在有app键的键盘上是可以当组合键用的）
 (global-set-key (kbd "<C-apps>") 'helm-for-files) ;C-o M-o是切换上下source，helm-next-source helm-previous-source
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
@@ -1641,7 +1659,8 @@ If FULL-COMMAND specifies if the full command line search was done."
 (setq centaur-tabs-set-icons t)
 (setq centaur-tabs-set-bar 'left)           ;To display a colored bar at the left of the selected tab
 (setq centaur-tabs-set-modified-marker t)
-(setq-default centaur-tabs-height 32)
+(setq-default centaur-tabs-height 12)
+(setq-default centaur-tabs-bar-height (+ 2 centaur-tabs-height))
 (setq centaur-tabs-label-fixed-length 45)
 (defun centaur-tabs-truncate-string-fset (len s &optional ellipsis)
   "超过len长前面省略，用...代替，如果不够len长，就用实际长度"
@@ -2404,9 +2423,29 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; UNICODE字符全显示
 ;; (require 'unicode-fonts)
 ;; (unicode-fonts-setup)
+
 ;; vdiff
 (autoload 'vdiff-buffers "vdiff" nil t)
 ;; vdiff-hydra/body
+
+;; 根据时间，自动切换亮色和暗色主题。
+(setq day-theme 'doom-one-light)
+(setq dark-theme 'doom-gruvbox )
+(defun synchronize-theme ()
+  (setq hour
+        (string-to-number
+         (substring (current-time-string) 11 13)))
+  (if (member hour (number-sequence 6 18))
+      (progn
+        (setq now day-theme)
+        (custom-set-faces
+         ;; 默认的centaur-tabs-unselected太虚了看不清字
+         '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
+    (setq now dark-theme)
+    )
+  (load-theme now)
+  )
+(run-with-timer 0 3600 'synchronize-theme)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3350,6 +3389,17 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
 (global-set-key (kbd "C-v") 'yank)      ;翻页用page down代替
+    
+(global-set-key (kbd "s-f") 'isearch-forward)
+(global-set-key (kbd "s-a") 'mark-whole-buffer)
+(global-set-key (kbd "s-c") 'kill-ring-save)
+(global-set-key (kbd "s-x") 'kill-region)
+(global-set-key (kbd "s-v") 'yank)  
+(global-set-key (kbd "s-w") 'kill-this-buffer)
+(global-set-key (kbd "s-s") 'save-buffer)
+(global-set-key (kbd "s-q") 'keyboard-quit)
+(global-set-key (kbd "s-n") 'scroll-up-command)
+(global-set-key (kbd "s-y") 'scroll-down-command)
 
 ;; face修改，用copy-face刷掉原来的face属性
 (defun change-face ()
