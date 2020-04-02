@@ -2427,25 +2427,6 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; vdiff
 (autoload 'vdiff-buffers "vdiff" nil t)
 ;; vdiff-hydra/body
-
-;; 根据时间，自动切换亮色和暗色主题。
-(setq day-theme 'doom-one-light)
-(setq dark-theme 'doom-gruvbox )
-(defun synchronize-theme ()
-  (setq hour
-        (string-to-number
-         (substring (current-time-string) 11 13)))
-  (if (member hour (number-sequence 6 18))
-      (progn
-        (setq now day-theme)
-        (custom-set-faces
-         ;; 默认的centaur-tabs-unselected太虚了看不清字
-         '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
-    (setq now dark-theme)
-    )
-  (load-theme now)
-  )
-(run-with-timer 0 3600 'synchronize-theme)
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -2915,6 +2896,25 @@ If less than or equal to zero, there is no limit."
                        (lambda ()
                          (k-time (garbage-collect))
                          )))
+
+;; 根据时间，自动切换亮色和暗色主题。
+(setq day-theme 'doom-one-light)
+(setq dark-theme 'doom-gruvbox)
+(defun synchronize-theme ()
+  (setq hour
+        (string-to-number
+         (substring (current-time-string) 11 13)))
+  (if (member hour (number-sequence 6 18))
+      (progn
+        (setq now day-theme)
+        (custom-set-faces
+         ;; 默认的centaur-tabs-unselected太虚了看不清字
+         '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
+    (setq now dark-theme)
+    )
+  (load-theme now)
+  )
+(run-with-timer 0 3600 'synchronize-theme)
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
