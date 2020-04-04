@@ -1657,8 +1657,8 @@ If FULL-COMMAND specifies if the full command line search was done."
 (setq centaur-tabs-set-icons t)
 (setq centaur-tabs-set-bar 'left)           ;To display a colored bar at the left of the selected tab
 (setq centaur-tabs-set-modified-marker t)
-(setq-default centaur-tabs-height 12)
-(setq-default centaur-tabs-bar-height (+ 2 centaur-tabs-height))
+;; (setq-default centaur-tabs-height 32)
+;; (setq-default centaur-tabs-bar-height (+ 8 centaur-tabs-height))
 (setq centaur-tabs-label-fixed-length 45)
 (defun centaur-tabs-truncate-string-fset (len s &optional ellipsis)
   "超过len长前面省略，用...代替，如果不够len长，就用实际长度"
@@ -2897,6 +2897,7 @@ If less than or equal to zero, there is no limit."
 ;; 根据时间，自动切换亮色和暗色主题。
 (setq day-theme 'doom-one-light)
 (setq dark-theme 'doom-gruvbox)
+(setq current-theme nil)
 (defun synchronize-theme ()
   (setq hour
         (string-to-number
@@ -2907,9 +2908,17 @@ If less than or equal to zero, there is no limit."
         (custom-set-faces
          ;; 默认的centaur-tabs-unselected太虚了看不清字
          '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
-    (setq now dark-theme)
+    (progn
+      (setq now dark-theme)
+      (custom-set-faces
+       '(centaur-tabs-unselected ((t (:background "#323232" :foreground "#928374")))))) 
     )
-  (load-theme now)
+  ;; (message "current-theme %s" current-theme)
+  (if (not (eq now current-theme))
+      (progn
+        ;; (message "load theme %s" now)
+        (load-theme now)
+        (setq current-theme now)))
   )
 (run-with-timer 0 3600 'synchronize-theme)
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
@@ -3373,6 +3382,8 @@ If less than or equal to zero, there is no limit."
      (define-key vc-dir-mode-map (kbd "d") 'vc-diff)))
 ;; server-start
 (global-set-key (kbd "<C-lwindow>") 'server-start)
+(global-set-key (kbd "<s-f2>") 'server-start)
+
 ;; Calc
 (global-set-key (kbd "C-c a") 'calc)
 (put 'narrow-to-region 'disabled nil)
