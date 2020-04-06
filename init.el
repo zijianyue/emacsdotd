@@ -2911,7 +2911,8 @@ If less than or equal to zero, there is no limit."
     (progn
       (setq now dark-theme)
       (custom-set-faces
-       '(centaur-tabs-unselected ((t (:background "#323232" :foreground "#928374")))))) 
+       '(centaur-tabs-unselected ((t (:background "#323232" :foreground "#928374")))))
+      ) 
     )
   ;; (message "current-theme %s" current-theme)
   (if (not (eq now current-theme))
@@ -2921,6 +2922,11 @@ If less than or equal to zero, there is no limit."
         (setq current-theme now)))
   )
 (run-with-timer 0 3600 'synchronize-theme)
+;;; Disable theme before load a new theme
+(defadvice load-theme
+    (before theme-dont-propagate activate)
+  "Disable theme before load theme."
+  (mapc #'disable-theme custom-enabled-themes))
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
