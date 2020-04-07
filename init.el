@@ -2917,17 +2917,22 @@ If less than or equal to zero, there is no limit."
   (setq hour
         (string-to-number
          (substring (current-time-string) 11 13)))
-  (if (member hour (number-sequence 6 18))
+  (setq dark (cond ((member hour (number-sequence 6 11)) nil) ;上午
+                   ((member hour (number-sequence 12 13)) t) ;午休时间用暗色
+                   ((member hour (number-sequence 14 18)) nil) ;下午
+                   t                                           ;晚上
+                   ))
+  (if dark
       (progn
-        (setq now day-theme)
+        (setq now dark-theme)
         (custom-set-faces
-         ;; 默认的centaur-tabs-unselected太虚了看不清字
-         '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
+         '(centaur-tabs-unselected ((t (:background "#323232" :foreground "#928374")))))
+        )
     (progn
-      (setq now dark-theme)
+      (setq now day-theme)
       (custom-set-faces
-       '(centaur-tabs-unselected ((t (:background "#323232" :foreground "#928374")))))
-      ) 
+       ;; 默认的centaur-tabs-unselected太虚了看不清字
+       '(centaur-tabs-unselected ((t (:background "#f0f0f0" :foreground "SystemGrayText"))))))
     )
   ;; (message "current-theme %s" current-theme)
   (if (not (eq now current-theme))
@@ -2939,9 +2944,12 @@ If less than or equal to zero, there is no limit."
 (run-with-timer 0 3600 'synchronize-theme)
 ;;; Disable theme before load a new theme
 (defadvice load-theme
-    (before theme-dont-propagate activate)
+    (around theme-dont-propagate activate)
   "Disable theme before load theme."
-  (mapc #'disable-theme custom-enabled-themes))
+  (mapc #'disable-theme custom-enabled-themes)
+  ad-do-it
+  (centaur-tabs-display-update)
+  )
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
