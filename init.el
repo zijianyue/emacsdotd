@@ -34,6 +34,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/vlfi"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/eglot"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/groovy-emacs-modes"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/web-mode"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -284,7 +285,7 @@
 (w32-register-hot-key [s-a])
 (w32-register-hot-key [s-c])
 (w32-register-hot-key [s-x])
-(w32-register-hot-key [s-v])
+;; (w32-register-hot-key [s-v])
 (w32-register-hot-key [s-w])
 (w32-register-hot-key [s-s])
 (w32-register-hot-key [s-q])
@@ -305,13 +306,14 @@
 
 ;; describe-coding-system 来查看当前编码
 ;; 设置为中文简体语言环境
-(set-language-environment 'Chinese-GB)
+;; (set-language-environment 'Chinese-GB)
 ;; set coding config, last is highest priority.
-(prefer-coding-system 'cp950)
-(prefer-coding-system 'gb2312)
-(prefer-coding-system 'cp936)
-(prefer-coding-system 'gb18030)
-(prefer-coding-system 'utf-16)
+;; (prefer-coding-system 'cp950)
+;; (prefer-coding-system 'gb2312)
+;; (prefer-coding-system 'cp936)
+;; (prefer-coding-system 'gb18030)
+;; (prefer-coding-system 'utf-16)
+(prefer-coding-system 'gbk)
 (prefer-coding-system 'utf-8)
 ;; 解决 Shell Mode(cmd) 下中文乱码问题
 (defun change-shell-mode-coding ()
@@ -2424,6 +2426,19 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 ;; vdiff
 (autoload 'vdiff-buffers "vdiff" nil t)
 ;; vdiff-hydra/body
+
+;; web-mode
+(autoload 'web-mode "web-mode" nil t)
+
+(add-to-list 'auto-mode-alist '("\\.ftl\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
@@ -3094,6 +3109,7 @@ If less than or equal to zero, there is no limit."
   (add-hook hook
             (lambda()
               (setq-local line-spacing 0.25))))
+(add-to-list 'auto-mode-alist '("\\.log$" . text-mode))
 
 (dolist (hook '(c-mode-hook c++-mode-hook));c-mode-common-hook 不只是c 和c++,java也算
   (add-hook hook
@@ -3414,7 +3430,7 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "s-a") 'mark-whole-buffer)
 (global-set-key (kbd "s-c") 'kill-ring-save)
 (global-set-key (kbd "s-x") 'kill-region)
-(global-set-key (kbd "s-v") 'yank)  
+;; (global-set-key (kbd "s-v") 'yank)  
 (global-set-key (kbd "s-w") 'kill-this-buffer)
 (global-set-key (kbd "s-s") 'save-buffer)
 (global-set-key (kbd "s-q") 'keyboard-quit)
