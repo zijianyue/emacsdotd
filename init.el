@@ -314,7 +314,7 @@
 ;; (prefer-coding-system 'gb18030)
 ;; (prefer-coding-system 'utf-16)
 (prefer-coding-system 'gbk)
-(prefer-coding-system 'utf-8)
+(prefer-coding-system 'utf-8) ; 这句可以保证rg ag搜索不乱码，java文件打开不乱码，但是从中文路径右键打开文件会失败，拖动打开正常
 ;; 解决 Shell Mode(cmd) 下中文乱码问题
 (defun change-shell-mode-coding ()
   (progn
@@ -401,6 +401,7 @@
  '(electric-indent-mode t)
  '(electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
  '(electric-pair-mode t)
+ '(electric-pair-pairs '((8216 . 8217) (8220 . 8221)))
  '(enable-local-variables :all)
  '(enable-recursive-minibuffers t)
  '(eww-search-prefix "http://cn.bing.com/search?q=")
@@ -1068,6 +1069,7 @@
 (global-set-key (kbd "C-S-k") 'helm-all-mark-rings)
 (global-set-key (kbd "C-S-v") 'helm-show-kill-ring)
 (global-set-key (kbd "<apps>") 'helm-semantic-or-imenu) ;这个键在realforce键盘上需要用fn+rwin触发，所以用MapKeyboard 2.1.zip改键，链接https://www.jianguoyun.com/p/DWGQFJoQ7qW5Bxj4keMB
+;; pause键还没绑定，可以利用
 ;; 但是由于realforce的app键是fn+rwin键触发的，将它俩互换后rwin键只能用于触发windows开始按钮，不能当组合键用。（在有app键的键盘上是可以当组合键用的）
 (global-set-key (kbd "<C-apps>") 'helm-for-files) ;C-o M-o是切换上下source，helm-next-source helm-previous-source
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
@@ -1681,7 +1683,8 @@ If FULL-COMMAND specifies if the full command line search was done."
 
      ;; Buffer name not match below blacklist.
      (string-prefix-p "*epc" name)
-     (string-prefix-p "*helm" name)
+     (string-prefix-p "*helm" name t)
+     (string-prefix-p "*rg" name t)
      (string-prefix-p "*Compile-Log*" name)
      (string-prefix-p "*lsp" name)
      (string-prefix-p "*company" name)
@@ -1715,7 +1718,7 @@ If FULL-COMMAND specifies if the full command line search was done."
 (autoload 'doom-themes-org-config "doom-themes-ext-org.el" nil t)
 (doom-themes-org-config)
 ;; (doom-themes-treemacs-config)           ;这句会导致treemacs无法点击打开文件的tags，但是可以在文件名上右键选择打开
-;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题
+;; (load-theme 'doom-nord t) ;; 这句要用 '(custom-enabled-themes (quote (doom-nord)))，否则tabbar的face有问题，或者新开frame有问题
 (require 'doom-modeline)
 (setq doom-modeline-github nil)
 (setq inhibit-compacting-font-caches t) ; laggy issue on Windows
@@ -2944,12 +2947,9 @@ If less than or equal to zero, there is no limit."
 (run-with-timer 0 3600 'synchronize-theme)
 ;;; Disable theme before load a new theme
 (defadvice load-theme
-    (around theme-dont-propagate activate)
+    (before theme-dont-propagate activate)
   "Disable theme before load theme."
-  (mapc #'disable-theme custom-enabled-themes)
-  ad-do-it
-  (centaur-tabs-display-update)
-  )
+  (mapc #'disable-theme custom-enabled-themes))
 ;;-----------------------------------------------------------define func end------------------------------------------------;;
 ;;-----------------------------------------------------------hook-----------------------------------------------------------;;
 (c-add-style "gzj"
@@ -3442,6 +3442,7 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "s-w") 'kill-this-buffer)
 (global-set-key (kbd "s-s") 'save-buffer)
 (global-set-key (kbd "s-q") 'keyboard-quit)
+(global-set-key (kbd "<pause>") 'keyboard-quit)
 (global-set-key (kbd "s-n") 'scroll-up-command)
 (global-set-key (kbd "s-y") 'scroll-down-command)
 (global-set-key (kbd "s-]") 'diff-hl-next-hunk)
