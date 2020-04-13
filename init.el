@@ -3342,7 +3342,7 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "<M-S-right>") 'windmove-right)
 (global-set-key (kbd "C-S-o") 'other-frame)
 (global-set-key (kbd "C-S-n") 'make-frame-command)
-(global-set-key (kbd "<S-f4>") 'delete-frame)
+(global-set-key (kbd "<s-f4>") 'delete-frame)
 
 
 ;; 文件跳转
@@ -3450,39 +3450,39 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "s-`") 'magit-status)
 
 ;; face修改，用copy-face刷掉原来的face属性
-(defun change-face ()
-  ""
-  (require 'doom-modeline)
-  ;; (require 'wid-edit)
-  (copy-face 'doom-modeline-inactive-bar 'tabbar-default)
-  (set-face-attribute 'tabbar-default nil
-                      :height 100
-                      :family "Consolas"
-                      )
+;; (defun change-face ()
+;;   ""
+;;   (require 'doom-modeline)
+;;   ;; (require 'wid-edit)
+;;   (copy-face 'doom-modeline-inactive-bar 'tabbar-default)
+;;   (set-face-attribute 'tabbar-default nil
+;;                       :height 100
+;;                       :family "Consolas"
+;;                       )
 
-  (copy-face 'line-number-current-line 'tabbar-selected)
-  ;; (copy-face 'doom-modeline-buffer-major-mode 'tabbar-selected)
+;;   (copy-face 'line-number-current-line 'tabbar-selected)
+;;   ;; (copy-face 'doom-modeline-buffer-major-mode 'tabbar-selected)
 
-  (copy-face 'tabbar-selected 'tabbar-selected-highlight)
+;;   (copy-face 'tabbar-selected 'tabbar-selected-highlight)
 
-  (copy-face 'mode-line-inactive 'tabbar-unselected) ;浅色主题用mode-line，深色的用mode-line-inactive
-  (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
+;;   (copy-face 'mode-line-inactive 'tabbar-unselected) ;浅色主题用mode-line，深色的用mode-line-inactive
+;;   (copy-face 'tabbar-unselected 'tabbar-unselected-highlight)
 
-  (copy-face 'tabbar-unselected 'tabbar-modified)
-  (set-face-attribute 'tabbar-modified nil
-                      :foreground (face-foreground 'error)
-                      )
-  (copy-face 'tabbar-modified 'tabbar-selected-modified)
-  (copy-face 'tabbar-modified 'tabbar-unselected-modified)
-  )
+;;   (copy-face 'tabbar-unselected 'tabbar-modified)
+;;   (set-face-attribute 'tabbar-modified nil
+;;                       :foreground (face-foreground 'error)
+;;                       )
+;;   (copy-face 'tabbar-modified 'tabbar-selected-modified)
+;;   (copy-face 'tabbar-modified 'tabbar-unselected-modified)
+;;   )
 ;; 浅色主题就只用下面一句就行
-(with-eval-after-load 'tabbar
-  (set-face-attribute 'tabbar-default nil
-                      :height 100
-                      :family "Consolas"
-                      )
-  ;; (change-face)
-  )
+;; (with-eval-after-load 'tabbar
+;;   (set-face-attribute 'tabbar-default nil
+;;                       :height 100
+;;                       :family "Consolas"
+;;                       )
+;;   ;; (change-face)
+;;   )
 ;; 新窗口利用face
 ;; (add-hook 'after-make-frame-functions
 ;;           (lambda (_)                   ;这里如果不用(_)会报参数错误
