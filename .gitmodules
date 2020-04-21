@@ -73,3 +73,6 @@
 [submodule "site-lisp/groovy-emacs-modes"]
 	path = site-lisp/groovy-emacs-modes
 	url = https://github.com/Groovy-Emacs-Modes/groovy-emacs-modes.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = https://github.com/magit/magit.git
