@@ -75,7 +75,7 @@
 	url = https://github.com/Groovy-Emacs-Modes/groovy-emacs-modes.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
-	url = https://github.com/magit/magit.git
+	url = git@github.com:zijianyue/magit.git
 [submodule "site-lisp/Emacs-wgrep"]
 	path = site-lisp/Emacs-wgrep
 	url = https://github.com/mhayashi1120/Emacs-wgrep.git
