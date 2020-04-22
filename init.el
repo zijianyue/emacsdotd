@@ -35,6 +35,9 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/eglot"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/groovy-emacs-modes"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/web-mode"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-neotree"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/dired-sidebar"))
+
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -549,6 +552,7 @@
  '(mouse-wheel-scroll-amount '(3 ((shift) . 1) ((control))))
  '(neo-autorefresh t)
  '(neo-show-hidden-files t)
+ '(neo-show-slash-for-folder nil)
  '(neo-smart-open t)
  '(neo-theme 'icons)
  '(neo-vc-integration '(face char))
@@ -2236,7 +2240,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 
 ;; nedtree explorer
 (autoload 'neotree-toggle "neotree" nil t)
-(global-set-key (kbd "<M-f7>") 'neotree-toggle)
+;; (global-set-key (kbd "<M-f7>") 'neotree-toggle)
 
 ;; 折叠
 (autoload 'origami-mode "origami" nil t)
@@ -2446,6 +2450,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+;; dired-sidebar
+(autoload 'dired-sidebar-toggle-sidebar "dired-sidebar" nil t)
+(global-set-key (kbd "<M-f7>") 'dired-sidebar-toggle-sidebar)
+
 ;;-----------------------------------------------------------plugin end-----------------------------------------------------------;;
 
 ;;-----------------------------------------------------------define func begin----------------------------------------------------;;
