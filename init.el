@@ -514,6 +514,8 @@
  '(lsp-enable-on-type-formatting nil)
  '(lsp-enable-symbol-highlighting nil)
  '(lsp-file-watch-threshold nil)
+ '(lsp-groovy-server-file
+   "D:/software/groovy-language-server/build/libs/groovy-language-server-all.jar")
  '(lsp-imenu-sort-methods '(kind position))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
