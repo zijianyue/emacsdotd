@@ -286,12 +286,13 @@
 (w32-register-hot-key [s-a])
 (w32-register-hot-key [s-c])
 (w32-register-hot-key [s-x])
-;; (w32-register-hot-key [s-v])
+(w32-register-hot-key [s-v])
 (w32-register-hot-key [s-w])
 (w32-register-hot-key [s-s])
 (w32-register-hot-key [s-q])
 (w32-register-hot-key [s-n])
 (w32-register-hot-key [s-y])
+(w32-register-hot-key [s-b])
 
 
 ;; 阻止右边windows键
@@ -552,7 +553,6 @@
  '(neo-show-hidden-files t)
  '(neo-show-slash-for-folder nil)
  '(neo-smart-open t)
- '(neo-vc-integration '(face char))
  '(neo-window-width 50)
  '(ns-right-alternate-modifier 'control)
  '(nxml-child-indent 4)
@@ -580,6 +580,7 @@
  '(regexp-search-ring-max 50)
  '(rg-custom-type-aliases nil)
  '(save-place t nil (saveplace))
+ '(scroll-bar-mode nil)
  '(semantic-c-dependency-system-include-path
    '("G:/vs2017/VC/Tools/MSVC/14.15.26726/ATLMFC/include" "G:/vs2017/VC/Tools/MSVC/14.15.26726/include" "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6.1/include/um" "C:/Program Files (x86)/Windows Kits/10/include/10.0.17134.0/ucrt"))
  '(semantic-idle-scheduler-idle-time 5)
@@ -2235,9 +2236,40 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
 (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
 
 
-;; nedtree explorer
+;; nedtree explorer ,neo-vc-integration影响性能，默认关闭
 (autoload 'neotree-toggle "neotree" nil t)
+(autoload 'neotree-dir "neotree" nil t)
+
 (global-set-key (kbd "<M-f7>") 'neotree-toggle)
+(global-set-key (kbd "C-c c") 'neotree-dir)
+
+(with-eval-after-load 'neotree
+  (define-key neotree-mode-map (kbd "c")   'neotree-dir)
+  (define-key neotree-mode-map (kbd "b")   'neotree-select-up-node)
+  (define-key neotree-mode-map (kbd "f")   (neotree-make-executor
+                                            :file-fn 'neo-open-file
+                                            :dir-fn  'neo-open-dir))
+  (defun neotree-refresh-fset (&optional is-auto-refresh)
+    "Refresh the NeoTree buffer. Remove recenter"
+    (interactive)
+    (if (eq (current-buffer) (neo-global--get-buffer))
+        (neo-buffer--refresh t)
+      (save-excursion
+        (let ((cw (selected-window)))  ;; save current window
+          (if is-auto-refresh
+              (let ((origin-buffer-file-name (buffer-file-name)))
+                (when (and (fboundp 'projectile-project-p)
+                           (projectile-project-p)
+                           (fboundp 'projectile-project-root))
+                  (neo-global--open-dir (projectile-project-root))
+                  (neotree-find (projectile-project-root)))
+                (neotree-find origin-buffer-file-name))
+            (neo-buffer--refresh t t))
+          ;; (recenter)
+          (when (or is-auto-refresh neo-toggle-window-keep-p)
+            (select-window cw))))))
+  (fset 'neotree-refresh 'neotree-refresh-fset)
+  )
 
 ;; 折叠
 (autoload 'origami-mode "origami" nil t)
@@ -3410,13 +3442,14 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "s-a") 'mark-whole-buffer)
 (global-set-key (kbd "s-c") 'kill-ring-save)
 (global-set-key (kbd "s-x") 'kill-region)
-;; (global-set-key (kbd "s-v") 'yank)  
+(global-set-key (kbd "s-v") 'scroll-up-command)
+(global-set-key (kbd "s-b") 'scroll-down-command)  
 (global-set-key (kbd "s-w") 'kill-this-buffer)
 (global-set-key (kbd "s-s") 'save-buffer)
 (global-set-key (kbd "s-q") 'keyboard-quit)
 (global-set-key (kbd "<pause>") 'keyboard-quit)
-(global-set-key (kbd "s-n") 'scroll-up-command)
-(global-set-key (kbd "s-y") 'scroll-down-command)
+;; (global-set-key (kbd "s-n") 'scroll-up-command)
+;; (global-set-key (kbd "s-y") 'scroll-down-command)
 (global-set-key (kbd "s-]") 'diff-hl-next-hunk)
 (global-set-key (kbd "s-[") 'diff-hl-previous-hunk)
 (global-set-key (kbd "s-`") 'magit-status)
