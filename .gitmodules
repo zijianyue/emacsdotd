@@ -70,3 +70,15 @@
 [submodule "site-lisp/company-box"]
 	path = site-lisp/company-box
 	url = git@github.com:sebastiencs/company-box.git
+[submodule "site-lisp/groovy-emacs-modes"]
+	path = site-lisp/groovy-emacs-modes
+	url = https://github.com/Groovy-Emacs-Modes/groovy-emacs-modes.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = git@github.com:zijianyue/magit.git
+[submodule "site-lisp/Emacs-wgrep"]
+	path = site-lisp/Emacs-wgrep
+	url = https://github.com/mhayashi1120/Emacs-wgrep.git
+[submodule "site-lisp/web-mode"]
+	path = site-lisp/web-mode
+	url = https://github.com/fxbois/web-mode.git
