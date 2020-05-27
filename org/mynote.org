@@ -402,7 +402,7 @@ helm-org-in-buffer-headings
 
 ** ccls编译
 on windows
-安装msys64 运行 minwg64 先更新库pacman -Syu 需要关闭再打开 pacman -Su ，另外添加国内的源，详见[[*emax%E5%8F%8Amsys2%E7%8E%AF%E5%A2%83%E7%9A%84%E4%BD%BF%E7%94%A8 <2019-02-14 %E5%91%A8%E5%9B%9B 19:42>][emax及msys2环境的使用 <2019-02-14 周四 19:42>]]
+安装msys64 运行 minwg64 先更新库pacman -Syu 需要关闭再打开 pacman -Su ，另外添加国内的源，详见[[*emax及msys2环境的使用 <2019-02-14 周四 19:42>][emax及msys2环境的使用 <2019-02-14 周四 19:42>]]
 pacman -S mingw-w64-x86_64-clang mingw-w64-x86_64-clang-tools-extra mingw64/mingw-w64-x86_64-polly mingw-w64-x86_64-cmake mingw-w64-x86_64-jq mingw-w64-x86_64-ninja mingw-w64-x86_64-ncurses
 pacman -S git
 git clone --depth=1 --recursive https://github.com/MaskRay/ccls
@@ -802,11 +802,11 @@ https://blog.csdn.net/wdkirchhoff/article/details/43193869
 PEP 索引的网址是： http://python.org/dev/peps.
 ** pip带proxy
 在CMD命令行输入：
-set http_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
-set https_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
+set http_proxy=http://username:password@host:port
+set https_proxy=http://username:password@host:port
 
-export http_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
-export https_proxy=http://g00280886:gzj2hzt,.@szxmwg17-ga:8080
+export http_proxy=http://username:password@host:port
+export https_proxy=http://username:password@host:port
 bash里面set改成export
 然后
 pip install python-language-server[all]==0.20.0
