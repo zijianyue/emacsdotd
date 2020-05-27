@@ -7,7 +7,7 @@
 #+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
 #+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
 #+LATEX_HEADER: \setmonofont{Courier New}
-#+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
+#+LATEX_HEADER: \setCJKmainfont{SimSun}
 #+LATEX_HEADER: \setCJKmonofont{MingLiU}
 #+LATEX_HEADER: \usepackage{listings}
 
@@ -1169,3 +1169,13 @@ https://www.howtogeek.com/332838/what-is-the-wmi-provider-host-wmiprvse.exe-and-
 通过错误日志中的ClientProcessId 找到出导致WMI CPU高的进程PID，再到任务管理器中找出该进程
 比如本机的进程相关的服务是Dell Data Vault Collector和  AWCCSERVICE这两个都停止并改为禁用，手动启动后解决
 还有Alienware SupportAssist Remediation
+** 五笔输入法无法输入中文 <2020-05-19 周二 22:15>
+先是卡住了，之后无法输入五笔中文，然后搜索到这个文章。
+
+开了一堆窗口，不想重启，所以我是从控制面板，删除了五笔输入法，然后重新添加一次。这样就恢复了。
+
+如果你是用拼音输入，方法也是一样的，就是先关闭你这个失灵的输入法，再删除，再添加。
+https://www.zhihu.com/question/39056285
+* 读书随笔
+** 重新设计自己的人生 <2020-05-07 周四 15:12>
+做一下MBTI职业性格测试，可以了解自己的优势（500强专用）
