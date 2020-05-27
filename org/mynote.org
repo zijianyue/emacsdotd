@@ -318,7 +318,7 @@ m-s-ret复制 1. [ ] xxx新建 c-c c-c完成
   #+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
   #+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
   #+LATEX_HEADER: \setmonofont{Courier New}
-  #+LATEX_HEADER: \setCJKmainfont{DFKai-SB}
+  #+LATEX_HEADER: \setCJKmainfont{SimSun}
   #+LATEX_HEADER: \setCJKmonofont{MingLiU}
   #+LATEX_HEADER: \usepackage{listings}
 
@@ -329,7 +329,7 @@ m-s-ret复制 1. [ ] xxx新建 c-c c-c完成
 
 (4) org文件保存成utf-8
 (5) org-download-image-dir用默认设置，也就是图片要保存到org文件当前目录下，否则导出pdf会失败
-
+(6) setCJKmainfont{SimSun} 这个是字体要注意必须是系统存在的字体
 PDF导出不好用，用HTML导出后粘贴到word里或者转换成pdf
 ***  <2019-12-27 周五 14:46>
 *** org中输入代码段
