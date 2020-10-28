@@ -3362,7 +3362,7 @@ If less than or equal to zero, there is no limit."
 (global-set-key (kbd "<M-S-right>") 'windmove-right)
 (global-set-key (kbd "C-S-o") 'other-frame)
 (global-set-key (kbd "C-S-n") 'make-frame-command)
-(global-set-key (kbd "<S-f4>") 'delete-frame)
+(global-set-key (kbd "<s-f4>") 'delete-frame)
 
 
 ;; 文件跳转
