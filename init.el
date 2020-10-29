@@ -293,6 +293,8 @@
 (w32-register-hot-key [s-n])
 (w32-register-hot-key [s-y])
 (w32-register-hot-key [s-b])
+(w32-register-hot-key [s-j])
+(w32-register-hot-key [s-h])
 
 
 ;; 阻止右边windows键
@@ -315,20 +317,20 @@
 ;; (prefer-coding-system 'cp936)
 ;; (prefer-coding-system 'gb18030)
 ;; (prefer-coding-system 'utf-16)
-(prefer-coding-system 'gbk)
-(prefer-coding-system 'utf-8) ; 这句可以保证rg ag搜索不乱码，java文件打开不乱码，但是从中文路径右键打开文件会失败，拖动打开正常
+;; (prefer-coding-system 'gbk)
+;; (prefer-coding-system 'utf-8) ; 这句可以保证rg ag搜索不乱码，java文件打开不乱码，但是从中文路径右键打开文件会失败，拖动打开正常
 ;; 解决 Shell Mode(cmd) 下中文乱码问题
-(defun change-shell-mode-coding ()
-  (progn
-    (set-terminal-coding-system 'gbk)
-    (set-keyboard-coding-system 'gbk)
-    (set-selection-coding-system 'gbk)
-    (set-buffer-file-coding-system 'gbk)
-    (set-file-name-coding-system 'gbk)
-    (modify-coding-system-alist 'process "*" 'gbk)
-    (setq-local default-process-coding-system '(gbk . gbk)) ;这句主要给eshell用，eshell里不能用set-buffer-process-coding-system
-    (set-buffer-process-coding-system 'gbk 'gbk)
-    ))
+;; (defun change-shell-mode-coding ()
+;;   (progn
+;;     (set-terminal-coding-system 'gbk)
+;;     (set-keyboard-coding-system 'gbk)
+;;     (set-selection-coding-system 'gbk)
+;;     (set-buffer-file-coding-system 'gbk)
+;;     (set-file-name-coding-system 'gbk)
+;;     (modify-coding-system-alist 'process "*" 'gbk)
+;;     (setq-local default-process-coding-system '(gbk . gbk)) ;这句主要给eshell用，eshell里不能用set-buffer-process-coding-system
+;;     (set-buffer-process-coding-system 'gbk 'gbk)
+;;     ))
 
 ;; 长行性能提升
 (setq-default bidi-display-reordering nil)
@@ -1079,6 +1081,7 @@
 ;; 但是由于realforce的app键是fn+rwin键触发的，将它俩互换后rwin键只能用于触发windows开始按钮，不能当组合键用。（在有app键的键盘上是可以当组合键用的）
 (global-set-key (kbd "<C-apps>") 'helm-for-files) ;C-o M-o是切换上下source，helm-next-source helm-previous-source
 (global-set-key (kbd "<C-f7>") 'helm-for-files)
+(global-set-key (kbd "s-h") 'helm-for-files)
 (global-set-key (kbd "<S-apps>") 'helm-resume) ;C-x c b默认
 (global-set-key (kbd "<C-M-f6>") 'helm-ls-git-ls)
 (global-set-key (kbd "C-S-g")  (lambda () "" (interactive)
@@ -3210,7 +3213,7 @@ If less than or equal to zero, there is no limit."
 (add-hook 'shell-mode-hook
           (lambda () "DOCSTRING" (interactive)
             ;; (set-buffer-process-coding-system 'utf-8 'utf-8) ;防止shell乱码
-            (change-shell-mode-coding)
+            ;; (change-shell-mode-coding)
             (define-key comint-mode-map (kbd "M-.") 'comint-previous-matching-input-from-input)
             (define-key comint-mode-map (kbd "M-,") 'comint-next-matching-input-from-input)
             (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
@@ -3223,7 +3226,7 @@ If less than or equal to zero, there is no limit."
 
 (add-hook 'eshell-mode-hook
           (lambda () "DOCSTRING" (interactive)
-            (change-shell-mode-coding)
+            ;; (change-shell-mode-coding)
             (require 'ssh-agency)  ;自动加载ssh private key , ssh -vT git@github.com用于定位shell中git走ssh不通的问题
             (ssh-agency-ensure)
             ))
@@ -3279,6 +3282,9 @@ If less than or equal to zero, there is no limit."
             (define-key org-mode-map (kbd "C-e") 'end-of-visual-line)                   ;这个才能真正跳到行尾， <end>键用于org-end-of-line
             (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
             ;; org-mark-ring-goto 跳回上个位置 C-c & 对应的push命令是‘org-mark-ring-push’ with C-c %
+            (org-defkey org-mode-map (kbd "s-j") #'org-mark-ring-goto)
+
+            (org-defkey org-mode-map (kbd "C-c C-/") #'org-insert-structure-template) ;默认是c-c c-,
             ;; emacs 27用鼠标打不开图片，默认用快捷键c-c c-o
             (setq truncate-lines nil)
             ))
