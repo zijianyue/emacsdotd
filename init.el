@@ -39,6 +39,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-tree-sitter/lisp"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-tree-sitter/core"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-tree-sitter/langs"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/dap-mode"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -521,6 +522,7 @@
  '(lsp-file-watch-threshold nil)
  '(lsp-groovy-server-file
    "D:/software/groovy-language-server/build/libs/groovy-language-server-all.jar")
+ '(lsp-headerline-breadcrumb-enable t)
  '(lsp-imenu-sort-methods '(kind position))
  '(lsp-java-completion-import-order ["com" "org" "javax" "java" "static"])
  '(lsp-java-format-enabled nil)
@@ -529,6 +531,7 @@
  '(lsp-java-update-build-configuration 'interactive)
  '(lsp-java-vmargs
    '("-noverify" "-Xmx3G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication"))
+ '(lsp-lens-enable t)
  '(lsp-response-timeout 20)
  '(lsp-semantic-highlighting :deferred)
  '(lsp-treemacs-sync-mode t)
@@ -1802,6 +1805,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   ;; (require 'helm-xref) ;; 在emacs27不可用
   (require 'lsp-treemacs);; lsp-treemacs-errors-list lsp-treemacs-quick-fix lsp-treemacs-symbols-list
   (require 'lsp-origami)
+  (require 'lsp-modeline)
+  (require 'lsp-headerline)
   (projectile-mode)
   (add-hook 'java-mode-hook 'lsp-deferred)
   (add-hook 'c-mode-hook 'lsp-deferred)
@@ -2134,9 +2139,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
               )))
 
 ;; dap-mode 调试
+(autoload 'dap-auto-configure-mode "dap-mode" nil t)
 (autoload 'dap-mode "dap-mode" nil t)
 (autoload 'dap-ui-mode "dap-ui" nil t)
 (with-eval-after-load 'dap-mode
+  (require 'dap-mouse)
   (require 'dap-java)
   (require 'dap-python))
 
