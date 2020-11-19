@@ -661,6 +661,7 @@ mergetool
 push的时候如果遇到 binary hook报错就上isource去工程设置里把Enable binary file gate去掉
 *** submodule操作 <2020-03-08 周日 16:33>
 Press o, then C-u u to update all submodules
+命令行 git submodule foreach git pull
 ** markdown语法 <2019-01-31 周四 19:52>
 插入代码 
 ``` python

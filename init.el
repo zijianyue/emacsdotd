@@ -1914,11 +1914,11 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (setq lsp-ui-imenu-enable t)
     ;; (require 'lsp-java-treemacs)
     ;; use STS4
-    ;; (require 'lsp-java-boot)
+    (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
