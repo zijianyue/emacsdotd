@@ -85,3 +85,6 @@
 [submodule "site-lisp/evil-matchit"]
 	path = site-lisp/evil-matchit
 	url = https://github.com/redguardtoo/evil-matchit.git
+[submodule "site-lisp/lsp-mode"]
+	path = site-lisp/lsp-mode
+	url = https://github.com/emacs-lsp/lsp-mode.git
