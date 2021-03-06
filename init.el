@@ -41,6 +41,7 @@
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-tree-sitter/core"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/emacs-tree-sitter/langs"))
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp/dap-mode"))
+(add-to-list 'load-path (concat user-emacs-directory "site-lisp/tree-sitter-langs"))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
@@ -516,6 +517,7 @@
  '(ls-lisp-dirs-first t)
  '(ls-lisp-verbosity nil)
  '(lsp-eldoc-hook '(lsp-hover))
+ '(lsp-enable-dap-auto-configure nil)
  '(lsp-enable-folding nil)
  '(lsp-enable-indentation nil)
  '(lsp-enable-on-type-formatting nil)
@@ -532,7 +534,7 @@
  '(lsp-java-update-build-configuration 'interactive)
  '(lsp-java-vmargs
    '("-noverify" "-Xmx3G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication"))
- '(lsp-lens-enable t)
+ ;; '(lsp-lens-enable t)
  '(lsp-response-timeout 20)
  '(lsp-semantic-highlighting :deferred)
  '(lsp-treemacs-sync-mode t)
@@ -1798,7 +1800,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (require 'lsp-ui)
   (require 'yasnippet)
   (require 'company-yasnippet)
-  (require 'company-lsp)
+  ;; (require 'company-lsp)
   ;; (require 'cquery)
   (require 'ccls)
   (require 'lsp-java)
@@ -1821,8 +1823,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (add-hook 'origami-mode-hook #'lsp-origami-mode) ;支持折叠
   ;; (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   ;;防止在注释里lsp不能补全时使用其他后端会卡，另外带上company-yasnippet ，太卡，另外补全成员的时候不应该提示
-  (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
-    (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
+  ;; (defadvice lsp--auto-configure (after lsp--auto-configure-after activate)
+    ;; (add-to-list 'company-backends '(company-lsp :with company-yasnippet)))
 
 
   (yas-global-mode t)
@@ -1836,7 +1838,7 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
   (setq lsp-ui-flycheck-enable t)
   ;; (setq lsp-auto-configure nil)
   (global-company-mode t)
-  (setq company-lsp-enable-recompletion nil)
+  ;; (setq company-lsp-enable-recompletion nil)
   ;; (defadvice lsp--flymake-setup (after lsp--flymake-setup-af activate)
   ;;   (flymake-start))
   (global-flycheck-mode t)
@@ -1918,8 +1920,8 @@ If DEFAULT is non-nil, set the default mode-line for all buffers with misc in in
     (require 'lsp-java-boot)
 
     ;; to enable the lenses
-    (add-hook 'lsp-mode-hook #'lsp-lens-mode)
-    (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
+    ;; (add-hook 'lsp-mode-hook #'lsp-lens-mode)
+    ;; (add-hook 'java-mode-hook #'lsp-java-boot-lens-mode)
     ;; (lsp-java-treemacs-register)
     ;; (dap-mode t)
     ;; (dap-ui-mode t)
