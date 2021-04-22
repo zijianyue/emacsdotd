@@ -661,6 +661,7 @@ mergetool
 push的时候如果遇到 binary hook报错就上isource去工程设置里把Enable binary file gate去掉
 *** submodule操作 <2020-03-08 周日 16:33>
 Press o, then C-u u to update all submodules
+命令行 git submodule foreach git pull
 ** markdown语法 <2019-01-31 周四 19:52>
 插入代码 
 ``` python
@@ -1216,4 +1217,12 @@ https://www.howtogeek.com/332838/what-is-the-wmi-provider-host-wmiprvse.exe-and-
 
 如果你是用拼音输入，方法也是一样的，就是先关闭你这个失灵的输入法，再删除，再添加。
 https://www.zhihu.com/question/39056285
+* 读书随笔
+** 重新设计自己的人生 <2020-05-07 周四 15:12>
+做一下MBTI职业性格测试，可以了解自己的优势（500强专用）
+* CLION
+** 看不到STL内容解决办法 <2021-03-11 周四 22:30>
 
+#+DOWNLOADED: screenshot @ 2021-03-11 22:31:02
+#+attr_org: :width 500px
+[[file:org_download_images/CLION/2021-03-11_22-31-02_screenshot.png]]

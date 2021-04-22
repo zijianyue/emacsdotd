@@ -55,9 +55,6 @@
 [submodule "site-lisp/emacs-doom-themes"]
 	path = site-lisp/emacs-doom-themes
 	url = git@github.com:hlissner/emacs-doom-themes.git
-[submodule "site-lisp/lsp-mode"]
-	path = site-lisp/lsp-mode
-	url = git@github.com:emacs-lsp/lsp-mode.git
 [submodule "site-lisp/lsp-java"]
 	path = site-lisp/lsp-java
 	url = git@github.com:emacs-lsp/lsp-java.git
@@ -85,6 +82,12 @@
 [submodule "site-lisp/emacs-tree-sitter"]
 	path = site-lisp/emacs-tree-sitter
 	url = https://github.com/ubolonton/emacs-tree-sitter.git
-[submodule "site-lisp/dap-mode"]
-	path = site-lisp/dap-mode
-	url = https://github.com/emacs-lsp/dap-mode.git
+[submodule "site-lisp/evil-matchit"]
+	path = site-lisp/evil-matchit
+	url = https://github.com/redguardtoo/evil-matchit.git
+[submodule "site-lisp/lsp-mode"]
+	path = site-lisp/lsp-mode
+	url = https://github.com/emacs-lsp/lsp-mode.git
+[submodule "site-lisp/tree-sitter-langs"]
+	path = site-lisp/tree-sitter-langs
+	url = https://github.com/ubolonton/tree-sitter-langs.git
