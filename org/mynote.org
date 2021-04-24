@@ -289,7 +289,7 @@ c-l刷新即可
 #+END_SRC
 *** org checklist示例
 m-s-ret复制 1. [ ] xxx新建 c-c c-c完成
-1) [-] abc [50%]
+1) [-] abc [50%] 中括号里先写个% 或者 / 即可
    - [-] ddd [2/3]
      1) [ ] dasf
      2) [X] llll
@@ -301,7 +301,7 @@ m-s-ret复制 1. [ ] xxx新建 c-c c-c完成
 1. [ ] t1
 2. [X] t2
 
-
+注意每个标题不只是可以写一行内容，标题下面的内容要有缩进不能顶头写才行
 *** org 导出pdf
 (1) CTeX版本: 下载地址http://www.ctex.org/CTeXDownload, 下载Full包
 
@@ -782,9 +782,10 @@ debug
 ** c-x c-t上下两行互换 <2019-04-13 周六 15:39>
 
 ** GDB <2019-10-14 周一 16:27>
-C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe -g 是生成debug的符号表 -o可以省略
+C++文件 用g++命令编译 g++ -g ab.cpp -o ab.exe  -g 是生成debug的符号表 -o可以省略
 m-x gdb命令开始调试，gdb -i=mi ab.exe，然后在gdb命令里输入start开始调试 quit结束调试
 运行exe shell中 ./ab.exe
+常用GDB命令 n是下一步， l是列出当前代码上下文 , p 是打印指定变量, b 是指定断点 ，r 是run ，s是跳入函数 finish是跳出函数
 
 ** maven编译报各种目录无法删除是由于装了tabnine，它在后台索引造成的 <2020-01-20 周一 21:06>
 
@@ -798,6 +799,44 @@ proced
 list-processes
 ** ibuffer使用方法，包括创建分组 <2020-03-08 周日 15:53>
 https://blog.csdn.net/wdkirchhoff/article/details/43193869
+** CALC用法 <2020-11-28 周六 15:30>
+
+d0 d6 d8 d2切换进制
+'是输入算式，比如'后输入x^31-1
+2^3=8是幂
+7%3=4是取余
+3/4=0.75
+3\4=0整除
+bl左移一位（想计算1左移10次就先输入1，然后c-u 10 bl）
+br右移一位
+ba 是AND 比如 输入 4
+和 0，然后 ba结果是0
+bo是 OR
+
+输入16进制的数 16#1c
+
+如果你想按照当前的进制输入数字，需要在键入数字前按‘#’，比如，在16进制模式下输入：
+#10 <RET>
+此时，calc中显示的数字就是16进制的10,而不是A。
+输入一个数字（或矩阵），然后按<RET>，可以复制该数字（或矩阵）到整个运算堆栈的最顶部
+
+(3) 温度单位转换
+如果你想知道40 F°是多少C°，输入”40 回车 ut dF 回车 dC 回车”即可，这下就不会再为这些温度单位换算弄得晕头转向了吧！
+
+数字分组 d g
+6.7.2 Grouping Digits
+Long numbers can be hard to read if they have too many digits. For example, the factorial of 30 is 33 digits long! Press d g (calc-group-digits) to enable Grouping mode, in which digits are displayed in clumps of 3 or 4 (depending on the current radix) separated by commas.
+
+The d g command toggles grouping on and off. With a numeric prefix of 0, this command displays the current state of the grouping flag; with an argument of minus one it disables grouping; with a positive argument ‘N’ it enables grouping on every ‘N’ digits. For floating-point numbers, grouping normally occurs only before the decimal point. A negative prefix argument ‘-N’ enables grouping every ‘N’ digits both before and after the decimal point.
+
+The d , (calc-group-char) command allows you to choose any character as the grouping separator. The default is the comma character. If you find it difficult to read vectors of large integers grouped with commas, you may wish to use spaces or some other character instead. This command takes the next character you type, whatever it is, and uses it as the digit separator. As a special case, d , \ selects ‘\,’ (TeX’s thin-space symbol) as the digit separator.
+
+Please note that grouped numbers will not generally be parsed correctly if re-read in textual form, say by the use of C-x * y and C-x * g. (See Kill and Yank, for details on these commands.) One exception is the ‘\,’ separator, which doesn’t interfere with parsing because it is ignored by TeX language mode.
+
+如何显示补码：
+比如-3 16进制0xFFFFFFFD ，直接输入0xfffffffd 切换成10进制是4294967293
+要想显示-3，先调整字长 b w，默认是32，0xfffffffd就用32就行；然后输入 16##fffffffd，再切换10进制
+
 * python 
 ** 有用的网址
 PEP 索引的网址是： http://python.org/dev/peps.
@@ -1154,7 +1193,7 @@ AOP 当中的概念：
 
 du -h  --max-depth=1
 * LEETCODE
-** 动态背包 <2019-10-28 周一 16:57>
+** 动态规划背包 <2019-10-28 周一 16:57>
 01背包的状态转换方程 f[i,j] = Max{ f[i-1,j-Wi]+Pi( j >= Wi ),  f[i-1,j] }
 f[i,j]表示在前i件物品中选择若干件放在承重为 j 的背包中，可以取得的最大价值。
 Pi表示第i件物品的价值。
@@ -1170,7 +1209,8 @@ https://www.howtogeek.com/332838/what-is-the-wmi-provider-host-wmiprvse.exe-and-
 通过错误日志中的ClientProcessId 找到出导致WMI CPU高的进程PID，再到任务管理器中找出该进程
 比如本机的进程相关的服务是Dell Data Vault Collector和  AWCCSERVICE这两个都停止并改为禁用，手动启动后解决
 还有Alienware SupportAssist Remediation
-** 五笔输入法无法输入中文 <2020-05-19 周二 22:15>
+** 五笔
+输入法无法输入中文 <2020-05-19 周二 22:15>
 先是卡住了，之后无法输入五笔中文，然后搜索到这个文章。
 
 开了一堆窗口，不想重启，所以我是从控制面板，删除了五笔输入法，然后重新添加一次。这样就恢复了。
