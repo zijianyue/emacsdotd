@@ -1,6 +1,6 @@
 ;;; helm-source.el --- Helm source creation. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 ~ 2019  Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2015 ~ 2020  Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; URL: http://github.com/emacs-helm/helm
@@ -48,7 +48,7 @@
   "Advice for `cl--print-table' to make readable class slots docstrings."
   (let ((format "%s\n\n  Initform=%s\n\n%s"))
     (dolist (row rows)
-      (setcar row (propertize (car row) 'face 'italic))
+      (setcar row (propertize (car row) 'face 'bold))
       (setcdr row (nthcdr 1 (cdr row)))
       (insert "\n* " (apply #'format format row) "\n"))))
 
@@ -204,7 +204,7 @@
        \"Delete current candidate without quitting.\"
        (interactive)
        (with-helm-alive-p
-         (helm-attrset 'quick-delete '(helm-ff-quick-delete . never-split))
+         (helm-set-attr 'quick-delete '(helm-ff-quick-delete . never-split))
          (helm-execute-persistent-action 'quick-delete)))
 
   This function is then bound in `helm-find-files-map'.")
@@ -458,6 +458,13 @@
 
   Note that FUZZY-MATCH slot will overhide value of this slot.")
 
+   (match-on-real
+    :initarg :match-on-real
+    :initform nil
+    :custom boolean
+    :documentation
+    "  Match the real value of candidates when non nil.")
+
    (fuzzy-match
     :initarg :fuzzy-match
     :initform nil
@@ -652,11 +659,16 @@
     :initform nil
     :custom symbol
     :documentation
-    "  Prevent exiting with empty helm buffer.
-  For this to work `minibuffer-completion-confirm' must be let-bounded
-  around the helm call.
-  Same as `completing-read' require-match arg, possible values are `t'
-  or `confirm'.")
+    "  Same as `completing-read' require-match arg.
+  Possible values are:
+  - `t' which prevent exiting with an empty helm-buffer i.e. no matches.
+  - `confirm' which ask for confirmation i.e. need to press a second
+     time RET.
+  - `nil' is the default and is doing nothing i.e. returns nil when
+    pressing RET with an empty helm-buffer.
+  - Any other non nil values e.g. `ignore' allow exiting with
+    minibuffer contents as candidate value (in this case helm-buffer
+    is empty).")
 
    (group
     :initarg :group
@@ -865,7 +877,7 @@ See `helm-candidates-in-buffer' for more infos.")
 
 (defclass helm-source-in-file (helm-source-in-buffer)
   ((init :initform (lambda ()
-                     (let ((file (helm-attr 'candidates-file))
+                     (let ((file (helm-get-attr 'candidates-file))
                            (count 1))
                        (with-current-buffer (helm-candidate-buffer 'global)
                          (insert-file-contents file)
@@ -903,11 +915,10 @@ See `helm-candidates-in-buffer' for more infos.")
 (defun helm--create-source (object)
   "[INTERNAL] Build a helm source from OBJECT.
 Where OBJECT is an instance of an eieio class."
-  (cl-loop for sd in (eieio-class-slots (eieio-object-class object))
-           for s = (eieio-slot-descriptor-name sd)
+  (cl-loop for s in (object-slots object)
            for slot-val = (slot-value object s)
            when slot-val
-           collect (cons s (unless (eq t slot-val) slot-val))))
+           collect (cons s slot-val)))
 
 (defun helm-make-source (name class &rest args)
   "Build a `helm' source named NAME with ARGS for CLASS.
@@ -1017,7 +1028,7 @@ an eieio class."
                         (if (stringp (car action))
                             (car action)
                             ;; It comes from :persistent-action
-                            ;; (function . 'nosplit) Fix Issue #788.
+                            ;; (function . 'nosplit) Fix Bug#788.
                             (if (or (symbolp action)
                                     (functionp action))
                                 (helm-symbol-name action)))))
@@ -1051,7 +1062,8 @@ an eieio class."
       (setf (slot-value source 'header-line)
             (helm-source--persistent-help-string it source))
     (setf (slot-value source 'header-line) (helm-source--header-line source)))
-  (when (and (slot-value source 'fuzzy-match) helm-fuzzy-sort-fn)
+  (when (slot-value source 'fuzzy-match)
+    (cl-assert helm-fuzzy-sort-fn nil "Wrong type argument functionp: nil")
     (setf (slot-value source 'filtered-candidate-transformer)
           (helm-aif (slot-value source 'filtered-candidate-transformer)
               (append (helm-mklist it)
