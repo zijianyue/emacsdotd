@@ -124,6 +124,8 @@
   (setenv "MAVEN_HOME" "D:\\software\\apache-maven-3.6.1\\bin")
   (setenv "IMAGE_MAGICk" "D:\\software\\ImageMagick-7.0.8-61-portable-Q16-x64")
   (setenv "JAVABIN" "C:\\Program Files\\Java\\jdk1.8.0_202\\bin")
+  (setenv "http_proxy" "127.0.0.1:10809")
+  (setenv "https_proxy" "127.0.0.1:10809")
   )
 
 (when (eq system-type 'darwin)
