@@ -145,6 +145,11 @@ FN——False Negative（假负 , FN）是指某（些）个正样本被模型�
 
 ** 刷新 DNS解析缓存 <2020-02-15 周六 20:57>
 windows: ipconfig /flushdns
+
+** evernote账户 <2021-05-03 周一 18:43>
+印象笔记（非International）
+zijianyue Gzjgd1314
+
 * emacs
 ** srecode编辑模式C-c c-c是确认修改生效
 ** dired中S即dired-do-symlink可以给exe创建快捷方式（symlink or soft link），并放到指定位置。
@@ -1226,3 +1231,6 @@ https://www.zhihu.com/question/39056285
 #+DOWNLOADED: screenshot @ 2021-03-11 22:31:02
 #+attr_org: :width 500px
 [[file:org_download_images/CLION/2021-03-11_22-31-02_screenshot.png]]
+** C++
+*** const 和 constexpr 的区别 <2021-05-04 周二 11:25>
+这其实是一个遗留的命名问题，简单说const其实是readonly，constexpr才是const。

@@ -1,0 +1,29 @@
+#+ATTR_LATEX: :environment cn-article
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [UTF8,a4paper]
+#+LATEX_HEADER: \usepackage[BoldFont,SlantFont,CJKsetspaces,CJKchecksingle]{xeCJK}
+#+LATEX_HEADER: \XeTeXlinebreaklocale "zh"
+#+LATEX_HEADER: \XeTeXlinebreakskip = 0pt plus 1pt
+#+LATEX_HEADER: \setmainfont[Mapping=tex-text]{Times New Roman}
+#+LATEX_HEADER: \setsansfont[Mapping=tex-text]{Arial}
+#+LATEX_HEADER: \setmonofont{Courier New}
+#+LATEX_HEADER: \setCJKmainfont{SimSun}
+#+LATEX_HEADER: \setCJKmonofont{MingLiU}
+#+LATEX_HEADER: \usepackage{listings}
+
+#+LATEX_HEADER: \tolerance=1000
+#+LATEX_HEADER: \date{\today}
+#+LATEX_HEADER: \title{Org导出中文PDF}
+#+OPTIONS: \n:t
+
+* 刷题计划
+每天最少一道题，先刷够50题
+利用早起，晚上睡前，以及休息日
+
+** 知识点 <2021-03-06 周六 00:30>
+
+*** 关于子串和子序列 <2021-03-06 周六 00:31>
+输入: "pwwkew"
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+
